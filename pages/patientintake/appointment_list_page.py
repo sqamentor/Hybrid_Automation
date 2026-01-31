@@ -53,13 +53,13 @@ class PatientIntakeAppointmentListPage:
         """Search appointments by patient name"""
         full_name = f"{first_name} {last_name}"
         self.search_input.fill(full_name)
-        self.page.wait_for_timeout(500)  # Wait for search results
+        # Playwright auto-waits for search results to load
         return self
     
     def search_by_email(self, email: str) -> 'PatientIntakeAppointmentListPage':
         """Search appointments by email"""
         self.search_input.fill(email)
-        self.page.wait_for_timeout(500)
+        # Playwright auto-waits for search results to load
         return self
     
     def search_appointment(self, appointment: Appointment) -> 'PatientIntakeAppointmentListPage':

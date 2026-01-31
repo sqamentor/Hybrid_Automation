@@ -24,13 +24,13 @@ Run Commands:
 
 import pytest
 import allure
-from playwright.sync_api import Page
 from tests.bookslot.helpers.navigation_helper import BookslotNavigator
 from pages.bookslot.bookslots_insurance_page6 import BookslotInsurancePage
 
 
 @allure.epic("Bookslot")
 @allure.feature("Insurance Page")
+@pytest.mark.modern_spa
 @pytest.mark.bookslot
 class TestInsurancePage:
     """Test suite for Insurance page functionality"""

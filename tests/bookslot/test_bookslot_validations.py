@@ -31,11 +31,17 @@ Run Commands:
 
 import pytest
 import allure
-from playwright.sync_api import Page
+from pages.bookslot.bookslots_basicinfo_page1 import BookslotBasicInfoPage
+from pages.bookslot.bookslots_personalInfo_page4 import BookslotPersonalInfoPage
+from pages.bookslot.bookslots_insurance_page6 import BookslotInsurancePage
+from pages.bookslot.bookslots_referral_page5 import BookslotReferralPage
+from pages.bookslot.bookslots_patient_type_page import BookslotPatientTypePage
+from pages.bookslot.bookslots_scheduler_page import BookslotSchedulerPage
 
 
 @allure.epic("Bookslot")
 @allure.feature("Form Validations")
+@pytest.mark.modern_spa
 @pytest.mark.bookslot
 @pytest.mark.validation
 class TestBasicInfoValidations:
@@ -63,17 +69,19 @@ class TestBasicInfoValidations:
         """
         base_url = multi_project_config['bookslot']['ui_url']
         act = smart_actions
+        basic_info_page = BookslotBasicInfoPage(page, base_url)
         
         with allure.step(f"Test email: {email} (Expected valid: {should_be_valid})"):
             act.navigate(f"{base_url}/basic-info", "Basic Info")
-            act.type_text(page.get_by_role("textbox", name="First Name *"), "Test", "First Name")
-            act.type_text(page.get_by_role("textbox", name="Last Name *"), "User", "Last Name")
-            act.type_text(page.get_by_role("textbox", name="Email *"), email, "Email")
-            act.type_text(page.get_by_role("textbox", name="Phone *"), "5551234567", "Phone")
+            
+            # ✅ Use Page Object methods
+            basic_info_page.fill_first_name("Test")
+            basic_info_page.fill_last_name("User")
+            basic_info_page.fill_email(email)
+            basic_info_page.fill_phone("5551234567")
             
             initial_url = page.url
-            act.button_click(page.get_by_role("button", name="Next"), "Next")
-            page.wait_for_timeout(800)
+            basic_info_page.click_next()
             
             if should_be_valid:
                 assert page.url != initial_url, f"Valid email {email} should allow progression"
@@ -107,17 +115,19 @@ class TestBasicInfoValidations:
         base_url = multi_project_config['bookslot']['ui_url']
         act = smart_actions
         data = fake_bookslot_data
+        basic_info_page = BookslotBasicInfoPage(page, base_url)
         
         with allure.step(f"Test phone: {phone} (Expected valid: {should_be_valid})"):
             act.navigate(f"{base_url}/basic-info", "Basic Info")
-            act.type_text(page.get_by_role("textbox", name="First Name *"), data['first_name'], "First Name")
-            act.type_text(page.get_by_role("textbox", name="Last Name *"), data['last_name'], "Last Name")
-            act.type_text(page.get_by_role("textbox", name="Email *"), data['email'], "Email")
-            act.type_text(page.get_by_role("textbox", name="Phone *"), phone, "Phone")
+            
+            # ✅ Use Page Object methods
+            basic_info_page.fill_first_name(data['first_name'])
+            basic_info_page.fill_last_name(data['last_name'])
+            basic_info_page.fill_email(data['email'])
+            basic_info_page.fill_phone(phone)
             
             initial_url = page.url
-            act.button_click(page.get_by_role("button", name="Next"), "Next")
-            page.wait_for_timeout(800)
+            basic_info_page.click_next()
             
             if should_be_valid:
                 assert page.url != initial_url, f"Valid phone {phone} should allow progression"
@@ -137,12 +147,14 @@ class TestBasicInfoValidations:
         """
         base_url = multi_project_config['bookslot']['ui_url']
         act = smart_actions
+        basic_info_page = BookslotBasicInfoPage(page, base_url)
         
         with allure.step("Attempt to proceed with empty form"):
             act.navigate(f"{base_url}/basic-info", "Basic Info")
             initial_url = page.url
-            act.button_click(page.get_by_role("button", name="Next"), "Next")
-            page.wait_for_timeout(800)
+            
+            # ✅ Use Page Object method
+            basic_info_page.click_next()
             
             assert page.url == initial_url, "Should not proceed without required fields"
             allure.attach(page.screenshot(full_page=True), name="required_fields_error", 
@@ -151,6 +163,7 @@ class TestBasicInfoValidations:
 
 @allure.epic("Bookslot")
 @allure.feature("Form Validations")
+@pytest.mark.modern_spa
 @pytest.mark.bookslot
 @pytest.mark.validation
 class TestPersonalInfoValidations:
@@ -178,33 +191,38 @@ class TestPersonalInfoValidations:
         base_url = multi_project_config['bookslot']['ui_url']
         act = smart_actions
         data = fake_bookslot_data
+        basic_info_page = BookslotBasicInfoPage(page, base_url)
+        personal_info_page = BookslotPersonalInfoPage(page, base_url)
         
         with allure.step("Navigate to Personal Info page"):
-            # Minimal path to reach personal info
+            # ✅ Use Page Objects for navigation
             act.navigate(f"{base_url}/basic-info", "Basic Info")
-            act.type_text(page.get_by_role("textbox", name="First Name *"), data['first_name'], "First Name")
-            act.type_text(page.get_by_role("textbox", name="Last Name *"), data['last_name'], "Last Name")
-            act.type_text(page.get_by_role("textbox", name="Email *"), data['email'], "Email")
-            act.type_text(page.get_by_role("textbox", name="Phone *"), data['phone'], "Phone")
-            act.button_click(page.get_by_role("button", name="Next"), "Next")
+            basic_info_page.fill_first_name(data['first_name'])
+            basic_info_page.fill_last_name(data['last_name'])
+            basic_info_page.fill_email(data['email'])
+            basic_info_page.fill_phone(data['phone'])
+            basic_info_page.click_next()
             
-            act.button_click(page.get_by_role("button", name="New Patient"), "New Patient")
-            act.button_click(page.get_by_role("button", name="Next"), "Next")
+            # Navigate through patient type and event selection
+            patient_type_page = BookslotPatientTypePage(page)
+            patient_type_page.select_new_patient()
+            patient_type_page.click_next()
             
-            act.wait_for_scheduler(page)
-            page.locator("button:has-text('AM')").first.click()
-            act.button_click(page.get_by_role("button", name="Next"), "Next")
+            scheduler_page = BookslotSchedulerPage(page)
+            scheduler_page.wait_for_scheduler_ready()
+            scheduler_page.select_am_slot()
+            scheduler_page.click_next()
         
         with allure.step(f"Test zip code: {zip_code} (Expected valid: {should_be_valid})"):
-            act.type_text(page.get_by_role("textbox", name="Date of Birth *"), data['dob'], "DOB")
-            act.type_text(page.get_by_role("textbox", name="Address *"), "123 Test St", "Address")
-            act.type_text(page.get_by_role("textbox", name="City *"), "Test City", "City")
-            act.type_text(page.get_by_role("textbox", name="State *"), "NY", "State")
-            act.type_text(page.get_by_role("textbox", name="Zip Code *"), zip_code, "Zip Code")
+            # ✅ Use Page Object methods
+            personal_info_page.fill_dob(data['dob'])
+            personal_info_page.fill_address("123 Test St")
+            personal_info_page.fill_city("Test City")
+            personal_info_page.fill_state("NY")
+            personal_info_page.fill_zip_code(zip_code)
             
             initial_url = page.url
-            act.button_click(page.get_by_role("button", name="Next"), "Next")
-            page.wait_for_timeout(800)
+            personal_info_page.click_next()
             
             if should_be_valid:
                 assert page.url != initial_url, f"Valid zip {zip_code} should allow progression"
@@ -231,29 +249,37 @@ class TestPersonalInfoValidations:
         base_url = multi_project_config['bookslot']['ui_url']
         act = smart_actions
         data = fake_bookslot_data
+        basic_info_page = BookslotBasicInfoPage(page, base_url)
+        personal_info_page = BookslotPersonalInfoPage(page, base_url)
         
         with allure.step("Navigate to Personal Info page"):
             act.navigate(f"{base_url}/basic-info", "Basic Info")
-            act.type_text(page.get_by_role("textbox", name="First Name *"), data['first_name'], "First Name")
-            act.type_text(page.get_by_role("textbox", name="Last Name *"), data['last_name'], "Last Name")
-            act.type_text(page.get_by_role("textbox", name="Email *"), data['email'], "Email")
-            act.type_text(page.get_by_role("textbox", name="Phone *"), data['phone'], "Phone")
-            act.button_click(page.get_by_role("button", name="Next"), "Next")
             
-            act.button_click(page.get_by_role("button", name="New Patient"), "New Patient")
-            act.button_click(page.get_by_role("button", name="Next"), "Next")
+            # ✅ Use Page Object methods
+            basic_info_page.fill_first_name(data['first_name'])
+            basic_info_page.fill_last_name(data['last_name'])
+            basic_info_page.fill_email(data['email'])
+            basic_info_page.fill_phone(data['phone'])
+            basic_info_page.click_next()
             
-            act.wait_for_scheduler(page)
-            page.locator("button:has-text('AM')").first.click()
-            act.button_click(page.get_by_role("button", name="Next"), "Next")
+            patient_type_page = BookslotPatientTypePage(page)
+            patient_type_page.select_new_patient()
+            patient_type_page.click_next()
+            
+            scheduler_page = BookslotSchedulerPage(page)
+            scheduler_page.wait_for_scheduler_ready()
+            scheduler_page.select_am_slot()
+            scheduler_page.click_next()
         
         with allure.step(f"Enter DOB: {dob}"):
-            act.type_text(page.get_by_role("textbox", name="Date of Birth *"), dob, "DOB")
+            # ✅ Use Page Object method
+            personal_info_page.fill_dob(dob)
             allure.attach(f"DOB: {dob}", name="dob_entered", attachment_type=allure.attachment_type.TEXT)
 
 
 @allure.epic("Bookslot")
 @allure.feature("Form Validations")
+@pytest.mark.modern_spa
 @pytest.mark.bookslot
 @pytest.mark.validation
 class TestInsuranceValidations:
@@ -280,39 +306,48 @@ class TestInsuranceValidations:
         base_url = multi_project_config['bookslot']['ui_url']
         act = smart_actions
         data = fake_bookslot_data
+        basic_info_page = BookslotBasicInfoPage(page, base_url)
+        personal_info_page = BookslotPersonalInfoPage(page, base_url)
         
         with allure.step("Navigate to Insurance page"):
-            # Minimal path to reach insurance
+            # ✅ Use Page Objects for navigation
             act.navigate(f"{base_url}/basic-info", "Basic Info")
-            act.type_text(page.get_by_role("textbox", name="First Name *"), data['first_name'], "First Name")
-            act.type_text(page.get_by_role("textbox", name="Last Name *"), data['last_name'], "Last Name")
-            act.type_text(page.get_by_role("textbox", name="Email *"), data['email'], "Email")
-            act.type_text(page.get_by_role("textbox", name="Phone *"), data['phone'], "Phone")
-            act.button_click(page.get_by_role("button", name="Next"), "Next")
+            basic_info_page.fill_first_name(data['first_name'])
+            basic_info_page.fill_last_name(data['last_name'])
+            basic_info_page.fill_email(data['email'])
+            basic_info_page.fill_phone(data['phone'])
+            basic_info_page.click_next()
             
-            act.button_click(page.get_by_role("button", name="New Patient"), "New Patient")
-            act.button_click(page.get_by_role("button", name="Next"), "Next")
+            # Navigate through patient type and event selection
+            patient_type_page = BookslotPatientTypePage(page)
+            patient_type_page.select_new_patient()
+            patient_type_page.click_next()
             
-            act.wait_for_scheduler(page)
-            page.locator("button:has-text('AM')").first.click()
-            act.button_click(page.get_by_role("button", name="Next"), "Next")
+            scheduler_page = BookslotSchedulerPage(page)
+            scheduler_page.wait_for_scheduler_ready()
+            scheduler_page.select_am_slot()
+            scheduler_page.click_next()
             
-            act.type_text(page.get_by_role("textbox", name="Date of Birth *"), data['dob'], "DOB")
-            act.type_text(page.get_by_role("textbox", name="Address *"), "123 Test St", "Address")
-            act.type_text(page.get_by_role("textbox", name="City *"), "Test City", "City")
-            act.button_click(page.get_by_role("button", name="Next"), "Next")
+            # ✅ Use Page Object for personal info
+            personal_info_page.fill_dob(data['dob'])
+            personal_info_page.fill_address("123 Test St")
+            personal_info_page.fill_city("Test City")
+            personal_info_page.click_next()
             
-            page.get_by_role("radio", name="Online search").click()
-            act.button_click(page.get_by_role("button", name="Next"), "Next")
+            # ✅ Use Referral Page Object
+            referral_page = BookslotReferralPage(page, base_url)
+            referral_page.select_online()
+            referral_page.click_next()
         
         with allure.step(f"Test insurance ID: {id_number} (Expected valid: {should_be_valid})"):
-            act.type_text(page.get_by_role("textbox", name="Member Name *"), "Test Member", "Member")
-            act.type_text(page.get_by_role("textbox", name="ID Number *"), id_number, "ID Number")
-            act.type_text(page.get_by_role("textbox", name="Payer Name *"), "Test Payer", "Payer")
+            # ✅ Use Insurance Page Object
+            insurance_page = BookslotInsurancePage(page, base_url)
+            insurance_page.fill_member_name("Test Member")
+            insurance_page.fill_id_number(id_number)
+            insurance_page.fill_insurance_company("Test Payer")
             
             initial_url = page.url
-            act.button_click(page.get_by_role("button", name="Next"), "Next")
-            page.wait_for_timeout(800)
+            insurance_page.proceed_to_next()
             
             if should_be_valid:
                 assert page.url != initial_url, f"Valid ID {id_number} should allow progression"
@@ -333,39 +368,49 @@ class TestInsuranceValidations:
         base_url = multi_project_config['bookslot']['ui_url']
         act = smart_actions
         data = fake_bookslot_data
+        basic_info_page = BookslotBasicInfoPage(page, base_url)
+        personal_info_page = BookslotPersonalInfoPage(page, base_url)
         
         with allure.step("Navigate to Insurance page"):
             act.navigate(f"{base_url}/basic-info", "Basic Info")
-            act.type_text(page.get_by_role("textbox", name="First Name *"), data['first_name'], "First Name")
-            act.type_text(page.get_by_role("textbox", name="Last Name *"), data['last_name'], "Last Name")
-            act.type_text(page.get_by_role("textbox", name="Email *"), data['email'], "Email")
-            act.type_text(page.get_by_role("textbox", name="Phone *"), data['phone'], "Phone")
-            act.button_click(page.get_by_role("button", name="Next"), "Next")
             
-            act.button_click(page.get_by_role("button", name="New Patient"), "New Patient")
-            act.button_click(page.get_by_role("button", name="Next"), "Next")
+            # ✅ Use Page Objects
+            basic_info_page.fill_first_name(data['first_name'])
+            basic_info_page.fill_last_name(data['last_name'])
+            basic_info_page.fill_email(data['email'])
+            basic_info_page.fill_phone(data['phone'])
+            basic_info_page.click_next()
             
-            act.wait_for_scheduler(page)
-            page.locator("button:has-text('AM')").first.click()
-            act.button_click(page.get_by_role("button", name="Next"), "Next")
+            # Navigate through patient type and event selection
+            patient_type_page = BookslotPatientTypePage(page)
+            patient_type_page.select_new_patient()
+            patient_type_page.click_next()
             
-            act.type_text(page.get_by_role("textbox", name="Date of Birth *"), data['dob'], "DOB")
-            act.type_text(page.get_by_role("textbox", name="Address *"), "123 Test St", "Address")
-            act.type_text(page.get_by_role("textbox", name="City *"), "Test City", "City")
-            act.button_click(page.get_by_role("button", name="Next"), "Next")
+            scheduler_page = BookslotSchedulerPage(page)
+            scheduler_page.wait_for_scheduler_ready()
+            scheduler_page.select_am_slot()
+            scheduler_page.click_next()
             
-            page.get_by_role("radio", name="Online search").click()
-            act.button_click(page.get_by_role("button", name="Next"), "Next")
+            personal_info_page.fill_dob(data['dob'])
+            personal_info_page.fill_address("123 Test St")
+            personal_info_page.fill_city("Test City")
+            personal_info_page.click_next()
+            
+            # ✅ Use Referral Page Object
+            referral_page = BookslotReferralPage(page, base_url)
+            referral_page.select_online()
+            referral_page.click_next()
         
         with allure.step("Submit insurance without group number"):
-            act.type_text(page.get_by_role("textbox", name="Member Name *"), "Test Member", "Member")
-            act.type_text(page.get_by_role("textbox", name="ID Number *"), "123456789", "ID")
+            # ✅ Use Insurance Page Object
+            insurance_page = BookslotInsurancePage(page, base_url)
+            insurance_page.fill_member_name("Test Member")
+            insurance_page.fill_id_number("123456789")
             # Intentionally skip Group Number
-            act.type_text(page.get_by_role("textbox", name="Payer Name *"), "Aetna", "Payer")
+            insurance_page.fill_insurance_company("Aetna")
             
             initial_url = page.url
-            act.button_click(page.get_by_role("button", name="Next"), "Next")
-            page.wait_for_timeout(800)
+            insurance_page.proceed_to_next()
             
             assert page.url != initial_url, "Should allow progression without group number"
             allure.attach("Group number optional validation passed", name="optional_field_test", 

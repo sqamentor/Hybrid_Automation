@@ -8,6 +8,8 @@ import pytest
 from framework.core.exceptions import *
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestBaseException:
     """Test base AutomationFrameworkException"""
     
@@ -36,6 +38,8 @@ class TestBaseException:
         assert "Hint: Try this solution" in str(exc)
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestEngineExceptions:
     """Test engine-related exceptions"""
     
@@ -66,6 +70,8 @@ class TestEngineExceptions:
         assert "10s" in str(exc)
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAPIExceptions:
     """Test API-related exceptions"""
     
@@ -94,6 +100,8 @@ class TestAPIExceptions:
         assert "30" in str(exc)
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestDatabaseExceptions:
     """Test database-related exceptions"""
     
@@ -127,6 +135,8 @@ class TestDatabaseExceptions:
         assert "read-only" in str(exc).lower()
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestConfigurationExceptions:
     """Test configuration-related exceptions"""
     
@@ -144,6 +154,8 @@ class TestConfigurationExceptions:
         assert "Must be positive" in str(exc)
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAIExceptions:
     """Test AI-related exceptions"""
     
@@ -161,6 +173,8 @@ class TestAIExceptions:
         assert "fall back" in str(exc).lower()
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestOtherExceptions:
     """Test other exception types"""
     

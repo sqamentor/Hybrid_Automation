@@ -27,6 +27,8 @@ from framework.models.config_models import (
 )
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestBrowserConfig:
     """Test BrowserConfig Pydantic model"""
 
@@ -92,6 +94,8 @@ class TestBrowserConfig:
             assert config.engine == engine
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestDatabaseConfig:
     """Test DatabaseConfig Pydantic model"""
 
@@ -153,6 +157,8 @@ class TestDatabaseConfig:
         assert config.ssl_mode is None
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAPIConfig:
     """Test APIConfig Pydantic model"""
 
@@ -188,6 +194,8 @@ class TestAPIConfig:
         assert config.headers == {}
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestEnvironmentConfig:
     """Test EnvironmentConfig Pydantic model"""
 
@@ -219,6 +227,8 @@ class TestEnvironmentConfig:
             assert config.environment == env
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestProjectConfig:
     """Test ProjectConfig Pydantic model"""
 
@@ -271,6 +281,8 @@ class TestProjectConfig:
         assert config.default_environment == TestEnvironment.DEV
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestEngineDecisionMatrix:
     """Test EngineDecisionMatrix Pydantic model"""
 
@@ -324,6 +336,8 @@ class TestEngineDecisionMatrix:
         assert matrix.test_complexity == "medium"
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestFrameworkConfig:
     """Test FrameworkConfig with pydantic-settings"""
 
@@ -351,6 +365,8 @@ class TestFrameworkConfig:
         assert config.log_level == "INFO"
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestGlobalSettings:
     """Test GlobalSettings aggregator model"""
 
@@ -383,6 +399,8 @@ class TestGlobalSettings:
         assert isinstance(settings.framework, FrameworkConfig)
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestEnums:
     """Test all enum classes"""
 
@@ -409,6 +427,8 @@ class TestEnums:
         assert EngineType.APPIUM == "appium"
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestModelIntegration:
     """Integration tests for model interactions"""
 

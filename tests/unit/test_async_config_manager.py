@@ -19,6 +19,8 @@ from framework.config.async_config_manager import AsyncConfigManager
 from framework.models.config_models import GlobalSettings, BrowserConfig, BrowserEngine
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAsyncConfigManagerSingleton:
     """Test AsyncConfigManager singleton pattern"""
 
@@ -50,6 +52,8 @@ class TestAsyncConfigManagerSingleton:
         assert len(set(id(inst) for inst in instances)) == 1
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAsyncConfigManagerInit:
     """Test AsyncConfigManager initialization"""
 
@@ -71,6 +75,8 @@ class TestAsyncConfigManagerInit:
         assert "config" in str(manager.config_dir).lower()
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAsyncConfigManagerYAMLLoading:
     """Test async YAML file loading"""
 
@@ -120,6 +126,8 @@ class TestAsyncConfigManagerYAMLLoading:
                 await manager._read_yaml_async(config_file)
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAsyncConfigManagerJSONLoading:
     """Test async JSON file loading"""
 
@@ -165,6 +173,8 @@ class TestAsyncConfigManagerJSONLoading:
                 await manager._read_json_async(config_file)
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAsyncConfigManagerParallelLoading:
     """Test parallel configuration loading"""
 
@@ -240,6 +250,8 @@ class TestAsyncConfigManagerParallelLoading:
             assert parallel_duration < 0.5
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAsyncConfigManagerBrowserConfig:
     """Test loading browser configuration"""
 
@@ -284,6 +296,8 @@ class TestAsyncConfigManagerBrowserConfig:
                 await manager._load_browser_config()
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAsyncConfigManagerAPIConfig:
     """Test loading API configuration"""
 
@@ -308,6 +322,8 @@ class TestAsyncConfigManagerAPIConfig:
             assert api_config.retry_count == 3
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAsyncConfigManagerDatabaseConfig:
     """Test loading database configuration"""
 
@@ -335,6 +351,8 @@ class TestAsyncConfigManagerDatabaseConfig:
             assert db_config.database == "testdb"
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAsyncConfigManagerGlobalSettings:
     """Test loading complete global settings"""
 
@@ -379,6 +397,8 @@ class TestAsyncConfigManagerGlobalSettings:
             # Other configs might be None (optional)
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAsyncConfigManagerCaching:
     """Test configuration caching"""
 
@@ -400,6 +420,8 @@ class TestAsyncConfigManagerCaching:
             assert settings1 is settings2
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAsyncConfigManagerErrorHandling:
     """Test error handling in AsyncConfigManager"""
 
@@ -427,6 +449,8 @@ class TestAsyncConfigManagerErrorHandling:
                 await manager.load_all_configs()
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAsyncConfigManagerIntegration:
     """Integration tests for real-world scenarios"""
 

@@ -39,6 +39,7 @@ sys.path.insert(0, str(project_root))
 from tests.comprehensive_report_enhancements import comprehensive_collector
 
 
+@pytest.mark.modern_spa
 class TestComprehensiveFrameworkFeatures:
     """
     Comprehensive test class demonstrating ALL framework capabilities

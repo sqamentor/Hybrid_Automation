@@ -21,6 +21,8 @@ from framework.di_container import (
 
 
 # Test interfaces and implementations
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class ILogger(Protocol):
     """Test logger interface"""
 
@@ -28,6 +30,8 @@ class ILogger(Protocol):
         ...
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class ConsoleLogger:
     """Test console logger implementation"""
 
@@ -38,6 +42,8 @@ class ConsoleLogger:
         self.messages.append(message)
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class IDatabase(Protocol):
     """Test database interface"""
 
@@ -45,6 +51,8 @@ class IDatabase(Protocol):
         ...
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class PostgresDatabase:
     """Test PostgreSQL database implementation"""
 
@@ -55,6 +63,8 @@ class PostgresDatabase:
         return f"Connected to PostgreSQL: {self.connection_id}"
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class IRepository(Protocol):
     """Test repository interface"""
 
@@ -62,6 +72,8 @@ class IRepository(Protocol):
         ...
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class UserRepository:
     """Test user repository with dependency"""
 
@@ -74,6 +86,8 @@ class UserRepository:
         self.database.connect()
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestLifetimeEnum:
     """Test Lifetime enum"""
 
@@ -92,6 +106,8 @@ class TestLifetimeEnum:
         assert Lifetime.SCOPED in lifetimes
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestServiceDescriptor:
     """Test ServiceDescriptor dataclass"""
 
@@ -118,6 +134,8 @@ class TestServiceDescriptor:
         assert descriptor.instance is logger
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestDIContainerBasics:
     """Test basic DIContainer functionality"""
 
@@ -182,6 +200,8 @@ class TestDIContainerBasics:
         assert isinstance(logger, ConsoleLogger)
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestDIContainerPatternMatching:
     """Test pattern matching in DIContainer.resolve()"""
 
@@ -220,6 +240,8 @@ class TestDIContainerPatternMatching:
             assert db1 is db2
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestDIContainerDependencies:
     """Test dependency injection with multiple services"""
 
@@ -240,11 +262,15 @@ class TestDIContainerDependencies:
     def test_nested_dependencies(self):
         """Test resolving nested dependencies"""
 
-        class IService(Protocol):
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class IService(Protocol):
             def execute(self) -> str:
                 ...
 
-        class MyService:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class MyService:
             def __init__(self, repo: IRepository):
                 self.repo = repo
 
@@ -266,6 +292,8 @@ class TestDIContainerDependencies:
         assert isinstance(service.repo.database, PostgresDatabase)
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestDIScope:
     """Test DIScope context manager"""
 
@@ -308,6 +336,8 @@ class TestDIScope:
             assert db1 is db2
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestInjectDecorator:
     """Test @inject decorator for auto-injection"""
 
@@ -356,6 +386,8 @@ class TestInjectDecorator:
         assert "Hello Default" in messages
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestDIContainerErrors:
     """Test error handling in DIContainer"""
 
@@ -381,7 +413,9 @@ class TestDIContainerErrors:
         container = DIContainer()
         container.register(ILogger, ConsoleLogger, Lifetime.SINGLETON)
 
-        class FileLogger:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class FileLogger:
             def log(self, message: str) -> None:
                 pass
 
@@ -392,6 +426,8 @@ class TestDIContainerErrors:
         assert isinstance(logger, FileLogger)
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestDIContainerAdvanced:
     """Test advanced DIContainer features"""
 
@@ -401,7 +437,9 @@ class TestDIContainerAdvanced:
 
         init_count = 0
 
-        class LazyService:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class LazyService:
             def __init__(self):
                 nonlocal init_count
                 init_count += 1
@@ -449,6 +487,8 @@ class TestDIContainerAdvanced:
                 container.resolve(ILogger)
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestDIContainerIntegration:
     """Integration tests for real-world scenarios"""
 

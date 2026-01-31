@@ -16,6 +16,9 @@ from models import Appointment, TestContext
 logger = logging.getLogger(__name__)
 
 
+@pytest.mark.modern_spa
+@pytest.mark.integration
+@pytest.mark.ai_enhanced
 class TestAIEnhancedWorkflow:
     """Three-system workflow with AI capabilities"""
     
@@ -141,8 +144,9 @@ class TestAIEnhancedWorkflow:
         
         # Verify in PatientIntake
         patientintake_page.navigate() \
-            .search_appointment(appointment) \
-            .should_have_status("Cancelled")
+            .search_appointment(appointment)
+        assert patientintake_page.should_have_status(appointment.email, "Cancelled"), \
+            f"Expected appointment status 'Cancelled' for {appointment.email}"
         
         logger.info("✓ Cancellation reflected in PatientIntake")
         
@@ -211,14 +215,15 @@ class TestAIEnhancedWorkflow:
                 
                 logger.info(f"✅ AI found alternative: {healed_locator}")
                 
-                # Use healed locator
-                callcenter_page.page.locator(healed_locator).fill(appointment.email)
+                # Use healed locator via Page Object method
+                callcenter_page.fill_healed_locator(healed_locator, appointment.email)
                 
             except Exception as heal_error:
                 logger.error(f"AI healing failed: {heal_error}")
                 raise
 
 
+@pytest.mark.modern_spa
 class TestAIEngineSelection:
     """Demonstrate AI-powered engine selection"""
     
@@ -260,6 +265,7 @@ class TestAIEngineSelection:
         logger.info("✅ AI engine selection working correctly")
 
 
+@pytest.mark.modern_spa
 class TestAIValidationSuggester:
     """Demonstrate AI validation suggestions"""
     

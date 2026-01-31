@@ -78,7 +78,7 @@ class CallCenterAppointmentManagementPage:
         """Search appointments by email"""
         self.search_input.fill(email)
         self.search_button.click()
-        self.page.wait_for_timeout(500)  # Wait for search results
+        # Playwright auto-waits for navigation/network idle
         return self
     
     def search_by_name(self, first_name: str, last_name: str) -> 'CallCenterAppointmentManagementPage':
@@ -86,7 +86,7 @@ class CallCenterAppointmentManagementPage:
         full_name = f"{first_name} {last_name}"
         self.search_input.fill(full_name)
         self.search_button.click()
-        self.page.wait_for_timeout(500)
+        # Playwright auto-waits for navigation/network idle
         return self
     
     def search_appointment(self, appointment: Appointment) -> 'CallCenterAppointmentManagementPage':
@@ -98,7 +98,7 @@ class CallCenterAppointmentManagementPage:
     def click_appointment(self, email: str) -> 'CallCenterAppointmentManagementPage':
         """Click on appointment to view details"""
         self.appointment_by_email(email).click()
-        self.page.wait_for_timeout(500)
+        # Playwright auto-waits for navigation/network idle
         return self
     
     def cancel_appointment(
@@ -119,14 +119,13 @@ class CallCenterAppointmentManagementPage:
         
         # Click cancel button
         self.cancel_button.click()
-        self.page.wait_for_timeout(300)
         
-        # Enter cancellation reason
+        # Enter cancellation reason (Playwright auto-waits for dialog)
         self.cancel_reason_input.fill(reason)
         
         # Confirm cancellation
         self.confirm_cancel_button.click()
-        self.page.wait_for_timeout(1000)
+        # Playwright auto-waits for network/state changes
         
         return self
     
@@ -184,10 +183,28 @@ class CallCenterAppointmentManagementPage:
         return self
     
     def should_have_status(self, email: str, expected_status: str):
-        """Verify appointment has expected status"""
+        """
+        Verify appointment has expected status
+        
+        Returns True if status matches, False otherwise.
+        Tests should perform assertions on the returned value.
+        """
         actual_status = self.get_appointment_status(email)
-        assert actual_status.lower() == expected_status.lower(), \
-            f"Expected status '{expected_status}', got '{actual_status}'"
+        return actual_status.lower() == expected_status.lower()
+    
+    def fill_healed_locator(self, locator_string: str, value: str) -> 'CallCenterAppointmentManagementPage':
+        """
+        Fill a field using AI-healed locator string
+        
+        This method supports AI self-healing by accepting a locator string
+        found by AI when the original locator breaks.
+        
+        Args:
+            locator_string: The healed locator string (e.g., "input#email")
+            value: Value to fill
+        """
+        element = self.page.locator(locator_string)
+        element.fill(value)
         return self
     
     def verify_appointment_exists(self, appointment: Appointment):

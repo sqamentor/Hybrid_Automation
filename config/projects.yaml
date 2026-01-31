@@ -74,6 +74,8 @@ projects:
       default_timeout: 30000
       requires_authentication: true
       has_admin_features: true
+      sso_authentication: true  # Requires SSO login before accessing
+      sso_portal: "centerforvein"  # Uses Center for Vein portal
     
     # Team/ownership
     team: "Call Center Team"
@@ -112,6 +114,8 @@ projects:
       default_timeout: 30000
       requires_patient_data: true
       has_appointment_listing: true
+      sso_authentication: true  # Requires SSO login before accessing
+      sso_portal: "centerforvein"  # Uses Center for Vein portal
     
     # Team/ownership
     team: "Patient Services Team"

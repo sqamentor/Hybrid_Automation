@@ -22,7 +22,6 @@ Run Commands:
 
 import pytest
 import allure
-from playwright.sync_api import Page
 from tests.bookslot.helpers.navigation_helper import BookslotNavigator
 from pages.bookslot.bookslots_eventinfo_page2 import BookslotEventInfoPage
 from pages.bookslot.bookslots_basicinfo_page1 import BookslotBasicInfoPage
@@ -30,6 +29,7 @@ from pages.bookslot.bookslots_basicinfo_page1 import BookslotBasicInfoPage
 
 @allure.epic("Bookslot")
 @allure.feature("Event Type Page")
+@pytest.mark.modern_spa
 @pytest.mark.bookslot
 class TestEventTypePage:
     """Test suite for Event Type page functionality"""

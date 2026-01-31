@@ -22,6 +22,8 @@ from models import Appointment, TestContext
 logger = logging.getLogger(__name__)
 
 
+@pytest.mark.modern_spa
+@pytest.mark.integration
 class TestThreeSystemWorkflow:
     """Integration tests for Bookslot -> PatientIntake -> CallCenter workflow"""
     
@@ -156,8 +158,9 @@ class TestThreeSystemWorkflow:
         # Step 6: Verify cancellation reflected in PatientIntake
         logger.info("Step 6: Verifying cancellation in PatientIntake...")
         patientintake_page.navigate() \
-            .search_appointment(appointment) \
-            .should_have_status("Cancelled")
+            .search_appointment(appointment)
+        assert patientintake_page.should_have_status(appointment.email, "Cancelled"), \
+            f"Expected appointment status 'Cancelled' for {appointment.email}"
         logger.info(f"✓ Cancellation reflected in PatientIntake")
         
         # Step 7: Verify cancellation reflected in Bookslot (if applicable)
@@ -313,17 +316,20 @@ class TestThreeSystemWorkflow:
         # Verify mixed statuses
         logger.info("Verifying mixed statuses (cancelled + active)...")
         callcenter_page.navigate() \
-            .search_appointment(appointment_to_cancel) \
-            .should_have_status("Cancelled")
+            .search_appointment(appointment_to_cancel)
+        assert callcenter_page.should_have_status(appointment_to_cancel.email, "Cancelled"), \
+            f"Expected cancelled appointment for {appointment_to_cancel.email}"
         
         callcenter_page.navigate() \
-            .search_appointment(appointments[1]) \
-            .should_have_status("Active")
+            .search_appointment(appointments[1])
+        assert callcenter_page.should_have_status(appointments[1].email, "Active"), \
+            f"Expected active appointment for {appointments[1].email}"
         
         logger.info("✅ Multi-appointment workflow with partial cancellation verified")
 
 
 @pytest.mark.smoke
+@pytest.mark.modern_spa
 class TestThreeSystemSmoke:
     """Smoke tests for three-system integration"""
     

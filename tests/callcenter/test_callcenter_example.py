@@ -13,6 +13,7 @@ Author: Lokendra Singh
 import pytest
 
 
+@pytest.mark.modern_spa
 class TestCallCenter:
     """Test class for CallCenter functionality"""
     

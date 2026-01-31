@@ -21,7 +21,6 @@ Usage:
     # Now you're at insurance page - test your scenarios
 """
 
-from playwright.sync_api import Page
 from pages.bookslot.bookslots_basicinfo_page1 import BookslotBasicInfoPage
 from pages.bookslot.bookslots_eventinfo_page2 import BookslotEventInfoPage
 from pages.bookslot.bookslots_webscheduler_page3 import BookslotWebSchedulerPage

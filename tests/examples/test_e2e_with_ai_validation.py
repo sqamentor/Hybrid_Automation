@@ -13,6 +13,7 @@ from framework.core.execution_flow import execution_flow
 @pytest.mark.integration
 @pytest.mark.e2e
 @pytest.mark.module("checkout")
+@pytest.mark.modern_spa
 class TestE2EOrderWithAIValidation:
     """
     Complete end-to-end test with AI-driven validation
@@ -262,6 +263,7 @@ class TestE2EOrderWithAIValidation:
 
 @pytest.mark.integration
 @pytest.mark.module("checkout")
+@pytest.mark.modern_spa
 class TestConvenienceFunctionApproach:
     """
     Same test using the convenience function for simpler code
@@ -316,8 +318,7 @@ class TestConvenienceFunctionApproach:
 
 
 @pytest.mark.integration
-@pytest.mark.module("payments")
-class TestPaymentValidation:
+@pytest.mark.module("payments")@pytest.mark.modern_spaclass TestPaymentValidation:
     """
     Payment processing with AI validation
     """

@@ -13,6 +13,18 @@ environments:
     name: "Staging"
     description: "Pre-production staging environment"
     
+    # SSO Portal Configuration
+    sso:
+      provider: "basic"  # Using basic auth for Center for Vein portal
+      portal_url: "http://staging-portal.centerforvein.com"
+      login_url: "http://staging-portal.centerforvein.com"
+      enabled: true
+    
+    # SSO Credentials
+    credentials:
+      sso_username: "lsingh"
+      sso_password: "${SSO_PASSWORD}"  # Set via environment variable for security
+    
     # Application URLs - See projects.yaml for project-specific URLs
     # ui_url and api_base_url are defined per project in projects.yaml
     
@@ -80,6 +92,18 @@ environments:
   production:
     name: "Production"
     description: "Production environment (read-only smoke tests)"
+    
+    # SSO Portal Configuration
+    sso:
+      provider: "basic"  # Using basic auth for Center for Vein portal
+      portal_url: "http://portal.centerforvein.com/"
+      login_url: "http://portal.centerforvein.com/login"
+      enabled: true
+    
+    # SSO Credentials
+    credentials:
+      sso_username: "lsingh"
+      sso_password: "${SSO_PASSWORD}"  # Set via environment variable for security
     
     # Application URLs - See projects.yaml for project-specific URLs
     # ui_url and api_base_url are defined per project in projects.yaml

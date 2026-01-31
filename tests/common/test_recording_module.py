@@ -11,6 +11,8 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestRecordingImports:
     """Test that all recording modules can be imported"""
     
@@ -45,6 +47,8 @@ class TestRecordingImports:
         assert callable(quick_record_and_generate)
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestPlaywrightCodegen:
     """Test PlaywrightCodegen wrapper functionality"""
     
@@ -80,6 +84,8 @@ class TestPlaywrightCodegen:
         assert isinstance(recordings, list)
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAIScriptRefactorer:
     """Test AIScriptRefactorer functionality"""
     
@@ -109,6 +115,8 @@ class TestAIScriptRefactorer:
                   for imp in improvements)
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestPageObjectGenerator:
     """Test PageObjectGenerator functionality"""
     
@@ -143,6 +151,8 @@ class TestPageObjectGenerator:
         assert isinstance(pages, list)
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestRecordingWorkflow:
     """Test RecordingWorkflow orchestration"""
     
@@ -177,6 +187,8 @@ class TestRecordingWorkflow:
         assert isinstance(pages, list)
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestRecordingIntegration:
     """Test recording module integration with framework"""
     
@@ -200,6 +212,8 @@ class TestRecordingIntegration:
         assert generator.pages_dir.exists()
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestRecordingResilience:
     """Test that recording workflow never fails due to AI unavailability"""
     

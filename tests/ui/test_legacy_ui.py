@@ -6,7 +6,6 @@ Framework will automatically select Selenium based on markers.
 """
 
 import pytest
-from selenium.webdriver.common.by import By
 
 
 @pytest.mark.regression
@@ -73,8 +72,7 @@ class TestBackofficeOperations:
 
 @pytest.mark.critical
 @pytest.mark.module("payment")
-@pytest.mark.auth_type("MFA")
-class TestPaymentProcessing:
+@pytest.mark.auth_type("MFA")@pytest.mark.legacy_uiclass TestPaymentProcessing:
     """Payment tests - Selenium for MFA and security"""
     
     def test_payment_with_mfa(self, ui_engine, ui_url):

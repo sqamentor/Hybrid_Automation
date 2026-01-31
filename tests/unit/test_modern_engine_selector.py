@@ -9,9 +9,9 @@ Author: Lokendra Singh
 
 import pytest
 from unittest.mock import Mock, patch
-from dataclasses import dataclass
-
-from framework.core.modern_engine_selector import (
+from dataclasses import data@pytest.mark.modern_spa
+@pytest.mark.unit
+class from framework.core.modern_engine_selector import (
     ModernEngineSelector,
     TestMetadata,
     UIFramework,
@@ -29,6 +29,8 @@ def mock_config_provider():
     return provider
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestUIFrameworkEnum:
     """Test UIFramework enum"""
 
@@ -48,6 +50,8 @@ class TestUIFrameworkEnum:
         assert UIFramework.REACT in frameworks
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestTestComplexityEnum:
     """Test TestComplexity enum"""
 
@@ -63,6 +67,8 @@ class TestTestComplexityEnum:
         assert TestComplexity.MEDIUM != TestComplexity.LOW
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestTestMetadata:
     """Test TestMetadata dataclass"""
 
@@ -90,6 +96,8 @@ class TestTestMetadata:
         assert metadata.requires_mobile is False
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestModernEngineSelectorInit:
     """Test ModernEngineSelector initialization"""
 
@@ -104,6 +112,8 @@ class TestModernEngineSelectorInit:
         assert selector.config_provider is None
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestModernEngineSelectorPatternMatching:
     """Test pattern matching in select_engine"""
 
@@ -206,6 +216,8 @@ class TestModernEngineSelectorPatternMatching:
         assert engine.engine == EngineType.PLAYWRIGHT
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestModernEngineSelectorCaching:
     """Test caching functionality with @lru_cache"""
 
@@ -251,6 +263,8 @@ class TestModernEngineSelectorCaching:
         assert engine2.engine == EngineType.SELENIUM
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestModernEngineSelectorAdvanced:
     """Test advanced engine selection scenarios"""
 
@@ -298,6 +312,8 @@ class TestModernEngineSelectorAdvanced:
         assert engine.engine in [EngineType.PLAYWRIGHT, EngineType.SELENIUM]
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestModernEngineSelectorRealWorldScenarios:
     """Test real-world testing scenarios"""
 
@@ -377,6 +393,8 @@ class TestModernEngineSelectorRealWorldScenarios:
         assert engine.engine == EngineType.PLAYWRIGHT
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestModernEngineSelectorEdgeCases:
     """Test edge cases and error handling"""
 
@@ -414,6 +432,8 @@ class TestModernEngineSelectorEdgeCases:
         assert engine.engine in [EngineType.PLAYWRIGHT, EngineType.SELENIUM]
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestModernEngineSelectorIntegration:
     """Integration tests with full workflow"""
 

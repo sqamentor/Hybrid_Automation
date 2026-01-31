@@ -64,6 +64,8 @@ def test_context():
     )
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAsyncSmartActionsInit:
     """Test AsyncSmartActions initialization"""
 
@@ -84,6 +86,8 @@ class TestAsyncSmartActionsInit:
         assert actions.enable_human is True
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAsyncSmartActionsClick:
     """Test async click operations"""
 
@@ -135,6 +139,8 @@ class TestAsyncSmartActionsClick:
         mock_page.locator.return_value.click.assert_called()
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAsyncSmartActionsFill:
     """Test async fill/type operations"""
 
@@ -179,6 +185,8 @@ class TestAsyncSmartActionsFill:
         assert duration > 0.01
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAsyncSmartActionsSelect:
     """Test async select dropdown operations"""
 
@@ -204,6 +212,8 @@ class TestAsyncSmartActionsSelect:
         mock_page.locator.return_value.select_option.assert_called_once()
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAsyncSmartActionsNavigate:
     """Test async navigation operations"""
 
@@ -228,6 +238,8 @@ class TestAsyncSmartActionsNavigate:
         mock_page.goto.assert_called()
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAsyncSmartActionsWait:
     """Test async wait operations"""
 
@@ -257,6 +269,8 @@ class TestAsyncSmartActionsWait:
         assert result is True
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAsyncSmartActionsGetters:
     """Test async getter operations"""
 
@@ -285,6 +299,8 @@ class TestAsyncSmartActionsGetters:
         assert attr == "button"
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAsyncSmartActionsScreenshot:
     """Test async screenshot operations"""
 
@@ -311,6 +327,8 @@ class TestAsyncSmartActionsScreenshot:
         mock_page.screenshot.assert_called()
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAsyncPageFactory:
     """Test AsyncPageFactory context manager"""
 
@@ -352,6 +370,8 @@ class TestAsyncPageFactory:
         mock_browser.new_context.assert_called()
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAsyncSmartActionsHumanBehavior:
     """Test human behavior simulation"""
 
@@ -394,6 +414,8 @@ class TestAsyncSmartActionsHumanBehavior:
         assert duration < 0.01
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAsyncSmartActionsPerformance:
     """Test async performance characteristics"""
 
@@ -461,6 +483,8 @@ class TestAsyncSmartActionsPerformance:
         assert duration < 0.15
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAsyncSmartActionsIntegration:
     """Integration tests for real-world scenarios"""
 

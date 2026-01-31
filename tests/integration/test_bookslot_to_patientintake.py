@@ -7,6 +7,7 @@ from datetime import datetime
 from models import Appointment
 
 
+@pytest.mark.modern_spa
 class TestBookslotToPatientIntake:
     """Test suite for Bookslot → PatientIntake integration"""
     
@@ -185,6 +186,7 @@ class TestBookslotToPatientIntake:
 
 @pytest.mark.integration
 @pytest.mark.multi_project
+@pytest.mark.modern_spa
 class TestCrossApplicationWorkflow:
     """Advanced cross-application workflow tests"""
     

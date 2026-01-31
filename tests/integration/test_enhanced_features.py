@@ -16,6 +16,7 @@ from datetime import datetime, timedelta
 
 @pytest.mark.integration
 @pytest.mark.enhanced_features
+@pytest.mark.modern_spa
 class TestEnhancedIntegration:
     """Integration tests using all enhanced framework features"""
     

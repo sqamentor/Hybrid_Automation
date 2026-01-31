@@ -11,6 +11,8 @@ from framework.database.query_builder import (
 )
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestQueryBuilder:
     """Test QueryBuilder class"""
     
@@ -186,6 +188,8 @@ class TestQueryBuilder:
         assert "LIMIT 10" in query
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestConvenienceFunctions:
     """Test convenience functions"""
     
@@ -226,6 +230,8 @@ class TestConvenienceFunctions:
         assert "LIMIT 1" in query
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestQueryBuilderReset:
     """Test QueryBuilder reset functionality"""
     

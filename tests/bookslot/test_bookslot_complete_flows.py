@@ -29,11 +29,11 @@ Run Commands:
 
 import pytest
 import allure
-from playwright.sync_api import Page
 
 
 @allure.epic("Bookslot")
 @allure.feature("Complete Booking Flows")
+@pytest.mark.modern_spa
 @pytest.mark.bookslot
 @pytest.mark.e2e
 class TestBookslotCompleteFlows:

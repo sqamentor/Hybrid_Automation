@@ -13,6 +13,7 @@ from framework.database.db_client import DBClient
 @pytest.mark.integration
 @pytest.mark.module("orders")
 @pytest.mark.api_validation
+@pytest.mark.modern_spa
 class TestAIDrivenValidation:
     """Test AI-driven API → DB validation suggestions"""
     
@@ -147,6 +148,7 @@ class TestAIDrivenValidation:
 
 @pytest.mark.integration
 @pytest.mark.module("users")
+@pytest.mark.modern_spa
 class TestUserRegistrationValidation:
     """Test AI-driven validation for user registration"""
     

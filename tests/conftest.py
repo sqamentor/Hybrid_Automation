@@ -389,14 +389,20 @@ def pytest_runtest_makereport(item, call):
                 duration=report.duration
             )
             
-            # Take success screenshot if UI engine available
-            if "ui_engine" in item.funcargs:
+            # Take success screenshot if any fixture has screenshot capability
+            screenshot_engine = None
+            for fixture_value in item.funcargs.values():
+                if hasattr(fixture_value, 'take_screenshot'):
+                    screenshot_engine = fixture_value
+                    break
+            
+            if screenshot_engine:
                 try:
                     screenshot_dir = Path("screenshots")
                     screenshot_dir.mkdir(exist_ok=True)
                     
                     screenshot_path = screenshot_dir / f"{item.name}_success.png"
-                    item.funcargs["ui_engine"].take_screenshot(str(screenshot_path))
+                    screenshot_engine.take_screenshot(str(screenshot_path))
                     
                     # Add to report collector
                     report_collector.add_screenshot(test_name, str(screenshot_path), "Test Passed - Success Screenshot")
@@ -420,14 +426,20 @@ def pytest_runtest_makereport(item, call):
                     stack_trace=test_name
                 )
             
-            # Take failure screenshot
-            if "ui_engine" in item.funcargs:
+            # Take failure screenshot if any fixture has screenshot capability
+            screenshot_engine = None
+            for fixture_value in item.funcargs.values():
+                if hasattr(fixture_value, 'take_screenshot'):
+                    screenshot_engine = fixture_value
+                    break
+            
+            if screenshot_engine:
                 try:
                     screenshot_dir = Path("screenshots")
                     screenshot_dir.mkdir(exist_ok=True)
                     
                     screenshot_path = screenshot_dir / f"{item.name}_failure.png"
-                    item.funcargs["ui_engine"].take_screenshot(str(screenshot_path))
+                    screenshot_engine.take_screenshot(str(screenshot_path))
                     
                     # Add to report collector
                     report_collector.add_screenshot(test_name, str(screenshot_path), "Test Failed - Failure Screenshot")

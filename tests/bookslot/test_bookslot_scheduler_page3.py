@@ -21,13 +21,13 @@ Run Commands:
 
 import pytest
 import allure
-from playwright.sync_api import Page
 from tests.bookslot.helpers.navigation_helper import BookslotNavigator
 from pages.bookslot.bookslots_webscheduler_page3 import BookslotWebSchedulerPage
 
 
 @allure.epic("Bookslot")
 @allure.feature("Scheduler Page")
+@pytest.mark.modern_spa
 @pytest.mark.bookslot
 class TestSchedulerPage:
     """Test suite for Scheduler page functionality"""

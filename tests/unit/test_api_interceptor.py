@@ -9,6 +9,8 @@ from unittest.mock import Mock, MagicMock, patch
 from framework.api.api_interceptor import APIInterceptor
 
 
+@pytest.mark.modern_spa
+@pytest.mark.unit
 class TestAPIInterceptor:
     """Test APIInterceptor class"""
     

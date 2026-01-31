@@ -21,13 +21,13 @@ Run Commands:
 
 import pytest
 import allure
-from playwright.sync_api import Page
 from tests.bookslot.helpers.navigation_helper import BookslotNavigator
 from pages.bookslot.bookslots_referral_page5 import BookslotReferralPage
 
 
 @allure.epic("Bookslot")
 @allure.feature("Referral Page")
+@pytest.mark.modern_spa
 @pytest.mark.bookslot
 class TestReferralPage:
     """Test suite for Referral page functionality"""
@@ -78,15 +78,12 @@ class TestReferralPage:
         referral_page = BookslotReferralPage(smart_actions.page, multi_project_config['bookslot']['ui_url'])
         
         with allure.step(f"Select referral source: {referral_option}"):
-            radio_button = smart_actions.page.get_by_role("radio", name=referral_option)
+            # ✅ Use Page Object method
+            referral_page.select_referral_source(referral_option)
             
-            if radio_button.is_visible():
-                radio_button.click()
-                smart_actions.page.wait_for_timeout(300)
-                
-                # Verify selection
-                is_checked = radio_button.is_checked()
-                assert is_checked, f"Should be able to select: {referral_option}"
+            # Verify selection using Page Object
+            is_selected = referral_page.is_referral_source_selected(referral_option)
+            assert is_selected, f"Should be able to select: {referral_option}"
                 
                 allure.attach(smart_actions.page.screenshot(full_page=True), 
                              name=f"{referral_option.lower().replace(' ', '_')}_selected", 
@@ -240,10 +237,10 @@ class TestReferralPage:
                 "Advertisement",
             ]
             
-            available_count = 0
-            for option in expected_options:
-                if page.get_by_role("radio", name=option).is_visible():
-                    available_count += 1
+            # ✅ Use Page Object to check available options
+            referral_page = BookslotReferralPage(page, multi_project_config['bookslot']['ui_url'])
+            available_options = referral_page.get_available_referral_sources()
+            available_count = len([opt for opt in expected_options if opt in available_options])
             
             allure.attach(f"Available referral options: {available_count}/{len(expected_options)}", 
                          name="marketing_channels", 

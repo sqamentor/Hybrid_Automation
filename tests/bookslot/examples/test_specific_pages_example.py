@@ -22,12 +22,15 @@ Run Commands:
 
 import pytest
 import allure
-from playwright.sync_api import Page
 from tests.bookslot.helpers.navigation_helper import BookslotNavigator, quick_navigate_to_insurance
+from pages.bookslot.bookslots_insurance_page6 import BookslotInsurancePage
+from pages.bookslot.bookslots_personalInfo_page4 import BookslotPersonalInfoPage
+from pages.bookslot.bookslots_referral_page5 import BookslotReferralPage
 
 
 @allure.epic("Bookslot")
 @allure.feature("Insurance Page Testing")
+@pytest.mark.modern_spa
 @pytest.mark.bookslot
 class TestInsurancePageOnly:
     """
@@ -48,17 +51,15 @@ class TestInsurancePageOnly:
         # Navigate to insurance page (all previous steps handled by navigator)
         navigator = BookslotNavigator(smart_actions, fake_bookslot_data)
         navigator.navigate_to_insurance()
+        insurance_page = BookslotInsurancePage(page, navigator.multi_project_config['bookslot']['ui_url'])
         
         # NOW you're at insurance page - test your scenarios
         with allure.step("Test member name field"):
-            smart_actions.type_text(
-                page.get_by_role("textbox", name="Member Name *"), 
-                "John Smith", 
-                "Member Name"
-            )
+            # ✅ Use Page Object
+            insurance_page.fill_member_name("John Smith")
             
             # Verify field accepts input
-            member_value = page.get_by_role("textbox", name="Member Name *").input_value()
+            member_value = insurance_page.textbox_member_name.input_value()
             assert member_value == "John Smith"
             
             allure.attach(
@@ -85,27 +86,16 @@ class TestInsurancePageOnly:
         """
         # Quick navigation to insurance page
         page = quick_navigate_to_insurance(smart_actions, fake_bookslot_data)
+        insurance_page = BookslotInsurancePage(page, smart_actions.base_url)
         
         with allure.step(f"Test ID format: {id_format}"):
-            smart_actions.type_text(
-                page.get_by_role("textbox", name="Member Name *"), 
-                "Test Member", 
-                "Member"
-            )
-            smart_actions.type_text(
-                page.get_by_role("textbox", name="ID Number *"), 
-                id_format, 
-                "ID"
-            )
-            smart_actions.type_text(
-                page.get_by_role("textbox", name="Payer Name *"), 
-                "Aetna", 
-                "Payer"
-            )
+            # ✅ Use Page Object
+            insurance_page.fill_member_name("Test Member")
+            insurance_page.fill_id_number(id_format)
+            insurance_page.fill_payer_name("Aetna")
             
             initial_url = page.url
-            smart_actions.button_click(page.get_by_role("button", name="Next"), "Next")
-            page.wait_for_timeout(800)
+            insurance_page.click_send_to_clinic()
             
             if should_accept:
                 assert page.url != initial_url, f"Should accept ID format: {id_format}"
@@ -131,27 +121,16 @@ class TestInsurancePageOnly:
         """
         navigator = BookslotNavigator(smart_actions, fake_bookslot_data)
         navigator.navigate_to_insurance()
+        insurance_page = BookslotInsurancePage(page, navigator.multi_project_config['bookslot']['ui_url'])
         
         with allure.step(f"Test payer: {payer_name}"):
-            smart_actions.type_text(
-                page.get_by_role("textbox", name="Member Name *"), 
-                fake_bookslot_data['MemberName'], 
-                "Member"
-            )
-            smart_actions.type_text(
-                page.get_by_role("textbox", name="ID Number *"), 
-                "123456789", 
-                "ID"
-            )
-            smart_actions.type_text(
-                page.get_by_role("textbox", name="Payer Name *"), 
-                payer_name, 
-                "Payer"
-            )
+            # ✅ Use Page Object
+            insurance_page.fill_member_name(fake_bookslot_data['MemberName'])
+            insurance_page.fill_id_number("123456789")
+            insurance_page.fill_payer_name(payer_name)
             
             initial_url = page.url
-            smart_actions.button_click(page.get_by_role("button", name="Next"), "Next")
-            page.wait_for_timeout(1000)
+            insurance_page.click_send_to_clinic()
             
             assert page.url != initial_url, f"Should accept payer: {payer_name}"
     
@@ -166,34 +145,24 @@ class TestInsurancePageOnly:
         """
         navigator = BookslotNavigator(smart_actions, fake_bookslot_data)
         navigator.navigate_to_insurance()
+        insurance_page = BookslotInsurancePage(page, navigator.multi_project_config['bookslot']['ui_url'])
         
         with allure.step("Submit without group number"):
-            smart_actions.type_text(
-                page.get_by_role("textbox", name="Member Name *"), 
-                "Test Member", 
-                "Member"
-            )
-            smart_actions.type_text(
-                page.get_by_role("textbox", name="ID Number *"), 
-                "987654321", 
-                "ID"
-            )
+            # ✅ Use Page Object
+            insurance_page.fill_member_name("Test Member")
+            insurance_page.fill_id_number("987654321")
             # Skip group number intentionally
-            smart_actions.type_text(
-                page.get_by_role("textbox", name="Payer Name *"), 
-                "Aetna", 
-                "Payer"
-            )
+            insurance_page.fill_payer_name("Aetna")
             
             initial_url = page.url
-            smart_actions.button_click(page.get_by_role("button", name="Next"), "Next")
-            page.wait_for_timeout(1000)
+            insurance_page.click_send_to_clinic()
             
             assert page.url != initial_url, "Should proceed without group number"
 
 
 @allure.epic("Bookslot")
 @allure.feature("Personal Info Page Testing")
+@pytest.mark.modern_spa
 @pytest.mark.bookslot
 class TestPersonalInfoPageOnly:
     """
@@ -223,15 +192,12 @@ class TestPersonalInfoPageOnly:
                 "P.O. Box 12345"
             ]
             
+            personal_info_page = BookslotPersonalInfoPage(page, navigator.multi_project_config['bookslot']['ui_url'])
             for address in test_addresses:
-                page.get_by_role("textbox", name="Address *").clear()
-                smart_actions.type_text(
-                    page.get_by_role("textbox", name="Address *"), 
-                    address, 
-                    "Address"
-                )
+                # ✅ Use Page Object
+                personal_info_page.fill_address(address)
                 
-                value = page.get_by_role("textbox", name="Address *").input_value()
+                value = personal_info_page.textbox_address.input_value()
                 assert value == address, f"Address field should accept: {address}"
     
     @allure.story("Zip Code Validation")
@@ -253,37 +219,18 @@ class TestPersonalInfoPageOnly:
         """
         navigator = BookslotNavigator(smart_actions, fake_bookslot_data)
         navigator.navigate_to_personal_info()
+        personal_info_page = BookslotPersonalInfoPage(page, navigator.multi_project_config['bookslot']['ui_url'])
         
         with allure.step(f"Test zip code: {zip_code}"):
-            smart_actions.type_text(
-                page.get_by_role("textbox", name="Date of Birth *"), 
-                fake_bookslot_data['dob'], 
-                "DOB"
-            )
-            smart_actions.type_text(
-                page.get_by_role("textbox", name="Address *"), 
-                "123 Test St", 
-                "Address"
-            )
-            smart_actions.type_text(
-                page.get_by_role("textbox", name="City *"), 
-                "Test City", 
-                "City"
-            )
-            smart_actions.type_text(
-                page.get_by_role("textbox", name="State *"), 
-                "NY", 
-                "State"
-            )
-            smart_actions.type_text(
-                page.get_by_role("textbox", name="Zip Code *"), 
-                zip_code, 
-                "Zip"
-            )
+            # ✅ Use Page Object
+            personal_info_page.fill_dob(fake_bookslot_data['dob'])
+            personal_info_page.fill_address("123 Test St")
+            personal_info_page.fill_city("Test City")
+            personal_info_page.fill_state("NY")
+            personal_info_page.fill_zip_code(zip_code)
             
             initial_url = page.url
-            smart_actions.button_click(page.get_by_role("button", name="Next"), "Next")
-            page.wait_for_timeout(800)
+            personal_info_page.click_next()
             
             if is_valid:
                 assert page.url != initial_url, f"Valid zip {zip_code} should allow progression"
@@ -301,14 +248,13 @@ class TestPersonalInfoPageOnly:
         """
         navigator = BookslotNavigator(smart_actions, fake_bookslot_data)
         navigator.navigate_to_personal_info()
+        personal_info_page = BookslotPersonalInfoPage(page, navigator.multi_project_config['bookslot']['ui_url'])
         
         with allure.step("Test DOB field"):
-            dob_field = page.get_by_role("textbox", name="Date of Birth *")
+            # ✅ Use Page Object
+            personal_info_page.fill_dob("01/15/1990")
             
-            # Test valid DOB
-            smart_actions.type_text(dob_field, "01/15/1990", "DOB")
-            
-            value = dob_field.input_value()
+            value = personal_info_page.textbox_dob.input_value()
             assert "1990" in value, "DOB should accept valid date"
             
             allure.attach(
@@ -320,6 +266,7 @@ class TestPersonalInfoPageOnly:
 
 @allure.epic("Bookslot")
 @allure.feature("Referral Page Testing")
+@pytest.mark.modern_spa
 @pytest.mark.bookslot
 class TestReferralPageOnly:
     """
@@ -344,18 +291,19 @@ class TestReferralPageOnly:
         """
         navigator = BookslotNavigator(smart_actions, fake_bookslot_data)
         navigator.navigate_to_referral()
+        referral_page = BookslotReferralPage(page, navigator.multi_project_config['bookslot']['ui_url'])
         
         with allure.step(f"Select referral source: {referral_option}"):
-            page.get_by_role("radio", name=referral_option).click()
+            # ✅ Use Page Object
+            referral_page.select_referral_source(referral_option)
             
             # Verify selection
-            is_checked = page.get_by_role("radio", name=referral_option).is_checked()
+            is_checked = referral_page.is_referral_source_selected(referral_option)
             assert is_checked, f"Should be able to select: {referral_option}"
             
             # Verify can proceed
             initial_url = page.url
-            smart_actions.button_click(page.get_by_role("button", name="Next"), "Next")
-            page.wait_for_timeout(800)
+            referral_page.click_next()
             
             assert page.url != initial_url, f"Should proceed with: {referral_option}"
 
