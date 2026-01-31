@@ -1,0 +1,65 @@
+- GroupNumber: GRP-6985
+  MemberName: Stephen Simmons
+  PayerName: Aetna Health
+  contact_method: Text
+  dob: 07/02/1969
+  email: zprice@yopmail.com
+  first_name: Patricia
+  idNumber: INS-96672
+  last_name: Rodriguez
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '20678'
+  zip_distance: '100'
+- GroupNumber: GRP-3208
+  MemberName: Willie Bryant
+  PayerName: Aetna Health
+  contact_method: Text
+  dob: 01/01/1982
+  email: kmartin@yopmail.com
+  first_name: Michael
+  idNumber: INS-19812
+  last_name: Hart
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '20678'
+  zip_distance: '25'
+- GroupNumber: GRP-9024
+  MemberName: Kenneth Patel
+  PayerName: Aetna Health
+  contact_method: Text
+  dob: 05/29/1990
+  email: stanley34@mailinator.com
+  first_name: Theodore
+  idNumber: INS-62880
+  last_name: Sims
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '20678'
+  zip_distance: '75'
+- GroupNumber: GRP-2693
+  MemberName: Jennifer Reilly
+  PayerName: UnitedHealthcare
+  contact_method: Text
+  dob: 07/30/1985
+  email: sullivanallison@yopmail.com
+  first_name: Jesus
+  idNumber: INS-51779
+  last_name: Smith
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '20678'
+  zip_distance: '100'
+- GroupNumber: GRP-4389
+  MemberName: Jackson Crawford
+  PayerName: Aetna Health
+  contact_method: Text
+  dob: 11/10/1952
+  email: lhenry@yopmail.com
+  first_name: Matthew
+  idNumber: INS-54999
+  last_name: Carter
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '20678'
+  zip_distance: '75'

@@ -1,0 +1,51 @@
+# AI Engine Selector - Optional Dependencies
+
+# ========================================================================
+# Local LLM Support (Optional)
+# ========================================================================
+
+# Ollama (Recommended for local LLM)
+# Installation: No Python package required
+# Download from: https://ollama.ai/
+# Usage: ollama serve
+requests>=2.31.0  # Required for Ollama API calls
+
+# LlamaCPP (Alternative local LLM)
+# Uncomment to install (requires C++ compiler)
+# llama-cpp-python>=0.2.0
+
+# ========================================================================
+# Cloud AI Providers (Optional)
+# ========================================================================
+
+# OpenAI
+openai>=1.0.0  # Already included in main requirements.txt
+
+# Azure OpenAI
+# Uses same openai package, just different configuration
+
+# ========================================================================
+# Usage Notes
+# ========================================================================
+
+# For Ollama:
+#   1. Download and install Ollama from https://ollama.ai/
+#   2. Pull a model: ollama pull llama2
+#   3. Start service: ollama serve
+#   4. Set environment: OLLAMA_MODEL=llama2 (optional)
+#   5. Set host: OLLAMA_HOST=http://localhost:11434 (optional)
+
+# For LlamaCPP:
+#   1. Install: pip install llama-cpp-python
+#   2. Download GGUF model from HuggingFace
+#   3. Set path: LLAMACPP_MODEL_PATH=C:\models\model.gguf
+#   4. Optional GPU: pip install llama-cpp-python[cublas] (NVIDIA GPU)
+
+# For OpenAI:
+#   1. Set API key: OPENAI_API_KEY=sk-...
+#   2. Configure in engine_decision_matrix.yaml
+
+# For Azure OpenAI:
+#   1. Set API key: AZURE_OPENAI_API_KEY=...
+#   2. Set endpoint: AZURE_OPENAI_ENDPOINT=https://...
+#   3. Configure in engine_decision_matrix.yaml

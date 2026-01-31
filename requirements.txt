@@ -1,0 +1,132 @@
+# ========================================================================
+# CORE DEPENDENCIES
+# ========================================================================
+
+# Python version requirement
+python-requires>=3.11
+
+# Test Framework
+pytest>=7.4.0
+pytest-asyncio>=0.23.0  # Async test support for new modules
+pytest-xdist>=3.3.1  # Parallel/distributed execution
+pytest-html>=4.0.0  # HTML reporting
+pytest-bdd>=6.1.1  # BDD support (optional)
+pytest-timeout>=2.1.0  # Test timeouts
+pytest-cov>=4.1.0  # Code coverage reporting
+pytest-benchmark>=4.0.0  # Performance benchmarking (optional)
+nest-asyncio>=1.6.0  # Allow nested async loops (Playwright sync API workaround)
+
+# UI Automation - Playwright
+playwright>=1.40.0
+pytest-playwright>=0.4.3
+
+# UI Automation - Selenium
+selenium>=4.15.0
+webdriver-manager>=4.0.1  # Automatic driver management
+
+# API Testing
+requests>=2.31.0
+httpx>=0.27.0  # Modern async HTTP client for AsyncAPIClient
+schemathesis>=3.19.0  # Contract testing (optional)
+asyncpg>=0.29.0  # Async PostgreSQL driver
+aiomysql>=0.2.0  # Async MySQL driver
+pyodbc>=5.0.1  # SQL Server
+psycopg2-binary>=2.9.9  # PostgreSQL (sync)
+pymysql>=1.1.0  # MySQL (sync)niversal DB abstraction
+pyodbc>=5.0.1  # SQL Server
+psycopg2-binary>=2.9.9  # PostgreSQL
+pymysql>=1.1.0  # MySQL
+cryptography>=41.0.7  # Required for some DB connections
+
+# Configuration Management
+PyYAML>=6.0.1
+python-dotenv>=1.0.0  # Environment variable management
+pydantic>=2.5.0,<3.0  # Data validation (Pydantic V2)
+pydantic-settings>=2.1.0  # Settings management with BaseSettings
+
+# Logging and Reporting
+allure-pytest>=2.13.2  # Allure reporting
+loguru>=0.7.2  # Advanced logging
+
+# AI / Intelligence (Multi-Provider Support)
+openai>=1.6.0  # OpenAI API (GPT-3.5, GPT-4, GPT-4o, ChatGPT)
+anthropic>=0.18.0  # Anthropic Claude API (Claude 3 Opus, Sonnet, Haiku)
+# azure-openai>=0.1.0  # Azure OpenAI (optional - uses openai library with Azure endpoint)
+# langchain>=0.1.0  # LLM framework (optional for advanced chaining)
+# Note: Ollama (local LLMs) uses HTTP API, no extra library needed
+
+# Data Generation
+Faker>=21.0.0  # Test data generation
+
+# Visual Regression Testing
+Pillow>=10.1.0  # Image processing
+imagehash>=4.3.1  # Perceptual hashing
+
+# WebSocket Testing
+websockets>=12.0  # WebSocket client (async)
+websocket-client>=1.7.0  # WebSocket client (sync) - for API Interceptor
+
+# Additional Testing Tools
+axe-core-python>=4.8.0  # Accessibility testing (optional - using CDN in code)
+
+# ========================================================================
+# NEW FEATURES - Modern Framework Enhancements
+# ========================================================================
+
+# Observability & Monitoring
+opentelemetry-api>=1.21.0  # OpenTelemetry API for distributed tracing
+opentelemetry-sdk>=1.21.0  # OpenTelemetry SDK
+opentelemetry-instrumentation-httpx>=0.42b0  # HTTPX instrumentation
+opentelemetry-instrumentation-asyncpg>=0.42b0  # AsyncPG instrumentation (optional)
+
+# Structured Logging
+structlog>=23.2.0  # Structured logging for JSON logs
+
+# Visual Regression Testing
+playwright-pytest>=0.4.4  # Playwright pytest plugin with visual comparison
+pixelmatch>=0.3.0  # Pixel-level image comparison (optional)
+
+# Security Testing (requires OWASP ZAP installed separately)
+# zaproxy>=0.2.0  # ZAP Python API (optional)
+
+# ML and Advanced Features
+scikit-learn>=1.3.2  # ML algorithms (optional for advanced ML)
+numpy>=1.26.2  # Numerical computing (for ML)
+mimesis>=12.1.0  # Alternative data generator
+
+# Utilities
+python-dateutil>=2.8.2
+tenacity>=8.2.3  # Retry logic
+colorama>=0.4.6  # Colored terminal output
+
+# ========================================================================
+# OPTIONAL DEPENDENCIES
+# ========================================================================
+
+# Cloud Grid Integration
+# browserstack-local>=1.2.8
+# lambdatest-automation>=1.0.0
+
+# Advanced API Testing
+# pact-python>=2.0.0  # Contract testing
+
+# Performance Testing
+# locust>=2.18.0  # Load testing integration
+
+# ========================================================================
+# DEVELOPMENT DEPENDENCIES (install with pip install -r requirements-dev.txt)
+# ========================================================================
+
+# Code Quality
+# black>=23.12.0  # Code formatter
+# flake8>=6.1.0  # Linter
+# mypy>=1.7.0  # Type checker
+# pylint>=3.0.0  # Additional linter
+
+# Testing
+# pytest-cov>=4.1.0  # Coverage reporting
+# pytest-mock>=3.12.0  # Mocking support
+
+# Documentation
+# mkdocs>=1.5.0  # Documentation generator
+# mkdocs-material>=9.5.0  # Material theme

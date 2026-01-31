@@ -1,0 +1,5 @@
+"""PEP 561 marker file for type checking support.
+
+This file indicates that the framework package supports type hints
+and should be checked by mypy and other type checkers.
+"""

@@ -1,0 +1,76 @@
+# ============================================================================
+# DEVELOPMENT DEPENDENCIES
+# Install with: pip install -r requirements-dev.txt
+# Or use: pip install -e ".[dev]" (recommended)
+# ============================================================================
+
+# Code Quality Tools
+# ------------------
+black>=23.12.0              # Code formatter
+ruff>=0.1.9                 # Fast linter (replaces flake8, isort, pyupgrade)
+mypy>=1.7.0                 # Static type checker
+pylint>=3.0.0               # Additional linter
+bandit[toml]>=1.7.6         # Security linter
+
+# Type Stubs
+# ----------
+types-PyYAML>=6.0.12
+types-requests>=2.31.0
+types-python-dateutil>=2.8.19
+
+# Testing Tools
+# -------------
+pytest-cov>=4.1.0           # Coverage reporting
+pytest-mock>=3.12.0         # Mocking support
+pytest-benchmark>=4.0.0     # Performance testing
+pytest-asyncio>=0.23.0      # Async test support
+hypothesis>=6.150.0         # Property-based testing
+
+# Pre-commit Hooks
+# ----------------
+pre-commit>=3.6.0           # Pre-commit hook management
+
+# Documentation
+# -------------
+mkdocs>=1.5.0               # Documentation generator
+mkdocs-material>=9.5.0      # Material theme for mkdocs
+mkdocstrings[python]>=0.24.0  # Auto-generate docs from docstrings
+pdoc>=14.3.0                # Alternative doc generator
+
+# Debugging & REPL
+# ----------------
+ipython>=8.18.0             # Enhanced Python REPL
+ipdb>=0.13.13               # IPython debugger
+pudb>=2024.1                # Visual debugger
+
+# Dependency Management
+# ---------------------
+pip-tools>=7.3.0            # Requirements compilation
+pipdeptree>=2.13.0          # Dependency tree visualization
+
+# Build Tools
+# -----------
+build>=1.0.3                # PEP 517 build frontend
+hatchling>=1.21.0           # Build backend
+twine>=4.0.2                # PyPI upload tool
+
+# Utilities
+# ---------
+watchdog>=3.0.0             # File system monitoring
+colorama>=0.4.6             # Colored terminal output
+
+# Code Analysis
+# -------------
+radon>=6.0.1                # Code complexity metrics
+vulture>=2.10               # Dead code finder
+interrogate>=1.5.0          # Docstring coverage
+
+# Performance
+# -----------
+py-spy>=0.3.14              # Sampling profiler
+memory-profiler>=0.61.0     # Memory usage profiler
+
+# Optional AI Development
+# -----------------------
+# openai>=1.6.0             # AI testing (optional)
+# anthropic>=0.18.0         # Claude API (optional)

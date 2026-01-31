@@ -1,0 +1,39 @@
+- GroupNumber: GRP-6410
+  MemberName: Robert Clark
+  PayerName: Aetna Health
+  contact_method: Call
+  dob: 11/22/2007
+  email: michaelgardner@yopmail.com
+  first_name: Matthew
+  idNumber: INS-64522
+  last_name: Miller
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '21191'
+  zip_distance: '100'
+- GroupNumber: GRP-5788
+  MemberName: Kayla Bell
+  PayerName: UnitedHealthcare
+  contact_method: Text
+  dob: 12/01/1992
+  email: erobinson@yopmail.com
+  first_name: Catherine
+  idNumber: INS-25833
+  last_name: Ramos
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '21865'
+  zip_distance: '25'
+- GroupNumber: GRP-3962
+  MemberName: Eric Fuller
+  PayerName: Cigna
+  contact_method: Text
+  dob: 07/22/1977
+  email: jennifer17@mailinator.com
+  first_name: Robert
+  idNumber: INS-99496
+  last_name: Brown
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '20845'
+  zip_distance: '75'

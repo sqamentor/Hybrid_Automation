@@ -1,0 +1,130 @@
+- GroupNumber: GRP-2854
+  MemberName: Cassandra Gibson PhD
+  PayerName: Humana
+  contact_method: Text
+  dob: 08/23/1999
+  email: webbdavid@mailinator.com
+  first_name: Elizabeth
+  idNumber: INS-95109
+  last_name: Davis
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '20678'
+  zip_distance: '50'
+- GroupNumber: GRP-8295
+  MemberName: Jason Anthony
+  PayerName: Blue Cross Blue Shield
+  contact_method: Text
+  dob: 12/27/1971
+  email: tmendez@yopmail.com
+  first_name: Erica
+  idNumber: INS-22407
+  last_name: Baker
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '20678'
+  zip_distance: '50'
+- GroupNumber: GRP-3991
+  MemberName: Matthew Patton
+  PayerName: UnitedHealthcare
+  contact_method: Text
+  dob: 05/29/1949
+  email: mweaver@mailinator.com
+  first_name: Bridget
+  idNumber: INS-89454
+  last_name: Calhoun
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '20678'
+  zip_distance: '75'
+- GroupNumber: GRP-4350
+  MemberName: Sandra Sparks
+  PayerName: Blue Cross Blue Shield
+  contact_method: Text
+  dob: 12/28/1992
+  email: marshsara@mailinator.com
+  first_name: Zachary
+  idNumber: INS-28165
+  last_name: Morgan
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '20678'
+  zip_distance: '75'
+- GroupNumber: GRP-1742
+  MemberName: Danielle Fowler
+  PayerName: Aetna Health
+  contact_method: Text
+  dob: 05/17/1968
+  email: davisbrent@yopmail.com
+  first_name: Jessica
+  idNumber: INS-60717
+  last_name: Webster
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '20678'
+  zip_distance: '50'
+- GroupNumber: GRP-9921
+  MemberName: Steven Chavez
+  PayerName: Aetna Health
+  contact_method: Text
+  dob: 11/26/2004
+  email: jeremy15@yopmail.com
+  first_name: Catherine
+  idNumber: INS-51551
+  last_name: Shah
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '20678'
+  zip_distance: '100'
+- GroupNumber: GRP-2332
+  MemberName: Patricia Dudley
+  PayerName: Cigna
+  contact_method: Text
+  dob: 09/22/1952
+  email: adamskevin@mailinator.com
+  first_name: Angie
+  idNumber: INS-95935
+  last_name: Haas
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '20678'
+  zip_distance: '25'
+- GroupNumber: GRP-7836
+  MemberName: Mary Hodges
+  PayerName: Cigna
+  contact_method: Text
+  dob: 06/27/1951
+  email: barnettmichael@yopmail.com
+  first_name: Douglas
+  idNumber: INS-15008
+  last_name: Hancock
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '20678'
+  zip_distance: '100'
+- GroupNumber: GRP-1325
+  MemberName: Katherine Diaz
+  PayerName: Aetna Health
+  contact_method: Text
+  dob: 04/14/1965
+  email: jamie28@yopmail.com
+  first_name: Lance
+  idNumber: INS-54383
+  last_name: Bryan
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '20678'
+  zip_distance: '100'
+- GroupNumber: GRP-2030
+  MemberName: Paul Reed
+  PayerName: UnitedHealthcare
+  contact_method: Text
+  dob: 03/26/1942
+  email: penajason@mailinator.com
+  first_name: Audrey
+  idNumber: INS-27418
+  last_name: Bailey
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '20678'
+  zip_distance: '75'

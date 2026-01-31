@@ -1,0 +1,105 @@
+# Logs directory
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# PyCharm
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Test Results
+.pytest_cache/
+.tox/
+.coverage
+htmlcov/
+.nox/
+coverage.xml
+*.cover
+
+# Reports
+reports/
+allure-results/
+allure-report/
+*.html
+*.xml
+
+# Evidence
+screenshots/
+videos/
+traces/
+*.png
+*.mp4
+*.zip
+
+# Logs
+logs/
+*.log
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Secrets
+secrets/
+*.key
+*.pem
+
+# Temporary
+tmp/
+temp/
+*.tmp
+
+# Playwright
+.playwright/
+playwright-report/
+
+# Node (if using any JS tools)
+node_modules/
+
+# Docker
+.dockerignore

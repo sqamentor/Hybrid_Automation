@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  automation-framework:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: automation-tests
+    environment:
+      - TEST_ENV=${TEST_ENV:-staging}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - DB_STAGING_USERNAME=${DB_STAGING_USERNAME}
+      - DB_STAGING_PASSWORD=${DB_STAGING_PASSWORD}
+    volumes:
+      - ../reports:/app/reports
+      - ../allure-results:/app/allure-results
+      - ../logs:/app/logs
+      - ../screenshots:/app/screenshots
+      - ../videos:/app/videos
+    command: pytest -m smoke --headless -n auto --alluredir=allure-results
+    networks:
+      - automation-network
+
+  allure-report:
+    image: frankescobar/allure-docker-service:latest
+    container_name: allure-service
+    ports:
+      - "5050:5050"
+    volumes:
+      - ../allure-results:/app/allure-results
+      - ../allure-report:/app/allure-report
+    environment:
+      - CHECK_RESULTS_EVERY_SECONDS=3
+      - KEEP_HISTORY=1
+    networks:
+      - automation-network
+
+networks:
+  automation-network:
+    driver: bridge

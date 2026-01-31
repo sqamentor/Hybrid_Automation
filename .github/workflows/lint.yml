@@ -1,0 +1,134 @@
+name: Code Quality & Linting
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  lint:
+    name: Lint with ${{ matrix.tool }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        tool: [black, isort, flake8, mypy]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install black isort flake8 mypy types-PyYAML types-requests
+
+      - name: Run black
+        if: matrix.tool == 'black'
+        run: |
+          black --check framework/ tests/ --line-length=100
+
+      - name: Run isort
+        if: matrix.tool == 'isort'
+        run: |
+          isort --check-only framework/ tests/ --profile black
+
+      - name: Run flake8
+        if: matrix.tool == 'flake8'
+        run: |
+          flake8 framework/ tests/ --max-line-length=100 --extend-ignore=E203,W503
+
+      - name: Run mypy
+        if: matrix.tool == 'mypy'
+        run: |
+          mypy framework/ --ignore-missing-imports --python-version=3.12
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install bandit safety
+
+      - name: Run bandit (security linter)
+        run: |
+          bandit -r framework/ -f json -o bandit-report.json || true
+
+      - name: Run safety (dependency check)
+        run: |
+          safety check --json || true
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: |
+            bandit-report.json
+
+  code-quality:
+    name: Code Quality Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install radon pylint
+
+      - name: Run radon (complexity analysis)
+        run: |
+          radon cc framework/ -a -s
+
+      - name: Run pylint
+        run: |
+          pylint framework/ --exit-zero --output-format=json > pylint-report.json
+
+      - name: Upload code quality reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-quality-reports
+          path: pylint-report.json
+
+  pre-commit:
+    name: Pre-commit Hooks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pre-commit
+        run: |
+          pip install pre-commit
+
+      - name: Run pre-commit on all files
+        run: |
+          pre-commit run --all-files

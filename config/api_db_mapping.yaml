@@ -1,0 +1,467 @@
+# API to Database Mapping Registry
+# This file defines the correlation between API endpoints and database operations
+
+# ========================================================================
+# MAPPING STRUCTURE
+# ========================================================================
+# Each API endpoint maps to:
+#   - Stored procedures executed
+#   - Tables affected
+#   - Expected mutations
+#   - Correlation keys for validation
+
+api_db_mappings:
+
+  # ========================================================================
+  # ORDER MANAGEMENT APIs
+  # ========================================================================
+  
+  POST /api/orders/submit:
+    description: "Submit a new order"
+    http_method: "POST"
+    
+    stored_procedures:
+      - name: "sp_insert_order"
+        schema: "dbo"
+        execution_order: 1
+        expected_result: "order_id"
+      
+      - name: "sp_update_inventory"
+        schema: "dbo"
+        execution_order: 2
+        expected_result: "rows_updated"
+      
+      - name: "sp_create_order_items"
+        schema: "dbo"
+        execution_order: 3
+        expected_result: "item_count"
+      
+      - name: "sp_notify_warehouse"
+        schema: "dbo"
+        execution_order: 4
+        expected_result: "notification_sent"
+    
+    tables_affected:
+      - table: "orders"
+        schema: "dbo"
+        operation: "INSERT"
+        expected_changes:
+          row_count: "+1"
+          columns_updated: ["order_id", "customer_id", "status", "total_amount", "created_at"]
+      
+      - table: "order_items"
+        schema: "dbo"
+        operation: "INSERT"
+        expected_changes:
+          row_count: "+N"  # N = number of items
+          columns_updated: ["order_item_id", "order_id", "product_id", "quantity", "price"]
+      
+      - table: "inventory"
+        schema: "dbo"
+        operation: "UPDATE"
+        expected_changes:
+          row_count: "N"  # N = number of unique products
+          columns_updated: ["quantity_available", "last_updated"]
+      
+      - table: "order_audit_log"
+        schema: "audit"
+        operation: "INSERT"
+        expected_changes:
+          row_count: "+1"
+          columns_updated: ["order_id", "action", "timestamp", "user_id"]
+    
+    correlation_keys:
+      primary: "transaction_id"  # From API response
+      secondary: "order_id"  # Business key
+      request_id: "x-request-id"  # From request header
+    
+    validation_queries:
+      - name: "verify_order_created"
+        query: |
+          SELECT order_id, status, total_amount, customer_id
+          FROM dbo.orders
+          WHERE transaction_id = '{transaction_id}'
+          AND created_at >= DATEADD(SECOND, -30, GETDATE())
+        expected_row_count: 1
+        assertions:
+          - column: "status"
+            value: "PENDING"
+          - column: "total_amount"
+            operator: ">"
+            value: 0
+      
+      - name: "verify_order_items"
+        query: |
+          SELECT COUNT(*) as item_count
+          FROM dbo.order_items
+          WHERE order_id = '{order_id}'
+        expected_row_count: 1
+        assertions:
+          - column: "item_count"
+            operator: ">="
+            value: 1
+      
+      - name: "verify_inventory_updated"
+        query: |
+          SELECT product_id, quantity_available
+          FROM dbo.inventory
+          WHERE product_id IN ({product_ids})
+          AND last_updated >= DATEADD(SECOND, -30, GETDATE())
+        assertions:
+          - column: "quantity_available"
+            operator: ">="
+            value: 0
+
+  # ========================================================================
+  # ORDER UPDATE APIs
+  # ========================================================================
+
+  PATCH /api/orders/{order_id}/status:
+    description: "Update order status"
+    http_method: "PATCH"
+    
+    stored_procedures:
+      - name: "sp_update_order_status"
+        schema: "dbo"
+        execution_order: 1
+      
+      - name: "sp_log_status_change"
+        schema: "audit"
+        execution_order: 2
+    
+    tables_affected:
+      - table: "orders"
+        schema: "dbo"
+        operation: "UPDATE"
+        expected_changes:
+          row_count: "1"
+          columns_updated: ["status", "updated_at", "updated_by"]
+      
+      - table: "order_status_history"
+        schema: "dbo"
+        operation: "INSERT"
+        expected_changes:
+          row_count: "+1"
+    
+    correlation_keys:
+      primary: "order_id"
+      secondary: "x-request-id"
+    
+    validation_queries:
+      - name: "verify_status_updated"
+        query: |
+          SELECT status, updated_at
+          FROM dbo.orders
+          WHERE order_id = '{order_id}'
+        expected_row_count: 1
+        assertions:
+          - column: "status"
+            value: "{expected_status}"
+
+  # ========================================================================
+  # PAYMENT APIs
+  # ========================================================================
+
+  POST /api/payments/process:
+    description: "Process payment transaction"
+    http_method: "POST"
+    
+    stored_procedures:
+      - name: "sp_create_payment_transaction"
+        schema: "payments"
+        execution_order: 1
+      
+      - name: "sp_update_order_payment_status"
+        schema: "dbo"
+        execution_order: 2
+      
+      - name: "sp_record_payment_audit"
+        schema: "audit"
+        execution_order: 3
+    
+    tables_affected:
+      - table: "payment_transactions"
+        schema: "payments"
+        operation: "INSERT"
+        expected_changes:
+          row_count: "+1"
+          columns_updated: ["transaction_id", "order_id", "amount", "status", "payment_method"]
+      
+      - table: "orders"
+        schema: "dbo"
+        operation: "UPDATE"
+        expected_changes:
+          row_count: "1"
+          columns_updated: ["payment_status", "paid_at"]
+      
+      - table: "payment_audit_log"
+        schema: "audit"
+        operation: "INSERT"
+        expected_changes:
+          row_count: "+1"
+    
+    correlation_keys:
+      primary: "transaction_id"
+      secondary: "order_id"
+      request_id: "x-payment-request-id"
+    
+    validation_queries:
+      - name: "verify_payment_recorded"
+        query: |
+          SELECT transaction_id, status, amount
+          FROM payments.payment_transactions
+          WHERE transaction_id = '{transaction_id}'
+        expected_row_count: 1
+        assertions:
+          - column: "status"
+            value: ["APPROVED", "PENDING"]
+          - column: "amount"
+            operator: ">"
+            value: 0
+      
+      - name: "verify_order_payment_status"
+        query: |
+          SELECT payment_status
+          FROM dbo.orders
+          WHERE order_id = '{order_id}'
+        assertions:
+          - column: "payment_status"
+            value: "PAID"
+
+  # ========================================================================
+  # USER MANAGEMENT APIs
+  # ========================================================================
+
+  POST /api/users/register:
+    description: "Register new user"
+    http_method: "POST"
+    
+    stored_procedures:
+      - name: "sp_create_user"
+        schema: "users"
+        execution_order: 1
+      
+      - name: "sp_assign_default_role"
+        schema: "users"
+        execution_order: 2
+      
+      - name: "sp_send_verification_email"
+        schema: "notifications"
+        execution_order: 3
+    
+    tables_affected:
+      - table: "users"
+        schema: "users"
+        operation: "INSERT"
+        expected_changes:
+          row_count: "+1"
+          columns_updated: ["user_id", "email", "username", "password_hash", "created_at"]
+      
+      - table: "user_roles"
+        schema: "users"
+        operation: "INSERT"
+        expected_changes:
+          row_count: "+1"
+      
+      - table: "email_queue"
+        schema: "notifications"
+        operation: "INSERT"
+        expected_changes:
+          row_count: "+1"
+    
+    correlation_keys:
+      primary: "user_id"
+      secondary: "email"
+      request_id: "x-request-id"
+    
+    validation_queries:
+      - name: "verify_user_created"
+        query: |
+          SELECT user_id, email, username, is_verified
+          FROM users.users
+          WHERE email = '{email}'
+        expected_row_count: 1
+        assertions:
+          - column: "is_verified"
+            value: false
+      
+      - name: "verify_role_assigned"
+        query: |
+          SELECT role_name
+          FROM users.user_roles
+          WHERE user_id = '{user_id}'
+        expected_row_count: 1
+        assertions:
+          - column: "role_name"
+            value: "USER"
+
+  # ========================================================================
+  # INVENTORY APIs
+  # ========================================================================
+
+  GET /api/inventory/product/{product_id}:
+    description: "Get product inventory"
+    http_method: "GET"
+    
+    stored_procedures:
+      - name: "sp_get_product_inventory"
+        schema: "dbo"
+        execution_order: 1
+    
+    tables_affected:
+      - table: "inventory"
+        schema: "dbo"
+        operation: "SELECT"
+        expected_changes:
+          row_count: "0"  # Read-only operation
+    
+    correlation_keys:
+      primary: "product_id"
+    
+    validation_queries:
+      - name: "verify_inventory_data"
+        query: |
+          SELECT product_id, quantity_available, quantity_reserved
+          FROM dbo.inventory
+          WHERE product_id = '{product_id}'
+        expected_row_count: 1
+
+  PUT /api/inventory/adjust:
+    description: "Adjust inventory quantity"
+    http_method: "PUT"
+    
+    stored_procedures:
+      - name: "sp_adjust_inventory"
+        schema: "dbo"
+        execution_order: 1
+      
+      - name: "sp_log_inventory_adjustment"
+        schema: "audit"
+        execution_order: 2
+    
+    tables_affected:
+      - table: "inventory"
+        schema: "dbo"
+        operation: "UPDATE"
+        expected_changes:
+          row_count: "1"
+          columns_updated: ["quantity_available", "last_updated"]
+      
+      - table: "inventory_audit_log"
+        schema: "audit"
+        operation: "INSERT"
+        expected_changes:
+          row_count: "+1"
+    
+    correlation_keys:
+      primary: "product_id"
+      secondary: "adjustment_id"
+      request_id: "x-request-id"
+    
+    validation_queries:
+      - name: "verify_inventory_adjusted"
+        query: |
+          SELECT quantity_available
+          FROM dbo.inventory
+          WHERE product_id = '{product_id}'
+        expected_row_count: 1
+        assertions:
+          - column: "quantity_available"
+            value: "{expected_quantity}"
+
+
+# ========================================================================
+# GLOBAL CORRELATION SETTINGS
+# ========================================================================
+
+correlation_config:
+  
+  # Default correlation key priority
+  correlation_key_priority:
+    - "transaction_id"
+    - "request_id"
+    - "x-request-id"
+    - "order_id"
+    - "user_id"
+  
+  # Timeout for DB validation after API call
+  validation_timeout_seconds: 30
+  
+  # Retry policy for DB validation
+  validation_retry:
+    max_attempts: 3
+    retry_delay_seconds: 2
+    exponential_backoff: true
+  
+  # Allowed time drift between API and DB timestamps
+  timestamp_tolerance_seconds: 5
+
+
+# ========================================================================
+# DATABASE CONNECTION PROFILES
+# ========================================================================
+
+database_profiles:
+  
+  primary_db:
+    description: "Main application database"
+    type: "sql_server"
+    connection_string: "${DB_PRIMARY_CONNECTION_STRING}"
+    schemas:
+      - "dbo"
+      - "users"
+      - "payments"
+    read_only: true
+  
+  audit_db:
+    description: "Audit and logging database"
+    type: "sql_server"
+    connection_string: "${DB_AUDIT_CONNECTION_STRING}"
+    schemas:
+      - "audit"
+    read_only: true
+  
+  reporting_db:
+    description: "Reporting database (read replica)"
+    type: "postgresql"
+    connection_string: "${DB_REPORTING_CONNECTION_STRING}"
+    schemas:
+      - "public"
+    read_only: true
+
+
+# ========================================================================
+# VALIDATION RULES
+# ========================================================================
+
+validation_rules:
+  
+  # Enforce read-only operations
+  enforce_read_only: true
+  
+  # Block these SQL keywords in queries
+  blocked_keywords:
+    - "INSERT"
+    - "UPDATE"
+    - "DELETE"
+    - "DROP"
+    - "TRUNCATE"
+    - "ALTER"
+    - "CREATE"
+  
+  # Maximum query execution time
+  max_query_execution_seconds: 30
+  
+  # Maximum rows to return (safety limit)
+  max_rows_returned: 10000
+
+
+# ========================================================================
+# METADATA
+# ========================================================================
+
+metadata:
+  version: "1.0.0"
+  last_updated: "2026-01-25"
+  author: "QA Architecture Team"
+  description: "API to Database correlation mapping registry"

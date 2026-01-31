@@ -1,0 +1,65 @@
+- GroupNumber: GRP-3235
+  MemberName: Kelsey Bell
+  PayerName: Cigna
+  contact_method: Text
+  dob: 11/21/2006
+  email: linda76@mailinator.com
+  first_name: Julie
+  idNumber: INS-75554
+  last_name: Bowers
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '20678'
+  zip_distance: '50'
+- GroupNumber: GRP-2228
+  MemberName: Alicia Schmidt
+  PayerName: Blue Cross Blue Shield
+  contact_method: Text
+  dob: 11/12/1966
+  email: cruiz@yopmail.com
+  first_name: Marilyn
+  idNumber: INS-35943
+  last_name: Chavez
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '20678'
+  zip_distance: '50'
+- GroupNumber: GRP-4975
+  MemberName: Mary Parker
+  PayerName: Blue Cross Blue Shield
+  contact_method: Text
+  dob: 09/28/1947
+  email: erika88@yopmail.com
+  first_name: Charles
+  idNumber: INS-43131
+  last_name: Jones
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '20678'
+  zip_distance: '50'
+- GroupNumber: GRP-2116
+  MemberName: Monica Garner
+  PayerName: UnitedHealthcare
+  contact_method: Text
+  dob: 04/21/2000
+  email: hollowayvictoria@mailinator.com
+  first_name: Jennifer
+  idNumber: INS-13570
+  last_name: Quinn
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '20678'
+  zip_distance: '50'
+- GroupNumber: GRP-1382
+  MemberName: Dr. Scott Johnson
+  PayerName: UnitedHealthcare
+  contact_method: Text
+  dob: 10/05/1993
+  email: marissaschmidt@yopmail.com
+  first_name: Brian
+  idNumber: INS-71655
+  last_name: Guzman
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '20678'
+  zip_distance: '25'

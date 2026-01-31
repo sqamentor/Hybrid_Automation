@@ -1,0 +1,65 @@
+- GroupNumber: GRP-4240
+  MemberName: Laura Simpson
+  PayerName: Cigna
+  contact_method: Text
+  dob: 09/13/2005
+  email: alex89@mailinator.com
+  first_name: Steven
+  idNumber: INS-66064
+  last_name: Miller
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '20678'
+  zip_distance: '100'
+- GroupNumber: GRP-2880
+  MemberName: Brian Barry
+  PayerName: Aetna Health
+  contact_method: Text
+  dob: 03/09/1969
+  email: murphypatrick@mailinator.com
+  first_name: Robert
+  idNumber: INS-80537
+  last_name: Moreno
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '20678'
+  zip_distance: '50'
+- GroupNumber: GRP-5904
+  MemberName: Miss Sharon Smith MD
+  PayerName: Cigna
+  contact_method: Text
+  dob: 01/29/1942
+  email: wukayla@yopmail.com
+  first_name: Kathleen
+  idNumber: INS-83221
+  last_name: Hubbard
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '20678'
+  zip_distance: '50'
+- GroupNumber: GRP-5469
+  MemberName: Amanda Grimes
+  PayerName: Cigna
+  contact_method: Text
+  dob: 02/05/1960
+  email: gilbertkenneth@yopmail.com
+  first_name: Lisa
+  idNumber: INS-97297
+  last_name: Morris
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '20678'
+  zip_distance: '75'
+- GroupNumber: GRP-2550
+  MemberName: Lindsay Francis
+  PayerName: UnitedHealthcare
+  contact_method: Text
+  dob: 12/08/1988
+  email: pedwards@mailinator.com
+  first_name: Jared
+  idNumber: INS-57494
+  last_name: Ortiz
+  phone_number: '1234567890'
+  verification_code: '123456'
+  zip: '20678'
+  zip_distance: '50'

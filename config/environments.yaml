@@ -1,0 +1,323 @@
+# Environment Configuration
+# Define environment-specific settings for different deployment stages
+
+# NOTE: Application URLs are defined in projects.yaml
+# This file contains framework-level configuration only
+
+environments:
+  
+  # ========================================================================
+  # STAGING ENVIRONMENT
+  # ========================================================================
+  staging:
+    name: "Staging"
+    description: "Pre-production staging environment"
+    
+    # Application URLs - See projects.yaml for project-specific URLs
+    # ui_url and api_base_url are defined per project in projects.yaml
+    
+    # Database Configuration
+    database:
+      primary:
+        host: "staging-db.example.com"
+        port: 1433
+        name: "app_staging"
+        type: "sql_server"
+        username: "${DB_STAGING_USERNAME}"
+        password: "${DB_STAGING_PASSWORD}"
+        read_only: true
+      
+      audit:
+        host: "staging-db.example.com"
+        port: 1433
+        name: "audit_staging"
+        type: "sql_server"
+        username: "${DB_STAGING_USERNAME}"
+        password: "${DB_STAGING_PASSWORD}"
+        read_only: true
+    
+    # Test Users
+    test_users:
+      standard_user:
+        username: "staging.user@example.com"
+        password: "${STAGING_USER_PASSWORD}"
+        role: "USER"
+      
+      admin_user:
+        username: "staging.admin@example.com"
+        password: "${STAGING_ADMIN_PASSWORD}"
+        role: "ADMIN"
+    
+    # Browser Configuration
+    browser:
+      headless: true
+      slow_mo: 0
+      video: true  # Record video for debugging
+      tracing: true
+    
+    # Timeouts
+    timeouts:
+      page_load: 30000
+      element_wait: 10000
+      api_response: 15000
+      database_query: 10000
+    
+    # Retry Configuration
+    retry:
+      max_attempts: 3
+      delay_ms: 2000
+    
+    # Logging
+    logging:
+      level: "INFO"
+      console: true
+      file: true
+      file_path: "logs/staging/test_execution.log"
+  
+  # ========================================================================
+  # PRODUCTION ENVIRONMENT (READ-ONLY TESTING)
+  # ========================================================================
+  production:
+    name: "Production"
+    description: "Production environment (read-only smoke tests)"
+    
+    # Application URLs - See projects.yaml for project-specific URLs
+    # ui_url and api_base_url are defined per project in projects.yaml
+    
+    # Database Configuration
+    database:
+      primary:
+        host: "prod-db-replica.example.com"  # Read replica only
+        port: 1433
+        name: "app_prod"
+        type: "sql_server"
+        username: "${DB_PROD_READONLY_USERNAME}"
+        password: "${DB_PROD_READONLY_PASSWORD}"
+        read_only: true  # Enforced at framework level
+      
+      audit:
+        host: "prod-audit-replica.example.com"
+        port: 1433
+        name: "audit_prod"
+        type: "sql_server"
+        username: "${DB_PROD_READONLY_USERNAME}"
+        password: "${DB_PROD_READONLY_PASSWORD}"
+        read_only: true
+    
+    # Test Users (read-only test accounts)
+    test_users:
+      standard_user:
+        username: "prod.readonly@example.com"
+        password: "${PROD_READONLY_PASSWORD}"
+        role: "USER"
+    
+    # Browser Configuration
+    browser:
+      headless: true
+      slow_mo: 0
+      video: true
+      tracing: true
+    
+    # Timeouts
+    timeouts:
+      page_load: 45000  # Longer timeouts for production
+      element_wait: 15000
+      api_response: 20000
+      database_query: 15000
+    
+    # Retry Configuration
+    retry:
+      max_attempts: 1  # No retries in production (smoke tests only)
+      delay_ms: 0
+    
+    # Logging
+    logging:
+      level: "WARNING"  # Only warnings and errors
+      console: true
+      file: true
+      file_path: "logs/production/test_execution.log"
+    
+    # Production Restrictions
+    restrictions:
+      write_operations_blocked: true
+      destructive_tests_blocked: true
+      max_test_duration_minutes: 30
+
+
+# ========================================================================
+# GLOBAL SETTINGS (Apply to all environments)
+# ========================================================================
+global:
+  
+  # Framework Configuration
+  framework:
+    name: "Enterprise Hybrid Automation Framework"
+    version: "1.0.0"
+  
+  # Execution Flow Control
+  execution_flow:
+    # Mode: "ui_only", "ui_api", "ui_api_db" (full)
+    mode: "ui_api_db"  # Default: full flow
+    
+    # OR use individual component flags
+    components:
+      ui: true          # Always run UI (required)
+      api: true         # Run API validation and interception
+      database: true    # Run database verification
+    
+    # Skip behavior
+    skip_on_disabled:
+      log_message: true   # Log when skipping components
+      fail_test: false    # Don't fail test if component disabled
+  
+  # Reporting
+  reporting:
+    allure:
+      enabled: true
+      results_dir: "allure-results"
+      report_dir: "allure-report"
+    
+    html:
+      enabled: true
+      output_file: "reports/test_report.html"
+    
+    junit:
+      enabled: true
+      output_file: "reports/junit.xml"
+  
+  # Screenshot Configuration
+  screenshots:
+    on_failure: true
+    on_success: false
+    format: "png"
+    directory: "screenshots"
+  
+  # Video Recording
+  video:
+    directory: "videos"
+    format: "mp4"
+    retention_policy: "on_failure"  # "always", "on_failure", "never"
+  
+  # Playwright Trace
+  playwright_trace:
+    directory: "traces"
+    retention_policy: "on_failure"
+    screenshots: true
+    snapshots: true
+  
+  # API Logging
+  api_logging:
+    enabled: true
+    log_requests: true
+    log_responses: true
+    log_headers: true
+    log_body: true
+    directory: "logs/api"
+  
+  # Database Logging
+  db_logging:
+    enabled: true
+    log_queries: true
+    log_results: false  # Can be verbose
+    directory: "logs/database"
+  
+  # Cloud Grid Configuration (Optional)
+  cloud_grid:
+    enabled: false  # Enable for cloud execution
+    provider: "browserstack"  # or "lambdatest", "saucelabs"
+    
+    browserstack:
+      username: "${BROWSERSTACK_USERNAME}"
+      access_key: "${BROWSERSTACK_ACCESS_KEY}"
+      build_name: "Automation-${BUILD_NUMBER}"
+    
+    lambdatest:
+      username: "${LAMBDATEST_USERNAME}"
+      access_key: "${LAMBDATEST_ACCESS_KEY}"
+      build_name: "Automation-${BUILD_NUMBER}"
+  
+  # AI Engine Selector
+  ai_engine:
+    enabled: false
+    provider: "openai"
+    api_key: "${OPENAI_API_KEY}"
+    model: "gpt-4"
+  
+  # ========================================================================
+  # AI PROVIDERS CONFIGURATION (Multi-Provider Support)
+  # ========================================================================
+  ai_providers:
+    # Default provider to use when not specified
+    default: "openai"  # Options: "openai", "claude", "azure", "ollama"
+    
+    # Fallback behavior
+    fallback_enabled: true  # Try other providers if default fails
+    
+    # Provider definitions
+    providers:
+      # OpenAI (ChatGPT) - GPT-3.5, GPT-4, GPT-4o
+      openai:
+        type: "openai"
+        enabled: true
+        priority: 1  # Lower = higher priority for fallback
+        model: "gpt-4"  # Options: "gpt-3.5-turbo", "gpt-4", "gpt-4-turbo", "gpt-4o"
+        api_key: "${OPENAI_API_KEY}"  # Set in environment
+        api_base: null  # Optional: custom endpoint
+        temperature: 0.3
+        max_tokens: 4000
+        extra_params: {}
+      
+      # Anthropic (Claude) - Claude-3 Opus, Sonnet, Haiku
+      claude:
+        type: "anthropic"
+        enabled: true
+        priority: 2
+        model: "claude-3-5-sonnet-20241022"  # Options: "claude-3-opus-20240229", "claude-3-sonnet-20240229", "claude-3-5-sonnet-20241022", "claude-3-haiku-20240307"
+        api_key: "${ANTHROPIC_API_KEY}"  # Set in environment
+        temperature: 0.3
+        max_tokens: 4000
+        extra_params: {}
+      
+      # Azure OpenAI
+      azure:
+        type: "azure"
+        enabled: false  # Enable if using Azure
+        priority: 3
+        model: "gpt-4"  # Deployment name in Azure
+        api_key: "${AZURE_OPENAI_API_KEY}"
+        api_base: "${AZURE_OPENAI_ENDPOINT}"  # e.g., https://your-resource.openai.azure.com/
+        api_version: "2024-02-15-preview"
+        temperature: 0.3
+        max_tokens: 4000
+        extra_params: {}
+      
+      # Ollama (Local LLMs) - Llama, Mistral, CodeLlama, etc.
+      ollama:
+        type: "ollama"
+        enabled: false  # Enable if using local Ollama
+        priority: 4
+        model: "llama3.1"  # Options: "llama3.1", "mistral", "codellama", "phi3"
+        api_base: "http://localhost:11434"  # Ollama default endpoint
+        temperature: 0.3
+        max_tokens: 4000
+        extra_params: {}
+      
+      # Google Gemini (Future support)
+      gemini:
+        type: "gemini"
+        enabled: false
+        priority: 5
+        model: "gemini-pro"
+        api_key: "${GOOGLE_API_KEY}"
+        temperature: 0.3
+        max_tokens: 4000
+        extra_params: {}
+
+
+# ========================================================================
+# METADATA
+# ========================================================================
+metadata:
+  version: "1.0.0"
+  last_updated: "2026-01-25"
+  author: "QA Architecture Team"

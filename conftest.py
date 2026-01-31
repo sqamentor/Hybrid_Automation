@@ -1,0 +1,445 @@
+"""
+Root-level pytest configuration
+This conftest.py registers command-line options for all tests in the project
+
+Author: Lokendra Singh
+Email: qa.lokendra@gmail.com
+Website: www.sqamentor.com
+"""
+
+import pytest
+import platform
+import socket
+from datetime import datetime
+from framework.core.utils.human_actions import HumanBehaviorSimulator, get_behavior_config
+from utils.fake_data_generator import generate_bookslot_payload, load_bookslot_data
+
+
+def pytest_addoption(parser):
+    """Add custom command line options available to all tests"""
+    
+    # Project selection
+    parser.addoption(
+        "--project",
+        action="store",
+        default="bookslot",
+        choices=["bookslot", "callcenter", "patientintake"],
+        help="Project to run tests for (bookslot, callcenter, patientintake). Default: bookslot"
+    )
+    
+    # Environment selection
+    parser.addoption(
+        "--env",
+        action="store",
+        default="staging",
+        choices=["staging", "production", "prod"],
+        help="Environment to run tests against (staging, production). Default: staging"
+    )
+    
+    # Browser selection
+    parser.addoption(
+        "--test-browser",
+        action="store",
+        default="chromium",
+        choices=["chromium", "chrome", "firefox", "webkit", "safari", "msedge"],
+        help="Browser to use for testing (chromium, chrome, firefox, webkit, safari, msedge). Default: chromium"
+    )
+    
+    # Headless mode
+    parser.addoption(
+        "--headless",
+        action="store_true",
+        default=False,
+        help="Run browser in headless mode (no visible browser window)"
+    )
+    
+    # Execution mode
+    parser.addoption(
+        "--execution-mode",
+        action="store",
+        default=None,
+        choices=["ui_only", "ui_api", "ui_api_db"],
+        help="Execution flow mode: ui_only (UI tests only), ui_api (UI + API validation), ui_api_db (UI + API + DB validation)"
+    )
+    
+    # Human behavior simulation
+    parser.addoption(
+        "--enable-human-behavior",
+        action="store_true",
+        default=None,
+        help="Enable human-like behavior simulation (mouse movements, typing delays, etc.)"
+    )
+    
+    parser.addoption(
+        "--disable-human-behavior",
+        action="store_true",
+        default=False,
+        help="Disable human-like behavior simulation for faster execution"
+    )
+    
+    parser.addoption(
+        "--human-behavior-intensity",
+        action="store",
+        default="normal",
+        choices=["minimal", "normal", "high"],
+        help="Intensity of human behavior simulation: minimal (fast), normal (balanced), high (very realistic)"
+    )
+
+
+@pytest.fixture(scope="session")
+def project(request):
+    """
+    Project fixture - provides the project name
+    
+    Returns:
+        str: Project name (bookslot, callcenter, patientintake)
+    
+    Usage:
+        def test_example(project):
+            print(f"Running tests for {project}")
+    """
+    return request.config.getoption("--project")
+
+
+@pytest.fixture(scope="session")
+def env(request):
+    """
+    Environment fixture - provides the environment name
+    
+    Returns:
+        str: Environment name (dev, staging, production)
+    
+    Usage:
+        def test_example(env):
+            print(f"Running on {env}")
+    """
+    env_value = request.config.getoption("--env")
+    # Normalize 'prod' to 'production'
+    if env_value == "prod":
+        env_value = "production"
+    return env_value
+
+
+@pytest.fixture(scope="session")
+def browser_config(request):
+    """
+    Browser configuration fixture
+    
+    Returns:
+        dict: Browser configuration with 'name' and 'headless' keys
+    
+    Usage:
+        def test_example(browser_config):
+            print(f"Browser: {browser_config['name']}")
+            print(f"Headless: {browser_config['headless']}")
+    """
+    return {
+        "name": request.config.getoption("--test-browser"),
+        "headless": request.config.getoption("--headless")
+    }
+
+
+@pytest.fixture
+def multi_project_config(env):
+    """
+    Multi-project configuration - Dynamically loads from projects.yaml
+    Returns URLs for different projects in current environment
+    Supports: staging, production
+    
+    Usage:
+        def test_example(multi_project_config):
+            bookslot_url = multi_project_config['bookslot']['ui_url']
+            print(f"BookSlot URL: {bookslot_url}")
+    """
+    from pathlib import Path
+    import yaml
+    
+    # DEBUG: Print received environment
+    print(f"\n[CONFIG] Environment received: {env}")
+    
+    # Load projects.yaml directly
+    config_path = Path(__file__).parent / "config" / "projects.yaml"
+    
+    if config_path.exists():
+        with open(config_path, 'r') as f:
+            projects_data = yaml.safe_load(f)
+            projects_config = projects_data.get('projects', {})
+        print(f"[CONFIG] Loaded projects.yaml")
+    else:
+        projects_config = {}
+        print(f"[CONFIG] WARNING: projects.yaml not found at {config_path}")
+    
+    # Build project URLs dictionary for current environment
+    result = {}
+    for project_name in ['bookslot', 'patientintake', 'callcenter']:
+        if project_name in projects_config:
+            project = projects_config[project_name]
+            env_config = project.get('environments', {}).get(env, {})
+            if env_config:
+                result[project_name] = env_config
+                print(f"[CONFIG] {project_name}.{env} URL: {env_config.get('ui_url')}")
+    
+    # Fail loudly if configuration is missing - no silent fallback to hardcoded values
+    if not result:
+        error_msg = (
+            f"[CONFIG] ERROR: No configuration found for environment '{env}' in projects.yaml\n"
+            f"Config file: {config_path}\n"
+            f"Available environments in projects.yaml: staging, production\n"
+            f"Please ensure projects.yaml exists and contains valid configuration."
+        )
+        print(error_msg)
+        raise ValueError(error_msg)
+    
+    print(f"[CONFIG] Final BookSlot URL: {result.get('bookslot', {}).get('ui_url', 'NOT FOUND')}")
+    return result
+
+
+@pytest.fixture(scope="function")
+def human_behavior(request):
+    """
+    Human Behavior Simulator fixture
+    
+    Provides human-like interaction simulation for tests.
+    Automatically integrates with 'browser' or 'page' fixtures.
+    
+    Configuration:
+        - Controlled via config/human_behavior.yaml
+        - Command line: --enable-human-behavior / --disable-human-behavior
+        - Intensity: --human-behavior-intensity [minimal|normal|high]
+    
+    Usage:
+        def test_with_human_behavior(human_behavior):
+            human_behavior.type_text(element, "Hello World")
+            human_behavior.click_element(button)
+            human_behavior.scroll_page('bottom')
+    
+    Or use pytest marker:
+        @pytest.mark.human_like
+        def test_example(browser):
+            # Automatically applies human-like behavior
+            pass
+    """
+    # Check for command-line overrides
+    enable_cli = request.config.getoption("--enable-human-behavior")
+    disable_cli = request.config.getoption("--disable-human-behavior")
+    intensity = request.config.getoption("--human-behavior-intensity")
+    
+    # Determine if enabled
+    if disable_cli:
+        enabled = False
+    elif enable_cli:
+        enabled = True
+    else:
+        # Check if test has 'human_like' marker
+        enabled = bool(request.node.get_closest_marker('human_like'))
+        if not enabled:
+            # Use config default
+            config = get_behavior_config()
+            enabled = config.is_enabled()
+    
+    # Get driver from available fixtures
+    driver = None
+    try:
+        # Try Playwright first
+        if 'page' in request.fixturenames:
+            driver = request.getfixturevalue('page')
+        elif 'browser' in request.fixturenames:
+            driver = request.getfixturevalue('browser')
+        elif 'driver' in request.fixturenames:
+            driver = request.getfixturevalue('driver')
+    except Exception as e:
+        print(f"[Human Behavior] Warning: Could not get driver fixture: {e}")
+    
+    if driver is None:
+        print("[Human Behavior] Warning: No driver found. Human behavior will not be available.")
+        # Return a mock object
+        class MockSimulator:
+            def type_text(self, *args, **kwargs): return True
+            def click_element(self, *args, **kwargs): return True
+            def scroll_page(self, *args, **kwargs): return True
+            def random_mouse_movements(self, *args, **kwargs): return True
+            def random_page_interactions(self, *args, **kwargs): return True
+            def simulate_idle(self, *args, **kwargs): return True
+        
+        return MockSimulator()
+    
+    # Create simulator
+    simulator = HumanBehaviorSimulator(driver, enabled=enabled)
+    
+    # Log status
+    status = "ENABLED" if enabled else "DISABLED"
+    print(f"[Human Behavior] {status} (intensity: {intensity})")
+    
+    # Auto-execute initial behaviors if marker present
+    if request.node.get_closest_marker('human_like') and enabled:
+        try:
+            simulator.random_mouse_movements(steps=5)
+            simulator.scroll_page('down', distance=300)
+        except Exception as e:
+            print(f"[Human Behavior] Initial behaviors failed: {e}")
+    
+    return simulator
+
+
+@pytest.fixture(scope="function", autouse=True)
+def auto_human_behavior_marker(request):
+    """
+    Auto-apply human behavior to tests marked with @pytest.mark.human_like
+    
+    This fixture runs automatically for all tests and checks for the marker.
+    """
+    if request.node.get_closest_marker('human_like'):
+        print(f"[Human Behavior] Auto-applying to test: {request.node.name}")
+
+
+# ============================================================================
+# FAKE DATA GENERATOR FIXTURES
+# ============================================================================
+
+@pytest.fixture(scope="function")
+def fake_bookslot_data():
+    """
+    Generate a fresh fake bookslot payload for each test.
+    
+    Usage:
+        def test_bookslot(fake_bookslot_data):
+            first_name = fake_bookslot_data['first_name']
+            email = fake_bookslot_data['email']
+    """
+    return generate_bookslot_payload()
+
+
+@pytest.fixture(scope="function")
+def fake_bookslot_batch():
+    """
+    Generate a batch of 5 fake bookslot payloads for each test.
+    
+    Usage:
+        def test_multiple_bookslots(fake_bookslot_batch):
+            for data in fake_bookslot_batch:
+                # Use each payload
+                pass
+    """
+    return [generate_bookslot_payload() for _ in range(5)]
+
+
+@pytest.fixture(scope="session")
+def bookslot_data_file():
+    """
+    Load bookslot data from pre-generated file (session-scoped).
+    
+    Usage:
+        def test_with_file_data(bookslot_data_file):
+            for data in bookslot_data_file:
+                # Use payload from file
+                pass
+    """
+    try:
+        return load_bookslot_data("bookslot_data.json")
+    except FileNotFoundError:
+        # Generate if file doesn't exist
+        from utils.fake_data_generator import generate_and_save_bookslot_data
+        return generate_and_save_bookslot_data(count=10)
+
+
+# ============================================================================
+# SMART ACTIONS FIXTURE
+# ============================================================================
+
+@pytest.fixture(scope="function")
+def smart_actions(page, human_behavior):
+    """
+    Provides SmartActions instance with automatic context-aware delays.
+    
+    This eliminates manual delay calls throughout test code!
+    
+    Usage:
+        def test_bookslot(smart_actions, fake_bookslot_data, page):
+            smart_actions.type_text(page.locator("#name"), fake_bookslot_data['first_name'], "First Name")
+            smart_actions.button_click(page.locator("#submit"), "Submit")
+    """
+    from framework.core.smart_actions import SmartActions
+    
+    enable_human = human_behavior is not None
+    return SmartActions(page, enable_human=enable_human, verbose=enable_human)
+
+
+# ============================================================================
+# PLAYWRIGHT BROWSER CONFIGURATION (Modern & Optimized)
+# ============================================================================
+
+@pytest.fixture(scope="session")
+def browser_context_args(browser_context_args):
+    """
+    🎯 GLOBAL BROWSER CONTEXT CONFIGURATION
+    
+    Override pytest-playwright's default browser context to use maximized window.
+    
+    Why viewport=None?
+    - Default: pytest-playwright uses 1280x720 fixed viewport
+    - With None: Browser uses actual window size (responsive testing)
+    - Best for: Modern responsive apps, real-world scenarios
+    
+    Scope: session (configured once, reused across all tests)
+    Applies to: All tests using 'page', 'context' fixtures from pytest-playwright
+    
+    Can be overridden per test:
+        @pytest.fixture
+        def browser_context_args():
+            return {"viewport": {"width": 1920, "height": 1080}}
+    """
+    return {
+        **browser_context_args,
+        "viewport": None,  # None = full window size (maximized/responsive)
+        "no_viewport": True,  # Explicitly disable viewport emulation
+    }
+
+
+@pytest.fixture(scope="session")
+def browser_type_launch_args(browser_type_launch_args):
+    """
+    🚀 GLOBAL BROWSER LAUNCH CONFIGURATION
+    
+    Override browser launch arguments for optimal testing experience.
+    
+    Why --start-maximized?
+    - Ensures browser opens in full-screen mode
+    - Better visibility during test execution
+    - Matches real user experience
+    
+    Cross-browser notes:
+    - Chromium/Chrome: --start-maximized works perfectly
+    - Firefox: Uses viewport=None from browser_context_args
+    - WebKit: Uses viewport=None from browser_context_args
+    
+    Scope: session (configured once, reused across all tests)
+    
+    Can be extended per test:
+        @pytest.fixture
+        def browser_type_launch_args():
+            return {"args": ["--start-maximized", "--disable-extensions"]}
+    """
+    return {
+        **browser_type_launch_args,
+        "args": [
+            "--start-maximized",  # Start browser in maximized window
+        ],
+    }
+
+
+def pytest_collection_modifyitems(config, items):
+    """
+    Mark sync Playwright tests to skip asyncio auto-wrapping.
+    This prevents the error: "Using Playwright Sync API inside asyncio loop"
+    """
+    for item in items:
+        # Check if test uses sync Playwright fixtures
+        sync_playwright_fixtures = [
+            "bookslot_page", "patientintake_page", "browser_manager", 
+            "context_manager", "page"
+        ]
+        
+        # If test uses any sync Playwright fixture, mark it to skip asyncio
+        if any(fixture in getattr(item, "fixturenames", []) for fixture in sync_playwright_fixtures):
+            # Add no_asyncio marker to prevent pytest-asyncio from wrapping
+            item.add_marker(pytest.mark.no_asyncio)

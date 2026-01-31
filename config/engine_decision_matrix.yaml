@@ -1,0 +1,461 @@
+# Engine Selection Decision Matrix
+# This YAML file defines rules for automatic engine selection based on test metadata
+
+# Decision Priority: Rules are now evaluated by priority weight (100 = highest, 0 = lowest)
+# Priority determines evaluation order - higher priority rules are checked first
+# Confidence Score: 0-100 (higher = more certain about engine choice)
+
+engine_selection_rules:
+  
+  # ========================================================================
+  # HIGH CONFIDENCE RULES (90-100%)
+  # Priority: 90-100 (Critical rules with specific requirements)
+  # ========================================================================
+  
+  # Rule 1: Explicit SSO/MFA/SAML authentication
+  - name: "Enterprise Authentication"
+    priority: 98  # Very high - security critical
+    condition:
+      auth_type: ["SSO", "MFA", "SAML", "ADFS", "Okta"]
+    engine: "selenium"
+    confidence: 95
+    reason: "Selenium has better support for enterprise authentication flows"
+    tags: ["security", "enterprise", "authentication"]
+  
+  # Rule 2: Deep iframe nesting (3+ levels)
+  - name: "Deep Iframe Structures"
+    priority: 95  # High - technical limitation
+    condition:
+      iframe_depth: ">= 3"
+    engine: "selenium"
+    confidence: 92
+    reason: "Selenium handles deeply nested iframes more reliably"
+    tags: ["legacy", "iframes"]
+  
+  # Rule 3: Modern SPA with API validation needs
+  - name: "Modern SPA with API Testing"
+    priority: 92  # High - modern architecture
+    condition:
+      ui_framework: ["React", "Vue", "Angular", "Svelte"]
+      xhr_heavy: true
+      api_validation_required: true
+    engine: "playwright"
+    confidence: 95
+    reason: "Playwright native network interception for API validation"
+    tags: ["modern", "spa", "api-aware"]
+  
+  # Rule 4: IE11 or legacy browser requirement
+  - name: "Legacy Browser Support"
+    priority: 100  # Highest - absolute requirement
+    condition:
+      browser: ["IE11", "IE10"]
+    engine: "selenium"
+    confidence: 100
+    reason: "Playwright does not support Internet Explorer"
+    tags: ["legacy", "browser-compatibility"]
+  
+  # ========================================================================
+  # MODULE-SPECIFIC RULES (80-89%)
+  # Priority: 80-89 (High priority for specific modules)
+  # ========================================================================
+  
+  # Rule 5: Payment and financial transactions
+  - name: "Payment Processing"
+    priority: 88  # High - security and compliance
+    condition:
+      module: ["payment", "checkout", "billing"]
+      security_level: "high"
+    engine: "selenium"
+    confidence: 85
+    reason: "Payment systems often use MFA and require stable, proven solutions"
+    tags: ["payment", "security", "compliance"]
+  
+  # Rule 6: Admin and back-office modules
+  - name: "Admin Panels"
+    priority: 82  # High - legacy systems
+    condition:
+      module: ["admin", "backoffice", "cms"]
+      legacy_ui: true
+    engine: "selenium"
+    confidence: 80
+    reason: "Admin panels often use legacy frameworks and iframes"
+    tags: ["admin", "legacy"]
+  
+  # Rule 7: User-facing modern dashboards
+  - name: "Modern User Dashboards"
+    priority: 85  # High - modern architecture
+    condition:
+      module: ["dashboard", "analytics", "reports"]
+      ui_framework: ["React", "Vue", "Angular"]
+    engine: "playwright"
+    confidence: 88
+    reason: "Modern dashboards benefit from Playwright's speed and API awareness"
+    tags: ["modern", "dashboard", "spa"]
+  
+  # Rule 8: Mobile-first applications
+  - name: "Mobile Responsive Sites"
+    priority: 87  # High - mobile optimization
+    condition:
+      mobile_first: true
+      responsive_design: true
+    engine: "playwright"
+    confidence: 90
+    reason: "Playwright has superior mobile emulation capabilities"
+    tags: ["mobile", "responsive"]
+  
+  # Rule 9: E-commerce product catalog
+  - name: "E-commerce Catalog"
+    priority: 83  # High - modern patterns
+    condition:
+      module: ["catalog", "product-listing", "search"]
+      ui_type: "spa"
+    engine: "playwright"
+    Priority: 70-79 (Medium-high priority for framework decisions)
+  # ========================================================================
+  
+  # Rule 10: Legacy JSP/ASP.NET applications
+  - name: "Legacy Web Frameworks"
+    priority: 75  # Medium-high - legacy compatibility
+    condition:
+      framework: ["JSP", "ASP.NET WebForms", "Struts", "Spring MVC"]
+    engine: "selenium"
+    confidence: 78
+    reason: "Legacy frameworks use traditional DOM patterns"
+    tags: ["legacy", "framework"]
+  
+  # Rule 11: Modern JavaScript frameworks
+  - name: "Modern JavaScript Frameworks"
+    priority: 78  # Medium-high - modern optimization
+    condition:
+      framework: ["Next.js", "Nuxt.js", "Gatsby", "Remix"]
+    engine: "playwright"
+    confidence: 85
+    reason: "Modern meta-frameworks are optimized for Playwright's capabilities"
+    tags: ["modern", "framework", "javascript"]
+  
+  # Rule 12: Shadow DOM usage
+  - name: "Shadow DOM Components"
+    priority: 80  # Medium-high - technical capability
+    confidence: 85
+    reason: "Modern meta-frameworks are optimized for Playwright's capabilities"
+    tags: ["modern", "framework", "javascript"]
+  
+  # Rule 12: Shadow DOM usage
+  - Priority: 60-69 (Medium priority for behavioral patterns)
+  # ========================================================================
+  
+  # Rule 13: Long-running sessions
+  - name: "Long Session Duration"
+    priority: 65  # Medium - stability consideration
+    condition:
+      session_duration: "> 30m"
+    engine: "selenium"
+    confidence: 65
+    reason: "Selenium has proven stability for long sessions"
+    tags: ["stability", "long-session"]
+  
+  # Rule 14: High parallelization needs
+  - name: "Parallel Execution"
+    priority: 72  # Medium-high - performance optimization
+    condition:
+      parallel_execution: true
+      test_count: "> 100"
+    engine: "playwright"
+    confidence: 85
+    reason: "Playwright's browser contexts enable efficient parallelization"
+    tags: ["performance", "parallel"]
+  
+  # Rule 15: Real-time features (WebSockets, SSE)
+  - name: "Real-time Applications"
+    priority: 68  # Medium - technical capability
+    condition:
+      parallel_execution: true
+      test_count: "> 100"
+    engine: "playwright"
+    confidence: 85
+    reason: "Playwright's browser contexts enable efficient parallelization"
+    Priority: 55-65 (Medium priority for industry patterns)
+  # ========================================================================
+  
+  # Rule 16: Healthcare/HIPAA applications
+  - name: "Healthcare Systems"
+    priority: 62  # Medium - compliance driven
+    condition:
+      industry: "healthcare"
+      compliance: ["HIPAA", "GDPR"]
+    engine: "selenium"
+    confidence: 75
+    reason: "Healthcare systems often use legacy architectures with strict compliance"
+    tags: ["healthcare", "compliance", "legacy"]
+  
+  # Rule 17: Financial/Banking systems
+  - name: "Financial Services"
+    priority: 64  # Medium - security driven
+    condition:
+      industry: ["banking", "finance", "insurance"]
+      security_level: "high"
+    engine: "selenium"
+    confidence: 80
+    reason: "Financial systems require proven, stable automation with MFA support"
+    tags: ["finance", "security", "compliance"]
+  
+  # Rule 18: SaaS platforms
+  - name: "SaaS Applications"
+    priority: 58  # Medium - modern patternsms often use legacy architectures with strict compliance"
+    tags: ["healthcare", "compliance", "legacy"]
+  
+  # Rule 17: Financial/Banking systems
+  - name: "Financial Services"
+    condition:
+      industry: ["banking", "finance", "insurance"]
+    Priority: 55-70 (Medium priority for performance optimization)
+  # ========================================================================
+  
+  # Rule 19: Speed-critical tests
+  - name: "Performance Testing"
+    priority: 70  # Medium-high - performance focus
+    condition:
+      speed_critical: true
+      execution_time_target: "< 5s"
+    engine: "playwright"
+    confidence: 88
+    reason: "Playwright is significantly faster for most scenarios"
+    tags: ["performance", "speed"]
+  
+  # Rule 20: Debugging and trace analysis
+  - name: "Debug and Trace"
+    priority: 75  # Medium-high - developer experience
+    condition:
+      debug_mode: true
+      trace_required: true
+    engine: "playwright"
+    confidence: 95
+    reason: "Playwright's trace viewer is superior for debugging"
+    tags: ["debug", "trace", "observability"]
+  
+  # ========================================================================
+  # DEFAULT FALLBACK (50-59%)
+  # Priority: 10 (Lowest priority - last resort)
+  # ========================================================================
+  
+  # Rule 21: Default for unknown scenarios
+  - name: "Default Modern Approach"
+    priority: 10  # Lowest - default fallbackantly faster for most scenarios"
+    tags: ["performance", "speed"]
+  
+  # Rule 20: Debugging and trace analysis
+  - name: "Debug and Trace"
+    condition:
+      debug_mode: true
+      trace_required: true
+    engine: "playwright"
+    confidence: 95
+    reason: "Playwright's trace viewer is superior for debugging"
+    tags: ["debug", "trace", "observability"]
+  
+  # ========================================================================
+  # DEFAULT FALLBACK (50-59%)
+  # ========================================================================
+  
+  # Rule 21: Default for unknown scenarios
+  - name: "Default Modern Approach"
+    condition:
+      default: true
+    engine: "playwright"
+    confidence: 70
+    reason: "Default to modern engine with fallback capability"
+    tags: ["default", "fallback"]
+    fallback_engine: "selenium"
+    fallback_conditions:
+      - "browser_crash"
+      - "navigation_timeout"
+      - "context_corruption"
+
+
+# ========================================================================
+# MODULE BEHAVIOR PROFILES
+# ========================================================================
+
+module_profiles:
+  
+  login:
+    description: "User authentication module"
+    typical_characteristics:
+      auth_type: ["SSO", "MFA", "OAuth", "Basic"]
+      session_duration: "short"
+    recommended_engine: "selenium"  # Due to common SSO/MFA
+  
+  checkout:
+    description: "E-commerce checkout flow"
+    typical_characteristics:
+      module: "checkout"
+      security_level: "high"
+      ui_framework: "modern"
+    recommended_engine: "selenium"  # Payment security
+  
+  dashboard:
+    description: "User dashboard and analytics"
+    typical_characteristics:
+      ui_framework: ["React", "Vue", "Angular"]
+      xhr_heavy: true
+      api_validation_required: true
+    recommended_engine: "playwright"  # Modern SPA
+  
+  admin:
+    description: "Administrative back-office"
+    typical_characteristics:
+      legacy_ui: true
+      iframe_depth: ">= 2"
+      module: "admin"
+    recommended_engine: "selenium"  # Legacy patterns
+  
+  catalog:
+    description: "Product catalog and search"
+    typical_characteristics:
+      ui_type: "spa"
+      xhr_heavy: true
+      real_time: true
+    recommended_engine: "playwright"  # Dynamic content
+  
+  reports:
+    description: "Reporting and data export"
+    typical_characteristics:
+      module: "reports"
+      legacy_ui: true
+      session_duration: "> 30m"
+    recommended_engine: "selenium"  # Long sessions
+
+
+# ========================================================================
+# FALLBACK CONFIGURATION
+# ========================================================================
+
+fallback_policy:
+  enabled: true
+  direction: "playwright_to_selenium"  # Only this direction supported
+  
+  trigger_conditions:
+    # Engine-level failures that warrant fallback
+    - "browser_process_crash"
+    - "browser_context_corruption"
+    - "navigation_timeout_exceeded"
+    - "webdriver_protocol_error"
+    - "page_load_timeout"
+  
+  non_trigger_conditions:
+    # Application failures that should NOT trigger fallback
+    - "element_not_found"
+    - "assertion_failure"
+    - "application_error"
+    - "business_logic_failure"
+  
+  retry_config:
+    max_attempts: 2  # Playwright (1) + Selenium fallback (1)
+    clean_session: true  # Start fresh Selenium session
+    report_both_attempts: true  # Log both in report
+
+
+# ========================================================================
+# AI ENGINE SELECTOR CONFIGURATION
+# Enhanced with:
+# - Local LLM support (Ollama, LlamaCPP)
+# - Retry logic with exponential backoff
+# - Response caching for performance
+# ========================================================================
+
+ai_engine_selector:
+  enabled: true  # Set to true to enable AI-based selection
+  
+  provider:
+    # Options: "openai", "azure_openai", "ollama", "llamacpp"
+    type: "openai"
+    
+    # Model name (depends on provider)
+    # OpenAI: "gpt-4", "gpt-4-turbo", "gpt-3.5-turbo"
+    # Azure: Your deployment name
+    # Ollama: "llama2", "mistral", "codellama", "phi"
+    # LlamaCPP: Not applicable (uses GGUF file)
+    model: "gpt-4"
+    
+    # API credentials (use environment variables)
+    api_endpoint: "${OPENAI_API_ENDPOINT}"
+    api_key: "${OPENAI_API_KEY}"
+  
+  # Retry Configuration (NEW)
+  retry:
+    enabled: true
+    max_attempts: 3  # Maximum retry attempts
+    initial_delay: 1.0  # Initial delay in seconds
+    backoff_strategy: "exponential"  # exponential (1s → 2s → 4s)
+    max_delay: 10.0  # Maximum delay between retries
+  
+  # Response Caching (NEW)
+  cache:
+    enabled: true
+    max_size: 100  # Maximum cached responses
+    ttl: 3600  # Time-to-live in seconds (1 hour)
+  
+  # Local LLM Configuration (NEW)
+  local_llm:
+    # Ollama settings
+    ollama:
+      host: "${OLLAMA_HOST:-http://localhost:11434}"
+      model: "${OLLAMA_MODEL:-llama2}"
+      timeout: 30  # Request timeout in seconds
+    
+    # LlamaCPP settings  
+    llamacpp:
+      model_path: "${LLAMACPP_MODEL_PATH}"  # Path to GGUF model file
+      n_ctx: 2048  # Context window size
+      n_threads: 4  # CPU threads
+      n_gpu_layers: 0  # GPU layers (0 = CPU only)
+  
+  fallback_to_yaml: true  # Use YAML rules if AI unavailable
+  
+  analysis_inputs:
+    - "test_metadata"  # Test markers, tags, module
+    - "historical_failures"  # Past execution results
+    - "execution_time"  # Performance metrics
+    - "failure_patterns"  # Common failure modes
+  
+  confidence_threshold: 80  # Minimum confidence to use AI recommendation
+  
+  prompt_template: |
+    Analyze the following test and recommend Playwright or Selenium:
+    
+    Test Name: {test_name}
+    Module: {module}
+    Markers: {markers}
+    Historical Failures: {historical_failures}
+    
+    Respond in JSON format:
+    {
+      "engine": "playwright" or "selenium",
+      "confidence": 0-100,
+      "reasoning": "explanation"
+    }
+
+
+# ========================================================================
+# CUSTOM OVERRIDES
+# ========================================================================
+
+custom_overrides:
+  # Force specific tests to specific engines
+  # Format: test_name_pattern -> engine
+  
+  "test_legacy_admin_*": "selenium"
+  "test_modern_spa_*": "playwright"
+  "*_payment_*": "selenium"
+  "*_mobile_*": "playwright"
+
+
+# ========================================================================
+# METADATA
+# ========================================================================
+
+metadata:
+  version: "1.0.0"
+  last_updated: "2026-01-25"
+  author: "QA Architecture Team"
+  description: "Automated engine selection decision matrix for hybrid Playwright/Selenium framework"

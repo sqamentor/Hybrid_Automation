@@ -1,0 +1,971 @@
+"""
+Human Behavior Simulation Module
+
+Production-ready human-like interaction simulation for automation testing.
+Mimics natural human behavior including typing delays, mouse movements,
+scrolling patterns, and random interactions.
+
+Features:
+- Configurable timing and behavior patterns
+- Environment-aware (dev/staging/production)
+- Supports both Selenium and Playwright
+- Anti-detection measures
+- Comprehensive error handling
+- Performance optimized with caching
+- Allure reporting integration
+
+Author: Lokendra Singh
+Email: qa.lokendra@gmail.com
+Website: www.sqamentor.com
+"""
+
+import os
+import random
+import time
+import yaml
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple, Union
+from functools import lru_cache
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.webdriver import WebDriver
+from selenium.webdriver.remote.webelement import WebElement
+import logging
+
+try:
+    import allure
+    ALLURE_AVAILABLE = True
+except ImportError:
+    ALLURE_AVAILABLE = False
+
+try:
+    from playwright.sync_api import Page, ElementHandle
+    PLAYWRIGHT_AVAILABLE = True
+except ImportError:
+    PLAYWRIGHT_AVAILABLE = False
+
+
+# Module logger
+logger = logging.getLogger(__name__)
+
+
+class HumanBehaviorConfig:
+    """Configuration manager for human behavior simulation"""
+    
+    _instance = None
+    _config: Optional[Dict[str, Any]] = None
+    _env: Optional[str] = None
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+    
+    def __init__(self):
+        if self._config is None:
+            self.reload_config()
+    
+    def reload_config(self, env: Optional[str] = None):
+        """Load configuration from YAML file"""
+        config_path = Path(__file__).parent.parent.parent.parent / "config" / "human_behavior.yaml"
+        
+        if not config_path.exists():
+            logger.warning(f"Config file not found: {config_path}. Using defaults.")
+            self._config = self._get_default_config()
+            return
+        
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                self._config = yaml.safe_load(f)
+            
+            # Set environment
+            self._env = env or os.getenv('TEST_ENV', 'staging')
+            
+            # Apply environment-specific overrides
+            env_config = self._config.get('environments', {}).get(self._env, {})
+            if env_config:
+                self._config['enabled'] = env_config.get('enabled', self._config.get('enabled', True))
+                intensity = env_config.get('intensity', 'normal')
+                self._apply_preset(intensity)
+            
+            logger.info(f"Loaded human behavior config for environment: {self._env}")
+            
+        except Exception as e:
+            logger.error(f"Failed to load config: {e}. Using defaults.")
+            self._config = self._get_default_config()
+    
+    def _apply_preset(self, intensity: str):
+        """Apply performance preset"""
+        presets = self._config.get('presets', {})
+        preset = presets.get(intensity, {})
+        
+        if preset:
+            for category, settings in preset.items():
+                if category in self._config:
+                    self._config[category].update(settings)
+            logger.debug(f"Applied preset: {intensity}")
+    
+    def _get_default_config(self) -> Dict[str, Any]:
+        """Get default configuration"""
+        return {
+            'enabled': True,
+            'typing': {
+                'enabled': True,
+                'min_delay': 0.08,
+                'max_delay': 0.25,
+                'pause_probability': 0.12,
+                'pause_duration_min': 0.3,
+                'pause_duration_max': 1.2,
+                'thinking_pause_min': 0.2,
+                'thinking_pause_max': 0.6
+            },
+            'mouse': {
+                'enabled': True,
+                'movement_steps': 8,
+                'step_delay_min': 0.03,
+                'step_delay_max': 0.15,
+                'offset_variance': 5,
+                'pre_click_pause_min': 0.1,
+                'pre_click_pause_max': 0.4,
+                'post_click_pause_min': 0.2,
+                'post_click_pause_max': 0.6
+            },
+            'scrolling': {
+                'enabled': True,
+                'increment_min': 100,
+                'increment_max': 350,
+                'scroll_pause_min': 0.4,
+                'scroll_pause_max': 1.3
+            },
+            'idle': {
+                'enabled': True,
+                'min_duration': 0.8,
+                'max_duration': 2.5
+            },
+            'debug': {
+                'log_actions': True,
+                'allure_attachments': True
+            }
+        }
+    
+    def get(self, key: str, default: Any = None) -> Any:
+        """Get configuration value"""
+        keys = key.split('.')
+        value = self._config
+        
+        for k in keys:
+            if isinstance(value, dict):
+                value = value.get(k)
+                if value is None:
+                    return default
+            else:
+                return default
+        
+        return value if value is not None else default
+    
+    def is_enabled(self) -> bool:
+        """Check if human behavior simulation is enabled"""
+        return self.get('enabled', True)
+    
+    def is_category_enabled(self, category: str) -> bool:
+        """Check if specific category is enabled"""
+        return self.get(f'{category}.enabled', True)
+
+
+# Global config instance
+_config = HumanBehaviorConfig()
+
+
+def get_behavior_config() -> HumanBehaviorConfig:
+    """Get global behavior configuration instance"""
+    return _config
+
+
+class HumanBehaviorSimulator:
+    """
+    Main simulator class for human-like behavior
+    
+    Supports both Selenium WebDriver and Playwright
+    """
+    
+    def __init__(
+        self,
+        driver: Union[WebDriver, 'Page'],
+        config: Optional[HumanBehaviorConfig] = None,
+        enabled: Optional[bool] = None
+    ):
+        """
+        Initialize Human Behavior Simulator
+        
+        Args:
+            driver: Selenium WebDriver or Playwright Page
+            config: Configuration instance (uses global if None)
+            enabled: Override enabled state
+        """
+        self.driver = driver
+        self.config = config or get_behavior_config()
+        self._enabled = enabled if enabled is not None else self.config.is_enabled()
+        self.engine_type = self._detect_engine()
+        
+        logger.debug(f"Initialized HumanBehaviorSimulator (engine={self.engine_type}, enabled={self._enabled})")
+    
+    def _detect_engine(self) -> str:
+        """Detect automation engine type"""
+        if PLAYWRIGHT_AVAILABLE and isinstance(self.driver, Page):
+            return 'playwright'
+        return 'selenium'
+    
+    def type_text(
+        self,
+        element: Union[WebElement, 'ElementHandle', str],
+        text: str,
+        clear_first: bool = True
+    ) -> bool:
+        """
+        Type text with human-like delays
+        
+        Args:
+            element: Element to type into (WebElement, ElementHandle, or locator string)
+            text: Text to type
+            clear_first: Clear element before typing
+            
+        Returns:
+            bool: Success status
+        """
+        if not self._enabled or not self.config.is_category_enabled('typing'):
+            return self._fallback_type(element, text, clear_first)
+        
+        try:
+            typing_config = self.config.get('typing', {})
+            
+            # Resolve element
+            if isinstance(element, str):
+                element = self._find_element(element)
+            
+            # Pre-typing pause (thinking time)
+            self._pause(
+                typing_config.get('thinking_pause_min', 0.2),
+                typing_config.get('thinking_pause_max', 0.6)
+            )
+            
+            # Click and clear
+            if self.engine_type == 'playwright':
+                element.click()
+                if clear_first:
+                    element.fill('')
+            else:
+                element.click()
+                if clear_first:
+                    element.clear()
+                time.sleep(random.uniform(0.1, 0.3))
+            
+            # Type character by character
+            min_delay = typing_config.get('min_delay', 0.08)
+            max_delay = typing_config.get('max_delay', 0.25)
+            pause_prob = typing_config.get('pause_probability', 0.12)
+            pause_min = typing_config.get('pause_duration_min', 0.3)
+            pause_max = typing_config.get('pause_duration_max', 1.2)
+            
+            for i, char in enumerate(text):
+                # Type character
+                if self.engine_type == 'playwright':
+                    element.type(char)
+                else:
+                    element.send_keys(char)
+                
+                # Random delay
+                time.sleep(random.uniform(min_delay, max_delay))
+                
+                # Random pause (thinking/hesitation)
+                if random.random() < pause_prob:
+                    self._pause(pause_min, pause_max)
+                    self._log_action(f"Natural pause while typing at position {i}")
+            
+            # Post-typing pause
+            self._pause(0.2, 0.5)
+            
+            self._log_action(f"Typed text: '{text[:20]}...' into element", attach_to_allure=True)
+            return True
+            
+        except Exception as e:
+            logger.error(f"Human typing failed: {e}")
+            return self._fallback_type(element, text, clear_first)
+    
+    def click_element(
+        self,
+        element: Union[WebElement, 'ElementHandle', str],
+        with_hover: bool = True
+    ) -> bool:
+        """
+        Click element with human-like mouse movement
+        
+        Args:
+            element: Element to click
+            with_hover: Hover before clicking
+            
+        Returns:
+            bool: Success status
+        """
+        if not self._enabled or not self.config.is_category_enabled('mouse'):
+            return self._fallback_click(element)
+        
+        try:
+            mouse_config = self.config.get('mouse', {})
+            
+            # Resolve element
+            if isinstance(element, str):
+                element = self._find_element(element)
+            
+            # Scroll into view
+            self._scroll_to_element(element)
+            
+            # Hover before clicking
+            if with_hover and random.random() < mouse_config.get('hover_probability', 0.25):
+                hover_min = mouse_config.get('hover_duration_min', 0.3)
+                hover_max = mouse_config.get('hover_duration_max', 1.2)
+                self._hover_element(element, duration=(hover_min, hover_max))
+            
+            # Pre-click pause
+            self._pause(
+                mouse_config.get('pre_click_pause_min', 0.1),
+                mouse_config.get('pre_click_pause_max', 0.4)
+            )
+            
+            # Perform click based on engine
+            if self.engine_type == 'playwright':
+                element.click()
+            else:
+                # Selenium: Human-like mouse movement
+                self._selenium_human_click(element, mouse_config)
+            
+            # Post-click pause
+            self._pause(
+                mouse_config.get('post_click_pause_min', 0.2),
+                mouse_config.get('post_click_pause_max', 0.6)
+            )
+            
+            self._log_action(f"Clicked element", attach_to_allure=True)
+            return True
+            
+        except Exception as e:
+            logger.error(f"Human click failed: {e}")
+            return self._fallback_click(element)
+    
+    def scroll_page(
+        self,
+        direction: str = 'down',
+        distance: Optional[int] = None,
+        smooth: bool = True
+    ) -> bool:
+        """
+        Scroll page with human-like behavior
+        
+        Args:
+            direction: 'down', 'up', 'bottom', 'top'
+            distance: Specific distance to scroll (pixels)
+            smooth: Use smooth scrolling
+            
+        Returns:
+            bool: Success status
+        """
+        if not self._enabled or not self.config.is_category_enabled('scrolling'):
+            return self._fallback_scroll(direction, distance)
+        
+        try:
+            scroll_config = self.config.get('scrolling', {})
+            
+            if direction == 'bottom':
+                self._scroll_to_bottom(scroll_config)
+            elif direction == 'top':
+                self._scroll_to_top()
+            else:
+                scroll_dist = distance or random.randint(
+                    scroll_config.get('increment_min', 100),
+                    scroll_config.get('increment_max', 350)
+                )
+                
+                if direction == 'up':
+                    scroll_dist = -scroll_dist
+                
+                self._execute_scroll(scroll_dist, scroll_config)
+            
+            self._log_action(f"Scrolled {direction}", attach_to_allure=False)
+            return True
+            
+        except Exception as e:
+            logger.error(f"Human scroll failed: {e}")
+            return self._fallback_scroll(direction, distance)
+    
+    def random_mouse_movements(self, steps: int = 10) -> bool:
+        """
+        Perform random mouse movements over page elements
+        
+        Args:
+            steps: Number of random movements
+            
+        Returns:
+            bool: Success status
+        """
+        if not self._enabled or not self.config.is_category_enabled('mouse_movement'):
+            return True
+        
+        if self.engine_type != 'selenium':
+            logger.debug("Random mouse movements only supported for Selenium")
+            return True
+        
+        try:
+            movement_config = self.config.get('mouse_movement', {})
+            visible_elements = self._get_visible_elements()
+            
+            if not visible_elements:
+                logger.warning("No visible elements found for mouse movement")
+                return True
+            
+            actions = ActionChains(self.driver)
+            
+            for i in range(min(steps, len(visible_elements))):
+                element = random.choice(visible_elements)
+                
+                try:
+                    # Scroll into view
+                    self.driver.execute_script(
+                        "arguments[0].scrollIntoView({block: 'center', behavior: 'smooth'});",
+                        element
+                    )
+                    time.sleep(random.uniform(0.2, 0.5))
+                    
+                    # Hover
+                    actions.move_to_element(element).perform()
+                    
+                    hover_min = movement_config.get('hover_duration_min', 0.4)
+                    hover_max = movement_config.get('hover_duration_max', 1.3)
+                    self._pause(hover_min, hover_max)
+                    
+                    # Random click
+                    if random.random() < movement_config.get('click_probability', 0.25):
+                        try:
+                            element.click()
+                            self._log_action(f"Random clicked: {element.tag_name}")
+                        except:
+                            pass
+                    
+                    # Move away
+                    if random.random() < movement_config.get('move_away_probability', 0.20):
+                        offset_x = random.randint(-50, 50)
+                        offset_y = random.randint(-50, 50)
+                        actions.move_by_offset(offset_x, offset_y).perform()
+                        time.sleep(random.uniform(0.2, 0.5))
+                        # Reset offset
+                        actions.move_by_offset(-offset_x, -offset_y).perform()
+                
+                except Exception as e:
+                    logger.debug(f"Could not interact with element: {e}")
+                    continue
+            
+            self._log_action(f"Completed {steps} random mouse movements")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Random mouse movements failed: {e}")
+            return False
+    
+    def random_page_interactions(self, max_interactions: int = 3) -> bool:
+        """
+        Perform random interactions with page elements
+        
+        Args:
+            max_interactions: Maximum number of interactions
+            
+        Returns:
+            bool: Success status
+        """
+        if not self._enabled or not self.config.is_category_enabled('interactions'):
+            return True
+        
+        try:
+            interaction_config = self.config.get('interactions', {})
+            interactions_performed = 0
+            
+            # Random checkbox/radio interactions
+            if random.random() < interaction_config.get('checkbox_probability', 0.20):
+                checkboxes = self._find_elements("input[type='checkbox'], input[type='radio']")
+                if checkboxes:
+                    checkbox = random.choice(checkboxes)
+                    try:
+                        if self._is_element_visible(checkbox):
+                            checkbox.click()
+                            self._log_action("Random checkbox interaction")
+                            interactions_performed += 1
+                            self._pause(0.5, 1.5)
+                    except:
+                        pass
+            
+            # Random dropdown interactions
+            if random.random() < interaction_config.get('dropdown_probability', 0.15):
+                dropdowns = self._find_elements("select")
+                if dropdowns:
+                    dropdown = random.choice(dropdowns)
+                    try:
+                        if self._is_element_visible(dropdown):
+                            options = dropdown.find_elements(By.TAG_NAME, "option")
+                            if options and len(options) > 1:
+                                random.choice(options[1:]).click()  # Skip first option
+                                self._log_action("Random dropdown interaction")
+                                interactions_performed += 1
+                                self._pause(0.5, 1.5)
+                    except:
+                        pass
+            
+            # Random link hover
+            if random.random() < interaction_config.get('link_hover_probability', 0.10):
+                links = self._find_elements("a")
+                if links:
+                    link = random.choice(links)
+                    try:
+                        if self._is_element_visible(link) and self.engine_type == 'selenium':
+                            actions = ActionChains(self.driver)
+                            actions.move_to_element(link).perform()
+                            self._log_action("Random link hover")
+                            interactions_performed += 1
+                            self._pause(0.5, 1.0)
+                    except:
+                        pass
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"Random page interactions failed: {e}")
+            return False
+    
+    def simulate_idle(self, duration: Optional[Tuple[float, float]] = None) -> bool:
+        """
+        Simulate idle/thinking time
+        
+        Args:
+            duration: Tuple of (min, max) seconds
+            
+        Returns:
+            bool: Success status
+        """
+        if not self._enabled or not self.config.is_category_enabled('idle'):
+            return True
+        
+        idle_config = self.config.get('idle', {})
+        
+        if duration is None:
+            min_dur = idle_config.get('min_duration', 0.8)
+            max_dur = idle_config.get('max_duration', 2.5)
+            duration = (min_dur, max_dur)
+        
+        self._pause(duration[0], duration[1])
+        self._log_action(f"Idle pause: {duration[1]:.2f}s")
+        return True
+    
+    # ==================== Helper Methods ====================
+    
+    def _selenium_human_click(self, element: WebElement, config: Dict):
+        """Perform human-like click with mouse movement (Selenium)"""
+        try:
+            actions = ActionChains(self.driver)
+            elem_rect = element.rect
+            
+            # Calculate element center
+            elem_center_x = elem_rect['x'] + elem_rect['width'] / 2
+            elem_center_y = elem_rect['y'] + elem_rect['height'] / 2
+            
+            # Current position (0, 0)
+            curr_x, curr_y = 0, 0
+            steps = config.get('movement_steps', 8)
+            
+            # Move to element in steps
+            for i in range(1, steps + 1):
+                interp_x = curr_x + (elem_center_x - curr_x) * (i / steps)
+                interp_y = curr_y + (elem_center_y - curr_y) * (i / steps)
+                
+                actions.move_by_offset(interp_x - curr_x, interp_y - curr_y)
+                actions.perform()
+                
+                curr_x, curr_y = interp_x, interp_y
+                time.sleep(random.uniform(
+                    config.get('step_delay_min', 0.03),
+                    config.get('step_delay_max', 0.15)
+                ))
+            
+            # Add random offset for natural variance
+            offset_variance = config.get('offset_variance', 5)
+            offset_x = random.randint(-offset_variance, offset_variance)
+            offset_y = random.randint(-offset_variance, offset_variance)
+            
+            actions.move_by_offset(offset_x, offset_y)
+            actions.pause(random.uniform(0.1, 0.3))
+            actions.click()
+            actions.perform()
+            
+        except Exception as e:
+            logger.warning(f"Human mouse movement failed, using normal click: {e}")
+            element.click()
+    
+    def _scroll_to_bottom(self, config: Dict):
+        """Scroll to bottom with human-like behavior"""
+        if self.engine_type == 'playwright':
+            scroll_height = self.driver.evaluate("document.body.scrollHeight")
+        else:
+            scroll_height = self.driver.execute_script("return document.body.scrollHeight")
+        
+        current_scroll = 0
+        
+        while current_scroll < scroll_height:
+            increment = random.randint(
+                config.get('increment_min', 100),
+                config.get('increment_max', 350)
+            )
+            current_scroll = min(current_scroll + increment, scroll_height)
+            
+            if self.engine_type == 'playwright':
+                self.driver.evaluate(f"window.scrollTo(0, {current_scroll})")
+            else:
+                self.driver.execute_script(f"window.scrollTo(0, {current_scroll});")
+            
+            self._pause(
+                config.get('scroll_pause_min', 0.4),
+                config.get('scroll_pause_max', 1.3)
+            )
+            
+            # Long pause (reading)
+            if random.random() < config.get('long_pause_probability', 0.15):
+                self._pause(
+                    config.get('long_pause_min', 1.5),
+                    config.get('long_pause_max', 3.5)
+                )
+        
+        # Scroll back slightly (correction)
+        if random.random() < config.get('correction_probability', 0.3):
+            correction = random.randint(
+                config.get('correction_amount_min', 50),
+                config.get('correction_amount_max', 200)
+            )
+            current_scroll -= correction
+            
+            if self.engine_type == 'playwright':
+                self.driver.evaluate(f"window.scrollTo(0, {current_scroll})")
+            else:
+                self.driver.execute_script(f"window.scrollTo(0, {current_scroll});")
+            
+            self._pause(0.3, 0.8)
+    
+    def _scroll_to_top(self):
+        """Scroll to top"""
+        if self.engine_type == 'playwright':
+            self.driver.evaluate("window.scrollTo(0, 0)")
+        else:
+            self.driver.execute_script("window.scrollTo(0, 0);")
+        
+        self._pause(0.3, 0.6)
+    
+    def _execute_scroll(self, distance: int, config: Dict):
+        """Execute scroll by distance"""
+        if self.engine_type == 'playwright':
+            self.driver.evaluate(f"window.scrollBy(0, {distance})")
+        else:
+            self.driver.execute_script(f"window.scrollBy(0, {distance});")
+        
+        self._pause(
+            config.get('scroll_pause_min', 0.4),
+            config.get('scroll_pause_max', 1.3)
+        )
+    
+    def _scroll_to_element(self, element):
+        """Scroll element into view"""
+        try:
+            if self.engine_type == 'playwright':
+                element.scroll_into_view_if_needed()
+            else:
+                self.driver.execute_script(
+                    "arguments[0].scrollIntoView({block: 'center', behavior: 'smooth'});",
+                    element
+                )
+            time.sleep(random.uniform(0.2, 0.5))
+        except:
+            pass
+    
+    def _hover_element(self, element, duration: Tuple[float, float] = (0.3, 1.0)):
+        """Hover over element"""
+        try:
+            if self.engine_type == 'playwright':
+                element.hover()
+            else:
+                actions = ActionChains(self.driver)
+                actions.move_to_element(element).perform()
+            
+            self._pause(duration[0], duration[1])
+        except:
+            pass
+    
+    def _find_element(self, locator: str):
+        """Find element by locator"""
+        if self.engine_type == 'playwright':
+            return self.driver.locator(locator).first
+        else:
+            return self.driver.find_element(By.CSS_SELECTOR, locator)
+    
+    def _find_elements(self, locator: str) -> List:
+        """Find elements by locator"""
+        try:
+            if self.engine_type == 'playwright':
+                return self.driver.locator(locator).all()
+            else:
+                return self.driver.find_elements(By.CSS_SELECTOR, locator)
+        except:
+            return []
+    
+    def _get_visible_elements(self) -> List:
+        """Get visible interactive elements"""
+        if self.engine_type != 'selenium':
+            return []
+        
+        selectors = self.config.get('mouse_movement.hover_elements', [
+            "input", "button", "label", "select", "textarea", "a"
+        ])
+        
+        css_selector = ', '.join(selectors)
+        elements = self.driver.find_elements(By.CSS_SELECTOR, css_selector)
+        
+        visible = []
+        for el in elements:
+            try:
+                if el.is_displayed() and el.size['width'] > 10 and el.size['height'] > 10:
+                    visible.append(el)
+            except:
+                continue
+        
+        return visible
+    
+    def _is_element_visible(self, element) -> bool:
+        """Check if element is visible"""
+        try:
+            if self.engine_type == 'playwright':
+                return element.is_visible()
+            else:
+                return element.is_displayed()
+        except:
+            return False
+    
+    def _pause(self, min_duration: float, max_duration: float):
+        """Random pause"""
+        time.sleep(random.uniform(min_duration, max_duration))
+    
+    def _log_action(self, message: str, attach_to_allure: bool = False):
+        """Log action"""
+        if self.config.get('debug.log_actions', True):
+            logger.info(f"[Human Behavior] {message}")
+        
+        if attach_to_allure and ALLURE_AVAILABLE and self.config.get('debug.allure_attachments', True):
+            try:
+                allure.attach(
+                    message,
+                    name="Human Behavior Action",
+                    attachment_type=allure.attachment_type.TEXT
+                )
+            except:
+                pass
+    
+    # ==================== Fallback Methods ====================
+    
+    def _fallback_type(self, element, text: str, clear_first: bool = True) -> bool:
+        """Fallback to normal typing"""
+        try:
+            if isinstance(element, str):
+                element = self._find_element(element)
+            
+            if self.engine_type == 'playwright':
+                if clear_first:
+                    element.fill('')
+                element.type(text)
+            else:
+                if clear_first:
+                    element.clear()
+                element.send_keys(text)
+            
+            return True
+        except Exception as e:
+            logger.error(f"Fallback typing failed: {e}")
+            return False
+    
+    def _fallback_click(self, element) -> bool:
+        """Fallback to normal click"""
+        try:
+            if isinstance(element, str):
+                element = self._find_element(element)
+            
+            element.click()
+            return True
+        except Exception as e:
+            logger.error(f"Fallback click failed: {e}")
+            return False
+    
+    def _fallback_scroll(self, direction: str, distance: Optional[int]) -> bool:
+        """Fallback to normal scroll"""
+        try:
+            if direction == 'bottom':
+                if self.engine_type == 'playwright':
+                    self.driver.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+                else:
+                    self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            elif direction == 'top':
+                if self.engine_type == 'playwright':
+                    self.driver.evaluate("window.scrollTo(0, 0)")
+                else:
+                    self.driver.execute_script("window.scrollTo(0, 0);")
+            else:
+                dist = distance or 300
+                if direction == 'up':
+                    dist = -dist
+                
+                if self.engine_type == 'playwright':
+                    self.driver.evaluate(f"window.scrollBy(0, {dist})")
+                else:
+                    self.driver.execute_script(f"window.scrollBy(0, {dist});")
+            
+            return True
+        except Exception as e:
+            logger.error(f"Fallback scroll failed: {e}")
+            return False
+
+
+# ==================== Standalone Functions ====================
+
+def human_type(
+    element: Union[WebElement, 'ElementHandle', str],
+    text: str,
+    driver: Optional[Union[WebDriver, 'Page']] = None,
+    min_delay: float = 0.08,
+    max_delay: float = 0.25
+) -> bool:
+    """
+    Standalone function: Type text with human-like delays
+    
+    Args:
+        element: Element to type into
+        text: Text to type
+        driver: Driver instance (required if using locator string)
+        min_delay: Minimum delay between keystrokes
+        max_delay: Maximum delay between keystrokes
+    
+    Returns:
+        bool: Success status
+    """
+    if driver and isinstance(element, str):
+        simulator = HumanBehaviorSimulator(driver)
+        return simulator.type_text(element, text)
+    
+    # Direct typing
+    try:
+        if hasattr(element, 'click'):
+            element.click()
+            time.sleep(random.uniform(0.2, 0.5))
+        
+        for char in text:
+            element.send_keys(char) if hasattr(element, 'send_keys') else element.type(char)
+            time.sleep(random.uniform(min_delay, max_delay))
+            
+            if random.random() < 0.1:
+                time.sleep(random.uniform(0.3, 1.0))
+        
+        time.sleep(random.uniform(0.2, 0.5))
+        return True
+    except Exception as e:
+        logger.error(f"Human type failed: {e}")
+        return False
+
+
+def human_click(
+    driver: Union[WebDriver, 'Page'],
+    element: Union[WebElement, 'ElementHandle', str]
+) -> bool:
+    """
+    Standalone function: Click element with human-like behavior
+    
+    Args:
+        driver: Driver instance
+        element: Element to click
+    
+    Returns:
+        bool: Success status
+    """
+    simulator = HumanBehaviorSimulator(driver)
+    return simulator.click_element(element)
+
+
+def human_scroll_behavior(
+    driver: Union[WebDriver, 'Page'],
+    direction: str = 'bottom'
+) -> bool:
+    """
+    Standalone function: Scroll with human-like behavior
+    
+    Args:
+        driver: Driver instance
+        direction: 'down', 'up', 'bottom', 'top'
+    
+    Returns:
+        bool: Success status
+    """
+    simulator = HumanBehaviorSimulator(driver)
+    return simulator.scroll_page(direction)
+
+
+def random_mouse_movement(
+    driver: WebDriver,
+    steps: int = 10,
+    retry: int = 3
+) -> bool:
+    """
+    Standalone function: Perform random mouse movements
+    
+    Args:
+        driver: Selenium WebDriver
+        steps: Number of movements
+        retry: Retry attempts
+    
+    Returns:
+        bool: Success status
+    """
+    simulator = HumanBehaviorSimulator(driver)
+    return simulator.random_mouse_movements(steps)
+
+
+def random_page_interaction(
+    driver: Union[WebDriver, 'Page'],
+    max_interactions: int = 3
+) -> bool:
+    """
+    Standalone function: Perform random page interactions
+    
+    Args:
+        driver: Driver instance
+        max_interactions: Maximum interactions
+    
+    Returns:
+        bool: Success status
+    """
+    simulator = HumanBehaviorSimulator(driver)
+    return simulator.random_page_interactions(max_interactions)
+
+
+def simulate_idle(
+    driver: Union[WebDriver, 'Page'],
+    idle_time: Tuple[float, float] = (0.8, 2.5)
+) -> bool:
+    """
+    Standalone function: Simulate idle/thinking time
+    
+    Args:
+        driver: Driver instance
+        idle_time: Tuple of (min, max) duration
+    
+    Returns:
+        bool: Success status
+    """
+    simulator = HumanBehaviorSimulator(driver)
+    return simulator.simulate_idle(idle_time)
