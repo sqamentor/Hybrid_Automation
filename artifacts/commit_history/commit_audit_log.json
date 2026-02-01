@@ -1104,5 +1104,481 @@
         "line": 180
       }
     ]
+  },
+  {
+    "timestamp": "2026-02-02T00:32:21.283628",
+    "branch": "main",
+    "author": "sqamentor",
+    "email": "lokendra.tester@gmail.com",
+    "files_staged": [
+      "framework\\accessibility\\__init__.py",
+      "framework\\accessibility\\accessibility_tester.py",
+      "framework\\ai\\ai_provider_factory.py",
+      "framework\\ai\\nl_test_generator.py",
+      "framework\\api\\__init__.py",
+      "framework\\api\\api_client.py",
+      "framework\\api\\api_interceptor.py",
+      "framework\\api\\async_api_client.py",
+      "framework\\api\\graphql_client.py",
+      "framework\\api\\websocket_tester.py",
+      "framework\\auth\\auth_service.py",
+      "framework\\config\\async_config_manager.py",
+      "framework\\core\\ai_engine_selector.py",
+      "framework\\core\\async_smart_actions.py",
+      "framework\\core\\engine_selector.py",
+      "framework\\core\\execution_flow.py",
+      "framework\\core\\modern_engine_selector.py",
+      "framework\\core\\project_manager.py",
+      "framework\\core\\session_manager.py",
+      "framework\\core\\smart_actions.py",
+      "framework\\core\\utils\\__init__.py",
+      "framework\\core\\utils\\human_actions.py",
+      "framework\\core\\workflow_orchestrator.py",
+      "framework\\database\\async_client.py",
+      "framework\\database\\db_client.py",
+      "framework\\database\\db_validator.py",
+      "framework\\database\\query_builder.py",
+      "framework\\di_container.py",
+      "framework\\helpers\\__init__.py",
+      "framework\\helpers\\flow_helpers.py",
+      "framework\\i18n\\multi_language.py",
+      "framework\\intelligence\\__init__.py",
+      "framework\\intelligence\\ai_validation_suggester.py",
+      "framework\\microservices\\__init__.py",
+      "framework\\microservices\\base.py",
+      "framework\\microservices\\services.py",
+      "framework\\ml\\ml_test_optimizer.py",
+      "framework\\mobile\\__init__.py",
+      "framework\\mobile\\mobile_tester.py",
+      "framework\\models\\__init__.py",
+      "framework\\models\\config_models.py",
+      "framework\\observability\\__init__.py",
+      "framework\\observability\\logging.py",
+      "framework\\observability\\telemetry.py",
+      "framework\\performance\\performance_metrics.py",
+      "framework\\plugins\\__init__.py",
+      "framework\\plugins\\example_plugins.py",
+      "framework\\plugins\\plugin_system.py",
+      "framework\\protocols\\__init__.py",
+      "framework\\protocols\\automation_protocols.py",
+      "framework\\protocols\\base_protocols.py",
+      "framework\\protocols\\config_protocols.py",
+      "framework\\protocols\\reporting_protocols.py",
+      "framework\\recording\\__init__.py",
+      "framework\\recording\\ai_refactorer.py",
+      "framework\\recording\\codegen_wrapper.py",
+      "framework\\recording\\page_object_generator.py",
+      "framework\\recording\\recording_workflow.py",
+      "framework\\security\\__init__.py",
+      "framework\\security\\security_tester.py",
+      "framework\\testing\\distributed.py",
+      "framework\\testing\\visual.py",
+      "framework\\ui\\base_page.py",
+      "framework\\ui\\playwright_engine.py",
+      "framework\\ui\\selenium_engine.py",
+      "framework\\ui\\self_healing_locators.py",
+      "framework\\ui\\ui_factory.py",
+      "framework\\visual\\visual_regression.py",
+      "tests\\bookslot\\examples\\test_specific_pages_example.py",
+      "tests\\bookslot\\helpers\\navigation_helper.py",
+      "tests\\bookslot\\test_bookslot_basicinfo_page1.py",
+      "tests\\bookslot\\test_bookslot_complete_flows.py",
+      "tests\\bookslot\\test_bookslot_eventtype_page2.py",
+      "tests\\bookslot\\test_bookslot_insurance_page6.py",
+      "tests\\bookslot\\test_bookslot_personalinfo_page4.py",
+      "tests\\bookslot\\test_bookslot_referral_page5.py",
+      "tests\\bookslot\\test_bookslot_scheduler_page3.py",
+      "tests\\bookslot\\test_bookslot_validations.py",
+      "tests\\common\\test_recording_module.py",
+      "tests\\common\\test_recording_simple.py",
+      "tests\\comprehensive_report_enhancements.py",
+      "tests\\conftest.py",
+      "tests\\examples\\test_ai_resilience.py",
+      "tests\\examples\\test_complete_features_integration.py",
+      "tests\\examples\\test_comprehensive_all_features.py",
+      "tests\\examples\\test_e2e_with_ai_validation.py",
+      "tests\\examples\\test_enhanced_reporting_demo.py",
+      "tests\\examples\\test_multi_ai_providers.py",
+      "tests\\examples\\test_simple_enhanced_reporting.py",
+      "tests\\integration\\test_ai_enhanced_workflow.py",
+      "tests\\integration\\test_ai_validation_suggestions.py",
+      "tests\\integration\\test_bookslot_to_patientintake.py",
+      "tests\\integration\\test_enhanced_features.py",
+      "tests\\integration\\test_fixture_debug.py",
+      "tests\\integration\\test_playwright_pooling_features.py",
+      "tests\\integration\\test_selenium_grid_features.py",
+      "tests\\integration\\test_three_system_workflow.py",
+      "tests\\integration\\test_ui_api_db_flow.py",
+      "tests\\report_enhancements.py",
+      "tests\\unit\\test_api_interceptor.py",
+      "tests\\unit\\test_async_config_manager.py",
+      "tests\\unit\\test_async_smart_actions.py",
+      "tests\\unit\\test_config_models.py",
+      "tests\\unit\\test_di_container.py",
+      "tests\\unit\\test_exceptions.py",
+      "tests\\unit\\test_microservices_base.py",
+      "tests\\unit\\test_modern_engine_selector.py",
+      "tests\\unit\\test_plugin_system.py",
+      "tests\\unit\\test_protocols.py",
+      "tests\\unit\\test_query_builder.py",
+      "tests\\workflows\\conftest.py",
+      "tests\\workflows\\test_cross_engine_workflows.py"
+    ],
+    "files_scanned": 76,
+    "total_violations": 339,
+    "blocking_violations": 0,
+    "passed": true,
+    "violations": [
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 62
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 63
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 64
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 66
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 68
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 69
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 70
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 71
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 72
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 75
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 76
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 80
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 81
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 84
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 85
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 86
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 87
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 88
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 89
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 92
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 93
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 96
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 97
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 98
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 99
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 100
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 126
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 127
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 128
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 129
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 130
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 132
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 133
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 136
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 137
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 139
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 140
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 141
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 142
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 143
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 144
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 146
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 147
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 149
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 150
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 151
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 152
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 178
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 179
+      },
+      {
+        "file": "tests\\bookslot\\test_bookslot_complete_flows.py",
+        "rule": "direct-locator-in-test",
+        "severity": "WARNING",
+        "message": "Tests should use Page Objects, not direct page.locator() calls",
+        "line": 180
+      }
+    ]
   }
 ]
