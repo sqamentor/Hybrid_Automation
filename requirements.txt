@@ -65,7 +65,7 @@ websockets>=12.0  # WebSocket client (async)
 websocket-client>=1.7.0  # WebSocket client (sync) - for API Interceptor
 
 # Additional Testing Tools
-axe-core-python>=4.8.0  # Accessibility testing (optional - using CDN in code)
+# NOTE: Accessibility tester injects axe-core via CDN, no pip package required
 
 # ========================================================================
 # NEW FEATURES - Modern Framework Enhancements
