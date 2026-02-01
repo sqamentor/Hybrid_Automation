@@ -9,11 +9,9 @@ This example shows:
 4. Playwright context pooling and error handling
 """
 
-from datetime import datetime, timedelta
-
 import pytest
-
 from models.appointment import Appointment
+from datetime import datetime, timedelta
 
 
 @pytest.mark.integration

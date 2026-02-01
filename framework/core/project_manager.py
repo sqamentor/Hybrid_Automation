@@ -14,12 +14,11 @@ Features:
 
 import os
 import re
-from datetime import datetime
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
-from urllib.parse import urlparse
-
 import yaml
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple, Any
+from datetime import datetime
+from urllib.parse import urlparse
 
 
 class ProjectDetectionError(Exception):

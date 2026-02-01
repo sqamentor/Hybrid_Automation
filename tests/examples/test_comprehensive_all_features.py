@@ -27,11 +27,10 @@ Email: qa.lokendra@gmail.com
 Website: www.sqamentor.com
 """
 
-import os
-import sys
-from pathlib import Path
-
 import pytest
+import sys
+import os
+from pathlib import Path
 
 # Add project root to path
 project_root = Path(__file__).parents[2]

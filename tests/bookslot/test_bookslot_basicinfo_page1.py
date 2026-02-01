@@ -21,11 +21,10 @@ Run Commands:
     pytest tests/bookslot/test_basicinfo_page.py -k "email" -v
 """
 
-import allure
 import pytest
-
-from pages.bookslot.bookslots_basicinfo_page1 import BookslotBasicInfoPage
+import allure
 from tests.bookslot.helpers.navigation_helper import BookslotNavigator
+from pages.bookslot.bookslots_basicinfo_page1 import BookslotBasicInfoPage
 
 
 @allure.epic("Bookslot")

@@ -19,20 +19,19 @@ Email: qa.lokendra@gmail.com
 Website: www.sqamentor.com
 """
 
-import logging
 import os
 import random
 import time
-from functools import lru_cache
+import yaml
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
-
-import yaml
+from functools import lru_cache
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
+import logging
 
 try:
     import allure
@@ -41,7 +40,7 @@ except ImportError:
     ALLURE_AVAILABLE = False
 
 try:
-    from playwright.sync_api import ElementHandle, Page
+    from playwright.sync_api import Page, ElementHandle
     PLAYWRIGHT_AVAILABLE = True
 except ImportError:
     PLAYWRIGHT_AVAILABLE = False

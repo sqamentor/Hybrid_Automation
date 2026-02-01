@@ -8,6 +8,7 @@ This example shows:
 
 import pytest
 
+
 # ===================================================================
 # SELENIUM GRID INTEGRATION EXAMPLE
 # ===================================================================
@@ -21,7 +22,7 @@ def test_selenium_grid_execution():
     Demonstrates running tests on remote Selenium Grid
     """
     from framework.ui.selenium_engine import SeleniumEngine
-
+    
     # Configure for Grid execution
     engine = SeleniumEngine(
         browser_type="chrome",

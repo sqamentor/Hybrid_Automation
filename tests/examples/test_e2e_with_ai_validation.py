@@ -6,9 +6,8 @@ database validations in a real-world e-commerce order placement scenario.
 """
 
 import pytest
-
-from framework.core.execution_flow import execution_flow
 from framework.intelligence import AIValidationSuggester, suggest_and_validate
+from framework.core.execution_flow import execution_flow
 
 
 @pytest.mark.integration

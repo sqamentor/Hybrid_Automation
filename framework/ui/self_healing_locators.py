@@ -5,10 +5,9 @@ Automatically finds alternative locators when elements can't be found,
 using multiple strategies and AI-powered similarity matching.
 """
 
-import difflib
+from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
-
+import difflib
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -96,9 +95,9 @@ class SelfHealingLocators:
         elif self.engine_type == 'SeleniumEngine':
             driver = self.ui_engine.get_driver()
             from selenium.webdriver.common.by import By
-            from selenium.webdriver.support import expected_conditions as EC
             from selenium.webdriver.support.ui import WebDriverWait
-
+            from selenium.webdriver.support import expected_conditions as EC
+            
             # Determine locator type
             if locator.startswith('//'):
                 by = By.XPATH

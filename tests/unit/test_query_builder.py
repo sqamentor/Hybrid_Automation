@@ -5,15 +5,9 @@ Tests the QueryBuilder functionality.
 """
 
 import pytest
-
 from framework.database.query_builder import (
-    JoinType,
-    Operator,
-    QueryBuilder,
-    count_rows,
-    exists,
-    find_by_id,
-    select_all,
+    QueryBuilder, Operator, JoinType,
+    select_all, count_rows, find_by_id, exists
 )
 
 

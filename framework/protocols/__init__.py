@@ -5,19 +5,19 @@ This module defines Protocol classes for interface contracts across the framewor
 Protocols enable structural subtyping (duck typing) with type safety.
 """
 
+from framework.protocols.base_protocols import (
+    Configurable,
+    Executable,
+    AsyncExecutable,
+    Reportable,
+    Validatable,
+    LifecycleManaged,
+)
 from framework.protocols.automation_protocols import (
-    ActionPerformer,
     AutomationEngine,
     PageObject,
     TestDataProvider,
-)
-from framework.protocols.base_protocols import (
-    AsyncExecutable,
-    Configurable,
-    Executable,
-    LifecycleManaged,
-    Reportable,
-    Validatable,
+    ActionPerformer,
 )
 from framework.protocols.config_protocols import (
     ConfigProvider,
@@ -25,9 +25,9 @@ from framework.protocols.config_protocols import (
     SecretProvider,
 )
 from framework.protocols.reporting_protocols import (
-    ArtifactStorage,
-    MetricsCollector,
     ReportGenerator,
+    MetricsCollector,
+    ArtifactStorage,
 )
 
 __all__ = [

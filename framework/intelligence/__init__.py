@@ -5,15 +5,14 @@ This module uses AI to analyze API responses and suggest appropriate database va
 It learns from API → DB mappings and generates intelligent validation queries.
 """
 
-import hashlib
 import json
 import os
+import hashlib
 import time
-from collections import defaultdict
+from typing import Dict, Any, List, Optional, Tuple
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple
-
+from collections import defaultdict
 from config.settings import settings
 from utils.logger import get_logger
 
@@ -90,7 +89,6 @@ class ValidationPatternCache:
     def _normalize_endpoint(self, endpoint: str) -> str:
         """Normalize endpoint by replacing IDs with placeholders"""
         import re
-
         # Replace numeric IDs
         normalized = re.sub(r'/\d+', '/{id}', endpoint)
         # Replace UUID patterns
@@ -443,7 +441,7 @@ class AIValidationSuggester:
         """Initialize AI client using multi-provider factory"""
         try:
             from framework.ai.ai_provider_factory import get_ai_provider
-
+            
             # Get AI provider
             self.ai_provider = get_ai_provider(self.provider_name)
             self.enabled = True
@@ -613,7 +611,7 @@ Focus on:
         
         try:
             import signal
-
+            
             # Set timeout for AI request (30 seconds max)
             def timeout_handler(signum, frame):
                 raise TimeoutError("AI request timed out")

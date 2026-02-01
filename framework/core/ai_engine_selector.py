@@ -11,14 +11,13 @@ Features:
 - Graceful degradation when AI is unavailable
 """
 
-import hashlib
 import json
 import os
 import time
+import hashlib
+from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, field
 from functools import wraps
-from typing import Any, Dict, List, Optional
-
 from framework.core.engine_selector import EngineDecision
 from utils.logger import get_logger
 
@@ -164,7 +163,7 @@ class AIEngineSelector:
         """Initialize Ollama client"""
         try:
             import requests
-
+            
             # Check if Ollama is running
             ollama_host = os.getenv('OLLAMA_HOST', 'http://localhost:11434')
             response = requests.get(f"{ollama_host}/api/tags", timeout=5)

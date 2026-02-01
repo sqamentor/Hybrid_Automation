@@ -3,19 +3,19 @@ Unit tests for framework.protocols module.
 
 Tests Protocol compliance, runtime_checkable, and structural subtyping.
 """
-from abc import abstractmethod
-from typing import Any, Dict, List, Protocol, runtime_checkable
-
 import pytest
+from typing import Dict, Any, List, Protocol, runtime_checkable
+from abc import abstractmethod
 
 from framework.protocols import (
-    AsyncExecutable,
     Configurable,
     Executable,
-    LifecycleManaged,
     Reportable,
     Validatable,
+    AsyncExecutable,
+    LifecycleManaged
 )
+
 
 # ============================================================================
 # Test Configurable Protocol
@@ -48,9 +48,13 @@ class TestConfigurableProtocol:
         assert obj.get_config() == {"key": "value"}
     
     def test_non_configurable_class(self):
-        """Test class not implementing Configurable."""
+        """Test @pytest.mark.modern_spa
+@pytest.mark.unit
+class not implementing Configurable."""
         
-        class NotConfigurable:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class NotConfigurable:
             def some_method(self):
                 pass
         
@@ -60,9 +64,13 @@ class TestConfigurableProtocol:
         assert not isinstance(obj, Configurable)
     
     def test_partial_configurable_implementation(self):
-        """Test class missing part of Configurable interface."""
+        """Test @pytest.mark.modern_spa
+@pytest.mark.unit
+class with only partial Configurable implementation."""
         
-        class PartialConfigurable:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class PartialConfigurable:
             def configure(self, config: Dict[str, Any]) -> None:
                 pass
             # Missing get_config()
@@ -83,9 +91,13 @@ class TestExecutableProtocol:
     """Test Executable protocol compliance."""
     
     def test_executable_implementation(self):
-        """Test class implementing Executable protocol."""
+        """Test @pytest.mark.modern_spa
+@pytest.mark.unit
+class implementing Executable protocol."""
         
-        class MyExecutable:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class MyExecutable:
             def execute(self) -> Any:
                 return "executed"
             
@@ -101,7 +113,9 @@ class TestExecutableProtocol:
     def test_executable_with_parameters(self):
         """Test Executable with parameters."""
         
-        class ParameterizedExecutable:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class ParameterizedExecutable:
             def __init__(self):
                 self.result = None
             
@@ -132,9 +146,13 @@ class TestAsyncExecutableProtocol:
     
     @pytest.mark.asyncio
     async def test_async_executable_implementation(self):
-        """Test class implementing AsyncExecutable protocol."""
+        """Test @pytest.mark.modern_spa
+@pytest.mark.unit
+class implementing AsyncExecutable protocol."""
         
-        class MyAsyncExecutable:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class MyAsyncExecutable:
             async def execute(self) -> Any:
                 return "async executed"
             
@@ -153,7 +171,9 @@ class TestAsyncExecutableProtocol:
         
         import asyncio
         
-        class DelayedExecutable:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class DelayedExecutable:
             async def execute(self) -> Any:
                 await asyncio.sleep(0.01)
                 return "delayed result"
@@ -179,9 +199,13 @@ class TestReportableProtocol:
     """Test Reportable protocol compliance."""
     
     def test_reportable_implementation(self):
-        """Test class implementing Reportable protocol."""
+        """Test @pytest.mark.modern_spa
+@pytest.mark.unit
+class implementing Reportable protocol."""
         
-        class MyReportable:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class MyReportable:
             def __init__(self):
                 self.status = "completed"
                 self.details = {"tests": 10, "passed": 8}
@@ -203,7 +227,9 @@ class TestReportableProtocol:
     def test_reportable_with_complex_report(self):
         """Test Reportable with complex report structure."""
         
-        class ComplexReportable:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class ComplexReportable:
             def get_status(self) -> str:
                 return "running"
             
@@ -236,9 +262,13 @@ class TestValidatableProtocol:
     """Test Validatable protocol compliance."""
     
     def test_validatable_implementation(self):
-        """Test class implementing Validatable protocol."""
+        """Test @pytest.mark.modern_spa
+@pytest.mark.unit
+class implementing Validatable protocol."""
         
-        class MyValidatable:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class MyValidatable:
             def __init__(self, value: int):
                 self.value = value
             
@@ -264,7 +294,9 @@ class TestValidatableProtocol:
     def test_validatable_multiple_errors(self):
         """Test Validatable with multiple validation errors."""
         
-        class ComplexValidatable:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class ComplexValidatable:
             def __init__(self, name: str, age: int, email: str):
                 self.name = name
                 self.age = age
@@ -309,9 +341,13 @@ class TestLifecycleManagedProtocol:
     """Test LifecycleManaged protocol compliance."""
     
     def test_lifecycle_managed_implementation(self):
-        """Test class implementing LifecycleManaged protocol."""
+        """Test @pytest.mark.modern_spa
+@pytest.mark.unit
+class implementing LifecycleManaged protocol."""
         
-        class MyLifecycleManaged:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class MyLifecycleManaged:
             def __init__(self):
                 self.initialized = False
                 self.started = False
@@ -349,7 +385,9 @@ class TestLifecycleManagedProtocol:
     def test_lifecycle_managed_context_manager(self):
         """Test LifecycleManaged as context manager."""
         
-        class ContextManagedLifecycle:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class ContextManagedLifecycle:
             def __init__(self):
                 self.state = "stopped"
             
@@ -393,9 +431,13 @@ class TestProtocolComposition:
     """Test combining multiple protocols."""
     
     def test_multiple_protocol_implementation(self):
-        """Test class implementing multiple protocols."""
+        """Test @pytest.mark.modern_spa
+@pytest.mark.unit
+class implementing multiple protocols."""
         
-        class MultiProtocolClass:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class MultiProtocolClass:
             def __init__(self):
                 self._config = {}
                 self.result = None
@@ -457,15 +499,21 @@ class TestRuntimeTypeChecking:
         """Test @runtime_checkable allows isinstance checks."""
         
         @runtime_checkable
-        class MyProtocol(Protocol):
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class MyProtocol(Protocol):
             def my_method(self) -> str:
                 ...
         
-        class ImplementsProtocol:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class ImplementsProtocol:
             def my_method(self) -> str:
                 return "implemented"
         
-        class DoesNotImplement:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class DoesNotImplement:
             def other_method(self) -> str:
                 return "other"
         
@@ -479,19 +527,27 @@ class TestRuntimeTypeChecking:
         """Test structural subtyping (duck typing)."""
         
         @runtime_checkable
-        class Drawable(Protocol):
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class Drawable(Protocol):
             def draw(self) -> None:
                 ...
         
-        class Circle:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class Circle:
             def draw(self) -> None:
                 print("Drawing circle")
         
-        class Square:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class Square:
             def draw(self) -> None:
                 print("Drawing square")
         
-        class NotDrawable:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class NotDrawable:
             def render(self) -> None:
                 print("Rendering")
         
@@ -517,7 +573,8 @@ class TestProtocolIntegration:
         """Test using protocols for dependency injection."""
         
         @pytest.mark.modern_spa
-        class TestRunner:
+@pytest.mark.unit
+class TestRunner:
             def __init__(self, executable: Executable):
                 self.executable = executable
             
@@ -527,7 +584,8 @@ class TestProtocolIntegration:
                 return None
         
         @pytest.mark.modern_spa
-        class TestCase:
+@pytest.mark.unit
+class TestCase:
             def execute(self) -> Any:
                 return "test passed"
             
@@ -544,7 +602,9 @@ class TestProtocolIntegration:
     async def test_protocol_pipeline(self):
         """Test building a pipeline with protocols."""
         
-        class Pipeline:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class Pipeline:
             def __init__(self):
                 self.stages: List[AsyncExecutable] = []
             
@@ -558,14 +618,18 @@ class TestProtocolIntegration:
                         result = await stage.execute(result)
                 return result
         
-        class Stage1:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class Stage1:
             async def execute(self, data: Any) -> Any:
                 return data + 1
             
             def can_execute(self) -> bool:
                 return True
         
-        class Stage2:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class Stage2:
             async def execute(self, data: Any) -> Any:
                 return data * 2
             
@@ -582,7 +646,9 @@ class TestProtocolIntegration:
     def test_protocol_validation_chain(self):
         """Test chaining validatable objects."""
         
-        class ValidationChain:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class ValidationChain:
             def __init__(self):
                 self.validators: List[Validatable] = []
             
@@ -598,7 +664,9 @@ class TestProtocolIntegration:
                     errors.extend(validator.get_errors())
                 return errors
         
-        class RangeValidator:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class RangeValidator:
             def __init__(self, value: int, min_val: int, max_val: int):
                 self.value = value
                 self.min_val = min_val
@@ -612,7 +680,9 @@ class TestProtocolIntegration:
                     return [f"Value {self.value} not in range [{self.min_val}, {self.max_val}]"]
                 return []
         
-        class LengthValidator:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class LengthValidator:
             def __init__(self, text: str, max_length: int):
                 self.text = text
                 self.max_length = max_length

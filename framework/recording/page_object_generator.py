@@ -3,12 +3,11 @@ Page Object Generator
 Automatically generates Page Object Model classes from recorded Playwright scripts
 """
 
-import ast
-import re
+from typing import Dict, Any, List, Optional
 from pathlib import Path
-from typing import Any, Dict, List, Optional
-
 from loguru import logger
+import re
+import ast
 
 
 class PageObjectGenerator:

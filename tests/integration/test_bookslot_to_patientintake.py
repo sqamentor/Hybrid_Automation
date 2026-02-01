@@ -2,10 +2,8 @@
 Integration Test: Bookslot to PatientIntake
 Tests cross-application data flow: Book appointment in Bookslot, verify in PatientIntake
 """
-from datetime import datetime
-
 import pytest
-
+from datetime import datetime
 from models import Appointment
 
 

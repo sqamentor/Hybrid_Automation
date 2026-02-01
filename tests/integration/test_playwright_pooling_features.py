@@ -8,6 +8,7 @@ This example shows:
 
 import pytest
 
+
 # ===================================================================
 # PLAYWRIGHT CONTEXT POOLING EXAMPLE
 # ===================================================================
@@ -20,8 +21,8 @@ def test_playwright_context_pooling():
     Test Playwright context pooling
     Demonstrates reusing browser contexts for performance
     """
-    from framework.ui.playwright_engine import ContextPool, PlaywrightEngine
-
+    from framework.ui.playwright_engine import PlaywrightEngine, ContextPool
+    
     # Create context pool
     pool = ContextPool(max_size=5)
     

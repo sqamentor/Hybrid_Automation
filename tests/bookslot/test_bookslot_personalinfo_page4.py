@@ -22,11 +22,10 @@ Run Commands:
     pytest tests/bookslot/test_personalinfo_page.py -k "zip" -v
 """
 
-import allure
 import pytest
-
-from pages.bookslot.bookslots_personalInfo_page4 import BookslotPersonalInfoPage
+import allure
 from tests.bookslot.helpers.navigation_helper import BookslotNavigator
+from pages.bookslot.bookslots_personalInfo_page4 import BookslotPersonalInfoPage
 
 
 @allure.epic("Bookslot")

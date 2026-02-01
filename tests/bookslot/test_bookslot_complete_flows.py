@@ -27,8 +27,8 @@ Run Commands:
     pytest tests/bookslot/test_bookslot_complete_flows.py -m critical -v
 """
 
-import allure
 import pytest
+import allure
 from playwright.sync_api import Page
 
 

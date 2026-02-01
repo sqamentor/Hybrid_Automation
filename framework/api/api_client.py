@@ -4,12 +4,10 @@ API Client - HTTP Request Wrapper
 Provides a unified interface for making API requests with logging and validation.
 """
 
-import time
-from typing import Any, Dict, Optional
-
 import requests
-
-from utils.logger import get_audit_logger, get_logger
+import time
+from typing import Dict, Any, Optional
+from utils.logger import get_logger, get_audit_logger
 
 logger = get_logger(__name__)
 audit_logger = get_audit_logger()

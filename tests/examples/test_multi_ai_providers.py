@@ -6,10 +6,10 @@ for various AI-powered features in the framework.
 """
 
 import pytest
-
-from framework.ai.ai_provider_factory import ai_factory, get_ai_provider
-from framework.ai.nl_test_generator import NaturalLanguageTestGenerator
 from framework.intelligence import AIValidationSuggester
+from framework.ai.nl_test_generator import NaturalLanguageTestGenerator
+from framework.ai.ai_provider_factory import get_ai_provider, ai_factory
+
 
 # ============================================================================
 # EXAMPLE 1: Use Default AI Provider

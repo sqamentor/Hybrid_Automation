@@ -5,9 +5,8 @@ Provides automated accessibility testing following WCAG 2.1 guidelines.
 Integrates with axe-core for comprehensive a11y checks.
 """
 
+from typing import Dict, List, Optional, Any
 from enum import Enum
-from typing import Any, Dict, List, Optional
-
 from utils.logger import get_logger
 
 logger = get_logger(__name__)

@@ -5,11 +5,9 @@ Integrates with OWASP ZAP for automated security testing including
 SQL injection, XSS, CSRF, and other vulnerability scanning.
 """
 
-import time
-from typing import Any, Dict, List, Optional
-
+from typing import Dict, List, Optional, Any
 import requests
-
+import time
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -292,7 +290,7 @@ class SecurityTester:
         """
         import os
         from datetime import datetime
-
+        
         # Group alerts by risk level
         high_risk = [a for a in self.alerts if a.get('risk') == 'High']
         medium_risk = [a for a in self.alerts if a.get('risk') == 'Medium']

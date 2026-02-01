@@ -7,7 +7,7 @@ These enable structural subtyping and dependency injection.
 
 from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 
-from playwright.sync_api import Locator, Page
+from playwright.sync_api import Page, Locator
 
 
 @runtime_checkable

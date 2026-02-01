@@ -5,13 +5,13 @@ Extensible plugin architecture for framework customization.
 """
 
 from framework.plugins.plugin_system import (
-    BasePlugin,
     IPlugin,
-    PluginHook,
+    BasePlugin,
     PluginManager,
     PluginMetadata,
-    PluginPriority,
     PluginStatus,
+    PluginPriority,
+    PluginHook,
     get_plugin_manager,
 )
 

@@ -8,11 +8,10 @@ Uses AI to improve recorded Playwright scripts:
 - Improve code quality
 """
 
-import re
+from typing import Optional, Dict, Any, List
 from pathlib import Path
-from typing import Any, Dict, List, Optional
-
 from loguru import logger
+import re
 
 
 class AIScriptRefactorer:

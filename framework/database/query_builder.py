@@ -5,8 +5,8 @@ Provides fluent API for building SQL queries dynamically.
 Supports multiple database types and prevents SQL injection.
 """
 
+from typing import Dict, List, Any, Optional, Union
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
 
 
 class Operator(Enum):

@@ -8,8 +8,8 @@ from typing import Any, Dict, Optional, Protocol, runtime_checkable
 
 from framework.models.config_models import (
     EnvironmentConfig,
-    FrameworkConfig,
     ProjectConfig,
+    FrameworkConfig,
 )
 
 

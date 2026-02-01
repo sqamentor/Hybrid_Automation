@@ -9,24 +9,22 @@ Website: www.sqamentor.com
 Assisted by: AI Claude
 """
 
+import pytest
 import os
 import time
 from pathlib import Path
-
-import pytest
-
-from config.settings import get_api_url, get_ui_url, settings
+from framework.core.engine_selector import extract_test_metadata
+from framework.ui.ui_factory import ui_factory
 from framework.api.api_client import APIClient
 from framework.api.api_interceptor import APIInterceptor
-from framework.core.engine_selector import extract_test_metadata
 from framework.database.db_client import DBClient
 from framework.intelligence import AIValidationSuggester, ValidationPatternCache
-from framework.ui.ui_factory import ui_factory
+from config.settings import settings, get_ui_url, get_api_url
+from utils.logger import get_logger, get_audit_logger
 
 # Import COMPREHENSIVE enhanced report collection
 # Using the new comprehensive_report_enhancements module for full framework coverage
 from tests.comprehensive_report_enhancements import comprehensive_collector
-from utils.logger import get_audit_logger, get_logger
 
 # Create convenience aliases for backward compatibility
 report_collector = comprehensive_collector
@@ -342,7 +340,6 @@ def callcenter_page(request, browser_config, multi_project_config):
     Creates a Playwright page for CallCenter application
     """
     from playwright.sync_api import sync_playwright
-
     from pages.callcenter import CallCenterAppointmentManagementPage
     
     playwright = sync_playwright().start()
@@ -496,7 +493,7 @@ def pytest_configure(config):
     import platform
     import socket
     from datetime import datetime
-
+    
     # Ensure metadata exists (pytest-metadata creates it)
     if not hasattr(config, '_metadata'):
         config._metadata = {}

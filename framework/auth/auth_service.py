@@ -10,10 +10,9 @@ Date: January 31, 2026
 
 import logging
 import time
+from typing import Optional, Dict, Any
 from enum import Enum
-from typing import Any, Dict, Optional
-
-from framework.core.session_manager import SessionData, SessionManager
+from framework.core.session_manager import SessionManager, SessionData
 
 logger = logging.getLogger(__name__)
 
@@ -108,8 +107,8 @@ class AuthenticationService:
         
         try:
             from selenium.webdriver.common.by import By
-            from selenium.webdriver.support import expected_conditions as EC
             from selenium.webdriver.support.ui import WebDriverWait
+            from selenium.webdriver.support import expected_conditions as EC
             
             okta_domain = sso_config.get('okta_domain')
             app_id = sso_config.get('app_id', '')
@@ -198,8 +197,8 @@ class AuthenticationService:
         
         try:
             from selenium.webdriver.common.by import By
-            from selenium.webdriver.support import expected_conditions as EC
             from selenium.webdriver.support.ui import WebDriverWait
+            from selenium.webdriver.support import expected_conditions as EC
             
             azure_domain = sso_config.get('azure_domain', 'https://login.microsoftonline.com')
             tenant_id = sso_config.get('tenant_id', 'common')
@@ -283,8 +282,8 @@ class AuthenticationService:
         
         try:
             from selenium.webdriver.common.by import By
-            from selenium.webdriver.support import expected_conditions as EC
             from selenium.webdriver.support.ui import WebDriverWait
+            from selenium.webdriver.support import expected_conditions as EC
             
             username = credentials.get('username')
             password = credentials.get('password')
@@ -387,8 +386,8 @@ class AuthenticationService:
     ) -> Optional[SessionData]:
         """Basic auth using Selenium"""
         from selenium.webdriver.common.by import By
-        from selenium.webdriver.support import expected_conditions as EC
         from selenium.webdriver.support.ui import WebDriverWait
+        from selenium.webdriver.support import expected_conditions as EC
         
         try:
             driver.get(login_url)

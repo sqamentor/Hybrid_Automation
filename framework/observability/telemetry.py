@@ -8,16 +8,19 @@ Provides instrumentation for:
 - Custom spans for business logic
 """
 import asyncio
-from contextlib import asynccontextmanager, contextmanager
+from typing import Dict, Any, Optional, Callable
+from contextlib import contextmanager, asynccontextmanager
 from functools import wraps
-from typing import Any, Callable, Dict, Optional
 
 from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import (
+    BatchSpanProcessor,
+    ConsoleSpanExporter
+)
+from opentelemetry.sdk.resources import Resource
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
 from opentelemetry.trace import Status, StatusCode
 
 

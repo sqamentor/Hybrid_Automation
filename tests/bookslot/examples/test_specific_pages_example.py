@@ -20,14 +20,13 @@ Run Commands:
     pytest tests/bookslot/examples/test_specific_pages_example.py::TestPersonalInfoPageOnly -v
 """
 
-import allure
 import pytest
+import allure
 from playwright.sync_api import Page
-
+from tests.bookslot.helpers.navigation_helper import BookslotNavigator, quick_navigate_to_insurance
 from pages.bookslot.bookslots_insurance_page6 import BookslotInsurancePage
 from pages.bookslot.bookslots_personalInfo_page4 import BookslotPersonalInfoPage
 from pages.bookslot.bookslots_referral_page5 import BookslotReferralPage
-from tests.bookslot.helpers.navigation_helper import BookslotNavigator, quick_navigate_to_insurance
 
 
 @allure.epic("Bookslot")

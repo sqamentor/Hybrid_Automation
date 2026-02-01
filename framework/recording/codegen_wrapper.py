@@ -3,13 +3,12 @@ Playwright Codegen Wrapper
 Provides easy-to-use interface for Playwright's code generation with enhanced features
 """
 
-import json
-import os
 import subprocess
+import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional
-
+from typing import Optional, Dict, Any, List
 from loguru import logger
+import json
 
 
 class PlaywrightCodegen:

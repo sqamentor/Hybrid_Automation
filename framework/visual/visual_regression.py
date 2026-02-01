@@ -5,14 +5,12 @@ Provides automated visual regression testing with baseline management.
 Supports full page, element-level, and responsive screenshots.
 """
 
+from typing import Optional, Dict, List, Tuple
+from pathlib import Path
+from PIL import Image, ImageChops, ImageDraw
+import imagehash
 import os
 from datetime import datetime
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple
-
-import imagehash
-from PIL import Image, ImageChops, ImageDraw
-
 from utils.logger import get_logger
 
 logger = get_logger(__name__)

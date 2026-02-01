@@ -7,17 +7,16 @@ and Pydantic integration.
 Author: Lokendra Singh
 """
 
-import asyncio
-import json
-import tempfile
-from pathlib import Path
-from unittest.mock import AsyncMock, Mock, mock_open, patch
-
 import pytest
+import asyncio
+from pathlib import Path
+from unittest.mock import Mock, AsyncMock, patch, mock_open
+import tempfile
+import json
 import yaml
 
 from framework.config.async_config_manager import AsyncConfigManager
-from framework.models.config_models import BrowserConfig, BrowserEngine, GlobalSettings
+from framework.models.config_models import GlobalSettings, BrowserConfig, BrowserEngine
 
 
 @pytest.mark.modern_spa

@@ -15,9 +15,9 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
-    HttpUrl,
     field_validator,
     model_validator,
+    HttpUrl,
 )
 from pydantic_settings import BaseSettings, SettingsConfigDict
 

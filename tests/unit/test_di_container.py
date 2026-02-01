@@ -7,16 +7,15 @@ auto-injection, pattern matching, and circular dependency detection.
 Author: Lokendra Singh
 """
 
+import pytest
 from typing import Protocol
 from unittest.mock import Mock
 
-import pytest
-
 from framework.di_container import (
     DIContainer,
-    DIScope,
     Lifetime,
     ServiceDescriptor,
+    DIScope,
     inject,
 )
 
@@ -267,7 +266,9 @@ class TestDIContainerDependencies:
             def execute(self) -> str:
                 ...
 
-        class MyService:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class MyService:
             def __init__(self, repo: IRepository):
                 self.repo = repo
 
@@ -410,7 +411,9 @@ class TestDIContainerErrors:
         container = DIContainer()
         container.register(ILogger, ConsoleLogger, Lifetime.SINGLETON)
 
-        class FileLogger:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class FileLogger:
             def log(self, message: str) -> None:
                 pass
 
@@ -432,7 +435,9 @@ class TestDIContainerAdvanced:
 
         init_count = 0
 
-        class LazyService:
+        @pytest.mark.modern_spa
+@pytest.mark.unit
+class LazyService:
             def __init__(self):
                 nonlocal init_count
                 init_count += 1

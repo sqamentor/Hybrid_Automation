@@ -7,12 +7,11 @@ Provides:
 - Correlation IDs
 - Log aggregation support (ELK, Splunk, etc.)
 """
-import logging
-import sys
-from pathlib import Path
-from typing import Any, Dict, Optional
-
 import structlog
+from typing import Dict, Any, Optional
+from pathlib import Path
+import sys
+import logging
 
 
 class LogConfig:
@@ -448,8 +447,8 @@ def log_test_execution(test_name: str):
             pass
         ```
     """
-    import time
     from functools import wraps
+    import time
     
     def decorator(func):
         @wraps(func)
@@ -492,8 +491,8 @@ def log_async_test_execution(test_name: str):
             pass
         ```
     """
-    import time
     from functools import wraps
+    import time
     
     def decorator(func):
         @wraps(func)

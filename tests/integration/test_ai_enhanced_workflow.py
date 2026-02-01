@@ -8,11 +8,9 @@ This demonstrates how to use AI capabilities during test execution:
 - Smart test data generation
 """
 
+import pytest
 import logging
 from datetime import datetime, timedelta
-
-import pytest
-
 from models import Appointment, TestContext
 
 logger = logging.getLogger(__name__)

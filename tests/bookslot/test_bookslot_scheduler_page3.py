@@ -19,11 +19,10 @@ Run Commands:
     pytest tests/bookslot/test_scheduler_page.py -m smoke -v
 """
 
-import allure
 import pytest
-
-from pages.bookslot.bookslots_webscheduler_page3 import BookslotWebSchedulerPage
+import allure
 from tests.bookslot.helpers.navigation_helper import BookslotNavigator
+from pages.bookslot.bookslots_webscheduler_page3 import BookslotWebSchedulerPage
 
 
 @allure.epic("Bookslot")
