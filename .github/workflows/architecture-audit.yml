@@ -1,11 +1,24 @@
 name: 🏗️ Architecture Audit
 
+# Auto-trigger on ANY change to Python files - enforces compliance dynamically
 on:
   pull_request:
-    branches: [main]
+    branches: [main, develop]
     types: [opened, synchronize, reopened]
+    paths:
+      - '**.py'
+      - 'tests/**'
+      - 'pages/**'
+      - 'framework/**'
+      - 'utils/**'
   push:
-    branches: [main]
+    branches: [main, develop, feature/**, bugfix/**]
+    paths:
+      - '**.py'
+      - 'tests/**'
+      - 'pages/**'
+      - 'framework/**'
+      - 'utils/**'
   workflow_dispatch:
 
 # Ensure only one audit runs at a time per PR
@@ -269,3 +282,26 @@ jobs:
           echo "Check individual status checks above for detailed results."
           echo ""
           echo "**Download artifacts to see detailed reports.**"
+      
+      # Archive reports with git metadata for audit trail
+      - name: Archive Report with Git Metadata
+        if: github.event_name == 'push'
+        run: |
+          mkdir -p artifacts/archive
+          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+          COMMIT_SHA=$(git rev-parse --short HEAD)
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          
+          cp artifacts/framework_audit_report.md \
+             "artifacts/archive/audit_${TIMESTAMP}_${BRANCH}_${COMMIT_SHA}.md"
+          
+          echo "Report archived with git metadata"
+      
+      - name: Upload Archived Reports
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v3
+        with:
+          name: audit-archive
+          path: artifacts/archive/
+          retention-days: 90
+
