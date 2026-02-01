@@ -9,9 +9,8 @@ Author: Lokendra Singh
 
 import pytest
 from unittest.mock import Mock, patch
-from dataclasses import data@pytest.mark.modern_spa
-@pytest.mark.unit
-class from framework.core.modern_engine_selector import (
+from dataclasses import dataclass
+from framework.core.modern_engine_selector import (
     ModernEngineSelector,
     TestMetadata,
     UIFramework,

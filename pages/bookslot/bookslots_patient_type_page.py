@@ -3,7 +3,7 @@ Patient Type Selection Page Object
 Handles patient type selection (New Patient, Existing Patient)
 """
 from playwright.sync_api import Page
-from utils.smart_actions import SmartActions
+from framework.core.smart_actions import SmartActions
 
 
 class BookslotPatientTypePage:

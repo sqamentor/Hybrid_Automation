@@ -84,14 +84,14 @@ class TestReferralPage:
             # Verify selection using Page Object
             is_selected = referral_page.is_referral_source_selected(referral_option)
             assert is_selected, f"Should be able to select: {referral_option}"
-                
-                allure.attach(smart_actions.page.screenshot(full_page=True), 
-                             name=f"{referral_option.lower().replace(' ', '_')}_selected", 
-                             attachment_type=allure.attachment_type.PNG)
-                
-                # Verify can proceed
-                initial_url = smart_actions.page.url
-                referral_page.proceed_to_next()
+            
+            allure.attach(smart_actions.page.screenshot(full_page=True), 
+                         name=f"{referral_option.lower().replace(' ', '_')}_selected", 
+                         attachment_type=allure.attachment_type.PNG)
+            
+            # Verify can proceed
+            initial_url = smart_actions.page.url
+            referral_page.proceed_to_next()
                 smart_actions.page.wait_for_timeout(1000)
                 
                 assert smart_actions.page.url != initial_url, f"Should proceed with: {referral_option}"

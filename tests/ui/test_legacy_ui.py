@@ -72,7 +72,9 @@ class TestBackofficeOperations:
 
 @pytest.mark.critical
 @pytest.mark.module("payment")
-@pytest.mark.auth_type("MFA")@pytest.mark.legacy_uiclass TestPaymentProcessing:
+@pytest.mark.auth_type("MFA")
+@pytest.mark.legacy_ui
+class TestPaymentProcessing:
     """Payment tests - Selenium for MFA and security"""
     
     def test_payment_with_mfa(self, ui_engine, ui_url):

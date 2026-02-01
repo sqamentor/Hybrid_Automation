@@ -1,0 +1,60 @@
+# ════════════════════════════════════════════════════════════════════════════
+# BASELINE ALLOW-LIST FOR LEGACY TECHNICAL DEBT
+# ════════════════════════════════════════════════════════════════════════════
+#
+# PURPOSE:
+#   Temporarily suppress known architectural violations while they are being fixed.
+#   This allows the governance system to be strict on new code while giving time
+#   to remediate existing issues.
+#
+# RULES:
+#   ❌ Every entry MUST have an expiration date
+#   ❌ Expired entries will FAIL the build
+#   ❌ Baseline only suppresses warnings, never hides them
+#   ✅ All baseline usage is reported in CI logs and audit reports
+#
+# STRUCTURE:
+#   violations:
+#     - file: path/to/file.py
+#       rule: rule_category/rule_name
+#       reason: Brief explanation why this exists
+#       owner: GitHub username or team
+#       created: YYYY-MM-DD
+#       expires: YYYY-MM-DD (MANDATORY)
+#       line: 42  # Optional: specific line number
+#
+# EXAMPLE:
+#   violations:
+#     - file: tests/legacy/test_old_system.py
+#       rule: engine/missing-marker
+#       reason: Legacy test suite pending migration to markers
+#       owner: qa-team
+#       created: 2026-01-15
+#       expires: 2026-03-31
+#
+# ════════════════════════════════════════════════════════════════════════════
+
+schema_version: "1.0"
+last_updated: "2026-02-01"
+
+# ────────────────────────────────────────────────────────────────────────────
+# VIOLATION BASELINE
+# ────────────────────────────────────────────────────────────────────────────
+
+violations: []
+
+# Currently at 100% architectural compliance - no baseline entries needed!
+# Add entries here only when introducing new rules that affect existing code.
+
+# ════════════════════════════════════════════════════════════════════════════
+# BASELINE STATISTICS
+# ════════════════════════════════════════════════════════════════════════════
+#
+# Total violations baselined: 0
+# Expired violations: 0
+# Violations expiring this month: 0
+#
+# Last audit: 2026-02-01
+# Status: ✅ CLEAN - No technical debt baselined
+#
+# ════════════════════════════════════════════════════════════════════════════

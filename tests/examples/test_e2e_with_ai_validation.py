@@ -318,7 +318,9 @@ class TestConvenienceFunctionApproach:
 
 
 @pytest.mark.integration
-@pytest.mark.module("payments")@pytest.mark.modern_spaclass TestPaymentValidation:
+@pytest.mark.module("payments")
+@pytest.mark.modern_spa
+class TestPaymentValidation:
     """
     Payment processing with AI validation
     """

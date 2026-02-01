@@ -29,6 +29,7 @@ Run Commands:
 
 import pytest
 import allure
+from playwright.sync_api import Page
 
 
 @allure.epic("Bookslot")

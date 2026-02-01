@@ -116,7 +116,8 @@ class TestPersonalInfoPage:
         navigator.navigate_to_personal_info()
         act = smart_actions
         data = fake_bookslot_data
-        personal_page = BookslotPersonalInfoPage(smart_actions.page, multi_project_config['bookslot']['ui_url'])\n        
+        personal_page = BookslotPersonalInfoPage(smart_actions.page, multi_project_config['bookslot']['ui_url'])
+        
         with allure.step(f"Test zip code: {zip_code} (Expected valid: {is_valid})"):
             personal_page.fill_dob(data['dob'])
             personal_page.fill_address("123 Test St")

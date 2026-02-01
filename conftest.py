@@ -14,6 +14,11 @@ from datetime import datetime
 from framework.core.utils.human_actions import HumanBehaviorSimulator, get_behavior_config
 from utils.fake_data_generator import generate_bookslot_payload, load_bookslot_data
 
+# ════════════════════════════════════════════════════════════════════════════
+# REGISTER ARCHITECTURE AUDIT PLUGIN
+# ════════════════════════════════════════════════════════════════════════════
+pytest_plugins = ['scripts.governance.pytest_arch_audit_plugin']
+
 
 def pytest_addoption(parser):
     """Add custom command line options available to all tests"""

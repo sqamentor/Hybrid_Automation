@@ -30,9 +30,7 @@ class TestBaseService:
     def test_service_creation(self):
         """Test service creation with name."""
         
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class DummyService(BaseService):
+        class DummyService(BaseService):
             async def start(self):
                 pass
             

@@ -3,7 +3,7 @@ Scheduler Page Object
 Handles time slot selection for appointments
 """
 from playwright.sync_api import Page, Locator
-from utils.smart_actions import SmartActions
+from framework.core.smart_actions import SmartActions
 
 
 class BookslotSchedulerPage:

@@ -91,11 +91,10 @@ class TestPluginHook:
     def test_hook_on_method(self):
         """Test hook decorator on @pytest.mark.modern_spa
 @pytest.mark.unit
-class methods."""
+class TestPluginMethods:
+    """Test plugin methods."""
         
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class TestPlugin(BasePlugin):
+        class TestPlugin(BasePlugin):
             def __init__(self):
                 super().__init__(PluginMetadata(
                     name="test",

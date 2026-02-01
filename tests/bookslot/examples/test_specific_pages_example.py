@@ -22,6 +22,7 @@ Run Commands:
 
 import pytest
 import allure
+from playwright.sync_api import Page
 from tests.bookslot.helpers.navigation_helper import BookslotNavigator, quick_navigate_to_insurance
 from pages.bookslot.bookslots_insurance_page6 import BookslotInsurancePage
 from pages.bookslot.bookslots_personalInfo_page4 import BookslotPersonalInfoPage

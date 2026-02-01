@@ -262,9 +262,7 @@ class TestDIContainerDependencies:
     def test_nested_dependencies(self):
         """Test resolving nested dependencies"""
 
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class IService(Protocol):
+        class IService(Protocol):
             def execute(self) -> str:
                 ...
 

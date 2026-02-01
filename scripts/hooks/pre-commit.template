@@ -1,0 +1,47 @@
+#!/bin/sh
+#
+# Pre-commit Hook for Architecture Audit
+# =======================================
+# Optional: Prevents commits that violate architectural rules
+#
+# To enable:
+#   1. Copy to .git/hooks/pre-commit (remove .template extension)
+#   2. Make executable (Linux/Mac): chmod +x .git/hooks/pre-commit
+#   3. Test: git commit (will run audit before commit)
+#
+# To bypass (emergency only):
+#   git commit --no-verify
+#
+
+echo ""
+echo "==============================================="
+echo "Running Architecture Audit (pre-commit)"
+echo "==============================================="
+
+# Run architecture audit
+python -m pytest --arch-audit --audit-strict
+
+# Capture exit code
+AUDIT_EXIT_CODE=$?
+
+if [ $AUDIT_EXIT_CODE -ne 0 ]; then
+    echo ""
+    echo "==============================================="
+    echo "X COMMIT BLOCKED: Architecture violations detected"
+    echo "==============================================="
+    echo ""
+    echo "Options:"
+    echo "  1. Fix the violations (recommended)"
+    echo "  2. Add to baseline (if legitimate technical debt)"
+    echo "  3. Bypass (emergency): git commit --no-verify"
+    echo ""
+    exit 1
+fi
+
+echo ""
+echo "==============================================="
+echo "OK Architecture Audit Passed - Proceeding with commit"
+echo "==============================================="
+echo ""
+
+exit 0

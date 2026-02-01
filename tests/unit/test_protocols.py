@@ -27,13 +27,9 @@ class TestConfigurableProtocol:
     """Test Configurable protocol compliance."""
     
     def test_configurable_implementation(self):
-        """Test @pytest.mark.modern_spa
-@pytest.mark.unit
-class implementing Configurable protocol."""
+        """Test implementing Configurable protocol."""
         
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class MyConfigurable:
+        class MyConfigurable:
             def __init__(self):
                 self._config = {}
             
