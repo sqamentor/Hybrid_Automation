@@ -8,17 +8,18 @@ and async I/O for performance.
 from __future__ import annotations
 
 import asyncio
+import json
 from pathlib import Path
 from typing import Any, Dict, Optional
+
 import yaml
-import json
 
 from framework.models.config_models import (
-    GlobalSettings,
-    ProjectConfig,
+    EngineDecisionMatrix,
     EnvironmentConfig,
     FrameworkConfig,
-    EngineDecisionMatrix,
+    GlobalSettings,
+    ProjectConfig,
 )
 from framework.protocols.config_protocols import ConfigProvider
 
@@ -173,7 +174,7 @@ class AsyncConfigManager(ConfigProvider):
     async def _load_api_config(self):
         """Load API configuration"""
         from framework.models.config_models import APIConfig
-        
+
         # Try YAML first
         config_file = self.config_dir / "api.yaml"
         if config_file.exists():

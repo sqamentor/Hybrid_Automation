@@ -6,8 +6,9 @@ based on API responses.
 """
 
 import pytest
-from framework.intelligence import AIValidationSuggester, suggest_and_validate
+
 from framework.database.db_client import DBClient
+from framework.intelligence import AIValidationSuggester, suggest_and_validate
 
 
 @pytest.mark.integration

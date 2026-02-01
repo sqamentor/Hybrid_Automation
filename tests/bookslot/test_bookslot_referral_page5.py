@@ -19,10 +19,11 @@ Run Commands:
     pytest tests/bookslot/test_referral_page.py -m smoke -v
 """
 
-import pytest
 import allure
-from tests.bookslot.helpers.navigation_helper import BookslotNavigator
+import pytest
+
 from pages.bookslot.bookslots_referral_page5 import BookslotReferralPage
+from tests.bookslot.helpers.navigation_helper import BookslotNavigator
 
 
 @allure.epic("Bookslot")
@@ -92,9 +93,9 @@ class TestReferralPage:
             # Verify can proceed
             initial_url = smart_actions.page.url
             referral_page.proceed_to_next()
-                smart_actions.page.wait_for_timeout(1000)
-                
-                assert smart_actions.page.url != initial_url, f"Should proceed with: {referral_option}"
+            smart_actions.page.wait_for_timeout(1000)
+            
+            assert smart_actions.page.url != initial_url, f"Should proceed with: {referral_option}"
 
     @allure.story("Referral Selection")
     @allure.title("Select online search as referral source")

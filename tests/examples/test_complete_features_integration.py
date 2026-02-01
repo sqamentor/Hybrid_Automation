@@ -5,14 +5,15 @@ Demonstrates how to use all framework features together.
 """
 
 import pytest
-from framework.api.api_interceptor import APIInterceptor
-from framework.database.query_builder import QueryBuilder, Operator
-from framework.visual.visual_regression import VisualRegression
+
 from framework.accessibility.accessibility_tester import AccessibilityTester, WCAGLevel
-from framework.mobile.mobile_tester import MobileTester, DeviceType
+from framework.api.api_interceptor import APIInterceptor
+from framework.database.query_builder import Operator, QueryBuilder
+from framework.mobile.mobile_tester import DeviceType, MobileTester
 from framework.performance.performance_metrics import PerformanceMetrics
 from framework.security.security_tester import SecurityTester
 from framework.ui.self_healing_locators import SelfHealingLocators
+from framework.visual.visual_regression import VisualRegression
 
 
 @pytest.mark.complete_flow

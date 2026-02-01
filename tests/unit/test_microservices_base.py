@@ -5,18 +5,18 @@ Tests service lifecycle, MessageBus pub/sub, ServiceRegistry,
 and service health checks.
 """
 import asyncio
-import pytest
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from framework.microservices.base import (
     BaseService,
+    Message,
     MessageBus,
     ServiceRegistry,
     ServiceStatus,
-    Message
 )
-
 
 # ============================================================================
 # Test BaseService
@@ -57,8 +57,7 @@ class TestBaseService:
         """Test service start and stop lifecycle."""
         
         @pytest.mark.modern_spa
-@pytest.mark.unit
-class TestService(BaseService):
+        class TestService(BaseService):
             def __init__(self, name: str):
                 super().__init__(name)
                 self.started = False
@@ -98,9 +97,7 @@ class TestService(BaseService):
     async def test_service_health_check(self):
         """Test service health check."""
         
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class HealthyService(BaseService):
+        class HealthyService(BaseService):
             async def start(self):
                 self.status = ServiceStatus.RUNNING
             
@@ -314,9 +311,7 @@ class TestServiceRegistry:
         registry = ServiceRegistry()
         registry._services.clear()
         
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class DummyService(BaseService):
+        class DummyService(BaseService):
             async def start(self):
                 self.status = ServiceStatus.RUNNING
             
@@ -338,9 +333,7 @@ class DummyService(BaseService):
         registry = ServiceRegistry()
         registry._services.clear()
         
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class DummyService(BaseService):
+        class DummyService(BaseService):
             async def start(self):
                 pass
             
@@ -365,9 +358,7 @@ class DummyService(BaseService):
         registry = ServiceRegistry()
         registry._services.clear()
         
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class DummyService(BaseService):
+        class DummyService(BaseService):
             async def start(self):
                 pass
             
@@ -394,9 +385,7 @@ class DummyService(BaseService):
         registry = ServiceRegistry()
         registry._services.clear()
         
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class DummyService(BaseService):
+        class DummyService(BaseService):
             def __init__(self, name: str):
                 super().__init__(name)
                 self.start_called = False
@@ -431,9 +420,7 @@ class DummyService(BaseService):
         registry = ServiceRegistry()
         registry._services.clear()
         
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class DummyService(BaseService):
+        class DummyService(BaseService):
             def __init__(self, name: str):
                 super().__init__(name)
                 self.stop_called = False
@@ -470,9 +457,7 @@ class DummyService(BaseService):
         registry = ServiceRegistry()
         registry._services.clear()
         
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class DummyService(BaseService):
+        class DummyService(BaseService):
             def __init__(self, name: str):
                 super().__init__(name)
             
@@ -521,9 +506,7 @@ class TestMicroservicesIntegration:
         registry = ServiceRegistry()
         registry._services.clear()
         
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class ProducerService(BaseService):
+        class ProducerService(BaseService):
             def __init__(self, name: str, message_bus: MessageBus):
                 super().__init__(name)
                 self.bus = message_bus
@@ -540,9 +523,7 @@ class ProducerService(BaseService):
             async def health_check(self) -> Dict[str, Any]:
                 return {"status": "healthy"}
         
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class ConsumerService(BaseService):
+        class ConsumerService(BaseService):
             def __init__(self, name: str, message_bus: MessageBus):
                 super().__init__(name)
                 self.bus = message_bus
@@ -599,9 +580,7 @@ class TestErrorHandling:
     async def test_service_start_error(self):
         """Test handling service start errors."""
         
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class FailingService(BaseService):
+        class FailingService(BaseService):
             async def start(self):
                 self.status = ServiceStatus.STARTING
                 raise RuntimeError("Failed to start")

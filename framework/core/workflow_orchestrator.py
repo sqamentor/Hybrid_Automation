@@ -8,14 +8,15 @@ Author: Principal QA Architect
 Date: January 31, 2026
 """
 
+import asyncio
 import logging
 import time
-import asyncio
-from typing import Optional, List, Callable, Dict, Any, Union
-from enum import Enum
 from dataclasses import dataclass, field
-from framework.core.session_manager import SessionManager, SessionData
+from enum import Enum
+from typing import Any, Callable, Dict, List, Optional, Union
+
 from framework.auth.auth_service import AuthenticationService
+from framework.core.session_manager import SessionData, SessionManager
 
 logger = logging.getLogger(__name__)
 

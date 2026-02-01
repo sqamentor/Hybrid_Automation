@@ -11,12 +11,13 @@ Demonstrates that tests ALWAYS continue running even when:
 All AI features gracefully fallback to rule-based alternatives.
 """
 
-import pytest
 import os
-from framework.intelligence import AIValidationSuggester
-from framework.ai.nl_test_generator import NaturalLanguageTestGenerator
-from framework.ai.ai_provider_factory import get_ai_provider, ai_factory
 
+import pytest
+
+from framework.ai.ai_provider_factory import ai_factory, get_ai_provider
+from framework.ai.nl_test_generator import NaturalLanguageTestGenerator
+from framework.intelligence import AIValidationSuggester
 
 # ============================================================================
 # TEST 1: Missing API Keys - Tests Continue

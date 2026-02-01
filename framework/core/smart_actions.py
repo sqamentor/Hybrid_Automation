@@ -18,10 +18,11 @@ Email: qa.lokendra@gmail.com
 Website: www.sqamentor.com
 """
 
-import time
 import random
+import time
 from typing import Optional
-from playwright.sync_api import Page, Locator
+
+from playwright.sync_api import Locator, Page
 
 
 class SmartActions:

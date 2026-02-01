@@ -3,21 +3,21 @@ Unit tests for framework.plugins.plugin_system module.
 
 Tests plugin loading, hooks, dependency resolution, and plugin lifecycle.
 """
-import pytest
-from typing import Dict, Any, List
 from pathlib import Path
-from unittest.mock import MagicMock, patch, mock_open
+from typing import Any, Dict, List
+from unittest.mock import MagicMock, mock_open, patch
+
+import pytest
 
 from framework.plugins.plugin_system import (
     BasePlugin,
+    PluginDependencyError,
+    PluginError,
+    PluginHook,
+    PluginLoadError,
     PluginManager,
     PluginMetadata,
-    PluginHook,
-    PluginError,
-    PluginLoadError,
-    PluginDependencyError
 )
-
 
 # ============================================================================
 # Test PluginMetadata
@@ -89,11 +89,18 @@ class TestPluginHook:
         assert test_function._hook_priority == 100  # Default
     
     def test_hook_on_method(self):
-        """Test hook decorator on @pytest.mark.modern_spa
+        """Test hook decorator on plugin class methods."""
+
+
+@pytest.mark.modern_spa
 @pytest.mark.unit
 class TestPluginMethods:
     """Test plugin methods."""
-        
+
+    def test_method_hook_metadata(self):
+        """Validate hook metadata defined on plugin methods."""
+
+        @pytest.mark.modern_spa
         class TestPlugin(BasePlugin):
             def __init__(self):
                 super().__init__(PluginMetadata(
@@ -102,17 +109,17 @@ class TestPluginMethods:
                     author="Test",
                     description="Test"
                 ))
-            
+
             @PluginHook(name="before_test", priority=50)
             async def my_hook(self, test_name: str):
                 return f"Hook executed for {test_name}"
-            
+
             def load(self):
                 pass
-            
+
             def unload(self):
                 pass
-        
+
         plugin = TestPlugin()
         assert hasattr(plugin.my_hook, '_hook_name')
         assert plugin.my_hook._hook_name == "before_test"
@@ -132,8 +139,7 @@ class TestBasePlugin:
         """Test creating a plugin with metadata."""
         
         @pytest.mark.modern_spa
-@pytest.mark.unit
-class TestPlugin(BasePlugin):
+        class TestPlugin(BasePlugin):
             def load(self):
                 self.loaded = True
             
@@ -155,8 +161,7 @@ class TestPlugin(BasePlugin):
         """Test plugin with configuration."""
         
         @pytest.mark.modern_spa
-@pytest.mark.unit
-class TestPlugin(BasePlugin):
+        class TestPlugin(BasePlugin):
             def load(self):
                 pass
             
@@ -180,8 +185,7 @@ class TestPlugin(BasePlugin):
         """Test plugin load and unload lifecycle."""
         
         @pytest.mark.modern_spa
-@pytest.mark.unit
-class TestPlugin(BasePlugin):
+        class TestPlugin(BasePlugin):
             def __init__(self, metadata: PluginMetadata, config: Dict[str, Any] = None):
                 super().__init__(metadata, config)
                 self.is_loaded = False
@@ -227,8 +231,7 @@ class TestPluginManager:
         """Test loading a plugin instance."""
         
         @pytest.mark.modern_spa
-@pytest.mark.unit
-class TestPlugin(BasePlugin):
+        class TestPlugin(BasePlugin):
             def load(self):
                 self.loaded = True
             
@@ -255,8 +258,7 @@ class TestPlugin(BasePlugin):
         """Test unloading a plugin."""
         
         @pytest.mark.modern_spa
-@pytest.mark.unit
-class TestPlugin(BasePlugin):
+        class TestPlugin(BasePlugin):
             def __init__(self, metadata: PluginMetadata):
                 super().__init__(metadata)
                 self.is_loaded = False
@@ -299,8 +301,7 @@ class TestPlugin(BasePlugin):
         """Test executing hook with single plugin."""
         
         @pytest.mark.modern_spa
-@pytest.mark.unit
-class TestPlugin(BasePlugin):
+        class TestPlugin(BasePlugin):
             def __init__(self, metadata: PluginMetadata):
                 super().__init__(metadata)
                 self.hook_called = False
@@ -337,9 +338,7 @@ class TestPlugin(BasePlugin):
     async def test_execute_hook_multiple_plugins(self):
         """Test executing hook with multiple plugins."""
         
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class Plugin1(BasePlugin):
+        class Plugin1(BasePlugin):
             def load(self):
                 pass
             
@@ -350,9 +349,7 @@ class Plugin1(BasePlugin):
             async def hook1(self, value: int):
                 return value + 1
         
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class Plugin2(BasePlugin):
+        class Plugin2(BasePlugin):
             def load(self):
                 pass
             
@@ -385,9 +382,7 @@ class Plugin2(BasePlugin):
         
         execution_order = []
         
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class HighPriorityPlugin(BasePlugin):
+        class HighPriorityPlugin(BasePlugin):
             def load(self):
                 pass
             
@@ -398,9 +393,7 @@ class HighPriorityPlugin(BasePlugin):
             async def hook(self):
                 execution_order.append("high")
         
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class MediumPriorityPlugin(BasePlugin):
+        class MediumPriorityPlugin(BasePlugin):
             def load(self):
                 pass
             
@@ -411,9 +404,7 @@ class MediumPriorityPlugin(BasePlugin):
             async def hook(self):
                 execution_order.append("medium")
         
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class LowPriorityPlugin(BasePlugin):
+        class LowPriorityPlugin(BasePlugin):
             def load(self):
                 pass
             
@@ -446,8 +437,7 @@ class LowPriorityPlugin(BasePlugin):
         """Test getting plugin by name."""
         
         @pytest.mark.modern_spa
-@pytest.mark.unit
-class TestPlugin(BasePlugin):
+        class TestPlugin(BasePlugin):
             def load(self):
                 pass
             
@@ -488,18 +478,14 @@ class TestPluginDependencies:
     def test_load_with_dependencies(self):
         """Test loading plugins with dependencies."""
         
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class PluginA(BasePlugin):
+        class PluginA(BasePlugin):
             def load(self):
                 self.loaded = True
             
             def unload(self):
                 self.loaded = False
         
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class PluginB(BasePlugin):
+        class PluginB(BasePlugin):
             def load(self):
                 self.loaded = True
             
@@ -537,9 +523,7 @@ class PluginB(BasePlugin):
     def test_missing_dependency_error(self):
         """Test error when dependency is missing."""
         
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class PluginB(BasePlugin):
+        class PluginB(BasePlugin):
             def load(self):
                 pass
             
@@ -577,8 +561,7 @@ class TestPluginDiscovery:
         """Test discovering plugins from directory."""
         
         @pytest.mark.modern_spa
-@pytest.mark.unit
-class TestPlugin(BasePlugin):
+        class TestPlugin(BasePlugin):
             def load(self):
                 pass
             
@@ -621,9 +604,7 @@ class TestPluginErrors:
     def test_plugin_load_error(self):
         """Test handling plugin load errors."""
         
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class FailingPlugin(BasePlugin):
+        class FailingPlugin(BasePlugin):
             def load(self):
                 raise RuntimeError("Failed to load")
             
@@ -647,9 +628,7 @@ class FailingPlugin(BasePlugin):
     async def test_hook_execution_error(self):
         """Test handling errors in hook execution."""
         
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class ErrorPlugin(BasePlugin):
+        class ErrorPlugin(BasePlugin):
             def load(self):
                 pass
             
@@ -660,9 +639,7 @@ class ErrorPlugin(BasePlugin):
             async def failing_hook(self):
                 raise ValueError("Hook error")
         
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class WorkingPlugin(BasePlugin):
+        class WorkingPlugin(BasePlugin):
             def __init__(self, metadata: PluginMetadata):
                 super().__init__(metadata)
                 self.executed = False
@@ -696,9 +673,7 @@ class WorkingPlugin(BasePlugin):
     def test_duplicate_plugin_name(self):
         """Test loading plugins with duplicate names."""
         
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class Plugin1(BasePlugin):
+        class Plugin1(BasePlugin):
             def load(self):
                 pass
             

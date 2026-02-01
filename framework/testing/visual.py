@@ -8,11 +8,12 @@ Features:
 - Configurable thresholds
 """
 import asyncio
-from typing import Optional, Dict, Any
-from pathlib import Path
-from dataclasses import dataclass
-from playwright.async_api import Page, Locator
 import json
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Dict, Optional
+
+from playwright.async_api import Locator, Page
 
 
 @dataclass
@@ -289,8 +290,8 @@ class VisualTester:
             Comparison results dictionary
         """
         try:
-            from PIL import Image, ImageChops
             import numpy as np
+            from PIL import Image, ImageChops
             
             baseline = Image.open(baseline_path)
             current = Image.open(current_path)

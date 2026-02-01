@@ -9,8 +9,9 @@ from __future__ import annotations
 
 import asyncio
 import random
-from typing import Any, Optional, List, Union
-from playwright.async_api import Page, Locator, async_playwright
+from typing import Any, List, Optional, Union
+
+from playwright.async_api import Locator, Page, async_playwright
 
 from framework.models.test_models import TestContext
 from framework.protocols.automation_protocols import ActionPerformer

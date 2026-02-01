@@ -4,11 +4,12 @@ ML Test Optimization - Machine Learning for Test Selection & Prioritization
 Uses historical test data to predict test failures and optimize test execution order.
 """
 
-from typing import Dict, List, Optional, Any, Tuple
 import json
 import os
-from datetime import datetime
 from collections import defaultdict
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Tuple
+
 from utils.logger import get_logger
 
 logger = get_logger(__name__)

@@ -25,17 +25,17 @@ This module is automatically loaded by conftest.py
 No manual intervention required.
 """
 
-import pytest
-import os
-import json
 import base64
-from pathlib import Path
+import json
+import os
 from datetime import datetime
-from typing import Dict, List, Any
+from pathlib import Path
+from typing import Any, Dict, List
+
+import pytest
 from _pytest.nodes import Item
 from _pytest.reports import TestReport
 from pytest_html import extras
-
 
 # ========================================================================
 # REPORT METADATA COLLECTION

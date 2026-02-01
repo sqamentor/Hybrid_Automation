@@ -7,23 +7,24 @@ enums, and all configuration models.
 Author: Lokendra Singh
 """
 
-import pytest
 from pathlib import Path
 from typing import Optional
+
+import pytest
 from pydantic import ValidationError
 
 from framework.models.config_models import (
-    BrowserConfig,
-    DatabaseConfig,
     APIConfig,
-    EnvironmentConfig,
-    ProjectConfig,
+    BrowserConfig,
+    BrowserEngine,
+    DatabaseConfig,
     EngineDecisionMatrix,
+    EngineType,
+    EnvironmentConfig,
     FrameworkConfig,
     GlobalSettings,
-    BrowserEngine,
+    ProjectConfig,
     TestEnvironment,
-    EngineType,
 )
 
 

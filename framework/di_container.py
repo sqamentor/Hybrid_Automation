@@ -7,11 +7,11 @@ Supports singleton, transient, and scoped lifetimes with lazy initialization.
 
 from __future__ import annotations
 
-from enum import Enum
-from typing import Any, Callable, Dict, Generic, Optional, Type, TypeVar, cast
 import inspect
-from functools import wraps
 from contextvars import ContextVar
+from enum import Enum
+from functools import wraps
+from typing import Any, Callable, Dict, Generic, Optional, Type, TypeVar, cast
 
 T = TypeVar('T')
 

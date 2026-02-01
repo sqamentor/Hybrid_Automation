@@ -11,8 +11,9 @@ Simple demo tests to show enhanced reporting without environment dependency.
 Demonstrates: logs, assertions, API calls, database queries.
 """
 
-import pytest
 import time
+
+import pytest
 
 
 @pytest.mark.smoke

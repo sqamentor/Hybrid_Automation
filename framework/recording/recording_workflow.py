@@ -4,15 +4,17 @@ Manages the complete recording → refactoring → page object → API integrati
 WITH PROJECT-AWARE ORGANIZATION AND ENVIRONMENT DETECTION
 """
 
-from typing import Dict, Any, Optional, List
-from pathlib import Path
-from loguru import logger
 import time
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
-from .codegen_wrapper import PlaywrightCodegen
-from .ai_refactorer import AIScriptRefactorer
-from .page_object_generator import PageObjectGenerator
+from loguru import logger
+
 from framework.core.project_manager import ProjectManager, get_project_manager
+
+from .ai_refactorer import AIScriptRefactorer
+from .codegen_wrapper import PlaywrightCodegen
+from .page_object_generator import PageObjectGenerator
 
 
 class RecordingWorkflow:

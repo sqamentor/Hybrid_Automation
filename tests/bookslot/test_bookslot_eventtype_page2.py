@@ -20,11 +20,12 @@ Run Commands:
     pytest tests/bookslot/test_eventtype_page.py -m smoke -v
 """
 
-import pytest
 import allure
-from tests.bookslot.helpers.navigation_helper import BookslotNavigator
-from pages.bookslot.bookslots_eventinfo_page2 import BookslotEventInfoPage
+import pytest
+
 from pages.bookslot.bookslots_basicinfo_page1 import BookslotBasicInfoPage
+from pages.bookslot.bookslots_eventinfo_page2 import BookslotEventInfoPage
+from tests.bookslot.helpers.navigation_helper import BookslotNavigator
 
 
 @allure.epic("Bookslot")

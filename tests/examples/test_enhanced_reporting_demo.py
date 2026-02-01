@@ -21,9 +21,10 @@ This test file serves as an example and documentation
 of how to use the enhanced reporting fixtures.
 """
 
-import pytest
 import time
 from pathlib import Path
+
+import pytest
 
 
 @pytest.mark.smoke

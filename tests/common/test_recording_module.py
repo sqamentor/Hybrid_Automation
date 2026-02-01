@@ -3,9 +3,10 @@ Tests for Recording Module Components
 Verifies that recording workflow modules are properly integrated
 """
 
-import pytest
-from pathlib import Path
 import sys
+from pathlib import Path
+
+import pytest
 
 # Add framework to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -195,15 +196,15 @@ class TestRecordingIntegration:
     def test_ai_provider_factory_integration(self):
         """Test AI refactorer uses framework AI providers"""
         from framework.recording import AIScriptRefactorer
-        
+
         # Should use framework.ai.ai_provider_factory
         refactorer = AIScriptRefactorer(ai_provider_name=None)
         assert refactorer is not None
     
     def test_directory_structure_creation(self):
         """Test required directories are created"""
-        from framework.recording import PlaywrightCodegen, PageObjectGenerator
-        
+        from framework.recording import PageObjectGenerator, PlaywrightCodegen
+
         # These should create directories if not exist
         codegen = PlaywrightCodegen()
         generator = PageObjectGenerator()
@@ -220,7 +221,7 @@ class TestRecordingResilience:
     def test_refactorer_works_without_ai(self):
         """Test AIScriptRefactorer has rule-based fallback"""
         from framework.recording import AIScriptRefactorer
-        
+
         # Force rule-based by using invalid AI provider
         refactorer = AIScriptRefactorer(ai_provider_name="invalid_provider")
         assert refactorer is not None

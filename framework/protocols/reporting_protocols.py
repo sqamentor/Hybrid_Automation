@@ -7,7 +7,7 @@ Protocol classes for reporting, metrics, and artifact management.
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 
-from framework.models.test_models import TestResult, TestMetadata
+from framework.models.test_models import TestMetadata, TestResult
 
 
 @runtime_checkable

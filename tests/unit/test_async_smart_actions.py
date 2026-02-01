@@ -7,18 +7,19 @@ pattern matching for browser-specific logic, and performance.
 Author: Lokendra Singh
 """
 
+import asyncio
+from unittest.mock import AsyncMock, Mock, patch
+
 import pytest
 import pytest_asyncio
-import asyncio
-from unittest.mock import Mock, AsyncMock, patch
-from playwright.async_api import Page, Locator, Browser
+from playwright.async_api import Browser, Locator, Page
 
 from framework.core.async_smart_actions import (
-    AsyncSmartActions,
     AsyncPageFactory,
+    AsyncSmartActions,
 )
-from framework.models.test_models import TestContext
 from framework.models.config_models import BrowserEngine
+from framework.models.test_models import TestContext
 
 
 @pytest_asyncio.fixture
