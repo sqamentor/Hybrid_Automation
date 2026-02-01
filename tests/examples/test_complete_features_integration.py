@@ -1,5 +1,4 @@
-"""
-Complete Feature Integration Examples
+"""Complete Feature Integration Examples.
 
 Demonstrates how to use all framework features together.
 """
@@ -253,7 +252,7 @@ def test_complete_ecommerce_flow_with_all_features(ui_engine, api_client, db_cli
 
 @pytest.mark.security
 def test_security_scan_with_owasp_zap():
-    """Security testing with OWASP ZAP"""
+    """Security testing with OWASP ZAP."""
     
     security = SecurityTester("http://localhost:8080")
     security.set_api_key("your-zap-api-key")
@@ -281,7 +280,7 @@ def test_security_scan_with_owasp_zap():
 
 @pytest.mark.ml_optimization
 def test_ml_test_optimization():
-    """ML-based test optimization"""
+    """ML-based test optimization."""
     from framework.ml.ml_test_optimizer import MLTestOptimizer
     
     optimizer = MLTestOptimizer()
@@ -314,7 +313,7 @@ def test_ml_test_optimization():
 
 @pytest.mark.nl_generation
 def test_natural_language_test_generation():
-    """Generate tests from natural language"""
+    """Generate tests from natural language."""
     from framework.ai.nl_test_generator import NaturalLanguageTestGenerator
     
     generator = NaturalLanguageTestGenerator()
@@ -337,7 +336,7 @@ def test_natural_language_test_generation():
 
 @pytest.mark.graphql
 def test_graphql_api():
-    """GraphQL API testing"""
+    """GraphQL API testing."""
     from framework.api.graphql_client import GraphQLClient
     
     client = GraphQLClient("https://api.example.com/graphql")
@@ -369,7 +368,7 @@ def test_graphql_api():
 
 @pytest.mark.websocket
 def test_websocket_realtime():
-    """WebSocket real-time testing"""
+    """WebSocket real-time testing."""
     from framework.api.websocket_tester import SyncWebSocketTester
     
     with SyncWebSocketTester("wss://echo.websocket.org") as ws:
@@ -387,7 +386,7 @@ def test_websocket_realtime():
 
 @pytest.mark.multilanguage
 def test_multilanguage_support(ui_engine):
-    """Multi-language testing"""
+    """Multi-language testing."""
     from framework.i18n.multi_language import MultiLanguageSupport, RTLTesting
     
     i18n = MultiLanguageSupport()

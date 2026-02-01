@@ -1,4 +1,4 @@
-"""Helpers module"""
+"""Helpers module."""
 
 from framework.helpers.flow_helpers import (
     ConditionalExecution,

@@ -1,5 +1,4 @@
-"""
-Unit tests for framework.protocols module.
+"""Unit tests for framework.protocols module.
 
 Tests Protocol compliance, runtime_checkable, and structural subtyping.
 """

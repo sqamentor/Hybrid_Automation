@@ -1,5 +1,4 @@
-"""
-AI Engine Selector Advanced Features Demo
+"""AI Engine Selector Advanced Features Demo.
 
 This example demonstrates the enhanced AI Engine Selector features:
 1. Local LLM Support (Ollama, LlamaCPP)
@@ -16,7 +15,7 @@ from framework.core.ai_engine_selector import AIEngineSelector
 
 
 def demo_provider_initialization():
-    """Demonstrate different AI provider initialization"""
+    """Demonstrate different AI provider initialization."""
     print("\n" + "=" * 70)
     print("DEMO 1: Multi-Provider Support")
     print("=" * 70)
@@ -62,7 +61,7 @@ def demo_provider_initialization():
 
 
 def demo_retry_logic():
-    """Demonstrate retry logic with exponential backoff"""
+    """Demonstrate retry logic with exponential backoff."""
     print("\n" + "=" * 70)
     print("DEMO 2: Retry Logic with Exponential Backoff")
     print("=" * 70)
@@ -115,7 +114,7 @@ def demo_retry_logic():
 
 
 def demo_response_caching():
-    """Demonstrate response caching"""
+    """Demonstrate response caching."""
     print("\n" + "=" * 70)
     print("DEMO 3: Response Caching")
     print("=" * 70)
@@ -203,7 +202,7 @@ def demo_response_caching():
 
 
 def demo_ollama_local_llm():
-    """Demonstrate Ollama local LLM integration"""
+    """Demonstrate Ollama local LLM integration."""
     print("\n" + "=" * 70)
     print("DEMO 4: Ollama Local LLM Support")
     print("=" * 70)
@@ -257,7 +256,7 @@ def demo_ollama_local_llm():
 
 
 def demo_llamacpp_local_llm():
-    """Demonstrate LlamaCPP local LLM integration"""
+    """Demonstrate LlamaCPP local LLM integration."""
     print("\n" + "=" * 70)
     print("DEMO 5: LlamaCPP Local LLM Support")
     print("=" * 70)
@@ -317,7 +316,7 @@ def demo_llamacpp_local_llm():
 
 
 def demo_cache_ttl():
-    """Demonstrate cache TTL expiration"""
+    """Demonstrate cache TTL expiration."""
     print("\n" + "=" * 70)
     print("DEMO 6: Cache TTL (Time To Live)")
     print("=" * 70)
@@ -372,7 +371,7 @@ def demo_cache_ttl():
 
 
 def main():
-    """Run all demos"""
+    """Run all demos."""
     print("\n" + "=" * 70)
     print("AI ENGINE SELECTOR ADVANCED FEATURES DEMO")
     print("=" * 70)

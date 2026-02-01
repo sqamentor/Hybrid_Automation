@@ -1,6 +1,4 @@
-"""
-Clean up page files to follow proper POM standards
-"""
+"""Clean up page files to follow proper POM standards."""
 
 # Personal Info Page
 personal_info_content = '''"""

@@ -131,10 +131,15 @@ repos:
   # ========================================================================
   # DOCSTRING FORMATTING
   # ========================================================================
-  - repo: https://github.com/PyCQA/docformatter
-    rev: v1.7.5
+  - repo: local
     hooks:
       - id: docformatter
+        name: docformatter
+        entry: docformatter
+        language: python
+        additional_dependencies:
+          - docformatter==1.7.5
+        types: [python]
         args: [--in-place, --wrap-summaries, "100", --wrap-descriptions, "100"]
 
   # ========================================================================

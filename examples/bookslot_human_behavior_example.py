@@ -1,6 +1,5 @@
-"""
-BookSlot Human Behavior Integration Example
-Demonstrates realistic form filling with human-like delays and interactions
+"""BookSlot Human Behavior Integration Example Demonstrates realistic form filling with human-like
+delays and interactions.
 
 Author: Lokendra Singh
 Email: qa.lokendra@gmail.com
@@ -13,10 +12,10 @@ Purpose:
 Usage:
     # Run with human behavior enabled
     pytest examples/bookslot_human_behavior_example.py --enable-human-behavior
-    
+
     # Run with specific intensity
     pytest examples/bookslot_human_behavior_example.py --enable-human-behavior --human-behavior-intensity high
-    
+
     # Run fast (no human behavior)
     pytest examples/bookslot_human_behavior_example.py
 
@@ -44,25 +43,24 @@ from pages.bookslot.bookslots_success import BookslotSuccessPage
 @pytest.mark.human_like
 @pytest.mark.example
 def test_bookslot_with_human_behavior(page: Page, multi_project_config, human_behavior):
-    """
-    Complete BookSlot workflow with human behavior simulation
-    
+    """Complete BookSlot workflow with human behavior simulation.
+
     This example demonstrates:
     - Natural typing speed (realistic character-by-character input)
     - Thinking pauses before actions
     - Reading delays for content review
     - Realistic navigation timing
     - Human-like form filling patterns
-    
+
     Run Options:
         Fast Mode (CI/CD):
             pytest examples/bookslot_human_behavior_example.py
             (Completes in ~10 seconds)
-        
+
         Human Mode (Demo/Visual Proof):
             pytest examples/bookslot_human_behavior_example.py --enable-human-behavior
             (Completes in ~45-60 seconds with realistic delays)
-        
+
         High Intensity (Maximum Realism):
             pytest examples/bookslot_human_behavior_example.py --enable-human-behavior --human-behavior-intensity high
             (Completes in ~90-120 seconds with extended delays)
@@ -191,9 +189,8 @@ def test_bookslot_with_human_behavior(page: Page, multi_project_config, human_be
 @pytest.mark.example
 @pytest.mark.smoke
 def test_bookslot_partial_workflow_with_human_behavior(page: Page, multi_project_config, human_behavior):
-    """
-    Partial BookSlot workflow demonstrating human behavior in specific sections
-    
+    """Partial BookSlot workflow demonstrating human behavior in specific sections.
+
     This example shows:
     - How to enable human behavior for specific pages only
     - Mixed mode (some pages fast, some pages human-like)

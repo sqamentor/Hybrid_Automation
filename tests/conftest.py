@@ -52,7 +52,7 @@ audit_logger = get_audit_logger()
 
 @pytest.fixture(scope="session")
 def env(request):
-    """Get test environment"""
+    """Get test environment."""
     env_name = request.config.getoption("--env")
     settings.current_environment = env_name
     logger.info(f"Running tests in environment: {env_name}")
@@ -61,7 +61,7 @@ def env(request):
 
 @pytest.fixture(scope="session")
 def browser_config(request):
-    """Get browser configuration"""
+    """Get browser configuration."""
     return {
         "browser_type": request.config.getoption("--test-browser"),
         "headless": request.config.getoption("--headless")
@@ -70,7 +70,7 @@ def browser_config(request):
 
 @pytest.fixture(scope="session")
 def validation_cache():
-    """Session-scoped validation pattern cache for performance"""
+    """Session-scoped validation pattern cache for performance."""
     ttl_seconds = 3600  # 1 hour TTL
     max_size = 500  # Cache up to 500 patterns
     
@@ -91,10 +91,7 @@ def validation_cache():
 
 @pytest.fixture
 def ui_engine(request, browser_config):
-    """
-    Create UI engine based on test metadata
-    Uses auto-routing (Playwright or Selenium)
-    """
+    """Create UI engine based on test metadata Uses auto-routing (Playwright or Selenium)"""
     # Extract test metadata
     metadata = extract_test_metadata(request.node)
     
@@ -120,7 +117,7 @@ def ui_engine(request, browser_config):
 
 @pytest.fixture
 def api_client(env):
-    """Create API client"""
+    """Create API client."""
     base_url = get_api_url(env)
     client = APIClient(base_url)
     yield client
@@ -128,7 +125,7 @@ def api_client(env):
 
 @pytest.fixture
 def api_interceptor(api_client):
-    """Create API interceptor with WebSocket and modification support"""
+    """Create API interceptor with WebSocket and modification support."""
     interceptor = APIInterceptor(api_client)
     
     # Enable interception by default
@@ -155,7 +152,7 @@ def api_interceptor(api_client):
 
 @pytest.fixture
 def db_client(env):
-    """Create database client"""
+    """Create database client."""
     client = DBClient(db_name='primary', env=env)
     yield client
     client.close()
@@ -163,7 +160,7 @@ def db_client(env):
 
 @pytest.fixture
 def ai_validator(validation_cache):
-    """Create AI validation suggester with caching"""
+    """Create AI validation suggester with caching."""
     suggester = AIValidationSuggester()
     
     # Inject cache into suggester
@@ -175,16 +172,13 @@ def ai_validator(validation_cache):
 
 @pytest.fixture
 def ui_url(env):
-    """Get UI base URL"""
+    """Get UI base URL."""
     return get_ui_url(env)
 
 
 @pytest.fixture(autouse=True)
 def log_test_execution(request):
-    """
-    Automatically log test execution to audit trail
-    Runs before/after every test
-    """
+    """Automatically log test execution to audit trail Runs before/after every test."""
     test_name = request.node.nodeid
     test_file = str(request.fspath)
     
@@ -202,10 +196,8 @@ def log_test_execution(request):
 
 @pytest.fixture
 def test_context():
-    """
-    Shared test context for multi-project testing
-    Used to pass data between different applications
-    """
+    """Shared test context for multi-project testing Used to pass data between different
+    applications."""
     from models import TestContext
     context = TestContext()
     yield context
@@ -269,10 +261,7 @@ def multi_project_config(request, env):
 
 @pytest.fixture(scope="session")
 def playwright_instance():
-    """
-    Session-scoped Playwright instance
-    Shared across all tests to avoid event loop conflicts
-    """
+    """Session-scoped Playwright instance Shared across all tests to avoid event loop conflicts."""
     from playwright.sync_api import sync_playwright
     
     playwright = sync_playwright().start()
@@ -282,10 +271,7 @@ def playwright_instance():
 
 @pytest.fixture(scope="session")
 def shared_browser(playwright_instance, browser_config):
-    """
-    Session-scoped browser instance
-    Shared across all tests for better performance
-    """
+    """Session-scoped browser instance Shared across all tests for better performance."""
     browser = playwright_instance.chromium.launch(
         headless=browser_config["headless"]
     )
@@ -295,10 +281,7 @@ def shared_browser(playwright_instance, browser_config):
 
 @pytest.fixture
 def bookslot_page(request, shared_browser, multi_project_config):
-    """
-    Bookslot page object fixture
-    Creates a Playwright page for Bookslot application
-    """
+    """Bookslot page object fixture Creates a Playwright page for Bookslot application."""
     from pages.bookslot import BookslotBasicInfoPage
     
     context = shared_browser.new_context()
@@ -316,10 +299,7 @@ def bookslot_page(request, shared_browser, multi_project_config):
 
 @pytest.fixture
 def patientintake_page(request, shared_browser, multi_project_config):
-    """
-    PatientIntake page object fixture
-    Creates a Playwright page for PatientIntake application
-    """
+    """PatientIntake page object fixture Creates a Playwright page for PatientIntake application."""
     from pages.patientintake import PatientIntakeAppointmentListPage
     
     context = shared_browser.new_context()
@@ -337,10 +317,7 @@ def patientintake_page(request, shared_browser, multi_project_config):
 
 @pytest.fixture
 def callcenter_page(request, browser_config, multi_project_config):
-    """
-    CallCenter page object fixture
-    Creates a Playwright page for CallCenter application
-    """
+    """CallCenter page object fixture Creates a Playwright page for CallCenter application."""
     from playwright.sync_api import sync_playwright
 
     from pages.callcenter import CallCenterAppointmentManagementPage
@@ -370,10 +347,8 @@ def callcenter_page(request, browser_config, multi_project_config):
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
-    """
-    Hook to capture test results, take screenshots on failure, and log to audit trail
-    Enhanced with comprehensive report collection
-    """
+    """Hook to capture test results, take screenshots on failure, and log to audit trail Enhanced
+    with comprehensive report collection."""
     outcome = yield
     report = outcome.get_result()
     
@@ -453,10 +428,7 @@ def pytest_runtest_makereport(item, call):
 
 
 def pytest_collection_modifyitems(config, items):
-    """
-    Modify test collection
-    Can be used to reorder tests, add markers dynamically, etc.
-    """
+    """Modify test collection Can be used to reorder tests, add markers dynamically, etc."""
     for item in items:
         # Add env marker based on selected environment
         env = config.getoption("--env")
@@ -468,7 +440,7 @@ def pytest_collection_modifyitems(config, items):
 # ========================================================================
 
 def pytest_html_report_title(report):
-    """Customize HTML report title"""
+    """Customize HTML report title."""
     report.title = "Test Automation Execution Report"
 
 
@@ -544,7 +516,7 @@ def pytest_configure(config):
 
 
 def pytest_sessionstart(session):
-    """Called before test session starts"""
+    """Called before test session starts."""
     config = session.config
     
     # Get configuration for logging
@@ -569,15 +541,15 @@ def pytest_sessionstart(session):
 
 
 def pytest_sessionfinish(session, exitstatus):
-    """Called after test session finishes"""
+    """Called after test session finishes."""
     logger.info("=" * 80)
     logger.info(f"TEST SESSION FINISHED (exit status: {exitstatus})")
     logger.info("=" * 80)
 
 
 def pytest_collection_modifyitems(config, items):
-    """
-    Mark sync Playwright tests to skip asyncio auto-wrapping.
+    """Mark sync Playwright tests to skip asyncio auto-wrapping.
+
     This prevents the error: "Using Playwright Sync API inside asyncio loop"
     """
     for item in items:

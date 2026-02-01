@@ -1,5 +1,4 @@
-"""
-Cross-Engine Workflow Tests
+"""Cross-Engine Workflow Tests.
 
 Tests for multi-step workflows that span Selenium and Playwright engines.
 Implements the user's use case: SSO (Selenium) → CallCenter (Playwright) → PatientIntake (Playwright)
@@ -262,9 +261,8 @@ def test_sso_authentication_only(
     sso_config,
     sso_credentials
 ):
-    """
-    Test SSO authentication step only
-    
+    """Test SSO authentication step only.
+
     Validates that SSO authentication works correctly and session is captured.
     """
     logger.info("🚀 Testing SSO authentication only")
@@ -311,11 +309,10 @@ def test_session_transfer_selenium_to_playwright(
     sso_credentials,
     config
 ):
-    """
-    Test session transfer from Selenium to Playwright
-    
-    Validates that session extracted from Selenium can be successfully
-    injected into Playwright and remain valid.
+    """Test session transfer from Selenium to Playwright.
+
+    Validates that session extracted from Selenium can be successfully injected into Playwright and
+    remain valid.
     """
     logger.info("🚀 Testing Selenium → Playwright session transfer")
     

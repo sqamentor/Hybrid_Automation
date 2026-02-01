@@ -27,9 +27,8 @@ from playwright.sync_api import Page
 
 
 class BookslotWebSchedulerPage:
-    """
-    Page Object for Bookslot Web Scheduler
-    
+    """Page Object for Bookslot Web Scheduler.
+
     What a user can do on this page:
     - Navigate to scheduler
     - Wait for calendar to load
@@ -39,9 +38,8 @@ class BookslotWebSchedulerPage:
     """
 
     def __init__(self, page: Page, base_url: str):
-        """
-        Initialize page object
-        
+        """Initialize page object.
+
         Args:
             page: Playwright Page instance
             base_url: Base URL from multi_project_config
@@ -58,12 +56,12 @@ class BookslotWebSchedulerPage:
     
     @property
     def calendar_container(self):
-        """Calendar container element"""
+        """Calendar container element."""
         return self.page.locator(".calendar, [class*='calendar'], [class*='scheduler']").first
     
     @property
     def time_slots_am_pm(self):
-        """All AM/PM time slot buttons"""
+        """All AM/PM time slot buttons."""
         return self.page.locator("button[role='button']:has-text('AM'), button[role='button']:has-text('PM')")
     
     @property
@@ -73,22 +71,22 @@ class BookslotWebSchedulerPage:
     
     @property
     def specific_slot_6am(self):
-        """6:00 AM specific slot"""
+        """6:00 AM specific slot."""
         return self.page.get_by_role("button", name="06:00 AM")
     
     @property
     def text_request_appointment(self):
-        """Request an Appointment confirmation text"""
+        """Request an Appointment confirmation text."""
         return self.page.get_by_text("Request an Appointment This")
     
     @property
     def button_next(self):
-        """Next button"""
+        """Next button."""
         return self.page.get_by_role("button", name="Next")
     
     @property
     def loader(self):
-        """Loading spinner"""
+        """Loading spinner."""
         return self.page.locator(".loader, .spinner, [class*='loading']")
 
     # ===================================================================
@@ -96,7 +94,7 @@ class BookslotWebSchedulerPage:
     # ===================================================================
     
     def navigate(self):
-        """Navigate to the scheduler page"""
+        """Navigate to the scheduler page."""
         url = f"{self.base_url}{self.path}"
         self.page.goto(url)
         return self
@@ -106,7 +104,7 @@ class BookslotWebSchedulerPage:
     # ===================================================================
     
     def select_first_available_slot(self):
-        """Select first available AM/PM slot"""
+        """Select first available AM/PM slot."""
         slots = self.time_slots_am_pm.all()
         if slots and len(slots) > 0:
             slots[0].click()
@@ -121,14 +119,13 @@ class BookslotWebSchedulerPage:
         return self
     
     def select_6am_slot(self):
-        """Select 6:00 AM slot specifically"""
+        """Select 6:00 AM slot specifically."""
         self.specific_slot_6am.click()
         return self
     
     def select_am_or_pm_slot(self, slot_type: str):
-        """
-        Select first available AM or PM slot
-        
+        """Select first available AM or PM slot.
+
         Args:
             slot_type: "AM" or "PM"
         """
@@ -136,12 +133,11 @@ class BookslotWebSchedulerPage:
         return self
     
     def is_am_or_pm_slot_visible(self, slot_type: str) -> bool:
-        """
-        Check if AM or PM slot is visible
-        
+        """Check if AM or PM slot is visible.
+
         Args:
             slot_type: "AM" or "PM"
-            
+
         Returns:
             bool: True if visible, False otherwise
         """
@@ -151,20 +147,20 @@ class BookslotWebSchedulerPage:
             return False
     
     def get_am_slots_count(self) -> int:
-        """Get count of AM slots"""
+        """Get count of AM slots."""
         return self.page.locator("button:has-text('AM')").count()
     
     def get_pm_slots_count(self) -> int:
-        """Get count of PM slots"""
+        """Get count of PM slots."""
         return self.page.locator("button:has-text('PM')").count()
     
     def confirm_slot(self):
-        """Confirm the selected time slot"""
+        """Confirm the selected time slot."""
         self.text_request_appointment.click()
         return self
     
     def proceed_to_next(self):
-        """Click Next button"""
+        """Click Next button."""
         self.button_next.click()
         return self
 
@@ -180,7 +176,7 @@ class BookslotWebSchedulerPage:
             return False
     
     def are_slots_available(self) -> bool:
-        """Check if time slots are available"""
+        """Check if time slots are available."""
         try:
             return self.time_slots_am_pm.count() > 0 or self.time_slots_any.count() > 0
         except:

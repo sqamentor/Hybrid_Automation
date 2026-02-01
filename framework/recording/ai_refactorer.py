@@ -1,5 +1,5 @@
-"""
-AI-Assisted Script Refactorer
+"""AI-Assisted Script Refactorer.
+
 Uses AI to improve recorded Playwright scripts:
 - Add comments and documentation
 - Improve locator strategies
@@ -10,33 +10,33 @@ Uses AI to improve recorded Playwright scripts:
 
 import re
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
 from loguru import logger
 
+if TYPE_CHECKING:
+    from framework.ai.ai_provider_factory import BaseAIProvider
+
 
 class AIScriptRefactorer:
-    """
-    AI-assisted refactoring of recorded Playwright scripts
-    Improves code quality, adds documentation, and enhances maintainability
-    """
+    """AI-assisted refactoring of recorded Playwright scripts Improves code quality, adds
+    documentation, and enhances maintainability."""
     
     def __init__(self, ai_provider_name: Optional[str] = None):
-        """
-        Initialize AI Script Refactorer
-        
+        """Initialize AI Script Refactorer.
+
         Args:
             ai_provider_name: AI provider to use ('openai', 'claude', etc.)
         """
         self.ai_provider_name = ai_provider_name
-        self.ai_provider = None
+        self.ai_provider: Optional['BaseAIProvider'] = None
         self.enabled = False
         
         # Initialize AI provider
         self._initialize_ai()
     
     def _initialize_ai(self):
-        """Initialize AI provider"""
+        """Initialize AI provider."""
         try:
             from framework.ai.ai_provider_factory import get_ai_provider
             
@@ -56,14 +56,13 @@ class AIScriptRefactorer:
         script_path: str,
         improvements: Optional[List[str]] = None
     ) -> Dict[str, Any]:
-        """
-        Refactor a recorded Playwright script
-        
+        """Refactor a recorded Playwright script.
+
         Args:
             script_path: Path to the recorded script
             improvements: List of improvement types to apply
                          ['comments', 'locators', 'assertions', 'functions', 'documentation']
-        
+
         Returns:
             Dict with refactored code and metadata
         """
@@ -111,7 +110,7 @@ class AIScriptRefactorer:
         }
     
     def _ai_refactor(self, code: str, improvements: List[str]) -> str:
-        """Use AI to refactor the script"""
+        """Use AI to refactor the script."""
         if not self.ai_provider:
             return self._rule_based_refactor(code, improvements)
         
@@ -137,7 +136,7 @@ class AIScriptRefactorer:
             return self._rule_based_refactor(code, improvements)
     
     def _build_refactoring_prompt(self, code: str, improvements: List[str]) -> str:
-        """Build prompt for AI refactoring"""
+        """Build prompt for AI refactoring."""
         improvements_desc = ", ".join(improvements)
         
         prompt = f"""Refactor this Playwright test script with the following improvements: {improvements_desc}
@@ -163,9 +162,9 @@ Return ONLY the refactored Python code, no explanations."""
         return prompt
     
     def _extract_code_from_response(self, response: str) -> str:
-        """Extract code from AI response"""
+        """Extract code from AI response."""
         # Try to extract code from markdown code blocks
-        code_blocks = re.findall(r'```python\n(.*?)\n```', response, re.DOTALL)
+        code_blocks: List[str] = re.findall(r'```python\n(.*?)\n```', response, re.DOTALL)
         if code_blocks:
             return code_blocks[0]
         
@@ -178,7 +177,7 @@ Return ONLY the refactored Python code, no explanations."""
         return response.strip()
     
     def _rule_based_refactor(self, code: str, improvements: List[str]) -> str:
-        """Rule-based refactoring when AI is not available"""
+        """Rule-based refactoring when AI is not available."""
         refactored = code
         
         # Add module docstring if not present
@@ -204,7 +203,7 @@ Return ONLY the refactored Python code, no explanations."""
         return refactored
     
     def _improve_imports(self, code: str) -> str:
-        """Add organized imports"""
+        """Add organized imports."""
         if 'import pytest' not in code and 'import re' not in code:
             imports = """import pytest
 from playwright.sync_api import Page, expect
@@ -221,7 +220,7 @@ from playwright.sync_api import Page, expect
         return code
     
     def _add_section_comments(self, code: str) -> str:
-        """Add comments to identify test sections"""
+        """Add comments to identify test sections."""
         lines = code.split('\n')
         enhanced = []
         
@@ -243,7 +242,7 @@ from playwright.sync_api import Page, expect
         return '\n'.join(enhanced)
     
     def _suggest_locator_improvements(self, code: str) -> str:
-        """Add comments suggesting better locators"""
+        """Add comments suggesting better locators."""
         # Find CSS selectors and suggest alternatives
         css_patterns = [
             (r'page\.locator\("([^"]+)"\)', 'CSS selector'),
@@ -268,7 +267,7 @@ from playwright.sync_api import Page, expect
         return code
     
     def _add_assertion_hints(self, code: str) -> str:
-        """Add hints for assertions"""
+        """Add hints for assertions."""
         if 'expect(' not in code and 'assert ' not in code:
             # Add comment suggesting assertions
             lines = code.split('\n')
@@ -283,12 +282,11 @@ from playwright.sync_api import Page, expect
         return code
     
     def preview_improvements(self, script_path: str) -> Dict[str, Any]:
-        """
-        Preview what improvements would be made without saving
-        
+        """Preview what improvements would be made without saving.
+
         Args:
             script_path: Path to script
-        
+
         Returns:
             Dict with improvement suggestions
         """

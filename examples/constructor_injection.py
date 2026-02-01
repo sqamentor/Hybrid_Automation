@@ -1,5 +1,4 @@
-"""
-Constructor injection examples demonstrating SOLID principles.
+"""Constructor injection examples demonstrating SOLID principles.
 
 Examples:
 - Pure constructor injection (no service locator)
@@ -33,34 +32,32 @@ class ILogger(Protocol):
 
 
 class LoginPage:
-    """
-    Login page with pure constructor injection.
-    
+    """Login page with pure constructor injection.
+
     Example:
         ```python
         # Production code
         browser = PlaywrightBrowser()
         logger = StructuredLogger()
-        
+
         login_page = LoginPage(browser, logger)
         login_page.login("admin", "password123")
-        
+
         # Test code with mocks
         mock_browser = Mock(spec=IBrowser)
         mock_logger = Mock(spec=ILogger)
-        
+
         login_page = LoginPage(mock_browser, mock_logger)
         login_page.login("test", "test123")
-        
+
         mock_browser.fill.assert_called()
         mock_logger.info.assert_called()
         ```
     """
     
     def __init__(self, browser: IBrowser, logger: ILogger):
-        """
-        Initialize login page with dependencies.
-        
+        """Initialize login page with dependencies.
+
         Args:
             browser: Browser implementation
             logger: Logger implementation
@@ -69,9 +66,8 @@ class LoginPage:
         self._logger = logger
     
     def login(self, username: str, password: str) -> None:
-        """
-        Perform login action.
-        
+        """Perform login action.
+
         Args:
             username: Username
             password: Password
@@ -86,9 +82,8 @@ class LoginPage:
         self._logger.info("Login completed")
     
     def is_logged_in(self) -> bool:
-        """
-        Check if user is logged in.
-        
+        """Check if user is logged in.
+
         Returns:
             True if logged in, False otherwise
         """
@@ -122,26 +117,25 @@ class INotifier(Protocol):
 
 
 class TestRunner:
-    """
-    Test runner with constructor injection.
-    
+    """Test runner with constructor injection.
+
     Example:
         ```python
         # Production
         executor = PlaywrightExecutor()
         reporter = AllureReporter()
         notifier = SlackNotifier()
-        
+
         runner = TestRunner(executor, reporter, notifier)
         runner.run_test("test_login")
-        
+
         # Testing
         mock_executor = Mock(spec=ITestExecutor)
         mock_executor.execute_test.return_value = {"status": "passed"}
-        
+
         runner = TestRunner(mock_executor, Mock(), Mock())
         result = runner.run_test("test_mock")
-        
+
         assert result["status"] == "passed"
         ```
     """
@@ -152,9 +146,8 @@ class TestRunner:
         reporter: IReporter,
         notifier: Optional[INotifier] = None
     ):
-        """
-        Initialize test runner with dependencies.
-        
+        """Initialize test runner with dependencies.
+
         Args:
             executor: Test executor
             reporter: Test reporter
@@ -165,12 +158,11 @@ class TestRunner:
         self._notifier = notifier
     
     def run_test(self, test_name: str) -> Dict[str, Any]:
-        """
-        Run a test and report results.
-        
+        """Run a test and report results.
+
         Args:
             test_name: Name of the test
-        
+
         Returns:
             Test result dictionary
         """
@@ -207,9 +199,8 @@ class IHTTPClient(Protocol):
 
 
 class APIClient:
-    """
-    API client with constructor injection.
-    
+    """API client with constructor injection.
+
     Example:
         ```python
         # Production
@@ -218,25 +209,24 @@ class APIClient:
             api_key="secret123"
         )
         http_client = HTTPXClient()
-        
+
         api_client = APIClient(config, http_client)
         users = api_client.get_users()
-        
+
         # Testing
         mock_http = Mock(spec=IHTTPClient)
         mock_http.get.return_value = {"users": [{"id": 1, "name": "Test"}]}
-        
+
         api_client = APIClient(APIConfig("http://test"), mock_http)
         users = api_client.get_users()
-        
+
         assert len(users) == 1
         ```
     """
     
     def __init__(self, config: APIConfig, http_client: IHTTPClient):
-        """
-        Initialize API client with dependencies.
-        
+        """Initialize API client with dependencies.
+
         Args:
             config: API configuration
             http_client: HTTP client implementation
@@ -254,9 +244,8 @@ class APIClient:
         return headers
     
     def get_users(self) -> list:
-        """
-        Get list of users.
-        
+        """Get list of users.
+
         Returns:
             List of user dictionaries
         """
@@ -265,12 +254,11 @@ class APIClient:
         return response.get("users", [])
     
     def create_user(self, user_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Create a new user.
-        
+        """Create a new user.
+
         Args:
             user_data: User data dictionary
-        
+
         Returns:
             Created user dictionary
         """
@@ -291,32 +279,30 @@ class IDatabase(Protocol):
 
 
 class UserRepository:
-    """
-    User repository with database injection.
-    
+    """User repository with database injection.
+
     Example:
         ```python
         # Production
         database = PostgreSQLDatabase()
         repo = UserRepository(database)
         users = repo.get_all_users()
-        
+
         # Testing
         mock_db = Mock(spec=IDatabase)
         mock_db.query.return_value = [{"id": 1, "name": "Test"}]
-        
+
         repo = UserRepository(mock_db)
         users = repo.get_all_users()
-        
+
         assert len(users) == 1
         mock_db.query.assert_called_with("SELECT * FROM users")
         ```
     """
     
     def __init__(self, database: IDatabase):
-        """
-        Initialize repository with database.
-        
+        """Initialize repository with database.
+
         Args:
             database: Database implementation
         """
@@ -337,18 +323,17 @@ class UserRepository:
 
 
 class RepositoryFactory:
-    """
-    Factory for creating repositories with constructor injection.
-    
+    """Factory for creating repositories with constructor injection.
+
     Example:
         ```python
         # Setup
         factory = RepositoryFactory(database)
-        
+
         # Get repositories
         user_repo = factory.create_user_repository()
         order_repo = factory.create_order_repository()
-        
+
         # All repositories share same database instance
         users = user_repo.get_all_users()
         orders = order_repo.get_all_orders()
@@ -356,9 +341,8 @@ class RepositoryFactory:
     """
     
     def __init__(self, database: IDatabase):
-        """
-        Initialize factory with database.
-        
+        """Initialize factory with database.
+
         Args:
             database: Database implementation
         """
@@ -386,23 +370,22 @@ class IValidator(Protocol):
 
 
 class CompositeValidator:
-    """
-    Composite validator with multiple validators injected.
-    
+    """Composite validator with multiple validators injected.
+
     Example:
         ```python
         # Create validators
         length_validator = LengthValidator(min_length=8)
         pattern_validator = PatternValidator(r"^[a-zA-Z0-9]+$")
         strength_validator = PasswordStrengthValidator()
-        
+
         # Compose validators
         password_validator = CompositeValidator([
             length_validator,
             pattern_validator,
             strength_validator
         ])
-        
+
         # Validate
         is_valid = password_validator.validate("MyPassword123")
         errors = password_validator.get_errors()
@@ -410,9 +393,8 @@ class CompositeValidator:
     """
     
     def __init__(self, validators: list):
-        """
-        Initialize composite validator.
-        
+        """Initialize composite validator.
+
         Args:
             validators: List of validator instances
         """
@@ -420,12 +402,11 @@ class CompositeValidator:
         self._errors = []
     
     def validate(self, value: Any) -> bool:
-        """
-        Validate value with all validators.
-        
+        """Validate value with all validators.
+
         Args:
             value: Value to validate
-        
+
         Returns:
             True if all validators pass, False otherwise
         """
@@ -449,18 +430,17 @@ class CompositeValidator:
 # ============================================================================
 
 def create_mock_dependencies() -> Dict[str, Any]:
-    """
-    Create mock dependencies for testing.
-    
+    """Create mock dependencies for testing.
+
     Returns:
         Dictionary of mock objects
-    
+
     Example:
         ```python
         from unittest.mock import Mock
-        
+
         mocks = create_mock_dependencies()
-        
+
         # Use mocks in tests
         login_page = LoginPage(mocks["browser"], mocks["logger"])
         ```

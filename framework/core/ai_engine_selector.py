@@ -1,5 +1,4 @@
-"""
-AI-Powered Engine Selector
+"""AI-Powered Engine Selector.
 
 This module implements AI-based engine selection using OpenAI/Azure OpenAI/Local LLMs.
 It analyzes test metadata and historical data to recommend the optimal engine.
@@ -12,12 +11,13 @@ Features:
 """
 
 import hashlib
+import importlib
 import json
 import os
 import time
 from dataclasses import dataclass, field
 from functools import wraps
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Sequence, cast
 
 from framework.core.engine_selector import EngineDecision
 from utils.logger import get_logger
@@ -25,9 +25,17 @@ from utils.logger import get_logger
 logger = get_logger(__name__)
 
 
+def _load_requests_module() -> Any:
+    """Load the requests module lazily to avoid mypy stub requirements."""
+    try:
+        return importlib.import_module("requests")
+    except ModuleNotFoundError as exc:
+        raise RuntimeError("requests library not installed. Run: pip install requests") from exc
+
+
 @dataclass
 class AIEngineRecommendation:
-    """AI engine recommendation"""
+    """AI engine recommendation."""
     engine: str
     confidence: int
     reasoning: str
@@ -38,7 +46,7 @@ class AIEngineRecommendation:
 
 @dataclass
 class CachedResponse:
-    """Cached AI response"""
+    """Cached AI response."""
     response: str
     timestamp: float
     hit_count: int = 0
@@ -46,9 +54,8 @@ class CachedResponse:
 
 
 class AIEngineSelector:
-    """
-    AI-powered engine selector with advanced features
-    
+    """AI-powered engine selector with advanced features.
+
     Features:
     - Multi-provider support (OpenAI, Azure OpenAI, Ollama, LlamaCPP)
     - Automatic retry with exponential backoff
@@ -65,9 +72,8 @@ class AIEngineSelector:
         max_retries: int = 3,
         retry_delay: float = 1.0
     ):
-        """
-        Initialize AI Engine Selector
-        
+        """Initialize AI Engine Selector.
+
         Args:
             provider_type: 'openai', 'azure_openai', 'ollama', 'llamacpp'
             cache_enabled: Enable response caching
@@ -78,7 +84,7 @@ class AIEngineSelector:
         """
         self.provider_type = provider_type
         self.enabled = self._check_enabled()
-        self.client = None
+        self.client: Optional[Any] = None
         
         # Retry configuration
         self.max_retries = max_retries
@@ -100,7 +106,7 @@ class AIEngineSelector:
             self._initialize_client()
     
     def _check_enabled(self) -> bool:
-        """Check if AI engine is enabled and configured"""
+        """Check if AI engine is enabled and configured."""
         from config.settings import settings
         
         matrix = settings.get_engine_decision_matrix()
@@ -126,7 +132,7 @@ class AIEngineSelector:
         return True
     
     def _initialize_client(self):
-        """Initialize AI client based on provider type"""
+        """Initialize AI client based on provider type."""
         try:
             if self.provider_type == "openai":
                 import openai
@@ -135,10 +141,13 @@ class AIEngineSelector:
             
             elif self.provider_type == "azure_openai":
                 import openai
+                azure_endpoint = os.getenv('AZURE_OPENAI_ENDPOINT')
+                if not azure_endpoint:
+                    raise RuntimeError("AZURE_OPENAI_ENDPOINT is not configured")
                 self.client = openai.AzureOpenAI(
                     api_key=os.getenv('AZURE_OPENAI_API_KEY'),
                     api_version="2024-02-01",
-                    azure_endpoint=os.getenv('AZURE_OPENAI_ENDPOINT')
+                    azure_endpoint=azure_endpoint
                 )
                 logger.info("Azure OpenAI client initialized")
             
@@ -161,9 +170,9 @@ class AIEngineSelector:
             self.enabled = False
     
     def _initialize_ollama(self):
-        """Initialize Ollama client"""
+        """Initialize Ollama client."""
         try:
-            import requests
+            requests = _load_requests_module()
 
             # Check if Ollama is running
             ollama_host = os.getenv('OLLAMA_HOST', 'http://localhost:11434')
@@ -184,7 +193,7 @@ class AIEngineSelector:
             return None
     
     def _initialize_llamacpp(self):
-        """Initialize LlamaCPP client"""
+        """Initialize LlamaCPP client."""
         try:
             from llama_cpp import Llama
             
@@ -218,13 +227,12 @@ class AIEngineSelector:
         test_metadata: Dict[str, Any],
         historical_data: Optional[Dict[str, Any]] = None
     ) -> Optional[EngineDecision]:
-        """
-        Use AI to select the optimal engine with caching and retry
-        
+        """Use AI to select the optimal engine with caching and retry.
+
         Args:
             test_metadata: Test characteristics
             historical_data: Historical execution data (optional)
-        
+
         Returns:
             EngineDecision or None if AI is unavailable
         """
@@ -276,12 +284,12 @@ class AIEngineSelector:
         test_metadata: Dict[str, Any],
         historical_data: Optional[Dict[str, Any]]
     ) -> str:
-        """Build prompt for AI engine selector"""
+        """Build prompt for AI engine selector."""
         from config.settings import settings
         
         matrix = settings.get_engine_decision_matrix()
         ai_config = matrix.get('ai_engine_selector', {})
-        template = ai_config.get('prompt_template', '')
+        template = cast(str, ai_config.get('prompt_template', ''))
         
         # Build historical context
         historical_context = "No historical data available"
@@ -308,7 +316,7 @@ class AIEngineSelector:
         return prompt
     
     def _query_ai_with_retry(self, prompt: str) -> Optional[str]:
-        """Query AI model with retry logic"""
+        """Query AI model with retry logic."""
         last_exception = None
         
         for attempt in range(self.max_retries):
@@ -340,8 +348,12 @@ class AIEngineSelector:
             ai_config = matrix.get('ai_engine_selector', {})
             model = ai_config.get('provider', {}).get('model', 'gpt-4')
             
+            client = self.client
+            if client is None:
+                raise RuntimeError("AI client is not initialized")
+
             if self.provider_type in ["openai", "azure_openai"]:
-                response = self.client.chat.completions.create(
+                response = client.chat.completions.create(
                     model=model,
                     messages=[
                         {"role": "system", "content": "You are a QA automation expert who selects the optimal UI testing engine."},
@@ -351,7 +363,11 @@ class AIEngineSelector:
                     max_tokens=500
                 )
                 
-                return response.choices[0].message.content
+                choices: Sequence[Any] = getattr(response, 'choices', [])
+                if not choices:
+                    return None
+                content = choices[0].message.content
+                return content if isinstance(content, str) else None
             
             elif self.provider_type == "ollama":
                 return self._query_ollama(prompt, model)
@@ -366,11 +382,13 @@ class AIEngineSelector:
         return None
     
     def _query_ollama(self, prompt: str, model: str = "llama2") -> Optional[str]:
-        """Query Ollama local LLM"""
+        """Query Ollama local LLM."""
         try:
-            import requests
-            
-            ollama_host = self.client['host']
+            requests = _load_requests_module()
+            client = self.client
+            if not isinstance(client, dict) or 'host' not in client:
+                raise RuntimeError("Ollama client not initialized")
+            ollama_host = str(client['host'])
             model = os.getenv('OLLAMA_MODEL', model)
             
             response = requests.post(
@@ -388,7 +406,9 @@ class AIEngineSelector:
             )
             
             if response.status_code == 200:
-                return response.json().get('response', '')
+                data = cast(Dict[str, Any], response.json())
+                text = data.get('response', '')
+                return text if isinstance(text, str) else ''
             else:
                 logger.error(f"Ollama request failed: {response.status_code}")
                 return None
@@ -398,9 +418,12 @@ class AIEngineSelector:
             raise
     
     def _query_llamacpp(self, prompt: str) -> Optional[str]:
-        """Query LlamaCPP local LLM"""
+        """Query LlamaCPP local LLM."""
         try:
-            llm = self.client['llm']
+            client = self.client
+            if not isinstance(client, dict) or 'llm' not in client:
+                raise RuntimeError("LlamaCPP client not initialized")
+            llm = client['llm']
             
             system_prompt = "You are a QA automation expert who selects the optimal UI testing engine."
             full_prompt = f"{system_prompt}\n\n{prompt}"
@@ -413,14 +436,18 @@ class AIEngineSelector:
                 echo=False
             )
             
-            return response['choices'][0]['text']
+            choices = response.get('choices', []) if isinstance(response, dict) else []
+            if not choices:
+                return None
+            text = choices[0].get('text') if isinstance(choices[0], dict) else None
+            return str(text) if text is not None else None
         
         except Exception as e:
             logger.error(f"LlamaCPP query failed: {e}")
             raise
     
     def _parse_response(self, response: str) -> Optional[EngineDecision]:
-        """Parse AI response into EngineDecision"""
+        """Parse AI response into EngineDecision."""
         try:
             # Try to extract JSON from response
             if '{' in response and '}' in response:
@@ -456,12 +483,11 @@ class AIEngineSelector:
         return None
     
     def analyze_test_suite(self, test_items: list) -> Dict[str, Any]:
-        """
-        Analyze entire test suite and provide recommendations
-        
+        """Analyze entire test suite and provide recommendations.
+
         Args:
             test_items: List of pytest test items
-        
+
         Returns:
             Analysis with recommendations
         """
@@ -469,11 +495,12 @@ class AIEngineSelector:
             logger.warning("AI helper not available for batch test analysis. Skipping AI analysis. Continuing without recommendations.")
             return {"error": "AI not enabled", "message": "AI helper not available, skipping this step"}
         
-        analysis = {
+        recommendations: List[Dict[str, Any]] = []
+        analysis: Dict[str, Any] = {
             "total_tests": len(test_items),
             "playwright_recommended": 0,
             "selenium_recommended": 0,
-            "recommendations": []
+            "recommendations": recommendations
         }
         
         for item in test_items:
@@ -487,7 +514,7 @@ class AIEngineSelector:
                 else:
                     analysis["selenium_recommended"] += 1
                 
-                analysis["recommendations"].append({
+                recommendations.append({
                     "test": metadata['test_name'],
                     "engine": decision.engine,
                     "confidence": decision.confidence,
@@ -501,11 +528,11 @@ class AIEngineSelector:
     # ========================================================================
     
     def _generate_cache_key(self, prompt: str) -> str:
-        """Generate cache key from prompt"""
+        """Generate cache key from prompt."""
         return hashlib.md5(prompt.encode()).hexdigest()
     
     def _get_cached_response(self, cache_key: str) -> Optional[str]:
-        """Retrieve cached response if valid"""
+        """Retrieve cached response if valid."""
         if not self.cache_enabled or cache_key not in self._response_cache:
             return None
         
@@ -521,8 +548,8 @@ class AIEngineSelector:
         
         return entry.response
     
-    def _cache_response(self, cache_key: str, response: str):
-        """Cache an AI response"""
+    def _cache_response(self, cache_key: str, response: str) -> None:
+        """Cache an AI response."""
         if not self.cache_enabled:
             return
         
@@ -554,12 +581,12 @@ class AIEngineSelector:
         self._cache_stats['evictions'] += 1
     
     def clear_cache(self):
-        """Clear all cached responses"""
+        """Clear all cached responses."""
         self._response_cache.clear()
         self._cache_stats['evictions'] += len(self._response_cache)
     
     def get_cache_stats(self) -> Dict[str, Any]:
-        """Get cache statistics"""
+        """Get cache statistics."""
         total = self._cache_stats['total_lookups']
         hit_rate = (self._cache_stats['hits'] / total * 100) if total > 0 else 0
         
@@ -580,7 +607,7 @@ class AIEngineSelector:
     # ========================================================================
     
     def get_provider_info(self) -> Dict[str, Any]:
-        """Get information about the AI provider"""
+        """Get information about the AI provider."""
         return {
             'provider_type': self.provider_type,
             'enabled': self.enabled,
@@ -592,7 +619,7 @@ class AIEngineSelector:
         }
     
     def test_connection(self) -> bool:
-        """Test AI provider connection"""
+        """Test AI provider connection."""
         if not self.enabled or not self.client:
             return False
         

@@ -27,9 +27,8 @@ from playwright.sync_api import Page
 
 
 class BookslotReferralPage:
-    """
-    Page Object for Bookslot Referral Source
-    
+    """Page Object for Bookslot Referral Source.
+
     What a user can do on this page:
     - Navigate to referral page
     - Read "How did you hear about us?" question
@@ -38,9 +37,8 @@ class BookslotReferralPage:
     """
 
     def __init__(self, page: Page, base_url: str):
-        """
-        Initialize page object
-        
+        """Initialize page object.
+
         Args:
             page: Playwright Page instance
             base_url: Base URL from multi_project_config
@@ -57,37 +55,37 @@ class BookslotReferralPage:
     
     @property
     def heading_question(self):
-        """How did you hear about us heading"""
+        """How did you hear about us heading."""
         return self.page.get_by_role("heading", name="How did you hear about us?")
     
     @property
     def button_physician(self):
-        """Referred by physician button"""
+        """Referred by physician button."""
         return self.page.get_by_role("button", name="Referred by physician")
     
     @property
     def radio_online(self):
-        """Online search radio button"""
+        """Online search radio button."""
         return self.page.get_by_role("radio", name="Online search")
     
     @property
     def radio_social_media(self):
-        """Social media radio button"""
+        """Social media radio button."""
         return self.page.get_by_role("radio", name="Social media")
     
     @property
     def radio_friend_family(self):
-        """Friend or family radio button"""
+        """Friend or family radio button."""
         return self.page.get_by_role("radio", name="Friend or family")
     
     @property
     def radio_advertisement(self):
-        """Advertisement radio button"""
+        """Advertisement radio button."""
         return self.page.get_by_role("radio", name="Advertisement")
     
     @property
     def button_next(self):
-        """Next button"""
+        """Next button."""
         return self.page.get_by_role("button", name="Next")
     
     # ===================================================================
@@ -95,7 +93,7 @@ class BookslotReferralPage:
     # ===================================================================
     
     def navigate(self):
-        """Navigate to the referral page"""
+        """Navigate to the referral page."""
         url = f"{self.base_url}{self.path}"
         self.page.goto(url)
         return self
@@ -105,59 +103,59 @@ class BookslotReferralPage:
     # ===================================================================
     
     def select_physician(self):
-        """Select Referred by physician"""
+        """Select Referred by physician."""
         self.heading_question.click()
         self.button_physician.click()
         return self
     
     def select_online(self):
-        """Select Online search"""
+        """Select Online search."""
         self.radio_online.click()
         return self
     
     def select_social_media(self):
-        """Select Social media"""
+        """Select Social media."""
         self.radio_social_media.click()
         return self
     
     def select_friend_family(self):
-        """Select Friend or family"""
+        """Select Friend or family."""
         self.radio_friend_family.click()
         return self
     
     def select_advertisement(self):
-        """Select Advertisement"""
+        """Select Advertisement."""
         self.radio_advertisement.click()
         return self
     
     def proceed_to_next(self):
-        """Click Next button"""
+        """Click Next button."""
         self.button_next.click()
         return self
     
     def is_online_checked(self) -> bool:
-        """Check if online search radio is checked"""
+        """Check if online search radio is checked."""
         try:
             return self.radio_online.is_checked()
         except:
             return False
     
     def is_physician_checked(self) -> bool:
-        """Check if physician radio is checked"""
+        """Check if physician radio is checked."""
         try:
             return self.button_physician.is_checked()
         except:
             return False
     
     def is_social_media_checked(self) -> bool:
-        """Check if social media radio is checked"""
+        """Check if social media radio is checked."""
         try:
             return self.radio_social_media.is_checked()
         except:
             return False
     
     def is_friend_family_checked(self) -> bool:
-        """Check if friend/family radio is checked"""
+        """Check if friend/family radio is checked."""
         try:
             return self.radio_friend_family.is_checked()
         except:
@@ -168,7 +166,7 @@ class BookslotReferralPage:
     # ===================================================================
     
     def is_page_loaded(self) -> bool:
-        """Check if page is loaded"""
+        """Check if page is loaded."""
         try:
             return self.heading_question.is_visible()
         except:

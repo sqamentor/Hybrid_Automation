@@ -31,7 +31,7 @@ from tests.bookslot.helpers.navigation_helper import BookslotNavigator
 @pytest.mark.modern_spa
 @pytest.mark.bookslot
 class TestReferralPage:
-    """Test suite for Referral page functionality"""
+    """Test suite for Referral page functionality."""
 
     @allure.story("Page Load")
     @allure.title("Verify Referral page loads successfully")

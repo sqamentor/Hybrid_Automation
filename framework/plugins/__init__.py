@@ -1,5 +1,4 @@
-"""
-Plugin System Package
+"""Plugin System Package.
 
 Extensible plugin architecture for framework customization.
 """

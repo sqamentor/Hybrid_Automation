@@ -1,7 +1,4 @@
-"""
-Complete End-to-End Verification Script
-This simulates the exact CLI flow and shows all URLs
-"""
+"""Complete End-to-End Verification Script This simulates the exact CLI flow and shows all URLs."""
 import subprocess
 import sys
 

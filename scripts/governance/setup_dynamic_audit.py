@@ -16,14 +16,14 @@ from pathlib import Path
 
 
 def print_header(text: str):
-    """Print formatted header"""
+    """Print formatted header."""
     print("\n" + "="*70)
     print(text)
     print("="*70)
 
 
 def check_requirements():
-    """Check and install required dependencies"""
+    """Check and install required dependencies."""
     print_header("CHECKING REQUIREMENTS")
     
     required = [
@@ -57,7 +57,7 @@ def check_requirements():
 
 
 def install_git_hooks():
-    """Install pre-commit hooks"""
+    """Install pre-commit hooks."""
     print_header("INSTALLING GIT HOOKS")
     
     installer = Path("scripts/governance/install_hooks.py")
@@ -82,7 +82,7 @@ def install_git_hooks():
 
 
 def setup_github_actions():
-    """Check GitHub Actions configuration"""
+    """Check GitHub Actions configuration."""
     print_header("GITHUB ACTIONS CONFIGURATION")
     
     workflow = Path(".github/workflows/architecture-audit.yml")
@@ -109,7 +109,7 @@ def setup_github_actions():
 
 
 def create_directories():
-    """Create required directories"""
+    """Create required directories."""
     print_header("CREATING DIRECTORIES")
     
     dirs = [
@@ -126,7 +126,7 @@ def create_directories():
 
 
 def run_initial_audit():
-    """Run initial audit to establish baseline"""
+    """Run initial audit to establish baseline."""
     print_header("RUNNING INITIAL AUDIT")
     
     print("\nThis will establish your current compliance baseline...")
@@ -155,7 +155,7 @@ def run_initial_audit():
 
 
 def generate_dashboard():
-    """Generate initial dashboard"""
+    """Generate initial dashboard."""
     print_header("GENERATING DASHBOARD")
     
     dashboard_script = Path("scripts/governance/audit_dashboard.py")
@@ -178,7 +178,7 @@ def generate_dashboard():
 
 
 def print_usage_guide():
-    """Print usage guide"""
+    """Print usage guide."""
     print_header("SETUP COMPLETE - USAGE GUIDE")
     
     print("""
@@ -311,7 +311,7 @@ def print_usage_guide():
 
 
 def main():
-    """Main setup"""
+    """Main setup."""
     import argparse
     
     parser = argparse.ArgumentParser(description="Setup Dynamic Audit System")

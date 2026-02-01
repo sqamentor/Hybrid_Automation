@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Engine Abstraction Enforcement Tool
+"""Engine Abstraction Enforcement Tool.
 
 Detects direct Playwright/Selenium imports in test files.
 Tests should use the ui_engine fixture, not import engines directly.
@@ -44,19 +43,18 @@ ALLOWED_FILES = [
 
 
 def is_allowed_file(file_path: Path) -> bool:
-    """Check if file is allowed to import engines"""
+    """Check if file is allowed to import engines."""
     # Normalize path to use forward slashes for comparison
     file_str = str(file_path).replace('\\', '/')
     return any(allowed in file_str for allowed in ALLOWED_FILES)
 
 
 def check_test_file(file_path: Path) -> List[Dict]:
-    """
-    Check for forbidden engine imports
-    
+    """Check for forbidden engine imports.
+
     Args:
         file_path: Path to test file
-        
+
     Returns:
         List of violations found
     """
@@ -83,7 +81,7 @@ def check_test_file(file_path: Path) -> List[Dict]:
 
 
 def main():
-    """Main execution"""
+    """Main execution."""
     test_dir = Path('tests')
     all_violations = []
     files_checked = 0

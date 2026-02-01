@@ -15,13 +15,12 @@ import pytest
 
 @pytest.mark.modern_spa
 class TestPatientIntake:
-    """Test class for PatientIntake functionality"""
+    """Test class for PatientIntake functionality."""
     
     @pytest.mark.patientintake
     def test_patientintake_placeholder(self):
-        """
-        Placeholder test for PatientIntake project.
-        
+        """Placeholder test for PatientIntake project.
+
         TODO: Add actual patientintake tests here.
         """
         # This is a placeholder

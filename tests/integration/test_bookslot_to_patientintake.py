@@ -11,7 +11,7 @@ from models import Appointment
 
 @pytest.mark.modern_spa
 class TestBookslotToPatientIntake:
-    """Test suite for Bookslot → PatientIntake integration"""
+    """Test suite for Bookslot → PatientIntake integration."""
     
     @pytest.mark.human_like
     def test_book_appointment_and_verify_in_patientintake(
@@ -190,7 +190,7 @@ class TestBookslotToPatientIntake:
 @pytest.mark.multi_project
 @pytest.mark.modern_spa
 class TestCrossApplicationWorkflow:
-    """Advanced cross-application workflow tests"""
+    """Advanced cross-application workflow tests."""
     
     @pytest.mark.human_like
     def test_end_to_end_patient_journey(
@@ -199,9 +199,8 @@ class TestCrossApplicationWorkflow:
         bookslot_page,
         patientintake_page
     ):
-        """
-        Complete patient journey across both systems
-        
+        """Complete patient journey across both systems.
+
         Journey:
         1. Patient books appointment (Bookslot)
         2. Appointment appears in PatientIntake

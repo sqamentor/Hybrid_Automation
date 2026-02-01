@@ -1,4 +1,4 @@
-"""Mobile testing module"""
+"""Mobile testing module."""
 
 from framework.mobile.mobile_tester import DEVICE_CONFIGS, DeviceType, MobileTester
 

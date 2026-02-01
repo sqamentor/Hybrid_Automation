@@ -16,19 +16,18 @@ logger = get_logger(__name__)
 
 @dataclass
 class LocatorStrategy:
-    """Locator strategy definition"""
+    """Locator strategy definition."""
     type: str  # 'css', 'xpath', 'id', 'name', 'text', 'aria-label'
     value: str
     confidence: float = 0.0
 
 
 class SelfHealingLocators:
-    """Self-healing locator engine"""
+    """Self-healing locator engine."""
     
     def __init__(self, ui_engine):
-        """
-        Initialize self-healing locators
-        
+        """Initialize self-healing locators.
+
         Args:
             ui_engine: PlaywrightEngine or SeleniumEngine instance
         """
@@ -38,16 +37,15 @@ class SelfHealingLocators:
         self.healing_history: List[Dict] = []
     
     def find_element(self, primary_locator: str, context: Optional[Dict] = None) -> Any:
-        """
-        Find element with self-healing
-        
+        """Find element with self-healing.
+
         Args:
             primary_locator: Primary locator to try first
             context: Optional context (element type, label, nearby text)
-        
+
         Returns:
             Found element
-        
+
         Raises:
             ElementNotFoundException: If element can't be found with any strategy
         """
@@ -87,7 +85,7 @@ class SelfHealingLocators:
         raise ElementNotFoundException(f"Element not found even with self-healing: {primary_locator}")
     
     def _find_with_locator(self, locator: str) -> Any:
-        """Find element using locator"""
+        """Find element using locator."""
         if self.engine_type == 'PlaywrightEngine':
             page = self.ui_engine.get_page()
             element = page.locator(locator)
@@ -114,17 +112,16 @@ class SelfHealingLocators:
     
     def _generate_alternative_locators(self, primary_locator: str, 
                                       context: Optional[Dict] = None) -> List[LocatorStrategy]:
-        """
-        Generate alternative locators using multiple strategies
-        
+        """Generate alternative locators using multiple strategies.
+
         Args:
             primary_locator: Original locator that failed
             context: Optional context information
-        
+
         Returns:
             List of alternative locator strategies
         """
-        alternatives = []
+        alternatives: List[LocatorStrategy] = []
         
         # Check cache first
         if primary_locator in self.locator_cache:
@@ -143,8 +140,8 @@ class SelfHealingLocators:
     
     def _analyze_page_elements(self, primary_locator: str, 
                                context: Optional[Dict] = None) -> List[LocatorStrategy]:
-        """Analyze page to find similar elements"""
-        alternatives = []
+        """Analyze page to find similar elements."""
+        alternatives: List[LocatorStrategy] = []
         
         if self.engine_type != 'PlaywrightEngine':
             return alternatives  # Only supported for Playwright currently
@@ -238,7 +235,7 @@ class SelfHealingLocators:
             
             if locator and confidence > 0.6:
                 alternatives.append(LocatorStrategy(
-                    type=strategy_type,
+                    type=strategy_type or 'unknown',
                     value=locator,
                     confidence=confidence
                 ))
@@ -247,7 +244,7 @@ class SelfHealingLocators:
         return alternatives
     
     def _extract_text_from_locator(self, locator: str) -> str:
-        """Extract searchable text from locator"""
+        """Extract searchable text from locator."""
         # Handle common locator patterns
         if 'text=' in locator:
             return locator.split('text=')[1].strip('"\'')
@@ -262,8 +259,8 @@ class SelfHealingLocators:
         
         return locator
     
-    def _update_cache(self, primary_locator: str, successful_strategy: LocatorStrategy):
-        """Update locator cache with successful alternative"""
+    def _update_cache(self, primary_locator: str, successful_strategy: LocatorStrategy) -> None:
+        """Update locator cache with successful alternative."""
         if primary_locator not in self.locator_cache:
             self.locator_cache[primary_locator] = []
         
@@ -276,7 +273,7 @@ class SelfHealingLocators:
         self.locator_cache[primary_locator] = self.locator_cache[primary_locator][:5]
     
     def get_healing_report(self) -> Dict[str, Any]:
-        """Get self-healing statistics"""
+        """Get self-healing statistics."""
         total_heals = len(self.healing_history)
         
         if total_heals == 0:
@@ -287,7 +284,7 @@ class SelfHealingLocators:
             }
         
         # Count strategy usage
-        strategy_counts = {}
+        strategy_counts: Dict[str, int] = {}
         for heal in self.healing_history:
             strategy = heal['strategy_type']
             strategy_counts[strategy] = strategy_counts.get(strategy, 0) + 1
@@ -303,13 +300,13 @@ class SelfHealingLocators:
         }
     
     def clear_cache(self):
-        """Clear locator cache"""
+        """Clear locator cache."""
         self.locator_cache.clear()
         logger.info("Locator cache cleared")
 
 
 class ElementNotFoundException(Exception):
-    """Element not found exception"""
+    """Element not found exception."""
     pass
 
 

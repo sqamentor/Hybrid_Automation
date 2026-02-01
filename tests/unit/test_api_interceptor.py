@@ -1,5 +1,4 @@
-"""
-Unit Tests for API Interceptor
+"""Unit Tests for API Interceptor.
 
 Tests the APIInterceptor functionality.
 """
@@ -14,10 +13,10 @@ from framework.api.api_interceptor import APIInterceptor
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAPIInterceptor:
-    """Test APIInterceptor class"""
+    """Test APIInterceptor class."""
     
     def test_initialization(self):
-        """Test interceptor initialization"""
+        """Test interceptor initialization."""
         ui_engine = Mock()
         ui_engine.__class__.__name__ = "PlaywrightEngine"
         
@@ -29,7 +28,7 @@ class TestAPIInterceptor:
         assert len(interceptor.captured_responses) == 0
     
     def test_add_filter(self):
-        """Test adding URL filter"""
+        """Test adding URL filter."""
         ui_engine = Mock()
         ui_engine.__class__.__name__ = "PlaywrightEngine"
         
@@ -39,7 +38,7 @@ class TestAPIInterceptor:
         assert len(interceptor.filters) == 1
     
     def test_filter_by_pattern(self):
-        """Test pattern-based filtering"""
+        """Test pattern-based filtering."""
         ui_engine = Mock()
         ui_engine.__class__.__name__ = "PlaywrightEngine"
         
@@ -50,7 +49,7 @@ class TestAPIInterceptor:
         assert interceptor._should_capture('https://example.com/page.html') == False
     
     def test_should_capture_no_filters(self):
-        """Test capture logic with no filters"""
+        """Test capture logic with no filters."""
         ui_engine = Mock()
         ui_engine.__class__.__name__ = "PlaywrightEngine"
         
@@ -60,7 +59,7 @@ class TestAPIInterceptor:
         assert interceptor._should_capture('https://example.com/any-url') == True
     
     def test_should_capture_with_filters(self):
-        """Test capture logic with filters"""
+        """Test capture logic with filters."""
         ui_engine = Mock()
         ui_engine.__class__.__name__ = "PlaywrightEngine"
         
@@ -74,7 +73,7 @@ class TestAPIInterceptor:
         assert interceptor._should_capture('https://example.com/page.html') == False
     
     def test_get_captured_requests(self):
-        """Test retrieving captured requests"""
+        """Test retrieving captured requests."""
         ui_engine = Mock()
         ui_engine.__class__.__name__ = "PlaywrightEngine"
         
@@ -89,7 +88,7 @@ class TestAPIInterceptor:
         assert requests[0]['method'] == 'GET'
     
     def test_get_requests_by_method(self):
-        """Test filtering requests by method"""
+        """Test filtering requests by method."""
         ui_engine = Mock()
         ui_engine.__class__.__name__ = "PlaywrightEngine"
         
@@ -105,7 +104,7 @@ class TestAPIInterceptor:
         assert all(r['method'] == 'GET' for r in get_requests)
     
     def test_get_requests_by_url_pattern(self):
-        """Test filtering requests by URL pattern"""
+        """Test filtering requests by URL pattern."""
         ui_engine = Mock()
         ui_engine.__class__.__name__ = "PlaywrightEngine"
         
@@ -120,7 +119,7 @@ class TestAPIInterceptor:
         assert len(api_requests) == 2
     
     def test_find_api_calls(self):
-        """Test finding API calls"""
+        """Test finding API calls."""
         ui_engine = Mock()
         ui_engine.__class__.__name__ = "PlaywrightEngine"
         
@@ -135,7 +134,7 @@ class TestAPIInterceptor:
         assert '/api/' in api_calls[0]['url']
     
     def test_get_correlation_data(self):
-        """Test extracting correlation data"""
+        """Test extracting correlation data."""
         ui_engine = Mock()
         ui_engine.__class__.__name__ = "PlaywrightEngine"
         
@@ -157,7 +156,7 @@ class TestAPIInterceptor:
         assert correlation_data['customer_id'] == 'CUST-111'
     
     def test_clear(self):
-        """Test clearing captured data"""
+        """Test clearing captured data."""
         ui_engine = Mock()
         ui_engine.__class__.__name__ = "PlaywrightEngine"
         
@@ -171,7 +170,7 @@ class TestAPIInterceptor:
         assert len(interceptor.captured_responses) == 0
     
     def test_enable_disable(self):
-        """Test enabling/disabling interception"""
+        """Test enabling/disabling interception."""
         ui_engine = Mock()
         ui_engine.__class__.__name__ = "PlaywrightEngine"
         
@@ -186,7 +185,7 @@ class TestAPIInterceptor:
         assert interceptor.enabled == True
     
     def test_get_summary(self):
-        """Test getting summary of captured data"""
+        """Test getting summary of captured data."""
         ui_engine = Mock()
         ui_engine.__class__.__name__ = "PlaywrightEngine"
         

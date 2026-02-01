@@ -18,7 +18,7 @@ import pytest
 
 @pytest.mark.smoke
 def test_simple_with_logs(report_log, report_assertion):
-    """Simple test with logs and assertions"""
+    """Simple test with logs and assertions."""
     
     report_log("Starting simple test", "INFO")
     report_log("This is a debug message", "DEBUG")
@@ -42,7 +42,7 @@ def test_simple_with_logs(report_log, report_assertion):
 
 @pytest.mark.integration
 def test_with_api_calls(report_log, report_api_call):
-    """Test showing API call logging"""
+    """Test showing API call logging."""
     
     report_log("Testing API integration", "INFO")
     
@@ -71,7 +71,7 @@ def test_with_api_calls(report_log, report_api_call):
 
 @pytest.mark.db_only
 def test_with_database(report_log, report_db_query):
-    """Test showing database query logging"""
+    """Test showing database query logging."""
     
     report_log("Testing database operations", "INFO")
     
@@ -100,7 +100,7 @@ def test_with_database(report_log, report_db_query):
     (7, 8, 15),
 ])
 def test_parametrized(x, y, expected, report_log, report_assertion):
-    """Test with parameters"""
+    """Test with parameters."""
     
     report_log(f"Testing addition: {x} + {y} = {expected}", "INFO")
     
@@ -119,7 +119,7 @@ def test_parametrized(x, y, expected, report_log, report_assertion):
 
 @pytest.mark.regression
 def test_comprehensive(report_log, report_api_call, report_db_query, report_assertion):
-    """Comprehensive test with all features"""
+    """Comprehensive test with all features."""
     
     report_log("=" * 60, "INFO")
     report_log("COMPREHENSIVE TEST START", "INFO")

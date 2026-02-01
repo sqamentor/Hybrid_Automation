@@ -1,5 +1,4 @@
-"""
-Selenium Engine Implementation
+"""Selenium Engine Implementation.
 
 Legacy-compatible UI automation engine using Selenium WebDriver.
 
@@ -13,7 +12,7 @@ Features:
 
 import os
 import platform
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -35,19 +34,18 @@ logger = get_logger(__name__)
 
 
 class DriverManagerError(Exception):
-    """Exception for driver management errors"""
+    """Exception for driver management errors."""
     pass
 
 
 class GridConnectionError(Exception):
-    """Exception for Selenium Grid connection errors"""
+    """Exception for Selenium Grid connection errors."""
     pass
 
 
 class SeleniumEngine:
-    """
-    Enhanced Selenium WebDriver engine
-    
+    """Enhanced Selenium WebDriver engine.
+
     Features:
     - Selenium Grid support
     - Better driver management with auto-download
@@ -64,9 +62,8 @@ class SeleniumEngine:
         driver_cache_valid_range: int = 7,
         enable_logging: bool = True
     ):
-        """
-        Initialize Selenium Engine
-        
+        """Initialize Selenium Engine.
+
         Args:
             headless: Run browser in headless mode
             grid_url: Selenium Grid hub URL (e.g., 'http://localhost:4444/wd/hub')
@@ -84,26 +81,32 @@ class SeleniumEngine:
         self.enable_logging = enable_logging
         self._is_remote = bool(grid_url)
     
-    def start(self, browser_type: str = "chrome"):
-        """Start Selenium browser"""
+    def _require_driver(self) -> webdriver.Remote:
+        """Ensure driver is initialized before use."""
+        if not self.driver:
+            raise RuntimeError("Selenium driver not started")
+        return self.driver
+
+    def start(self, browser_type: str = "chrome") -> None:
+        """Start Selenium browser."""
         if browser_type == "chrome":
-            options = webdriver.ChromeOptions()
+            chrome_options = webdriver.ChromeOptions()
             if self.headless:
-                options.add_argument("--headless=new")
-            options.add_argument("--no-sandbox")
-            options.add_argument("--disable-dev-shm-usage")
-            options.add_argument("--start-maximized")
+                chrome_options.add_argument("--headless=new")
+            chrome_options.add_argument("--no-sandbox")
+            chrome_options.add_argument("--disable-dev-shm-usage")
+            chrome_options.add_argument("--start-maximized")
             
-            service = ChromeService(ChromeDriverManager().install())
-            self.driver = webdriver.Chrome(service=service, options=options)
+            chrome_service = ChromeService(ChromeDriverManager().install())
+            self.driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
         
         elif browser_type == "firefox":
-            options = webdriver.FirefoxOptions()
+            firefox_options = webdriver.FirefoxOptions()
             if self.headless:
-                options.add_argument("--headless")
+                firefox_options.add_argument("--headless")
             
-            service = FirefoxService(GeckoDriverManager().install())
-            self.driver = webdriver.Firefox(service=service, options=options)
+            firefox_service = FirefoxService(GeckoDriverManager().install())
+            self.driver = webdriver.Firefox(service=firefox_service, options=firefox_options)
         
         else:
             raise ValueError(f"Unsupported browser: {browser_type}")
@@ -111,8 +114,8 @@ class SeleniumEngine:
         self.driver.implicitly_wait(10)
         logger.info(f"Selenium {browser_type} started (headless={self.headless})")
     
-    def stop(self):
-        """Stop Selenium browser"""
+    def stop(self) -> None:
+        """Stop Selenium browser."""
         try:
             if self.driver:
                 session_id = getattr(self.driver, 'session_id', None)
@@ -124,7 +127,7 @@ class SeleniumEngine:
             self.driver = None
     
     def get_driver_info(self) -> Dict[str, Any]:
-        """Get driver information"""
+        """Get driver information."""
         if not self.driver:
             return {"status": "not_started"}
         
@@ -142,99 +145,108 @@ class SeleniumEngine:
         return info
     
     def check_grid_status(self) -> Dict[str, Any]:
-        """Check Selenium Grid status"""
-        if not self._is_remote:
+        """Check Selenium Grid status."""
+        grid_url = self.grid_url
+        if not self._is_remote or not grid_url:
             return {"error": "Not using Selenium Grid"}
         
         try:
-            import requests
-            status_url = self.grid_url.replace("/wd/hub", "/status")
+            import requests  # type: ignore[import-untyped]
+            status_url = grid_url.replace("/wd/hub", "/status")
             response = requests.get(status_url, timeout=5)
-            return response.json()
+            return cast(Dict[str, Any], response.json())
         except Exception as e:
             return {"error": f"Failed to check Grid status: {e}"}
     
-    def navigate(self, url: str):
-        """Navigate to URL"""
-        self.driver.get(url)
+    def navigate(self, url: str) -> None:
+        """Navigate to URL."""
+        driver = self._require_driver()
+        driver.get(url)
         logger.debug(f"Navigated to: {url}")
     
-    def click(self, locator: str, by: By = By.CSS_SELECTOR):
-        """Click element"""
-        element = self.driver.find_element(by, locator)
+    def click(self, locator: str, by: str = By.CSS_SELECTOR) -> None:
+        """Click element."""
+        driver = self._require_driver()
+        element = driver.find_element(by, locator)
         element.click()
         logger.debug(f"Clicked: {locator}")
     
-    def fill(self, locator: str, text: str, by: By = By.CSS_SELECTOR):
-        """Fill input field"""
-        element = self.driver.find_element(by, locator)
+    def fill(self, locator: str, text: str, by: str = By.CSS_SELECTOR) -> None:
+        """Fill input field."""
+        driver = self._require_driver()
+        element = driver.find_element(by, locator)
         element.clear()
         element.send_keys(text)
         logger.debug(f"Filled {locator} with text")
     
-    def get_text(self, locator: str, by: By = By.CSS_SELECTOR) -> str:
-        """Get element text"""
-        element = self.driver.find_element(by, locator)
+    def get_text(self, locator: str, by: str = By.CSS_SELECTOR) -> str:
+        """Get element text."""
+        driver = self._require_driver()
+        element = driver.find_element(by, locator)
         return element.text
     
-    def is_visible(self, locator: str, by: By = By.CSS_SELECTOR) -> bool:
-        """Check if element is visible"""
+    def is_visible(self, locator: str, by: str = By.CSS_SELECTOR) -> bool:
+        """Check if element is visible."""
         try:
-            element = self.driver.find_element(by, locator)
+            driver = self._require_driver()
+            element = driver.find_element(by, locator)
             return element.is_displayed()
         except Exception:
             return False
     
-    def wait_for_element(self, locator: str, timeout: int = 10, by: By = By.CSS_SELECTOR):
-        """Wait for element"""
-        wait = WebDriverWait(self.driver, timeout)
+    def wait_for_element(self, locator: str, timeout: int = 10, by: str = By.CSS_SELECTOR) -> None:
+        """Wait for element."""
+        driver = self._require_driver()
+        wait = WebDriverWait(driver, timeout)
         wait.until(EC.presence_of_element_located((by, locator)))
     
-    def take_screenshot(self, filename: str):
-        """Take screenshot"""
-        self.driver.save_screenshot(filename)
+    def take_screenshot(self, filename: str) -> None:
+        """Take screenshot."""
+        driver = self._require_driver()
+        driver.save_screenshot(filename)
         logger.debug(f"Screenshot saved: {filename}")
     
-    def get_driver(self):
-        """Get Selenium WebDriver object"""
+    def get_driver(self) -> Optional[webdriver.Remote]:
+        """Get Selenium WebDriver object."""
         return self.driver
 
 
 class SeleniumPage(BasePage):
-    """Selenium-based page object"""
+    """Selenium-based page object."""
     
-    def __init__(self, driver):
+    def __init__(self, driver: webdriver.Remote):
         super().__init__(driver)
+        self.driver: webdriver.Remote = driver
         self.wait = WebDriverWait(driver, 10)
     
-    def navigate(self, url: str):
+    def navigate(self, url: str) -> None:
         self.driver.get(url)
     
-    def click(self, locator: str, by: By = By.CSS_SELECTOR):
+    def click(self, locator: str, by: str = By.CSS_SELECTOR) -> None:
         element = self.wait.until(EC.element_to_be_clickable((by, locator)))
         element.click()
     
-    def fill(self, locator: str, text: str, by: By = By.CSS_SELECTOR):
+    def fill(self, locator: str, text: str, by: str = By.CSS_SELECTOR) -> None:
         element = self.wait.until(EC.presence_of_element_located((by, locator)))
         element.clear()
         element.send_keys(text)
     
-    def get_text(self, locator: str, by: By = By.CSS_SELECTOR) -> str:
+    def get_text(self, locator: str, by: str = By.CSS_SELECTOR) -> str:
         element = self.wait.until(EC.presence_of_element_located((by, locator)))
         return element.text
     
-    def is_visible(self, locator: str, by: By = By.CSS_SELECTOR) -> bool:
+    def is_visible(self, locator: str, by: str = By.CSS_SELECTOR) -> bool:
         try:
             element = self.driver.find_element(by, locator)
             return element.is_displayed()
         except Exception:
             return False
     
-    def wait_for_element(self, locator: str, timeout: int = 10000, by: By = By.CSS_SELECTOR):
+    def wait_for_element(self, locator: str, timeout: int = 10000, by: str = By.CSS_SELECTOR) -> None:
         wait = WebDriverWait(self.driver, timeout / 1000)
         wait.until(EC.presence_of_element_located((by, locator)))
     
-    def take_screenshot(self, filename: str):
+    def take_screenshot(self, filename: str) -> None:
         self.driver.save_screenshot(filename)
     
     def get_current_url(self) -> str:

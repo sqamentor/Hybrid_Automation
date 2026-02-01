@@ -30,7 +30,7 @@ from framework.core.project_manager import ProjectManager, get_project_manager
 # ============================================================================
 
 def print_header():
-    """Print beautiful header"""
+    """Print beautiful header."""
     print("\n" + "="*80)
     print("🎬  INTELLIGENT TEST RECORDING SYSTEM")
     print("="*80)
@@ -39,13 +39,13 @@ def print_header():
 
 
 def print_section(title: str, emoji: str = "📋"):
-    """Print section header"""
+    """Print section header."""
     print(f"\n{emoji}  {title}")
     print("-" * 80)
 
 
 def get_user_choice(prompt: str, options: List[str], show_details: bool = True) -> int:
-    """Get user choice from list of options"""
+    """Get user choice from list of options."""
     print(f"\n{prompt}")
     for i, option in enumerate(options, 1):
         print(f"  {i}. {option}")
@@ -66,7 +66,7 @@ def get_user_choice(prompt: str, options: List[str], show_details: bool = True) 
 
 
 def get_text_input(prompt: str, default: str = None) -> str:
-    """Get text input from user"""
+    """Get text input from user."""
     if default:
         full_prompt = f"\n👉 {prompt} [{default}]: "
     else:
@@ -81,7 +81,7 @@ def get_text_input(prompt: str, default: str = None) -> str:
 
 
 def get_yes_no(prompt: str, default: bool = True) -> bool:
-    """Get yes/no confirmation"""
+    """Get yes/no confirmation."""
     default_str = "Y/n" if default else "y/N"
     try:
         response = input(f"\n👉 {prompt} [{default_str}]: ").strip().lower()
@@ -94,10 +94,8 @@ def get_yes_no(prompt: str, default: bool = True) -> bool:
 
 
 def interactive_recording():
-    """
-    Interactive recording mode with beautiful AI-powered interface
-    Guides user through project selection, environment, options, and recording
-    """
+    """Interactive recording mode with beautiful AI-powered interface Guides user through project
+    selection, environment, options, and recording."""
     print_header()
     
     pm = get_project_manager()
@@ -340,7 +338,7 @@ def interactive_recording():
 
 
 def cmd_record(args):
-    """Record a new test"""
+    """Record a new test."""
     codegen = PlaywrightCodegen()
     
     result = codegen.start_recording(
@@ -360,7 +358,7 @@ def cmd_record(args):
 
 
 def cmd_refactor(args):
-    """Refactor a recorded script"""
+    """Refactor a recorded script."""
     refactorer = AIScriptRefactorer(ai_provider_name=args.ai_provider)
     
     result = refactorer.refactor_script(
@@ -379,7 +377,7 @@ def cmd_refactor(args):
 
 
 def cmd_generate_page(args):
-    """Generate page object from script"""
+    """Generate page object from script."""
     generator = PageObjectGenerator()
     
     result = generator.generate_from_script(
@@ -400,7 +398,7 @@ def cmd_generate_page(args):
 
 
 def cmd_workflow(args):
-    """Run complete workflow with PROJECT AWARENESS"""
+    """Run complete workflow with PROJECT AWARENESS."""
     workflow = RecordingWorkflow(ai_provider=args.ai_provider)
     
     if args.quick:
@@ -436,7 +434,7 @@ def cmd_workflow(args):
 
 
 def cmd_list(args):
-    """List recorded tests and page objects"""
+    """List recorded tests and page objects."""
     workflow = RecordingWorkflow()
     
     if args.type == "recordings" or args.type == "all":
@@ -459,7 +457,7 @@ def cmd_list(args):
 
 
 def cmd_list_projects(args):
-    """List all available projects"""
+    """List all available projects."""
     pm = get_project_manager()
     
     print("\n🎯 AVAILABLE PROJECTS\n" + "="*80)
@@ -492,7 +490,7 @@ def cmd_list_projects(args):
 
 
 def cmd_project_info(args):
-    """Show detailed project information"""
+    """Show detailed project information."""
     pm = get_project_manager()
     
     try:
@@ -539,7 +537,7 @@ def cmd_project_info(args):
 
 
 def cmd_add_project(args):
-    """Add a new project to the registry"""
+    """Add a new project to the registry."""
     pm = get_project_manager()
     
     try:
@@ -590,7 +588,7 @@ def cmd_add_project(args):
 
 
 def cmd_detect_project(args):
-    """Detect project from URL"""
+    """Detect project from URL."""
     pm = get_project_manager()
     
     try:
@@ -620,7 +618,7 @@ def cmd_detect_project(args):
 
 
 def main():
-    """Main CLI entry point with INTERACTIVE MODE"""
+    """Main CLI entry point with INTERACTIVE MODE."""
     
     # ========================================================================
     # INTERACTIVE MODE - When run without arguments

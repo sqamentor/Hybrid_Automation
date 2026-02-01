@@ -1,7 +1,5 @@
-"""
-Tests for Recording Module Components
-Verifies that recording workflow modules are properly integrated
-"""
+"""Tests for Recording Module Components Verifies that recording workflow modules are properly
+integrated."""
 
 import sys
 from pathlib import Path
@@ -15,35 +13,35 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestRecordingImports:
-    """Test that all recording modules can be imported"""
+    """Test that all recording modules can be imported."""
     
     def test_import_recording_module(self):
-        """Test framework.recording package imports"""
+        """Test framework.recording package imports."""
         from framework import recording
         assert recording is not None
     
     def test_import_codegen_wrapper(self):
-        """Test PlaywrightCodegen import"""
+        """Test PlaywrightCodegen import."""
         from framework.recording import PlaywrightCodegen
         assert PlaywrightCodegen is not None
     
     def test_import_ai_refactorer(self):
-        """Test AIScriptRefactorer import"""
+        """Test AIScriptRefactorer import."""
         from framework.recording import AIScriptRefactorer
         assert AIScriptRefactorer is not None
     
     def test_import_page_object_generator(self):
-        """Test PageObjectGenerator import"""
+        """Test PageObjectGenerator import."""
         from framework.recording import PageObjectGenerator
         assert PageObjectGenerator is not None
     
     def test_import_recording_workflow(self):
-        """Test RecordingWorkflow import"""
+        """Test RecordingWorkflow import."""
         from framework.recording import RecordingWorkflow
         assert RecordingWorkflow is not None
     
     def test_import_convenience_function(self):
-        """Test quick_record_and_generate function import"""
+        """Test quick_record_and_generate function import."""
         from framework.recording import quick_record_and_generate
         assert callable(quick_record_and_generate)
 
@@ -51,10 +49,10 @@ class TestRecordingImports:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestPlaywrightCodegen:
-    """Test PlaywrightCodegen wrapper functionality"""
+    """Test PlaywrightCodegen wrapper functionality."""
     
     def test_codegen_initialization(self):
-        """Test PlaywrightCodegen can be instantiated"""
+        """Test PlaywrightCodegen can be instantiated."""
         from framework.recording import PlaywrightCodegen
         
         codegen = PlaywrightCodegen()
@@ -62,14 +60,14 @@ class TestPlaywrightCodegen:
         assert codegen.output_dir.exists()
     
     def test_codegen_default_output_dir(self):
-        """Test default output directory is created"""
+        """Test default output directory is created."""
         from framework.recording import PlaywrightCodegen
         
         codegen = PlaywrightCodegen()
         assert codegen.output_dir == Path("recorded_tests")
     
     def test_codegen_custom_output_dir(self):
-        """Test custom output directory"""
+        """Test custom output directory."""
         from framework.recording import PlaywrightCodegen
         
         custom_dir = Path("custom_recordings")
@@ -77,7 +75,7 @@ class TestPlaywrightCodegen:
         assert codegen.output_dir == custom_dir
     
     def test_codegen_list_recordings_empty(self):
-        """Test listing recordings when none exist"""
+        """Test listing recordings when none exist."""
         from framework.recording import PlaywrightCodegen
         
         codegen = PlaywrightCodegen()
@@ -88,24 +86,24 @@ class TestPlaywrightCodegen:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAIScriptRefactorer:
-    """Test AIScriptRefactorer functionality"""
+    """Test AIScriptRefactorer functionality."""
     
     def test_refactorer_initialization(self):
-        """Test AIScriptRefactorer can be instantiated"""
+        """Test AIScriptRefactorer can be instantiated."""
         from framework.recording import AIScriptRefactorer
         
         refactorer = AIScriptRefactorer()
         assert refactorer is not None
     
     def test_refactorer_with_ai_provider(self):
-        """Test AIScriptRefactorer with specific AI provider"""
+        """Test AIScriptRefactorer with specific AI provider."""
         from framework.recording import AIScriptRefactorer
         
         refactorer = AIScriptRefactorer(ai_provider_name="openai")
         assert refactorer is not None
     
     def test_refactorer_available_improvements(self):
-        """Test improvement types are available"""
+        """Test improvement types are available."""
         from framework.recording import AIScriptRefactorer
         
         refactorer = AIScriptRefactorer()
@@ -119,24 +117,24 @@ class TestAIScriptRefactorer:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestPageObjectGenerator:
-    """Test PageObjectGenerator functionality"""
+    """Test PageObjectGenerator functionality."""
     
     def test_generator_initialization(self):
-        """Test PageObjectGenerator can be instantiated"""
+        """Test PageObjectGenerator can be instantiated."""
         from framework.recording import PageObjectGenerator
         
         generator = PageObjectGenerator()
         assert generator is not None
     
     def test_generator_default_output_dir(self):
-        """Test default pages directory"""
+        """Test default pages directory."""
         from framework.recording import PageObjectGenerator
         
         generator = PageObjectGenerator()
         assert generator.pages_dir == Path("pages")
     
     def test_generator_custom_output_dir(self):
-        """Test custom pages directory"""
+        """Test custom pages directory."""
         from framework.recording import PageObjectGenerator
         
         custom_dir = Path("custom_pages")
@@ -144,7 +142,7 @@ class TestPageObjectGenerator:
         assert generator.pages_dir == custom_dir
     
     def test_generator_list_page_objects_empty(self):
-        """Test listing page objects when none exist"""
+        """Test listing page objects when none exist."""
         from framework.recording import PageObjectGenerator
         
         generator = PageObjectGenerator()
@@ -155,24 +153,24 @@ class TestPageObjectGenerator:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestRecordingWorkflow:
-    """Test RecordingWorkflow orchestration"""
+    """Test RecordingWorkflow orchestration."""
     
     def test_workflow_initialization(self):
-        """Test RecordingWorkflow can be instantiated"""
+        """Test RecordingWorkflow can be instantiated."""
         from framework.recording import RecordingWorkflow
         
         workflow = RecordingWorkflow()
         assert workflow is not None
     
     def test_workflow_with_ai_provider(self):
-        """Test RecordingWorkflow with AI provider"""
+        """Test RecordingWorkflow with AI provider."""
         from framework.recording import RecordingWorkflow
         
         workflow = RecordingWorkflow(ai_provider="openai")
         assert workflow is not None
     
     def test_workflow_list_recordings(self):
-        """Test workflow can list recordings"""
+        """Test workflow can list recordings."""
         from framework.recording import RecordingWorkflow
         
         workflow = RecordingWorkflow()
@@ -180,7 +178,7 @@ class TestRecordingWorkflow:
         assert isinstance(recordings, list)
     
     def test_workflow_list_page_objects(self):
-        """Test workflow can list page objects"""
+        """Test workflow can list page objects."""
         from framework.recording import RecordingWorkflow
         
         workflow = RecordingWorkflow()
@@ -191,10 +189,10 @@ class TestRecordingWorkflow:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestRecordingIntegration:
-    """Test recording module integration with framework"""
+    """Test recording module integration with framework."""
     
     def test_ai_provider_factory_integration(self):
-        """Test AI refactorer uses framework AI providers"""
+        """Test AI refactorer uses framework AI providers."""
         from framework.recording import AIScriptRefactorer
 
         # Should use framework.ai.ai_provider_factory
@@ -202,7 +200,7 @@ class TestRecordingIntegration:
         assert refactorer is not None
     
     def test_directory_structure_creation(self):
-        """Test required directories are created"""
+        """Test required directories are created."""
         from framework.recording import PageObjectGenerator, PlaywrightCodegen
 
         # These should create directories if not exist
@@ -216,10 +214,10 @@ class TestRecordingIntegration:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestRecordingResilience:
-    """Test that recording workflow never fails due to AI unavailability"""
+    """Test that recording workflow never fails due to AI unavailability."""
     
     def test_refactorer_works_without_ai(self):
-        """Test AIScriptRefactorer has rule-based fallback"""
+        """Test AIScriptRefactorer has rule-based fallback."""
         from framework.recording import AIScriptRefactorer
 
         # Force rule-based by using invalid AI provider
@@ -228,7 +226,7 @@ class TestRecordingResilience:
         # Should fall back to rule-based refactoring, not crash
     
     def test_workflow_works_without_ai(self):
-        """Test RecordingWorkflow works with AI disabled"""
+        """Test RecordingWorkflow works with AI disabled."""
         from framework.recording import RecordingWorkflow
         
         workflow = RecordingWorkflow(ai_provider=None)
@@ -236,7 +234,7 @@ class TestRecordingResilience:
 
 
 def test_recording_module_exports():
-    """Test that recording module exports expected items"""
+    """Test that recording module exports expected items."""
     from framework import recording
     
     expected_exports = [

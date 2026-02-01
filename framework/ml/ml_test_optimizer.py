@@ -8,7 +8,7 @@ import json
 import os
 from collections import defaultdict
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, DefaultDict, Dict, List, Optional, Tuple, cast
 
 from utils.logger import get_logger
 
@@ -16,22 +16,21 @@ logger = get_logger(__name__)
 
 
 class MLTestOptimizer:
-    """ML-based test optimization engine"""
+    """ML-based test optimization engine."""
     
     def __init__(self, history_file: str = "reports/test_history.json"):
-        """
-        Initialize ML test optimizer
-        
+        """Initialize ML test optimizer.
+
         Args:
             history_file: Path to test history file
         """
         self.history_file = history_file
-        self.test_history: List[Dict] = []
-        self.failure_patterns: Dict[str, Any] = {}
+        self.test_history: List[Dict[str, Any]] = []
+        self.failure_patterns: Dict[str, Dict[str, Any]] = {}
         self.load_history()
     
-    def load_history(self):
-        """Load test execution history"""
+    def load_history(self) -> None:
+        """Load test execution history."""
         if os.path.exists(self.history_file):
             try:
                 with open(self.history_file, 'r') as f:
@@ -43,18 +42,23 @@ class MLTestOptimizer:
         else:
             self.test_history = []
     
-    def save_history(self):
-        """Save test execution history"""
+    def save_history(self) -> None:
+        """Save test execution history."""
         os.makedirs(os.path.dirname(self.history_file), exist_ok=True)
         with open(self.history_file, 'w') as f:
             json.dump(self.test_history, f, indent=2)
         logger.debug("Test history saved")
     
-    def record_test_result(self, test_name: str, passed: bool, duration: float,
-                          error: Optional[str] = None, changed_files: Optional[List[str]] = None):
-        """
-        Record test execution result
-        
+    def record_test_result(
+        self,
+        test_name: str,
+        passed: bool,
+        duration: float,
+        error: Optional[str] = None,
+        changed_files: Optional[List[str]] = None
+    ) -> None:
+        """Record test execution result.
+
         Args:
             test_name: Test name
             passed: Whether test passed
@@ -74,11 +78,11 @@ class MLTestOptimizer:
         self.test_history.append(result)
         self.save_history()
     
-    def analyze_failure_patterns(self):
-        """Analyze historical data to find failure patterns"""
-        failure_counts = defaultdict(int)
-        total_runs = defaultdict(int)
-        failure_context = defaultdict(list)
+    def analyze_failure_patterns(self) -> Dict[str, Dict[str, Any]]:
+        """Analyze historical data to find failure patterns."""
+        failure_counts: DefaultDict[str, int] = defaultdict(int)
+        total_runs: DefaultDict[str, int] = defaultdict(int)
+        failure_context: DefaultDict[str, List[Dict[str, Any]]] = defaultdict(list)
         
         for result in self.test_history:
             test_name = result['test_name']
@@ -108,9 +112,8 @@ class MLTestOptimizer:
         return self.failure_patterns
     
     def _calculate_flakiness(self, test_name: str) -> float:
-        """
-        Calculate test flakiness score (0-1)
-        
+        """Calculate test flakiness score (0-1)
+
         A flaky test alternates between pass/fail without code changes.
         """
         recent_results = [
@@ -132,13 +135,12 @@ class MLTestOptimizer:
         return flakiness
     
     def predict_failure_probability(self, test_name: str, changed_files: Optional[List[str]] = None) -> float:
-        """
-        Predict probability of test failure (0-1)
-        
+        """Predict probability of test failure (0-1)
+
         Args:
             test_name: Test name
             changed_files: Files changed since last run
-        
+
         Returns:
             Failure probability
         """
@@ -151,41 +153,40 @@ class MLTestOptimizer:
         pattern = self.failure_patterns[test_name]
         
         # Base probability from historical failure rate
-        base_prob = pattern['failure_rate']
+        base_prob = float(pattern.get('failure_rate', 0.0))
         
         # Adjust for flakiness
-        flakiness_weight = pattern['flakiness_score'] * 0.3
+        flakiness_weight = float(pattern.get('flakiness_score', 0.0)) * 0.3
         
         # Adjust for changed files
         file_impact = 0.0
         if changed_files:
             # Check if any changed files were involved in previous failures
-            recent_failures = pattern['recent_failures']
+            recent_failures = cast(List[Dict[str, Any]], pattern.get('recent_failures', []))
             for failure in recent_failures:
                 failed_with_files = failure.get('changed_files', [])
                 if any(f in failed_with_files for f in changed_files):
                     file_impact += 0.2
         
         # Combine factors
-        probability = min(1.0, base_prob + flakiness_weight + file_impact)
+        probability: float = min(1.0, base_prob + flakiness_weight + file_impact)
         
         return probability
     
     def get_optimal_test_order(self, test_names: List[str], 
                                changed_files: Optional[List[str]] = None) -> List[Tuple[str, float]]:
-        """
-        Get optimal test execution order
-        
+        """Get optimal test execution order.
+
         Strategy: Run tests most likely to fail first (fail-fast)
-        
+
         Args:
             test_names: List of tests to order
             changed_files: Files changed since last run
-        
+
         Returns:
             List of (test_name, failure_probability) tuples, sorted by priority
         """
-        test_priorities = []
+        test_priorities: List[Tuple[str, float]] = []
         
         for test_name in test_names:
             probability = self.predict_failure_probability(test_name, changed_files)
@@ -198,13 +199,12 @@ class MLTestOptimizer:
         return test_priorities
     
     def get_recommended_tests(self, changed_files: List[str], max_tests: int = 10) -> List[str]:
-        """
-        Get recommended tests to run based on changed files
-        
+        """Get recommended tests to run based on changed files.
+
         Args:
             changed_files: List of changed files
             max_tests: Maximum number of tests to recommend
-        
+
         Returns:
             List of recommended test names
         """
@@ -212,7 +212,7 @@ class MLTestOptimizer:
             self.analyze_failure_patterns()
         
         # Find tests that historically failed with these files
-        relevant_tests = []
+        relevant_tests: List[Tuple[str, float]] = []
         
         for test_name, pattern in self.failure_patterns.items():
             relevance_score = 0.0
@@ -236,12 +236,11 @@ class MLTestOptimizer:
         return recommended
     
     def get_flaky_tests(self, threshold: float = 0.3) -> List[str]:
-        """
-        Get list of flaky tests
-        
+        """Get list of flaky tests.
+
         Args:
             threshold: Flakiness score threshold (0-1)
-        
+
         Returns:
             List of flaky test names
         """
@@ -257,22 +256,21 @@ class MLTestOptimizer:
         return flaky
     
     def get_slow_tests(self, percentile: int = 90) -> List[Tuple[str, float]]:
-        """
-        Get slowest tests
-        
+        """Get slowest tests.
+
         Args:
             percentile: Percentile threshold
-        
+
         Returns:
             List of (test_name, avg_duration) tuples
         """
-        test_durations = defaultdict(list)
+        test_durations: DefaultDict[str, List[float]] = defaultdict(list)
         
         for result in self.test_history:
             test_durations[result['test_name']].append(result['duration'])
         
         # Calculate average duration
-        avg_durations = []
+        avg_durations: List[Tuple[str, float]] = []
         for test_name, durations in test_durations.items():
             avg_duration = sum(durations) / len(durations)
             avg_durations.append((test_name, avg_duration))
@@ -287,8 +285,8 @@ class MLTestOptimizer:
         logger.info(f"Found {len(slow_tests)} slow tests (>{percentile}th percentile)")
         return slow_tests
     
-    def generate_insights_report(self, output_path: str = "reports/ml_insights.json"):
-        """Generate ML insights report"""
+    def generate_insights_report(self, output_path: str = "reports/ml_insights.json") -> Dict[str, Any]:
+        """Generate ML insights report."""
         if not self.failure_patterns:
             self.analyze_failure_patterns()
         

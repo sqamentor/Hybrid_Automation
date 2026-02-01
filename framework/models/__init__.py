@@ -1,8 +1,7 @@
-"""
-Pydantic Models Package
+"""Pydantic Models Package.
 
-This module contains all Pydantic V2 models for type-safe configuration,
-data validation, and serialization across the framework.
+This module contains all Pydantic V2 models for type-safe configuration, data validation, and
+serialization across the framework.
 """
 
 from framework.models.config_models import (

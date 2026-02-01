@@ -1,30 +1,32 @@
-"""
-Dependency Injection Container
+"""Dependency Injection Container.
 
-Modern DI container using Python 3.12+ features for clean microservices architecture.
-Supports singleton, transient, and scoped lifetimes with lazy initialization.
+Modern DI container using Python 3.12+ features for clean microservices architecture. Supports
+singleton, transient, and scoped lifetimes with lazy initialization.
 """
 
 from __future__ import annotations
 
 import inspect
-from contextvars import ContextVar
+from contextvars import ContextVar, Token
 from enum import Enum
 from functools import wraps
-from typing import Any, Callable, Dict, Generic, Optional, Type, TypeVar, cast
+from types import TracebackType
+from typing import Any, Callable, Dict, Generic, Optional, Type, TypeVar, cast, ParamSpec
 
 T = TypeVar('T')
+R = TypeVar('R')
+P = ParamSpec('P')
 
 
 class Lifetime(str, Enum):
-    """Service lifetime options"""
+    """Service lifetime options."""
     SINGLETON = "singleton"  # Single instance for application lifetime
     TRANSIENT = "transient"  # New instance every time
     SCOPED = "scoped"  # Single instance per scope (e.g., per test)
 
 
 class ServiceDescriptor(Generic[T]):
-    """Describes a registered service"""
+    """Describes a registered service."""
     
     def __init__(
         self,
@@ -45,9 +47,8 @@ class ServiceDescriptor(Generic[T]):
 
 
 class DIContainer:
-    """
-    Dependency Injection Container with microservices support.
-    
+    """Dependency Injection Container with microservices support.
+
     Features:
     - Constructor injection with type hints
     - Multiple lifetime management (singleton, transient, scoped)
@@ -57,9 +58,9 @@ class DIContainer:
     """
     
     def __init__(self):
-        self._services: Dict[Type, ServiceDescriptor] = {}
-        self._singletons: Dict[Type, Any] = {}
-        self._scope_context: ContextVar[Dict[Type, Any]] = ContextVar(
+        self._services: Dict[Type[Any], ServiceDescriptor[Any]] = {}
+        self._singletons: Dict[Type[Any], Any] = {}
+        self._scope_context: ContextVar[Dict[Type[Any], Any]] = ContextVar(
             'scope_context',
             default={}
         )
@@ -72,16 +73,15 @@ class DIContainer:
         instance: Optional[T] = None,
         lifetime: Lifetime = Lifetime.SINGLETON,
     ) -> DIContainer:
-        """
-        Register a service in the container.
-        
+        """Register a service in the container.
+
         Args:
             service_type: Interface or base class
             implementation: Concrete implementation class
             factory: Factory function to create instances
             instance: Pre-created instance
             lifetime: Service lifetime (singleton/transient/scoped)
-        
+
         Returns:
             Self for method chaining
         """
@@ -107,7 +107,7 @@ class DIContainer:
         factory: Optional[Callable[..., T]] = None,
         instance: Optional[T] = None,
     ) -> DIContainer:
-        """Register a singleton service"""
+        """Register a singleton service."""
         return self.register(
             service_type,
             implementation=implementation,
@@ -145,22 +145,21 @@ class DIContainer:
         )
     
     def resolve(self, service_type: Type[T]) -> T:
-        """
-        Resolve a service from the container.
-        
+        """Resolve a service from the container.
+
         Args:
             service_type: Type to resolve
-        
+
         Returns:
             Instance of the requested type
-        
+
         Raises:
             ValueError: If service not registered
         """
         if service_type not in self._services:
             raise ValueError(f"Service {service_type.__name__} not registered")
         
-        descriptor = self._services[service_type]
+        descriptor = cast(ServiceDescriptor[T], self._services[service_type])
         
         # Handle based on lifetime
         match descriptor.lifetime:
@@ -174,7 +173,7 @@ class DIContainer:
                 raise ValueError(f"Unknown lifetime: {descriptor.lifetime}")
     
     def _resolve_singleton(self, descriptor: ServiceDescriptor[T]) -> T:
-        """Resolve singleton instance"""
+        """Resolve singleton instance."""
         if descriptor.service_type in self._singletons:
             return cast(T, self._singletons[descriptor.service_type])
         
@@ -184,7 +183,7 @@ class DIContainer:
         return instance
     
     def _resolve_scoped(self, descriptor: ServiceDescriptor[T]) -> T:
-        """Resolve scoped instance"""
+        """Resolve scoped instance."""
         scope = self._scope_context.get()
         
         if descriptor.service_type in scope:
@@ -196,7 +195,7 @@ class DIContainer:
         return instance
     
     def _create_instance(self, descriptor: ServiceDescriptor[T]) -> T:
-        """Create new instance using factory or constructor"""
+        """Create new instance using factory or constructor."""
         # If instance provided, return it
         if descriptor.instance is not None:
             return descriptor.instance
@@ -212,7 +211,7 @@ class DIContainer:
         raise ValueError(f"Cannot create instance of {descriptor.service_type}")
     
     def _invoke_factory(self, factory: Callable[..., T]) -> T:
-        """Invoke factory with dependency injection"""
+        """Invoke factory with dependency injection."""
         sig = inspect.signature(factory)
         kwargs = {}
         
@@ -225,7 +224,7 @@ class DIContainer:
         return factory(**kwargs)
     
     def _invoke_constructor(self, cls: Type[T]) -> T:
-        """Invoke constructor with dependency injection"""
+        """Invoke constructor with dependency injection."""
         sig = inspect.signature(cls.__init__)
         kwargs = {}
         
@@ -246,57 +245,61 @@ class DIContainer:
         return cls(**kwargs)
     
     def create_scope(self) -> DIScope:
-        """Create a new dependency scope"""
+        """Create a new dependency scope."""
         return DIScope(self)
     
     def is_registered(self, service_type: Type) -> bool:
-        """Check if service is registered"""
+        """Check if service is registered."""
         return service_type in self._services
     
     def clear(self) -> None:
-        """Clear all registrations and cached instances"""
+        """Clear all registrations and cached instances."""
         self._services.clear()
         self._singletons.clear()
 
 
 class DIScope:
-    """
-    Dependency injection scope context manager.
+    """Dependency injection scope context manager.
+
     Services with SCOPED lifetime will be cached within this scope.
     """
     
     def __init__(self, container: DIContainer):
         self.container = container
-        self._scope_storage: Dict[Type, Any] = {}
-        self._token = None
+        self._scope_storage: Dict[Type[Any], Any] = {}
+        self._token: Optional[Token[Dict[Type[Any], Any]]] = None
     
     def __enter__(self) -> DIScope:
-        """Enter scope context"""
+        """Enter scope context."""
         self._token = self.container._scope_context.set(self._scope_storage)
         return self
     
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """Exit scope context and cleanup"""
-        if self._token:
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType]
+    ) -> None:
+        """Exit scope context and cleanup."""
+        if self._token is not None:
             self.container._scope_context.reset(self._token)
         self._scope_storage.clear()
 
 
 # Decorator for automatic dependency injection
-def inject(container: DIContainer):
-    """
-    Decorator to automatically inject dependencies into function.
-    
+def inject(container: DIContainer) -> Callable[[Callable[P, R]], Callable[P, R]]:
+    """Decorator to automatically inject dependencies into function.
+
     Usage:
         @inject(container)
         def my_function(service: MyService):
             service.do_something()
     """
-    def decorator(func: Callable) -> Callable:
+    def decorator(func: Callable[P, R]) -> Callable[P, R]:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
             sig = inspect.signature(func)
-            injected_kwargs = {}
+            injected_kwargs: Dict[str, Any] = {}
             
             for param_name, param in sig.parameters.items():
                 if param_name in kwargs:
@@ -321,7 +324,7 @@ _global_container: Optional[DIContainer] = None
 
 
 def get_container() -> DIContainer:
-    """Get global DI container instance"""
+    """Get global DI container instance."""
     global _global_container
     if _global_container is None:
         _global_container = DIContainer()

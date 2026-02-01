@@ -1,5 +1,4 @@
-"""
-Async HTTP API Client using httpx
+"""Async HTTP API Client using httpx.
 
 High-performance async API client for 5-10x faster API testing.
 
@@ -21,7 +20,8 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional
+from types import TracebackType
+from typing import Any, Callable, Dict, List, Optional, Type
 
 try:
     import httpx
@@ -30,7 +30,7 @@ except ImportError:
 
 
 class HTTPMethod(str, Enum):
-    """HTTP methods"""
+    """HTTP methods."""
 
     GET = "GET"
     POST = "POST"
@@ -43,7 +43,7 @@ class HTTPMethod(str, Enum):
 
 @dataclass
 class APIResponse:
-    """API response wrapper"""
+    """API response wrapper."""
 
     status_code: int
     headers: Dict[str, str]
@@ -68,8 +68,7 @@ class APIResponse:
 
 
 class AsyncAPIClient:
-    """
-    High-performance async HTTP API client.
+    """High-performance async HTTP API client.
 
     Example:
         >>> async with AsyncAPIClient("https://api.example.com") as client:
@@ -86,8 +85,7 @@ class AsyncAPIClient:
         retry_count: int = 3,
         retry_delay: float = 1.0,
     ):
-        """
-        Initialize async API client.
+        """Initialize async API client.
 
         Args:
             base_url: Base URL for all requests
@@ -116,16 +114,21 @@ class AsyncAPIClient:
         self.total_duration = 0.0
 
     async def __aenter__(self) -> AsyncAPIClient:
-        """Enter async context manager"""
+        """Enter async context manager."""
         await self.start()
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        """Exit async context manager"""
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType]
+    ) -> None:
+        """Exit async context manager."""
         await self.close()
 
     async def start(self) -> None:
-        """Start the HTTP client"""
+        """Start the HTTP client."""
         if self.client is None:
             self.client = httpx.AsyncClient(
                 base_url=self.base_url,
@@ -137,7 +140,7 @@ class AsyncAPIClient:
             self.logger.info(f"AsyncAPIClient started for {self.base_url}")
 
     async def close(self) -> None:
-        """Close the HTTP client"""
+        """Close the HTTP client."""
         if self.client:
             await self.client.aclose()
             self.client = None
@@ -152,10 +155,18 @@ class AsyncAPIClient:
         self._response_interceptors.append(interceptor)
 
     async def _execute_request_interceptors(
-        self, method: str, url: str, **kwargs
+        self,
+        method: str,
+        endpoint: str,
+        **kwargs: Any
     ) -> Dict[str, Any]:
-        """Execute all request interceptors"""
-        request_data = {"method": method, "url": url, **kwargs}
+        """Execute all request interceptors."""
+        request_data = {
+            "method": method,
+            "endpoint": endpoint,
+            "url": endpoint,
+            **kwargs,
+        }
 
         for interceptor in self._request_interceptors:
             if asyncio.iscoroutinefunction(interceptor):
@@ -166,7 +177,7 @@ class AsyncAPIClient:
         return request_data
 
     async def _execute_response_interceptors(self, response: APIResponse) -> APIResponse:
-        """Execute all response interceptors"""
+        """Execute all response interceptors."""
         for interceptor in self._response_interceptors:
             if asyncio.iscoroutinefunction(interceptor):
                 response = await interceptor(response)
@@ -184,10 +195,9 @@ class AsyncAPIClient:
         json: Optional[Dict[str, Any]] = None,
         data: Optional[Any] = None,
         files: Optional[Dict[str, Any]] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> APIResponse:
-        """
-        Make async HTTP request with retry logic.
+        """Make async HTTP request with retry logic.
 
         Args:
             method: HTTP method
@@ -202,8 +212,11 @@ class AsyncAPIClient:
         Returns:
             APIResponse object
         """
-        if not self.client:
+        if self.client is None:
             await self.start()
+        if self.client is None:
+            raise RuntimeError("Async client failed to start")
+        client = self.client
 
         # Apply request interceptors
         request_data = await self._execute_request_interceptors(
@@ -231,7 +244,7 @@ class AsyncAPIClient:
                 start_time = datetime.now()
 
                 # Make request
-                response = await self.client.request(
+                response = await client.request(
                     method=method.value,
                     url=endpoint,
                     headers=headers,
@@ -293,9 +306,9 @@ class AsyncAPIClient:
         endpoint: str,
         params: Optional[Dict[str, Any]] = None,
         headers: Optional[Dict[str, str]] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> APIResponse:
-        """Make GET request"""
+        """Make GET request."""
         return await self.request(HTTPMethod.GET, endpoint, params=params, headers=headers, **kwargs)
 
     async def post(
@@ -304,9 +317,9 @@ class AsyncAPIClient:
         json: Optional[Dict[str, Any]] = None,
         data: Optional[Any] = None,
         headers: Optional[Dict[str, str]] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> APIResponse:
-        """Make POST request"""
+        """Make POST request."""
         return await self.request(
             HTTPMethod.POST, endpoint, json=json, data=data, headers=headers, **kwargs
         )
@@ -317,9 +330,9 @@ class AsyncAPIClient:
         json: Optional[Dict[str, Any]] = None,
         data: Optional[Any] = None,
         headers: Optional[Dict[str, str]] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> APIResponse:
-        """Make PUT request"""
+        """Make PUT request."""
         return await self.request(
             HTTPMethod.PUT, endpoint, json=json, data=data, headers=headers, **kwargs
         )
@@ -330,9 +343,9 @@ class AsyncAPIClient:
         json: Optional[Dict[str, Any]] = None,
         data: Optional[Any] = None,
         headers: Optional[Dict[str, str]] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> APIResponse:
-        """Make PATCH request"""
+        """Make PATCH request."""
         return await self.request(
             HTTPMethod.PATCH, endpoint, json=json, data=data, headers=headers, **kwargs
         )
@@ -341,16 +354,15 @@ class AsyncAPIClient:
         self,
         endpoint: str,
         headers: Optional[Dict[str, str]] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> APIResponse:
-        """Make DELETE request"""
+        """Make DELETE request."""
         return await self.request(HTTPMethod.DELETE, endpoint, headers=headers, **kwargs)
 
     async def parallel_requests(
         self, requests: List[Dict[str, Any]]
     ) -> List[APIResponse]:
-        """
-        Execute multiple requests in parallel.
+        """Execute multiple requests in parallel.
 
         Args:
             requests: List of request configs, each with 'method', 'endpoint', etc.
@@ -365,19 +377,27 @@ class AsyncAPIClient:
             ... ]
             >>> responses = await client.parallel_requests(requests)
         """
-        tasks = [
-            self.request(
-                method=req.get("method", HTTPMethod.GET),
-                endpoint=req.get("endpoint"),
-                **{k: v for k, v in req.items() if k not in ["method", "endpoint"]},
-            )
-            for req in requests
-        ]
+        tasks = []
+        for req in requests:
+            endpoint = req.get("endpoint")
+            if not isinstance(endpoint, str):
+                raise ValueError("Each request config must include a string 'endpoint'.")
+
+            method_value = req.get("method", HTTPMethod.GET)
+            if isinstance(method_value, str):
+                method = HTTPMethod(method_value.upper())
+            elif isinstance(method_value, HTTPMethod):
+                method = method_value
+            else:
+                raise ValueError("Request method must be a HTTPMethod or string.")
+
+            extra_args = {k: v for k, v in req.items() if k not in ["method", "endpoint"]}
+            tasks.append(self.request(method=method, endpoint=endpoint, **extra_args))
 
         return await asyncio.gather(*tasks)
 
     def get_metrics(self) -> Dict[str, Any]:
-        """Get client metrics"""
+        """Get client metrics."""
         avg_duration = (
             self.total_duration / self.request_count if self.request_count > 0 else 0
         )
@@ -393,18 +413,18 @@ class AsyncAPIClient:
 
 
 class BearerAuth:
-    """Bearer token authentication helper"""
+    """Bearer token authentication helper."""
 
     def __init__(self, token: str):
         self.token = token
 
     def get_headers(self) -> Dict[str, str]:
-        """Get authorization headers"""
+        """Get authorization headers."""
         return {"Authorization": f"Bearer {self.token}"}
 
 
 class BasicAuth:
-    """Basic authentication helper"""
+    """Basic authentication helper."""
 
     def __init__(self, username: str, password: str):
         import base64
@@ -413,7 +433,7 @@ class BasicAuth:
         self.encoded = base64.b64encode(credentials).decode()
 
     def get_headers(self) -> Dict[str, str]:
-        """Get authorization headers"""
+        """Get authorization headers."""
         return {"Authorization": f"Basic {self.encoded}"}
 
 
@@ -421,7 +441,7 @@ class BasicAuth:
 
 
 async def example_usage():
-    """Example usage of AsyncAPIClient"""
+    """Example usage of AsyncAPIClient."""
 
     # Initialize client
     async with AsyncAPIClient(

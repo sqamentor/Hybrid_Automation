@@ -1,7 +1,5 @@
-"""
-Playwright Codegen Wrapper
-Provides easy-to-use interface for Playwright's code generation with enhanced features
-"""
+"""Playwright Codegen Wrapper Provides easy-to-use interface for Playwright's code generation with
+enhanced features."""
 
 import json
 import os
@@ -13,8 +11,8 @@ from loguru import logger
 
 
 class PlaywrightCodegen:
-    """
-    Wrapper for Playwright's codegen with additional features:
+    """Wrapper for Playwright's codegen with additional features:
+
     - Easy configuration
     - Multiple output formats
     - Browser selection
@@ -23,9 +21,8 @@ class PlaywrightCodegen:
     """
     
     def __init__(self, output_dir: str = "recorded_tests"):
-        """
-        Initialize Playwright Codegen wrapper
-        
+        """Initialize Playwright Codegen wrapper.
+
         Args:
             output_dir: Directory to save recorded scripts
         """
@@ -44,9 +41,8 @@ class PlaywrightCodegen:
         capture_api: bool = True,
         additional_args: Optional[List[str]] = None
     ) -> Dict[str, Any]:
-        """
-        Start Playwright codegen recording session
-        
+        """Start Playwright codegen recording session.
+
         Args:
             url: Starting URL for recording
             test_name: Name for the generated test file
@@ -56,7 +52,7 @@ class PlaywrightCodegen:
             viewport: Custom viewport size {"width": 1280, "height": 720}
             capture_api: Enable API traffic capture
             additional_args: Additional playwright codegen arguments
-        
+
         Returns:
             Dict with recording metadata
         """
@@ -165,14 +161,13 @@ class PlaywrightCodegen:
         test_name: str,
         mobile: bool = False
     ) -> Dict[str, Any]:
-        """
-        Quick recording with sensible defaults
-        
+        """Quick recording with sensible defaults.
+
         Args:
             url: Starting URL
             test_name: Test name
             mobile: Use mobile viewport (iPhone 12)
-        
+
         Returns:
             Recording metadata
         """
@@ -190,14 +185,13 @@ class PlaywrightCodegen:
         test_name: str,
         save_auth: bool = True
     ) -> Dict[str, Any]:
-        """
-        Record with authentication state saving
-        
+        """Record with authentication state saving.
+
         Args:
             url: Starting URL
             test_name: Test name
             save_auth: Save authentication state
-        
+
         Returns:
             Recording metadata
         """
@@ -213,7 +207,7 @@ class PlaywrightCodegen:
         )
     
     def get_recording_metadata(self, test_name: str) -> Optional[Dict[str, Any]]:
-        """Get metadata for a recorded test"""
+        """Get metadata for a recorded test."""
         safe_name = test_name.replace(" ", "_").lower()
         output_file = self.output_dir / f"{safe_name}.py"
         
@@ -228,7 +222,7 @@ class PlaywrightCodegen:
         }
     
     def list_recordings(self) -> List[Dict[str, Any]]:
-        """List all recorded test files"""
+        """List all recorded test files."""
         recordings = []
         
         for py_file in self.output_dir.glob("*.py"):
@@ -243,13 +237,13 @@ class PlaywrightCodegen:
 
 
 # Convenience functions
-def record_test(url: str, test_name: str, **kwargs) -> Dict[str, Any]:
-    """Quick function to start recording"""
+def record_test(url: str, test_name: str, **kwargs: Any) -> Dict[str, Any]:
+    """Quick function to start recording."""
     codegen = PlaywrightCodegen()
     return codegen.start_recording(url, test_name, **kwargs)
 
 
 def quick_record(url: str, test_name: str, mobile: bool = False) -> Dict[str, Any]:
-    """Quick recording with defaults"""
+    """Quick recording with defaults."""
     codegen = PlaywrightCodegen()
     return codegen.quick_record(url, test_name, mobile)

@@ -1,10 +1,9 @@
-"""
-Concrete Microservices Implementations
+"""Concrete Microservices Implementations.
 
 This module provides production-ready microservices for test automation:
 - TestExecutionService: Orchestrates test execution
 - ReportingService: Aggregates and generates reports
-- ConfigurationService: Centralized configuration management  
+- ConfigurationService: Centralized configuration management
 - NotificationService: Sends alerts to Slack/Email/Teams
 
 Author: Lokendra Singh
@@ -21,16 +20,18 @@ from typing import Any, Dict, List, Optional
 from framework.microservices.base import (
     BaseService,
     HealthCheck,
+    Message,
     MessageBus,
     ServiceInfo,
     ServiceRegistry,
+    ServiceStatus,
 )
 
 # ==================== Test Execution Service ====================
 
 @dataclass
 class TestRun:
-    """Test run metadata"""
+    """Test run metadata."""
 
     run_id: str
     test_names: List[str]
@@ -41,8 +42,7 @@ class TestRun:
 
 
 class TestExecutionService(BaseService):
-    """
-    Orchestrates distributed test execution.
+    """Orchestrates distributed test execution.
 
     Features:
     - Parallel test execution
@@ -64,7 +64,7 @@ class TestExecutionService(BaseService):
         self._executor_tasks: List[asyncio.Task] = []
 
     async def start(self) -> None:
-        """Start the test execution service"""
+        """Start the test execution service."""
         await super().start()
 
         # Start test executors
@@ -77,7 +77,7 @@ class TestExecutionService(BaseService):
         )
 
     async def stop(self) -> None:
-        """Stop the test execution service gracefully"""
+        """Stop the test execution service gracefully."""
         self.logger.info("Stopping TestExecutionService...")
 
         # Cancel all executor tasks
@@ -89,8 +89,8 @@ class TestExecutionService(BaseService):
         await super().stop()
 
     async def _test_executor(self, executor_id: str) -> None:
-        """Execute tests from queue"""
-        while self.status == "running":
+        """Execute tests from queue."""
+        while self.status == ServiceStatus.RUNNING:
             try:
                 test_name = await asyncio.wait_for(
                     self.test_queue.get(), timeout=1.0
@@ -112,7 +112,7 @@ class TestExecutionService(BaseService):
                 self.active_tests -= 1
 
     async def _execute_test(self, test_name: str) -> Dict[str, Any]:
-        """Execute a single test"""
+        """Execute a single test."""
         start_time = datetime.now()
 
         try:
@@ -147,7 +147,7 @@ class TestExecutionService(BaseService):
     async def submit_test_run(
         self, run_id: str, test_names: List[str]
     ) -> TestRun:
-        """Submit a new test run"""
+        """Submit a new test run."""
         test_run = TestRun(
             run_id=run_id,
             test_names=test_names,
@@ -168,14 +168,14 @@ class TestExecutionService(BaseService):
         return test_run
 
     async def get_test_run_status(self, run_id: str) -> Optional[TestRun]:
-        """Get status of a test run"""
+        """Get status of a test run."""
         return self.test_runs.get(run_id)
 
     async def health_check(self) -> HealthCheck:
-        """Check service health"""
+        """Check service health."""
         return HealthCheck(
-            service_id=self.service_id,
-            status="healthy" if self.status == "running" else "unhealthy",
+            service_name=self.service_id,
+            status=ServiceStatus.HEALTHY if self.status == ServiceStatus.RUNNING else ServiceStatus.UNHEALTHY,
             timestamp=datetime.now(),
             details={
                 "active_tests": self.active_tests,
@@ -189,8 +189,7 @@ class TestExecutionService(BaseService):
 
 
 class ReportingService(BaseService):
-    """
-    Aggregates test results and generates reports.
+    """Aggregates test results and generates reports.
 
     Features:
     - Real-time result aggregation
@@ -206,29 +205,31 @@ class ReportingService(BaseService):
         self.reports_dir.mkdir(exist_ok=True)
 
     async def start(self) -> None:
-        """Start the reporting service"""
+        """Start the reporting service."""
         await super().start()
 
         # Subscribe to test events
-        await self.message_bus.subscribe("test.completed", self._handle_test_completed)
-        await self.message_bus.subscribe("test.failed", self._handle_test_failed)
+        self.message_bus.subscribe("test.completed", self._handle_test_completed)
+        self.message_bus.subscribe("test.failed", self._handle_test_failed)
 
         self.logger.info("ReportingService started")
 
-    async def _handle_test_completed(self, message: Dict[str, Any]) -> None:
-        """Handle test completion event"""
-        self.test_results.append(message)
-        self.logger.info(f"Test completed: {message.get('test_name')}")
+    async def _handle_test_completed(self, message: Message) -> None:
+        """Handle test completion event."""
+        payload = message.data or {}
+        self.test_results.append(payload)
+        self.logger.info(f"Test completed: {payload.get('test_name')}")
 
-    async def _handle_test_failed(self, message: Dict[str, Any]) -> None:
-        """Handle test failure event"""
-        self.test_results.append(message)
-        self.logger.error(f"Test failed: {message.get('test_name')}")
+    async def _handle_test_failed(self, message: Message) -> None:
+        """Handle test failure event."""
+        payload = message.data or {}
+        self.test_results.append(payload)
+        self.logger.error(f"Test failed: {payload.get('test_name')}")
 
     async def generate_report(
         self, format: str = "json"
     ) -> Dict[str, Any]:
-        """Generate test report"""
+        """Generate test report."""
         total_tests = len(self.test_results)
         passed = sum(1 for r in self.test_results if r.get("status") == "passed")
         failed = sum(1 for r in self.test_results if r.get("status") == "failed")
@@ -256,7 +257,7 @@ class ReportingService(BaseService):
         return report
 
     async def get_metrics(self) -> Dict[str, Any]:
-        """Get current test metrics"""
+        """Get current test metrics."""
         total = len(self.test_results)
         passed = sum(1 for r in self.test_results if r.get("status") == "passed")
         failed = sum(1 for r in self.test_results if r.get("status") == "failed")
@@ -270,10 +271,10 @@ class ReportingService(BaseService):
         }
 
     async def health_check(self) -> HealthCheck:
-        """Check service health"""
+        """Check service health."""
         return HealthCheck(
-            service_id=self.service_id,
-            status="healthy" if self.status == "running" else "unhealthy",
+            service_name=self.service_id,
+            status=ServiceStatus.HEALTHY if self.status == ServiceStatus.RUNNING else ServiceStatus.UNHEALTHY,
             timestamp=datetime.now(),
             details={
                 "total_results": len(self.test_results),
@@ -286,8 +287,7 @@ class ReportingService(BaseService):
 
 
 class ConfigurationService(BaseService):
-    """
-    Centralized configuration management service.
+    """Centralized configuration management service.
 
     Features:
     - Dynamic configuration loading
@@ -302,7 +302,7 @@ class ConfigurationService(BaseService):
         self.watchers: List[asyncio.Task] = []
 
     async def start(self) -> None:
-        """Start the configuration service"""
+        """Start the configuration service."""
         await super().start()
 
         # Load initial configurations
@@ -311,7 +311,7 @@ class ConfigurationService(BaseService):
         self.logger.info("ConfigurationService started")
 
     async def _load_configurations(self) -> None:
-        """Load all configurations"""
+        """Load all configurations."""
         # TODO: Load from AsyncConfigManager
         self.configurations = {
             "browser": {"engine": "chromium", "headless": True},
@@ -325,11 +325,11 @@ class ConfigurationService(BaseService):
         )
 
     async def get_config(self, key: str) -> Optional[Dict[str, Any]]:
-        """Get configuration by key"""
+        """Get configuration by key."""
         return self.configurations.get(key)
 
     async def set_config(self, key: str, value: Dict[str, Any]) -> None:
-        """Set configuration"""
+        """Set configuration."""
         self.configurations[key] = value
 
         # Publish configuration change event
@@ -340,15 +340,15 @@ class ConfigurationService(BaseService):
         self.logger.info(f"Configuration updated: {key}")
 
     async def reload_configuration(self) -> None:
-        """Reload all configurations"""
+        """Reload all configurations."""
         await self._load_configurations()
         self.logger.info("Configurations reloaded")
 
     async def health_check(self) -> HealthCheck:
-        """Check service health"""
+        """Check service health."""
         return HealthCheck(
-            service_id=self.service_id,
-            status="healthy" if self.status == "running" else "unhealthy",
+            service_name=self.service_id,
+            status=ServiceStatus.HEALTHY if self.status == ServiceStatus.RUNNING else ServiceStatus.UNHEALTHY,
             timestamp=datetime.now(),
             details={
                 "loaded_configs": len(self.configurations),
@@ -362,7 +362,7 @@ class ConfigurationService(BaseService):
 
 @dataclass
 class NotificationChannel:
-    """Notification channel configuration"""
+    """Notification channel configuration."""
 
     channel_type: str  # slack, email, teams
     enabled: bool = True
@@ -370,8 +370,7 @@ class NotificationChannel:
 
 
 class NotificationService(BaseService):
-    """
-    Sends notifications to various channels (Slack, Email, Teams).
+    """Sends notifications to various channels (Slack, Email, Teams).
 
     Features:
     - Multiple notification channels
@@ -387,7 +386,7 @@ class NotificationService(BaseService):
         self._sender_task: Optional[asyncio.Task] = None
 
     async def start(self) -> None:
-        """Start the notification service"""
+        """Start the notification service."""
         await super().start()
 
         # Initialize channels
@@ -397,13 +396,13 @@ class NotificationService(BaseService):
         self._sender_task = asyncio.create_task(self._notification_sender())
 
         # Subscribe to events
-        await self.message_bus.subscribe("test.failed", self._handle_test_failed)
-        await self.message_bus.subscribe("test.completed", self._handle_test_completed)
+        self.message_bus.subscribe("test.failed", self._handle_test_failed)
+        self.message_bus.subscribe("test.completed", self._handle_test_completed)
 
         self.logger.info("NotificationService started")
 
     async def stop(self) -> None:
-        """Stop the notification service gracefully"""
+        """Stop the notification service gracefully."""
         if self._sender_task:
             self._sender_task.cancel()
             await asyncio.gather(self._sender_task, return_exceptions=True)
@@ -411,7 +410,7 @@ class NotificationService(BaseService):
         await super().stop()
 
     def _initialize_channels(self) -> None:
-        """Initialize notification channels"""
+        """Initialize notification channels."""
         self.channels = {
             "slack": NotificationChannel(
                 channel_type="slack",
@@ -431,8 +430,8 @@ class NotificationService(BaseService):
         }
 
     async def _notification_sender(self) -> None:
-        """Send notifications from queue"""
-        while self.status == "running":
+        """Send notifications from queue."""
+        while self.status == ServiceStatus.RUNNING:
             try:
                 notification = await asyncio.wait_for(
                     self.notification_queue.get(), timeout=1.0
@@ -448,7 +447,7 @@ class NotificationService(BaseService):
                 self.logger.error(f"Notification sender error: {e}")
 
     async def _send_notification(self, notification: Dict[str, Any]) -> None:
-        """Send notification to enabled channels"""
+        """Send notification to enabled channels."""
         channel_type = notification.get("channel", "slack")
         channel = self.channels.get(channel_type)
 
@@ -459,26 +458,28 @@ class NotificationService(BaseService):
         # TODO: Implement actual sending logic (HTTP requests to webhooks)
         self.logger.info(f"Sending notification via {channel_type}: {notification.get('message')}")
 
-    async def _handle_test_failed(self, message: Dict[str, Any]) -> None:
-        """Handle test failure notification"""
+    async def _handle_test_failed(self, message: Message) -> None:
+        """Handle test failure notification."""
+        payload = message.data or {}
         notification = {
             "channel": "slack",
             "priority": "high",
-            "message": f"❌ Test Failed: {message.get('test_name')}",
-            "details": message,
+            "message": f"❌ Test Failed: {payload.get('test_name')}",
+            "details": payload,
         }
 
         await self.notification_queue.put(notification)
 
-    async def _handle_test_completed(self, message: Dict[str, Any]) -> None:
+    async def _handle_test_completed(self, message: Message) -> None:
         """Handle test completion notification (optional)"""
+        payload = message.data or {}
         # Only send for important tests
-        if message.get("important", False):
+        if payload.get("important", False):
             notification = {
                 "channel": "slack",
                 "priority": "low",
-                "message": f"✅ Test Passed: {message.get('test_name')}",
-                "details": message,
+                "message": f"✅ Test Passed: {payload.get('test_name')}",
+                "details": payload,
             }
 
             await self.notification_queue.put(notification)
@@ -489,7 +490,7 @@ class NotificationService(BaseService):
         message: str,
         priority: str = "medium",
     ) -> None:
-        """Send custom notification"""
+        """Send custom notification."""
         notification = {
             "channel": channel,
             "priority": priority,
@@ -500,10 +501,10 @@ class NotificationService(BaseService):
         await self.notification_queue.put(notification)
 
     async def health_check(self) -> HealthCheck:
-        """Check service health"""
+        """Check service health."""
         return HealthCheck(
-            service_id=self.service_id,
-            status="healthy" if self.status == "running" else "unhealthy",
+            service_name=self.service_id,
+            status=ServiceStatus.HEALTHY if self.status == ServiceStatus.RUNNING else ServiceStatus.UNHEALTHY,
             timestamp=datetime.now(),
             details={
                 "enabled_channels": sum(
@@ -518,7 +519,7 @@ class NotificationService(BaseService):
 
 
 def create_all_services() -> List[BaseService]:
-    """Create all microservices"""
+    """Create all microservices."""
     return [
         TestExecutionService(),
         ReportingService(),
@@ -528,12 +529,12 @@ def create_all_services() -> List[BaseService]:
 
 
 async def start_all_services(services: List[BaseService]) -> None:
-    """Start all services"""
+    """Start all services."""
     for service in services:
         await service.start()
 
 
 async def stop_all_services(services: List[BaseService]) -> None:
-    """Stop all services gracefully"""
+    """Stop all services gracefully."""
     for service in services:
         await service.stop()

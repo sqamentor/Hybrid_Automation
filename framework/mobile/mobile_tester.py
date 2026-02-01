@@ -6,7 +6,7 @@ Supports iOS, Android, and custom device configurations.
 """
 
 from enum import Enum
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from utils.logger import get_logger
 
@@ -14,7 +14,7 @@ logger = get_logger(__name__)
 
 
 class DeviceType(Enum):
-    """Common mobile device types"""
+    """Common mobile device types."""
     IPHONE_12 = "iPhone 12"
     IPHONE_13_PRO = "iPhone 13 Pro"
     IPHONE_14 = "iPhone 14"
@@ -67,12 +67,11 @@ DEVICE_CONFIGS = {
 
 
 class MobileTester:
-    """Mobile and responsive testing engine"""
+    """Mobile and responsive testing engine."""
     
     def __init__(self, ui_engine):
-        """
-        Initialize mobile tester
-        
+        """Initialize mobile tester.
+
         Args:
             ui_engine: PlaywrightEngine or SeleniumEngine instance
         """
@@ -80,10 +79,9 @@ class MobileTester:
         self.engine_type = type(ui_engine).__name__
         self.current_device = None
     
-    def emulate_device(self, device: DeviceType):
-        """
-        Emulate mobile device
-        
+    def emulate_device(self, device: DeviceType) -> None:
+        """Emulate mobile device.
+
         Args:
             device: Device type to emulate
         """
@@ -99,8 +97,8 @@ class MobileTester:
         self.current_device = device
         logger.info(f"Emulating device: {device.value}")
     
-    def _emulate_playwright(self, device_name: str, config: Dict):
-        """Emulate device using Playwright"""
+    def _emulate_playwright(self, device_name: str, config: Dict[str, Any]) -> None:
+        """Emulate device using Playwright."""
         context = self.ui_engine.context
         
         # Playwright has built-in device descriptors
@@ -115,8 +113,8 @@ class MobileTester:
                 'User-Agent': config['user_agent']
             })
     
-    def _emulate_selenium(self, config: Dict):
-        """Emulate device using Selenium"""
+    def _emulate_selenium(self, config: Dict[str, Any]) -> None:
+        """Emulate device using Selenium."""
         driver = self.ui_engine.get_driver()
         
         # Set window size
@@ -133,10 +131,9 @@ class MobileTester:
         except Exception as e:
             logger.warning(f"Could not set user agent: {e}")
     
-    def set_custom_viewport(self, width: int, height: int):
-        """
-        Set custom viewport size
-        
+    def set_custom_viewport(self, width: int, height: int) -> None:
+        """Set custom viewport size.
+
         Args:
             width: Viewport width in pixels
             height: Viewport height in pixels
@@ -150,10 +147,9 @@ class MobileTester:
         
         logger.info(f"Viewport set to {width}x{height}")
     
-    def rotate_device(self, orientation: str = "landscape"):
-        """
-        Rotate device (portrait/landscape)
-        
+    def rotate_device(self, orientation: str = "landscape") -> None:
+        """Rotate device (portrait/landscape)
+
         Args:
             orientation: 'portrait' or 'landscape'
         """
@@ -177,10 +173,9 @@ class MobileTester:
         
         logger.info(f"Device rotated to {orientation}")
     
-    def swipe(self, direction: str, element: Optional[str] = None):
-        """
-        Perform swipe gesture
-        
+    def swipe(self, direction: str, element: Optional[str] = None) -> None:
+        """Perform swipe gesture.
+
         Args:
             direction: 'up', 'down', 'left', 'right'
             element: Optional element locator to swipe on
@@ -220,10 +215,9 @@ class MobileTester:
             
             logger.info(f"Swiped {direction}")
     
-    def tap(self, locator: str):
-        """
-        Perform tap gesture
-        
+    def tap(self, locator: str) -> None:
+        """Perform tap gesture.
+
         Args:
             locator: Element locator
         """
@@ -238,10 +232,9 @@ class MobileTester:
         
         logger.info(f"Tapped element: {locator}")
     
-    def long_press(self, locator: str, duration: int = 1000):
-        """
-        Perform long press gesture
-        
+    def long_press(self, locator: str, duration: int = 1000) -> None:
+        """Perform long press gesture.
+
         Args:
             locator: Element locator
             duration: Press duration in milliseconds
@@ -261,10 +254,9 @@ class MobileTester:
             
             logger.info(f"Long pressed element: {locator} for {duration}ms")
     
-    def pinch_zoom(self, scale: float = 0.5):
-        """
-        Simulate pinch zoom gesture
-        
+    def pinch_zoom(self, scale: float = 0.5) -> None:
+        """Simulate pinch zoom gesture.
+
         Args:
             scale: Zoom scale (< 1 = zoom out, > 1 = zoom in)
         """
@@ -281,13 +273,12 @@ class MobileTester:
     
     def test_responsive_breakpoints(self, url: str, 
                                    breakpoints: Optional[List[Tuple[int, int]]] = None) -> Dict:
-        """
-        Test page at multiple responsive breakpoints
-        
+        """Test page at multiple responsive breakpoints.
+
         Args:
             url: Page URL to test
             breakpoints: List of (width, height) tuples
-        
+
         Returns:
             Test results for each breakpoint
         """
@@ -328,7 +319,7 @@ class MobileTester:
         return results
     
     def _check_layout_issues(self) -> bool:
-        """Check for common layout issues"""
+        """Check for common layout issues."""
         if self.engine_type != 'PlaywrightEngine':
             return True
         
@@ -348,10 +339,9 @@ class MobileTester:
         
         return True
     
-    def enable_geolocation(self, latitude: float, longitude: float, accuracy: float = 100):
-        """
-        Set geolocation
-        
+    def enable_geolocation(self, latitude: float, longitude: float, accuracy: float = 100) -> None:
+        """Set geolocation.
+
         Args:
             latitude: Latitude coordinate
             longitude: Longitude coordinate
@@ -370,10 +360,9 @@ class MobileTester:
             
             logger.info(f"Geolocation set to: {latitude}, {longitude}")
     
-    def simulate_network_conditions(self, condition: str):
-        """
-        Simulate network conditions (3G, 4G, offline, etc.)
-        
+    def simulate_network_conditions(self, condition: str) -> None:
+        """Simulate network conditions (3G, 4G, offline, etc.)
+
         Args:
             condition: '3G', '4G', 'offline', 'online'
         """

@@ -48,7 +48,7 @@ import pytest
 
 @pytest.mark.human_like
 def test_login_with_human_behavior(human_behavior, browser):
-    """Test with automatic human behavior"""
+    """Test with automatic human behavior."""
     # Human behavior is automatically applied
     human_behavior.type_text("#username", "test_user")
     human_behavior.type_text("#password", "secret123")
@@ -293,7 +293,7 @@ import pytest
 
 @pytest.mark.human_like
 def test_login_form(human_behavior, browser):
-    """Test login with human behavior"""
+    """Test login with human behavior."""
     browser.get("https://example.com/login")
     
     # Type username with delays
@@ -320,7 +320,7 @@ def test_login_form(human_behavior, browser):
 ```python
 @pytest.mark.human_like
 def test_registration_form(human_behavior, browser):
-    """Test registration with realistic behavior"""
+    """Test registration with realistic behavior."""
     browser.get("https://example.com/register")
     
     # Fill form fields with natural delays
@@ -353,7 +353,7 @@ def test_registration_form(human_behavior, browser):
 ```python
 @pytest.mark.human_like
 def test_product_search(human_behavior, browser):
-    """Test product search with human behavior"""
+    """Test product search with human behavior."""
     browser.get("https://example.com/shop")
     
     # Random mouse movements (browsing behavior)
@@ -386,7 +386,7 @@ class LoginPage:
         self.human = HumanBehaviorSimulator(driver, enabled=enable_human_behavior)
     
     def login(self, username, password):
-        """Login with human-like behavior"""
+        """Login with human-like behavior."""
         self.human.type_text("#username", username)
         self.human.simulate_idle((0.3, 0.8))
         self.human.type_text("#password", password)
@@ -404,7 +404,7 @@ def test_with_page_object(browser):
 
 ```python
 def test_conditional_behavior(browser, env):
-    """Use human behavior only in certain environments"""
+    """Use human behavior only in certain environments."""
     # Enable human behavior only in staging
     enable_human = (env == 'staging')
     

@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""
-
-FRAMEWORK ARCHITECTURE AUDIT ENGINE
-
+"""FRAMEWORK ARCHITECTURE AUDIT ENGINE.
 
 A comprehensive, AST-based static analysis system that enforces architectural
 rules and prevents framework degradation.
@@ -25,13 +22,13 @@ USAGE:
 
     # Specific category
     python framework_audit_engine.py --category engine-mix
-    
+
     # With baseline suppression
     python framework_audit_engine.py --baseline ci/baseline_allowlist.yaml
-    
+
     # Generate report
     python framework_audit_engine.py --report artifacts/framework_audit_report.md
-    
+
     # CI mode (fail on any violation)
     python framework_audit_engine.py --ci --strict
 
@@ -44,7 +41,6 @@ EXIT CODES:
 Author: Principal QA Architect
 Date: February 1, 2026
 Version: 1.0.0
-
 """
 
 import ast
@@ -65,7 +61,7 @@ from enum import Enum
 # 
 
 class Severity(Enum):
-    """Violation severity levels"""
+    """Violation severity levels."""
     CRITICAL = "CRITICAL"  # Architecture-breaking, must fix immediately
     ERROR = "ERROR"        # Rule violation, blocks merge
     WARNING = "WARNING"    # Should fix, doesn't block merge
@@ -73,7 +69,7 @@ class Severity(Enum):
 
 
 class Category(Enum):
-    """Violation categories for independent CI checks"""
+    """Violation categories for independent CI checks."""
     ENGINE_MIX = "engine-mix"                # Mixing Playwright + Selenium
     MARKER_ENGINE = "marker-engine"          # Marker  engine mismatch
     FOLDER_ENGINE = "folder-engine"          # Folder  engine mismatch
@@ -90,7 +86,7 @@ class Category(Enum):
 
 @dataclass
 class Violation:
-    """Represents a single architectural violation"""
+    """Represents a single architectural violation."""
     category: Category
     severity: Severity
     rule_id: str
@@ -117,7 +113,7 @@ class Violation:
 
 @dataclass
 class AuditResult:
-    """Results of a complete audit run"""
+    """Results of a complete audit run."""
     violations: List[Violation] = field(default_factory=list)
     files_scanned: int = 0
     timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
@@ -125,14 +121,14 @@ class AuditResult:
     baseline_path: Optional[str] = None
     
     def get_violations_by_category(self) -> Dict[Category, List[Violation]]:
-        """Group violations by category"""
+        """Group violations by category."""
         by_category = defaultdict(list)
         for v in self.violations:
             by_category[v.category].append(v)
         return dict(by_category)
     
     def get_blocking_violations(self) -> List[Violation]:
-        """Get violations that should block CI"""
+        """Get violations that should block CI."""
         return [v for v in self.violations 
                 if v.severity in (Severity.CRITICAL, Severity.ERROR) 
                 and not v.baselined]
@@ -147,7 +143,7 @@ class AuditResult:
 # 
 
 class BaselineManager:
-    """Manages baseline allow-list for legacy violations"""
+    """Manages baseline allow-list for legacy violations."""
     
     def __init__(self, baseline_path: Optional[Path] = None):
         self.baseline_path = baseline_path
@@ -158,15 +154,14 @@ class BaselineManager:
             self._load_baseline()
     
     def _load_baseline(self):
-        """Load baseline from YAML"""
+        """Load baseline from YAML."""
         with open(self.baseline_path, 'r', encoding='utf-8') as f:
             data = yaml.safe_load(f)
             self.violations = data.get('violations', [])
     
     def is_baselined(self, violation: Violation) -> Tuple[bool, Optional[str]]:
-        """
-        Check if violation is in baseline
-        
+        """Check if violation is in baseline.
+
         Returns:
             (is_baselined, expiration_date)
         """
@@ -189,7 +184,7 @@ class BaselineManager:
         return False, None
     
     def get_statistics(self) -> Dict:
-        """Get baseline statistics"""
+        """Get baseline statistics."""
         total = len(self.violations)
         expired = self.expired_count
         
@@ -217,7 +212,7 @@ class BaselineManager:
 # 
 
 class ASTAnalyzer:
-    """Base class for AST-based code analysis"""
+    """Base class for AST-based code analysis."""
     
     def __init__(self, file_path: Path):
         self.file_path = file_path
@@ -228,7 +223,7 @@ class ASTAnalyzer:
         self._parse()
     
     def _parse(self):
-        """Parse file into AST"""
+        """Parse file into AST."""
         try:
             with open(self.file_path, 'r', encoding='utf-8') as f:
                 self.content = f.read()
@@ -239,7 +234,7 @@ class ASTAnalyzer:
             self.tree = None
     
     def get_imports(self) -> Set[str]:
-        """Extract all import statements"""
+        """Extract all import statements."""
         if not self.tree:
             return set()
         
@@ -255,9 +250,8 @@ class ASTAnalyzer:
         return imports
     
     def get_test_classes(self) -> List[Tuple[str, int, List[str]]]:
-        """
-        Extract test classes with their markers
-        
+        """Extract test classes with their markers.
+
         Returns:
             List of (class_name, line_number, markers)
         """
@@ -273,7 +267,7 @@ class ASTAnalyzer:
         return test_classes
     
     def _extract_markers(self, node: ast.ClassDef) -> List[str]:
-        """Extract pytest markers from decorators"""
+        """Extract pytest markers from decorators."""
         markers = []
         for decorator in node.decorator_list:
             marker_name = None
@@ -290,9 +284,8 @@ class ASTAnalyzer:
         return markers
     
     def has_pattern(self, pattern: str) -> List[Tuple[int, str]]:
-        """
-        Search for regex pattern in code
-        
+        """Search for regex pattern in code.
+
         Returns:
             List of (line_number, matching_line)
         """
@@ -308,7 +301,7 @@ class ASTAnalyzer:
 # 
 
 class EngineMixDetector:
-    """Detects mixing of Playwright and Selenium in same test"""
+    """Detects mixing of Playwright and Selenium in same test."""
     
     PLAYWRIGHT_PATTERNS = [
         r'from playwright\.sync_api import',
@@ -330,7 +323,7 @@ class EngineMixDetector:
     
     @staticmethod
     def detect(analyzer: ASTAnalyzer) -> List[Violation]:
-        """Detect engine mixing in a file"""
+        """Detect engine mixing in a file."""
         violations = []
         
         has_playwright = any(
@@ -356,7 +349,7 @@ class EngineMixDetector:
 
 
 class MarkerEngineValidator:
-    """Validates marker  engine consistency"""
+    """Validates marker  engine consistency."""
     
     ENGINE_MARKERS = {
         'modern_spa': 'playwright',
@@ -367,7 +360,7 @@ class MarkerEngineValidator:
     
     @staticmethod
     def detect(analyzer: ASTAnalyzer) -> List[Violation]:
-        """Detect marker/engine mismatches"""
+        """Detect marker/engine mismatches."""
         violations = []
         
         imports = analyzer.get_imports()
@@ -425,14 +418,14 @@ class MarkerEngineValidator:
 
 
 class FolderEngineValidator:
-    """Validates folder  engine alignment"""
+    """Validates folder  engine alignment."""
     
     MODERN_FOLDERS = ['modern', 'spa', 'playwright']
     LEGACY_FOLDERS = ['legacy', 'selenium']
     
     @staticmethod
     def detect(analyzer: ASTAnalyzer) -> List[Violation]:
-        """Detect folder/engine mismatches"""
+        """Detect folder/engine mismatches."""
         violations = []
         
         path_parts = str(analyzer.file_path).replace('\\', '/').split('/')
@@ -472,11 +465,11 @@ class FolderEngineValidator:
 
 
 class POMComplianceDetector:
-    """Detects Page Object Model violations"""
+    """Detects Page Object Model violations."""
     
     @staticmethod
     def detect(analyzer: ASTAnalyzer) -> List[Violation]:
-        """Detect POM violations"""
+        """Detect POM violations."""
         violations = []
         
         is_page_object = 'pages/' in str(analyzer.file_path).replace('\\', '/')
@@ -492,7 +485,7 @@ class POMComplianceDetector:
     
     @staticmethod
     def _check_page_object(analyzer: ASTAnalyzer) -> List[Violation]:
-        """Check Page Object compliance"""
+        """Check Page Object compliance."""
         violations = []
         
         # Forbidden: pytest imports
@@ -551,7 +544,7 @@ class POMComplianceDetector:
     
     @staticmethod
     def _check_test_file(analyzer: ASTAnalyzer) -> List[Violation]:
-        """Check test file compliance"""
+        """Check test file compliance."""
         violations = []
         
         # Forbidden: Direct page.locator() calls
@@ -585,11 +578,11 @@ class POMComplianceDetector:
 
 
 class StructuralValidator:
-    """Validates file/folder structure"""
+    """Validates file/folder structure."""
     
     @staticmethod
     def detect(analyzer: ASTAnalyzer) -> List[Violation]:
-        """Detect structural violations"""
+        """Detect structural violations."""
         violations = []
         
         path_str = str(analyzer.file_path).replace('\\', '/')
@@ -647,11 +640,11 @@ class StructuralValidator:
 
 
 class CanonicalFlowProtector:
-    """Protects authoritative complete flow tests"""
+    """Protects authoritative complete flow tests."""
     
     @staticmethod
     def detect(analyzer: ASTAnalyzer) -> List[Violation]:
-        """Detect changes to canonical flows"""
+        """Detect changes to canonical flows."""
         violations = []
         
         # Identify complete flow files
@@ -677,7 +670,7 @@ class CanonicalFlowProtector:
 # 
 
 class FrameworkAuditEngine:
-    """Main audit orchestrator"""
+    """Main audit orchestrator."""
     
     def __init__(self, 
                  root_path: Path = None,
@@ -698,7 +691,7 @@ class FrameworkAuditEngine:
         }
     
     def audit(self) -> AuditResult:
-        """Run complete audit"""
+        """Run complete audit."""
         result = AuditResult()
         result.baseline_used = self.baseline_manager is not None
         result.baseline_path = str(self.baseline_manager.baseline_path) if self.baseline_manager else None
@@ -738,7 +731,7 @@ class FrameworkAuditEngine:
         return result
     
     def _should_skip(self, file_path: Path) -> bool:
-        """Check if file should be skipped"""
+        """Check if file should be skipped."""
         skip_patterns = ['__pycache__', '__init__.py', 'conftest.py', '.pyc']
         path_str = str(file_path)
         return any(pattern in path_str for pattern in skip_patterns)

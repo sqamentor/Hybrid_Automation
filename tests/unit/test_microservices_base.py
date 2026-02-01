@@ -1,8 +1,6 @@
-"""
-Unit tests for framework.microservices.base module.
+"""Unit tests for framework.microservices.base module.
 
-Tests service lifecycle, MessageBus pub/sub, ServiceRegistry,
-and service health checks.
+Tests service lifecycle, MessageBus pub/sub, ServiceRegistry, and service health checks.
 """
 import asyncio
 from typing import Any, Dict, List

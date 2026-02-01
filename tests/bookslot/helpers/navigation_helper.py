@@ -30,12 +30,11 @@ from pages.bookslot.bookslots_webscheduler_page3 import BookslotWebSchedulerPage
 
 
 class BookslotNavigator:
-    """Helper class to navigate through bookslot pages"""
+    """Helper class to navigate through bookslot pages."""
     
     def __init__(self, smart_actions, fake_bookslot_data, multi_project_config=None):
-        """
-        Initialize navigator with required fixtures
-        
+        """Initialize navigator with required fixtures.
+
         Args:
             smart_actions: Smart actions fixture
             fake_bookslot_data: Fake data fixture
@@ -52,9 +51,8 @@ class BookslotNavigator:
         self.data = fake_bookslot_data
     
     def navigate_to_basic_info(self):
-        """
-        Navigate to Basic Info page (entry point)
-        
+        """Navigate to Basic Info page (entry point)
+
         Returns:
             BookslotBasicInfoPage: Page Object at Basic Info
         """
@@ -71,12 +69,11 @@ class BookslotNavigator:
         return basic_info_page
     
     def navigate_to_event_type(self):
-        """
-        Navigate to Event Type page
-        
+        """Navigate to Event Type page.
+
         Steps: Basic Info → Event Type
         Uses Page Objects for all interactions
-        
+
         Returns:
             BookslotEventInfoPage: Page Object at Event Type
         """
@@ -93,15 +90,14 @@ class BookslotNavigator:
         return BookslotEventInfoPage(self.page, self.base_url)
     
     def navigate_to_scheduler(self, event_type="New Patient"):
-        """
-        Navigate to Scheduler page
-        
+        """Navigate to Scheduler page.
+
         Steps: Basic Info → Event Type → Scheduler
         Uses Page Objects for all interactions
-        
+
         Args:
             event_type: Type of appointment (default: "New Patient")
-        
+
         Returns:
             BookslotWebSchedulerPage: Page Object at Scheduler
         """
@@ -127,16 +123,15 @@ class BookslotNavigator:
         return BookslotWebSchedulerPage(self.page, self.base_url)
     
     def navigate_to_personal_info(self, event_type="New Patient", time_slot="AM"):
-        """
-        Navigate to Personal Info page
-        
+        """Navigate to Personal Info page.
+
         Steps: Basic Info → Event Type → Scheduler → Personal Info
         Uses Page Objects for all interactions
-        
+
         Args:
             event_type: Type of appointment (default: "New Patient")
             time_slot: Time slot selection - "AM" or "PM" (default: "AM")
-        
+
         Returns:
             BookslotPersonalInfoPage: Page Object at Personal Info
         """
@@ -169,16 +164,15 @@ class BookslotNavigator:
         return BookslotPersonalInfoPage(self.page, self.base_url)
     
     def navigate_to_referral(self, event_type="New Patient", time_slot="AM"):
-        """
-        Navigate to Referral page
-        
+        """Navigate to Referral page.
+
         Steps: Basic Info → Event Type → Scheduler → Personal Info → Referral
         Uses Page Objects for all interactions
-        
+
         Args:
             event_type: Type of appointment (default: "New Patient")
             time_slot: Time slot selection - "AM" or "PM" (default: "AM")
-        
+
         Returns:
             BookslotReferralPage: Page Object at Referral
         """
@@ -219,17 +213,16 @@ class BookslotNavigator:
         return BookslotReferralPage(self.page, self.base_url)
     
     def navigate_to_insurance(self, event_type="New Patient", time_slot="AM", referral_source="Online search"):
-        """
-        Navigate to Insurance page
-        
+        """Navigate to Insurance page.
+
         Steps: Basic Info → Event Type → Scheduler → Personal Info → Referral → Insurance
         Uses Page Objects for all interactions
-        
+
         Args:
             event_type: Type of appointment (default: "New Patient")
             time_slot: Time slot selection - "AM" or "PM" (default: "AM")
             referral_source: Referral source (default: "Online search")
-        
+
         Returns:
             BookslotInsurancePage: Page Object at Insurance
         """
@@ -277,18 +270,17 @@ class BookslotNavigator:
     
     def navigate_to_success(self, event_type="New Patient", time_slot="AM", 
                            referral_source="Online search", insurance_data=None):
-        """
-        Navigate to Success page (complete flow)
-        
+        """Navigate to Success page (complete flow)
+
         Steps: Basic Info → Event Type → Scheduler → Personal Info → Referral → Insurance → Success
         Uses Page Objects for all interactions
-        
+
         Args:
             event_type: Type of appointment (default: "New Patient")
             time_slot: Time slot selection - "AM" or "PM" (default: "AM")
             referral_source: Referral source (default: "Online search")
             insurance_data: Custom insurance data (default: uses fake_bookslot_data)
-        
+
         Returns:
             BookslotSuccessPage: Page Object at Success
         """
@@ -351,12 +343,11 @@ class BookslotNavigator:
 # ============================================================================
 
 def quick_navigate_to_insurance(smart_actions, fake_bookslot_data):
-    """
-    Quick function to navigate directly to insurance page
-    
+    """Quick function to navigate directly to insurance page.
+
     Usage:
         from tests.bookslot.helpers.navigation_helper import quick_navigate_to_insurance
-        
+
         page = quick_navigate_to_insurance(smart_actions, fake_bookslot_data)
         # Now test insurance page
     """
@@ -365,12 +356,11 @@ def quick_navigate_to_insurance(smart_actions, fake_bookslot_data):
 
 
 def quick_navigate_to_personal_info(smart_actions, fake_bookslot_data):
-    """
-    Quick function to navigate directly to personal info page
-    
+    """Quick function to navigate directly to personal info page.
+
     Usage:
         from tests.bookslot.helpers.navigation_helper import quick_navigate_to_personal_info
-        
+
         page = quick_navigate_to_personal_info(smart_actions, fake_bookslot_data)
         # Now test personal info page
     """
@@ -379,12 +369,11 @@ def quick_navigate_to_personal_info(smart_actions, fake_bookslot_data):
 
 
 def quick_navigate_to_referral(smart_actions, fake_bookslot_data):
-    """
-    Quick function to navigate directly to referral page
-    
+    """Quick function to navigate directly to referral page.
+
     Usage:
         from tests.bookslot.helpers.navigation_helper import quick_navigate_to_referral
-        
+
         page = quick_navigate_to_referral(smart_actions, fake_bookslot_data)
         # Now test referral page
     """

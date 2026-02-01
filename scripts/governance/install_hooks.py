@@ -17,7 +17,7 @@ from pathlib import Path
 
 
 def install_git_hooks():
-    """Install pre-commit hook"""
+    """Install pre-commit hook."""
     git_dir = Path(".git")
     
     if not git_dir.exists():
@@ -79,7 +79,7 @@ sys.exit(result.returncode)
 
 
 def uninstall_git_hooks():
-    """Uninstall pre-commit hook"""
+    """Uninstall pre-commit hook."""
     git_dir = Path(".git")
     
     if not git_dir.exists():
@@ -109,7 +109,7 @@ def uninstall_git_hooks():
 
 
 def test_hook():
-    """Test the installed hook"""
+    """Test the installed hook."""
     print("\n" + "="*70)
     print("TESTING HOOK")
     print("="*70)
@@ -136,7 +136,7 @@ def test_hook():
 
 
 def main():
-    """Main installer"""
+    """Main installer."""
     import argparse
     
     parser = argparse.ArgumentParser(description="Install Git Hooks")

@@ -1,5 +1,4 @@
-"""
-Playwright Engine Enhanced Features Demo
+"""Playwright Engine Enhanced Features Demo.
 
 Demonstrates:
 1. Error handling for browser startup failures
@@ -271,7 +270,7 @@ def demo_combined_features():
 
 
 def main():
-    """Run all demos"""
+    """Run all demos."""
     print("\n" + "="*70)
     print("PLAYWRIGHT ENGINE ENHANCED FEATURES DEMO")
     print("="*70)

@@ -1,4 +1,4 @@
-"""Security testing module"""
+"""Security testing module."""
 
 from framework.security.security_tester import ManualSecurityChecks, SecurityTester
 

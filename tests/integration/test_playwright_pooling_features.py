@@ -1,6 +1,4 @@
-"""
-Playwright Context Pooling Example
-Demonstrates Playwright context pooling for performance
+"""Playwright Context Pooling Example Demonstrates Playwright context pooling for performance.
 
 This example shows:
 1. Playwright context pooling and reuse
@@ -16,10 +14,7 @@ import pytest
 @pytest.mark.pooling
 @pytest.mark.modern_spa
 def test_playwright_context_pooling():
-    """
-    Test Playwright context pooling
-    Demonstrates reusing browser contexts for performance
-    """
+    """Test Playwright context pooling Demonstrates reusing browser contexts for performance."""
     from framework.ui.playwright_engine import ContextPool, PlaywrightEngine
 
     # Create context pool

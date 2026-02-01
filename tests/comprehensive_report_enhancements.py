@@ -42,9 +42,7 @@ from pytest_html import extras
 # ========================================================================
 
 class ComprehensiveTestCollector:
-    """
-    Collects ALL test execution data across entire framework
-    """
+    """Collects ALL test execution data across entire framework."""
     
     def __init__(self):
         self.test_data = {}
@@ -52,7 +50,7 @@ class ComprehensiveTestCollector:
         self.session_end = None
     
     def init_test(self, item: Item):
-        """Initialize comprehensive test data collection"""
+        """Initialize comprehensive test data collection."""
         test_id = item.nodeid
         self.test_data[test_id] = {
             # Basic Info
@@ -154,13 +152,13 @@ class ComprehensiveTestCollector:
     
     # Basic tracking methods
     def start_test(self, item: Item):
-        """Mark test start"""
+        """Mark test start."""
         test_id = item.nodeid
         if test_id in self.test_data:
             self.test_data[test_id]['start_time'] = datetime.now()
     
     def end_test(self, item: Item, report: TestReport):
-        """Mark test end and collect results"""
+        """Mark test end and collect results."""
         test_id = item.nodeid
         if test_id in self.test_data:
             self.test_data[test_id]['end_time'] = datetime.now()
@@ -173,7 +171,7 @@ class ComprehensiveTestCollector:
     
     # Performance tracking
     def add_performance_metrics(self, test_id: str, metrics: Dict):
-        """Add performance metrics"""
+        """Add performance metrics."""
         if test_id in self.test_data:
             self.test_data[test_id]['performance_metrics'] = metrics
             if 'web_vitals' in metrics:
@@ -182,7 +180,7 @@ class ComprehensiveTestCollector:
                 self.test_data[test_id]['resource_breakdown'] = metrics['resources']
     
     def add_custom_performance_mark(self, test_id: str, name: str, duration: float):
-        """Add custom performance mark"""
+        """Add custom performance mark."""
         if test_id in self.test_data:
             self.test_data[test_id]['custom_performance_marks'].append({
                 'name': name,
@@ -193,7 +191,7 @@ class ComprehensiveTestCollector:
     # Visual regression tracking
     def add_visual_comparison(self, test_id: str, baseline: str, current: str, 
                              diff: str, difference_pct: float, passed: bool):
-        """Add visual regression comparison"""
+        """Add visual regression comparison."""
         if test_id in self.test_data:
             self.test_data[test_id]['visual_comparisons'].append({
                 'baseline': baseline,
@@ -207,14 +205,14 @@ class ComprehensiveTestCollector:
     # Accessibility tracking
     def add_accessibility_results(self, test_id: str, violations: List[Dict], 
                                  wcag_level: str, score: float):
-        """Add accessibility test results"""
+        """Add accessibility test results."""
         if test_id in self.test_data:
             self.test_data[test_id]['accessibility_violations'] = violations
             self.test_data[test_id]['wcag_level'] = wcag_level
             self.test_data[test_id]['accessibility_score'] = score
     
     def add_accessibility_check(self, test_id: str, check_name: str, passed: bool, details: str = ""):
-        """Add specific accessibility check"""
+        """Add specific accessibility check."""
         if test_id in self.test_data:
             self.test_data[test_id]['a11y_checks'][check_name] = {
                 'passed': passed,
@@ -225,7 +223,7 @@ class ComprehensiveTestCollector:
     # Security tracking
     def add_security_vulnerability(self, test_id: str, vuln_type: str, severity: str, 
                                    url: str, description: str):
-        """Add security vulnerability"""
+        """Add security vulnerability."""
         if test_id in self.test_data:
             self.test_data[test_id]['security_vulnerabilities'].append({
                 'type': vuln_type,
@@ -236,19 +234,19 @@ class ComprehensiveTestCollector:
             })
     
     def add_security_scan_results(self, test_id: str, scan_results: Dict):
-        """Add complete security scan results"""
+        """Add complete security scan results."""
         if test_id in self.test_data:
             self.test_data[test_id]['security_scan_results'] = scan_results
     
     # Mobile testing tracking
     def add_mobile_info(self, test_id: str, device: str, orientation: str = "portrait"):
-        """Add mobile device information"""
+        """Add mobile device information."""
         if test_id in self.test_data:
             self.test_data[test_id]['mobile_device'] = device
             self.test_data[test_id]['device_orientation'] = orientation
     
     def add_mobile_gesture(self, test_id: str, gesture_type: str, target: str, details: Dict = None):
-        """Add mobile gesture performed"""
+        """Add mobile gesture performed."""
         if test_id in self.test_data:
             self.test_data[test_id]['mobile_gestures'].append({
                 'type': gesture_type,
@@ -258,13 +256,13 @@ class ComprehensiveTestCollector:
             })
     
     def add_network_throttling(self, test_id: str, profile: str):
-        """Add network throttling information"""
+        """Add network throttling information."""
         if test_id in self.test_data:
             self.test_data[test_id]['network_throttling'] = profile
     
     # AI & ML tracking
     def add_ai_engine_selection(self, test_id: str, engine: str, reason: str, metadata: Dict = None):
-        """Add AI engine selection details"""
+        """Add AI engine selection details."""
         if test_id in self.test_data:
             self.test_data[test_id]['ai_engine_selected'] = engine
             self.test_data[test_id]['ai_decision_reason'] = reason
@@ -273,7 +271,7 @@ class ComprehensiveTestCollector:
     
     def add_ai_validation(self, test_id: str, validation_type: str, confidence: float, 
                          suggested_by: str, applied: bool):
-        """Add AI-suggested validation"""
+        """Add AI-suggested validation."""
         if test_id in self.test_data:
             self.test_data[test_id]['ai_validations'].append({
                 'type': validation_type,
@@ -284,7 +282,7 @@ class ComprehensiveTestCollector:
             })
     
     def add_ml_prediction(self, test_id: str, prediction_type: str, value: Any, accuracy: float = None):
-        """Add ML prediction"""
+        """Add ML prediction."""
         if test_id in self.test_data:
             self.test_data[test_id]['ml_predictions'][prediction_type] = {
                 'value': value,
@@ -294,7 +292,7 @@ class ComprehensiveTestCollector:
     
     # WebSocket tracking
     def add_websocket_message(self, test_id: str, direction: str, data: Any, connection_id: str = None):
-        """Add WebSocket message"""
+        """Add WebSocket message."""
         if test_id in self.test_data:
             self.test_data[test_id]['websocket_messages'].append({
                 'direction': direction,
@@ -307,7 +305,7 @@ class ComprehensiveTestCollector:
     # Request/Response modification tracking
     def add_request_modification(self, test_id: str, url: str, modification_type: str, 
                                  before: Any, after: Any):
-        """Add request modification"""
+        """Add request modification."""
         if test_id in self.test_data:
             self.test_data[test_id]['request_modifications'].append({
                 'url': url,
@@ -319,7 +317,7 @@ class ComprehensiveTestCollector:
     
     # Multi-language tracking
     def add_language_test(self, test_id: str, language: str, locale: str):
-        """Add language testing information"""
+        """Add language testing information."""
         if test_id in self.test_data:
             if language not in self.test_data[test_id]['languages_tested']:
                 self.test_data[test_id]['languages_tested'].append(language)
@@ -328,14 +326,14 @@ class ComprehensiveTestCollector:
     
     # Recording tracking
     def add_recording_info(self, test_id: str, mode: str, actions_captured: int):
-        """Add test recording information"""
+        """Add test recording information."""
         if test_id in self.test_data:
             self.test_data[test_id]['recording_mode'] = mode
             self.test_data[test_id]['recording_actions_count'] = actions_captured
     
     # Environment tracking
     def add_environment_info(self, test_id: str, browser: Dict, os_info: Dict, python_version: str):
-        """Add environment information"""
+        """Add environment information."""
         if test_id in self.test_data:
             self.test_data[test_id]['browser_info'] = browser
             self.test_data[test_id]['os_info'] = os_info
@@ -348,7 +346,7 @@ class ComprehensiveTestCollector:
     
     # Flow & Recovery tracking
     def add_execution_flow_step(self, test_id: str, step: str, component: str):
-        """Add execution flow step"""
+        """Add execution flow step."""
         if test_id in self.test_data:
             self.test_data[test_id]['execution_flow'].append({
                 'step': step,
@@ -357,7 +355,7 @@ class ComprehensiveTestCollector:
             })
     
     def add_retry_attempt(self, test_id: str, action: str, attempt: int, success: bool):
-        """Add retry attempt"""
+        """Add retry attempt."""
         if test_id in self.test_data:
             self.test_data[test_id]['retry_attempts'].append({
                 'action': action,
@@ -367,7 +365,7 @@ class ComprehensiveTestCollector:
             })
     
     def add_self_healing_fix(self, test_id: str, original_locator: str, fixed_locator: str, method: str):
-        """Add self-healing locator fix"""
+        """Add self-healing locator fix."""
         if test_id in self.test_data:
             self.test_data[test_id]['self_healing_fixes'].append({
                 'original': original_locator,
@@ -378,13 +376,13 @@ class ComprehensiveTestCollector:
     
     # HAR & Network tracking
     def add_har_file(self, test_id: str, har_path: str):
-        """Add HAR file reference"""
+        """Add HAR file reference."""
         if test_id in self.test_data:
             self.test_data[test_id]['har_files'].append(har_path)
     
     # Original methods (keeping backward compatibility)
     def add_log(self, test_id: str, log_message: str, level: str = "INFO"):
-        """Add log entry"""
+        """Add log entry."""
         if test_id in self.test_data:
             self.test_data[test_id]['logs'].append({
                 'message': log_message,
@@ -394,7 +392,7 @@ class ComprehensiveTestCollector:
     
     def add_assertion(self, test_id: str, assertion_type: str, expected: Any, 
                       actual: Any, passed: bool, message: str = ""):
-        """Add assertion details"""
+        """Add assertion details."""
         if test_id in self.test_data:
             self.test_data[test_id]['assertions'].append({
                 'type': assertion_type,
@@ -406,7 +404,7 @@ class ComprehensiveTestCollector:
             })
     
     def add_screenshot(self, test_id: str, screenshot_path: str, description: str = ""):
-        """Add screenshot"""
+        """Add screenshot."""
         if test_id in self.test_data:
             self.test_data[test_id]['screenshots'].append({
                 'path': screenshot_path,
@@ -416,7 +414,7 @@ class ComprehensiveTestCollector:
     
     def add_api_call(self, test_id: str, method: str, url: str, status_code: int, 
                      response_time: float, request_data: Dict = None, response_data: Dict = None):
-        """Add API call details"""
+        """Add API call details."""
         if test_id in self.test_data:
             self.test_data[test_id]['api_calls'].append({
                 'method': method,
@@ -430,7 +428,7 @@ class ComprehensiveTestCollector:
     
     def add_db_query(self, test_id: str, query: str, execution_time: float, 
                      rows_affected: int = 0):
-        """Add database query details"""
+        """Add database query details."""
         if test_id in self.test_data:
             self.test_data[test_id]['db_queries'].append({
                 'query': query,
@@ -440,7 +438,7 @@ class ComprehensiveTestCollector:
             })
     
     def get_test_data(self, test_id: str) -> Dict:
-        """Get collected data for a test"""
+        """Get collected data for a test."""
         return self.test_data.get(test_id, {})
 
 
@@ -454,7 +452,7 @@ comprehensive_collector = ComprehensiveTestCollector()
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
-    """Enhanced hook with comprehensive data collection"""
+    """Enhanced hook with comprehensive data collection."""
     outcome = yield
     report = outcome.get_result()
     
@@ -542,7 +540,7 @@ def pytest_runtest_makereport(item, call):
 # ========================================================================
 
 def generate_performance_section(test_data: Dict) -> str:
-    """Generate performance metrics section"""
+    """Generate performance metrics section."""
     perf = test_data.get('performance_metrics', {})
     web_vitals = test_data.get('web_vitals', {})
     
@@ -581,7 +579,7 @@ def generate_performance_section(test_data: Dict) -> str:
 
 
 def generate_visual_section(test_data: Dict) -> str:
-    """Generate visual regression section"""
+    """Generate visual regression section."""
     comparisons = test_data.get('visual_comparisons', [])
     
     html = '<div class="visual-section"><h4>👁️ Visual Regression</h4>'
@@ -617,7 +615,7 @@ def generate_visual_section(test_data: Dict) -> str:
 
 
 def generate_accessibility_section(test_data: Dict) -> str:
-    """Generate accessibility section"""
+    """Generate accessibility section."""
     violations = test_data.get('accessibility_violations', [])
     wcag_level = test_data.get('wcag_level', 'N/A')
     score = test_data.get('accessibility_score', 0)
@@ -655,7 +653,7 @@ def generate_accessibility_section(test_data: Dict) -> str:
 
 
 def generate_security_section(test_data: Dict) -> str:
-    """Generate security section"""
+    """Generate security section."""
     vulns = test_data.get('security_vulnerabilities', [])
     scan_results = test_data.get('security_scan_results', {})
     
@@ -693,7 +691,7 @@ def generate_security_section(test_data: Dict) -> str:
 
 
 def generate_mobile_section(test_data: Dict) -> str:
-    """Generate mobile testing section"""
+    """Generate mobile testing section."""
     device = test_data.get('mobile_device', 'N/A')
     orientation = test_data.get('device_orientation', 'portrait')
     gestures = test_data.get('mobile_gestures', [])
@@ -720,7 +718,7 @@ def generate_mobile_section(test_data: Dict) -> str:
 
 
 def generate_ai_ml_section(test_data: Dict) -> str:
-    """Generate AI & ML section"""
+    """Generate AI & ML section."""
     engine = test_data.get('ai_engine_selected')
     reason = test_data.get('ai_decision_reason')
     validations = test_data.get('ai_validations', [])
@@ -759,7 +757,7 @@ def generate_ai_ml_section(test_data: Dict) -> str:
 
 
 def generate_websocket_section(test_data: Dict) -> str:
-    """Generate WebSocket section"""
+    """Generate WebSocket section."""
     messages = test_data.get('websocket_messages', [])
     
     html = '<div class="websocket-section"><h4>🔌 WebSocket Communication</h4>'
@@ -783,7 +781,7 @@ def generate_websocket_section(test_data: Dict) -> str:
 
 
 def generate_modifications_section(test_data: Dict) -> str:
-    """Generate request modifications section"""
+    """Generate request modifications section."""
     mods = test_data.get('request_modifications', [])
     
     html = '<div class="mods-section"><h4>🔧 Request/Response Modifications</h4>'
@@ -834,7 +832,7 @@ def generate_api_db_section(test_data: Dict) -> str:
 
 
 def generate_flow_section(test_data: Dict) -> str:
-    """Generate execution flow section"""
+    """Generate execution flow section."""
     flow = test_data.get('execution_flow', [])
     mode = test_data.get('execution_mode', 'N/A')
     retries = test_data.get('retry_attempts', [])
@@ -871,7 +869,7 @@ def generate_flow_section(test_data: Dict) -> str:
 
 
 def generate_environment_section(test_data: Dict) -> str:
-    """Generate environment section"""
+    """Generate environment section."""
     browser = test_data.get('browser_info', {})
     os_info = test_data.get('os_info', {})
     python_ver = test_data.get('python_version', 'N/A')
@@ -893,7 +891,7 @@ def generate_environment_section(test_data: Dict) -> str:
 
 
 def generate_screenshots_section(test_data: Dict) -> str:
-    """Generate screenshots section"""
+    """Generate screenshots section."""
     screenshots = test_data.get('screenshots', [])
     
     html = '<div class="screenshots-section"><h4>📸 Screenshots</h4>'
@@ -912,7 +910,7 @@ def generate_screenshots_section(test_data: Dict) -> str:
 
 
 def generate_logs_assertions_section(test_data: Dict) -> str:
-    """Generate logs and assertions section"""
+    """Generate logs and assertions section."""
     logs = test_data.get('logs', [])
     assertions = test_data.get('assertions', [])
     
@@ -938,7 +936,7 @@ def generate_logs_assertions_section(test_data: Dict) -> str:
 
 
 def get_comprehensive_css() -> str:
-    """Get comprehensive CSS styles"""
+    """Get comprehensive CSS styles."""
     return '''
         <style>
             /* Comprehensive Report Styles */
@@ -1150,12 +1148,12 @@ def get_comprehensive_css() -> str:
 # ========================================================================
 
 def pytest_html_report_title(report):
-    """Customize report title"""
+    """Customize report title."""
     report.title = "Enterprise Automation Framework - Comprehensive Test Report"
 
 
 def pytest_html_results_summary(prefix, summary, postfix):
-    """Add custom summary"""
+    """Add custom summary."""
     prefix.append(extras.html(f'''
         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0;">
             <h2 style="margin-top: 0; color: white;">🚀 Comprehensive Test Execution Report</h2>
@@ -1178,7 +1176,7 @@ def pytest_html_results_summary(prefix, summary, postfix):
 
 @pytest.fixture(scope='session', autouse=True)
 def comprehensive_report_session(request):
-    """Session-level comprehensive report collection"""
+    """Session-level comprehensive report collection."""
     comprehensive_collector.session_start = datetime.now()
     yield
     comprehensive_collector.session_end = datetime.now()
@@ -1186,7 +1184,7 @@ def comprehensive_report_session(request):
 
 @pytest.fixture(autouse=True)
 def comprehensive_report_test(request):
-    """Test-level comprehensive report collection"""
+    """Test-level comprehensive report collection."""
     item = request.node
     
     # Initialize test data

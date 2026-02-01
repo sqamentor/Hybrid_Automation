@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Union
 
 
 class Operator(Enum):
-    """SQL comparison operators"""
+    """SQL comparison operators."""
     EQ = "="
     NE = "!="
     GT = ">"
@@ -26,7 +26,7 @@ class Operator(Enum):
 
 
 class JoinType(Enum):
-    """SQL join types"""
+    """SQL join types."""
     INNER = "INNER JOIN"
     LEFT = "LEFT JOIN"
     RIGHT = "RIGHT JOIN"
@@ -34,12 +34,11 @@ class JoinType(Enum):
 
 
 class QueryBuilder:
-    """Fluent SQL query builder"""
+    """Fluent SQL query builder."""
     
     def __init__(self, db_type: str = "postgresql"):
-        """
-        Initialize query builder
-        
+        """Initialize query builder.
+
         Args:
             db_type: Database type (postgresql, sql_server, mysql)
         """
@@ -58,12 +57,11 @@ class QueryBuilder:
         self._param_counter: int = 0
     
     def select(self, *columns: str) -> 'QueryBuilder':
-        """
-        Specify columns to select
-        
+        """Specify columns to select.
+
         Args:
             columns: Column names or expressions
-        
+
         Returns:
             Self for chaining
         """
@@ -71,13 +69,12 @@ class QueryBuilder:
         return self
     
     def from_table(self, table: str, schema: Optional[str] = None) -> 'QueryBuilder':
-        """
-        Specify table to query
-        
+        """Specify table to query.
+
         Args:
             table: Table name
             schema: Schema name (optional)
-        
+
         Returns:
             Self for chaining
         """
@@ -87,14 +84,13 @@ class QueryBuilder:
         return self
     
     def join(self, table: str, on_condition: str, join_type: JoinType = JoinType.INNER) -> 'QueryBuilder':
-        """
-        Add JOIN clause
-        
+        """Add JOIN clause.
+
         Args:
             table: Table to join
             on_condition: Join condition (e.g., "users.id = orders.user_id")
             join_type: Type of join
-        
+
         Returns:
             Self for chaining
         """
@@ -102,14 +98,13 @@ class QueryBuilder:
         return self
     
     def where(self, column: str, value: Any, operator: Operator = Operator.EQ) -> 'QueryBuilder':
-        """
-        Add WHERE condition
-        
+        """Add WHERE condition.
+
         Args:
             column: Column name
             value: Value to compare
             operator: Comparison operator
-        
+
         Returns:
             Self for chaining
         """
@@ -139,13 +134,12 @@ class QueryBuilder:
         return self
     
     def where_raw(self, condition: str, params: Optional[Dict] = None) -> 'QueryBuilder':
-        """
-        Add raw WHERE condition
-        
+        """Add raw WHERE condition.
+
         Args:
             condition: Raw SQL condition
             params: Optional parameters
-        
+
         Returns:
             Self for chaining
         """
@@ -155,12 +149,11 @@ class QueryBuilder:
         return self
     
     def group_by(self, *columns: str) -> 'QueryBuilder':
-        """
-        Add GROUP BY clause
-        
+        """Add GROUP BY clause.
+
         Args:
             columns: Column names
-        
+
         Returns:
             Self for chaining
         """
@@ -168,12 +161,11 @@ class QueryBuilder:
         return self
     
     def having(self, condition: str) -> 'QueryBuilder':
-        """
-        Add HAVING clause
-        
+        """Add HAVING clause.
+
         Args:
             condition: HAVING condition
-        
+
         Returns:
             Self for chaining
         """
@@ -181,13 +173,12 @@ class QueryBuilder:
         return self
     
     def order_by(self, column: str, direction: str = "ASC") -> 'QueryBuilder':
-        """
-        Add ORDER BY clause
-        
+        """Add ORDER BY clause.
+
         Args:
             column: Column name
             direction: Sort direction (ASC or DESC)
-        
+
         Returns:
             Self for chaining
         """
@@ -195,12 +186,11 @@ class QueryBuilder:
         return self
     
     def limit(self, limit: int) -> 'QueryBuilder':
-        """
-        Add LIMIT clause
-        
+        """Add LIMIT clause.
+
         Args:
             limit: Number of rows to return
-        
+
         Returns:
             Self for chaining
         """
@@ -208,12 +198,11 @@ class QueryBuilder:
         return self
     
     def offset(self, offset: int) -> 'QueryBuilder':
-        """
-        Add OFFSET clause
-        
+        """Add OFFSET clause.
+
         Args:
             offset: Number of rows to skip
-        
+
         Returns:
             Self for chaining
         """
@@ -221,16 +210,15 @@ class QueryBuilder:
         return self
     
     def _add_param(self, value: Any) -> str:
-        """Add parameter and return parameter name"""
+        """Add parameter and return parameter name."""
         param_name = f"param_{self._param_counter}"
         self._param_counter += 1
         self._params[param_name] = value
         return param_name
     
     def build(self) -> tuple[str, Dict[str, Any]]:
-        """
-        Build the SQL query
-        
+        """Build the SQL query.
+
         Returns:
             Tuple of (query_string, parameters)
         """
@@ -289,7 +277,7 @@ class QueryBuilder:
         return query, self._params
     
     def _build_limit_clause(self) -> str:
-        """Build database-specific LIMIT clause"""
+        """Build database-specific LIMIT clause."""
         if self._limit is None:
             return ""
         
@@ -318,11 +306,11 @@ class QueryBuilder:
         return query
     
     def get_params(self) -> Dict[str, Any]:
-        """Get the parameters dictionary"""
+        """Get the parameters dictionary."""
         return self._params.copy()
     
     def reset(self) -> 'QueryBuilder':
-        """Reset the query builder to initial state"""
+        """Reset the query builder to initial state."""
         self._select_columns.clear()
         self._from_table = None
         self._schema = "dbo"
@@ -343,13 +331,12 @@ class QueryBuilder:
 # ========================================================================
 
 def select_all(table: str, schema: str = "dbo") -> QueryBuilder:
-    """
-    Create SELECT * query
-    
+    """Create SELECT * query.
+
     Args:
         table: Table name
         schema: Schema name
-    
+
     Returns:
         QueryBuilder instance
     """
@@ -357,14 +344,13 @@ def select_all(table: str, schema: str = "dbo") -> QueryBuilder:
 
 
 def count_rows(table: str, where: Optional[Dict[str, Any]] = None, schema: str = "dbo") -> QueryBuilder:
-    """
-    Create COUNT(*) query
-    
+    """Create COUNT(*) query.
+
     Args:
         table: Table name
         where: Optional WHERE conditions
         schema: Schema name
-    
+
     Returns:
         QueryBuilder instance
     """
@@ -378,15 +364,14 @@ def count_rows(table: str, where: Optional[Dict[str, Any]] = None, schema: str =
 
 
 def find_by_id(table: str, id_column: str, id_value: Any, schema: str = "dbo") -> QueryBuilder:
-    """
-    Create query to find record by ID
-    
+    """Create query to find record by ID.
+
     Args:
         table: Table name
         id_column: ID column name
         id_value: ID value
         schema: Schema name
-    
+
     Returns:
         QueryBuilder instance
     """
@@ -394,14 +379,13 @@ def find_by_id(table: str, id_column: str, id_value: Any, schema: str = "dbo") -
 
 
 def exists(table: str, where: Dict[str, Any], schema: str = "dbo") -> QueryBuilder:
-    """
-    Create query to check if record exists
-    
+    """Create query to check if record exists.
+
     Args:
         table: Table name
         where: WHERE conditions
         schema: Schema name
-    
+
     Returns:
         QueryBuilder instance
     """

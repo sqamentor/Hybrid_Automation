@@ -1,4 +1,4 @@
-"""Performance monitoring module"""
+"""Performance monitoring module."""
 
 from framework.performance.performance_metrics import PerformanceMetrics
 

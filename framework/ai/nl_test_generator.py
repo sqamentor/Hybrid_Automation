@@ -5,27 +5,30 @@ Generates executable test code from natural language descriptions using AI.
 Supports multiple AI providers: OpenAI, Claude, Azure OpenAI, Ollama.
 """
 
+import json
 import os
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
+if TYPE_CHECKING:
+    from framework.ai.ai_provider_factory import BaseAIProvider
+
 
 class NaturalLanguageTestGenerator:
-    """Generate test code from natural language"""
+    """Generate test code from natural language."""
     
     def __init__(self, provider_name: Optional[str] = None):
-        """
-        Initialize NL test generator
-        
+        """Initialize NL test generator.
+
         Args:
             provider_name: AI provider to use ('openai', 'claude', 'azure', 'ollama')
                           If None, uses default from configuration
         """
         self.provider_name = provider_name
-        self.ai_provider = None
+        self.ai_provider: Optional['BaseAIProvider'] = None
         self.enabled = False
         self._initialize_provider()
     
@@ -48,15 +51,14 @@ class NaturalLanguageTestGenerator:
             self.enabled = False
     
     def generate_test(self, description: str, test_type: str = "ui") -> str:
-        """
-        Generate test code from description
-        
+        """Generate test code from description.
+
         NEVER FAILS: Returns template code if AI unavailable
-        
+
         Args:
             description: Natural language test description
             test_type: Test type ('ui', 'api', 'e2e')
-        
+
         Returns:
             Generated test code (AI-generated or template)
         """
@@ -88,7 +90,7 @@ class NaturalLanguageTestGenerator:
             return self._generate_template(description, test_type)
     
     def _generate_template(self, description: str, test_type: str) -> str:
-        """Generate basic template when AI unavailable"""
+        """Generate basic template when AI unavailable."""
         if test_type == "ui":
             return f'''\"\"\"
 Test generated from: {description}
@@ -150,7 +152,7 @@ def test_e2e_template(ui_engine, api_client, db_client):
 '''
     
     def _get_system_prompt(self, test_type: str) -> str:
-        """Get system prompt for test generation"""
+        """Get system prompt for test generation."""
         base_prompt = """You are an expert QA automation engineer. Generate pytest test code from natural language descriptions.
 
 Use this framework structure:
@@ -245,13 +247,12 @@ def test_order_flow(ui_engine, api_client, db_client, ai_validator):
     
     def generate_test_suite(self, feature_description: str, 
                            test_count: int = 5) -> List[Dict[str, str]]:
-        """
-        Generate multiple test cases for a feature
-        
+        """Generate multiple test cases for a feature.
+
         Args:
             feature_description: Feature description
             test_count: Number of tests to generate
-        
+
         Returns:
             List of test cases with code
         """
@@ -275,31 +276,55 @@ Return as JSON array with format:
   }}
 ]
 """
-        
+        if not self.enabled or not self.ai_provider:
+            logger.warning("AI helper not available for test suite generation. Returning empty list.")
+            return []
+
         try:
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": self._get_system_prompt("ui")},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.5
+            response_text = self.ai_provider.generate_completion(
+                prompt=prompt,
+                system_prompt=self._get_system_prompt("ui"),
+                temperature=0.5,
+                timeout=60
             )
-            
-            import json
-            tests = json.loads(response.choices[0].message.content)
+            tests = self._parse_suite_response(response_text)
             logger.info(f"Generated {len(tests)} test cases")
-            
             return tests
-        
-        except Exception as e:
-            logger.error(f"Test suite generation failed: {e}")
+        except Exception as exc:
+            logger.error(f"Test suite generation failed: {exc}")
             raise
+
+    def _parse_suite_response(self, payload: str) -> List[Dict[str, str]]:
+        """Parse AI JSON payload into structured test cases."""
+        try:
+            data = json.loads(payload)
+        except json.JSONDecodeError as exc:
+            raise ValueError("AI response is not valid JSON") from exc
+
+        if not isinstance(data, list):
+            raise ValueError("AI response must be a JSON array")
+
+        tests: List[Dict[str, str]] = []
+        for entry in data:
+            if not isinstance(entry, dict):
+                continue
+            name = str(entry.get("name", "generated_test"))
+            description = str(entry.get("description", ""))
+            code = str(entry.get("code", ""))
+            tests.append({
+                "name": name,
+                "description": description,
+                "code": code
+            })
+
+        if not tests:
+            raise ValueError("AI response did not contain any test cases")
+
+        return tests
     
-    def save_generated_test(self, test_code: str, output_path: str):
-        """
-        Save generated test to file
-        
+    def save_generated_test(self, test_code: str, output_path: str) -> None:
+        """Save generated test to file.
+
         Args:
             test_code: Generated test code
             output_path: Output file path
@@ -313,7 +338,7 @@ Return as JSON array with format:
 
 
 class TestScenarioLibrary:
-    """Library of common test scenarios"""
+    """Library of common test scenarios."""
     
     SCENARIOS = {
         "login": "User navigates to login page, enters valid credentials, clicks login button, and sees dashboard",
@@ -330,12 +355,12 @@ class TestScenarioLibrary:
     
     @classmethod
     def get_scenario(cls, scenario_name: str) -> Optional[str]:
-        """Get predefined scenario description"""
+        """Get predefined scenario description."""
         return cls.SCENARIOS.get(scenario_name.lower())
     
     @classmethod
     def list_scenarios(cls) -> List[str]:
-        """List available scenarios"""
+        """List available scenarios."""
         return list(cls.SCENARIOS.keys())
 
 

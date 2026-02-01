@@ -43,9 +43,7 @@ from pytest_html import extras
 
 @pytest.mark.legacy_ui
 class TestReportCollector:
-    """
-    Collects comprehensive test execution metadata
-    """
+    """Collects comprehensive test execution metadata."""
     
     def __init__(self):
         self.test_data = {}
@@ -53,15 +51,15 @@ class TestReportCollector:
         self.session_end = None
     
     def start_session(self):
-        """Mark session start time"""
+        """Mark session start time."""
         self.session_start = datetime.now()
     
     def end_session(self):
-        """Mark session end time"""
+        """Mark session end time."""
         self.session_end = datetime.now()
     
     def init_test(self, item: Item):
-        """Initialize test data collection"""
+        """Initialize test data collection."""
         test_id = item.nodeid
         self.test_data[test_id] = {
             'test_id': test_id,
@@ -89,13 +87,13 @@ class TestReportCollector:
             self.test_data[test_id]['parameters'] = dict(item.callspec.params)
     
     def start_test(self, item: Item):
-        """Mark test start"""
+        """Mark test start."""
         test_id = item.nodeid
         if test_id in self.test_data:
             self.test_data[test_id]['start_time'] = datetime.now()
     
     def end_test(self, item: Item, report: TestReport):
-        """Mark test end and collect results"""
+        """Mark test end and collect results."""
         test_id = item.nodeid
         if test_id in self.test_data:
             self.test_data[test_id]['end_time'] = datetime.now()
@@ -108,7 +106,7 @@ class TestReportCollector:
                     self.test_data[test_id]['error_traceback'] = str(report.longrepr)
     
     def add_screenshot(self, test_id: str, screenshot_path: str, description: str = ""):
-        """Add screenshot to test data"""
+        """Add screenshot to test data."""
         if test_id in self.test_data:
             self.test_data[test_id]['screenshots'].append({
                 'path': screenshot_path,
@@ -117,7 +115,7 @@ class TestReportCollector:
             })
     
     def add_video(self, test_id: str, video_path: str):
-        """Add video recording to test data"""
+        """Add video recording to test data."""
         if test_id in self.test_data:
             self.test_data[test_id]['videos'].append({
                 'path': video_path,
@@ -125,7 +123,7 @@ class TestReportCollector:
             })
     
     def add_trace(self, test_id: str, trace_path: str):
-        """Add trace file to test data"""
+        """Add trace file to test data."""
         if test_id in self.test_data:
             self.test_data[test_id]['traces'].append({
                 'path': trace_path,
@@ -133,7 +131,7 @@ class TestReportCollector:
             })
     
     def add_log(self, test_id: str, log_message: str, level: str = "INFO"):
-        """Add log entry to test data"""
+        """Add log entry to test data."""
         if test_id in self.test_data:
             self.test_data[test_id]['logs'].append({
                 'message': log_message,
@@ -143,7 +141,7 @@ class TestReportCollector:
     
     def add_api_call(self, test_id: str, method: str, url: str, status_code: int, 
                      response_time: float, request_data: Dict = None, response_data: Dict = None):
-        """Add API call details to test data"""
+        """Add API call details to test data."""
         if test_id in self.test_data:
             self.test_data[test_id]['api_calls'].append({
                 'method': method,
@@ -157,7 +155,7 @@ class TestReportCollector:
     
     def add_db_query(self, test_id: str, query: str, execution_time: float, 
                      rows_affected: int = 0):
-        """Add database query details to test data"""
+        """Add database query details to test data."""
         if test_id in self.test_data:
             self.test_data[test_id]['db_queries'].append({
                 'query': query,
@@ -168,7 +166,7 @@ class TestReportCollector:
     
     def add_assertion(self, test_id: str, assertion_type: str, expected: Any, 
                       actual: Any, passed: bool, message: str = ""):
-        """Add assertion details to test data"""
+        """Add assertion details to test data."""
         if test_id in self.test_data:
             self.test_data[test_id]['assertions'].append({
                 'type': assertion_type,
@@ -180,11 +178,11 @@ class TestReportCollector:
             })
     
     def get_test_data(self, test_id: str) -> Dict:
-        """Get collected data for a test"""
+        """Get collected data for a test."""
         return self.test_data.get(test_id, {})
     
     def get_all_test_data(self) -> Dict:
-        """Get all collected test data"""
+        """Get all collected test data."""
         return self.test_data
 
 
@@ -198,9 +196,7 @@ report_collector = TestReportCollector()
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
-    """
-    Enhanced hook to add custom data to report
-    """
+    """Enhanced hook to add custom data to report."""
     outcome = yield
     report = outcome.get_result()
     
@@ -322,12 +318,12 @@ def pytest_runtest_makereport(item, call):
 # ========================================================================
 
 def pytest_html_report_title(report):
-    """Customize report title"""
+    """Customize report title."""
     report.title = "Enterprise Automation Framework - Enhanced Test Report"
 
 
 def pytest_html_results_summary(prefix, summary, postfix):
-    """Add custom summary"""
+    """Add custom summary."""
     prefix.append(extras.html(f'''
         <div style="background: #f0f8ff; padding: 15px; border-radius: 5px; margin: 20px 0;">
             <h3 style="margin-top: 0;">📊 Enhanced Test Report</h3>
@@ -345,7 +341,7 @@ def pytest_html_results_summary(prefix, summary, postfix):
 # ========================================================================
 
 def pytest_html_results_table_html(report, data):
-    """Add custom CSS styles"""
+    """Add custom CSS styles."""
     if report.when == "call" and not hasattr(pytest_html_results_table_html, '_css_added'):
         pytest_html_results_table_html._css_added = True
         data.append(extras.html('''
@@ -413,7 +409,7 @@ def pytest_html_results_table_html(report, data):
 # ========================================================================
 
 def create_screenshot_html(screenshot: Dict):
-    """Create HTML for screenshot display"""
+    """Create HTML for screenshot display."""
     path = screenshot['path']
     description = screenshot.get('description', '')
     timestamp = screenshot.get('timestamp', '')
@@ -434,7 +430,7 @@ def create_screenshot_html(screenshot: Dict):
 
 
 def create_video_html(video: Dict):
-    """Create HTML for video display"""
+    """Create HTML for video display."""
     path = video['path']
     timestamp = video.get('timestamp', '')
     
@@ -452,7 +448,7 @@ def create_video_html(video: Dict):
 
 
 def create_trace_html(trace: Dict):
-    """Create HTML for trace file link"""
+    """Create HTML for trace file link."""
     path = trace['path']
     timestamp = trace.get('timestamp', '')
     
@@ -465,7 +461,7 @@ def create_trace_html(trace: Dict):
 
 
 def create_api_calls_table(api_calls: List[Dict]):
-    """Create HTML table for API calls"""
+    """Create HTML table for API calls."""
     rows_html = ""
     for call in api_calls:
         rows_html += f'''
@@ -497,7 +493,7 @@ def create_api_calls_table(api_calls: List[Dict]):
 
 
 def create_db_queries_table(db_queries: List[Dict]):
-    """Create HTML table for database queries"""
+    """Create HTML table for database queries."""
     rows_html = ""
     for query in db_queries:
         query_text = query['query'][:100] + '...' if len(query['query']) > 100 else query['query']
@@ -528,7 +524,7 @@ def create_db_queries_table(db_queries: List[Dict]):
 
 
 def create_assertions_table(assertions: List[Dict]):
-    """Create HTML table for assertions"""
+    """Create HTML table for assertions."""
     rows_html = ""
     for assertion in assertions:
         status = '✅' if assertion['passed'] else '❌'
@@ -577,7 +573,7 @@ def pytest_html_report_css(css):
 
 @pytest.fixture(scope='session', autouse=True)
 def report_session(request):
-    """Session-level report collection"""
+    """Session-level report collection."""
     report_collector.start_session()
     yield
     report_collector.end_session()
@@ -585,7 +581,7 @@ def report_session(request):
 
 @pytest.fixture(autouse=True)
 def report_test(request):
-    """Test-level report collection"""
+    """Test-level report collection."""
     item = request.node
     
     # Initialize test data
@@ -603,7 +599,7 @@ def report_test(request):
 
 @pytest.fixture
 def report_log(request):
-    """Fixture to add logs to report"""
+    """Fixture to add logs to report."""
     test_id = request.node.nodeid
     
     def log(message: str, level: str = "INFO"):
@@ -614,7 +610,7 @@ def report_log(request):
 
 @pytest.fixture
 def report_screenshot(request):
-    """Fixture to add screenshots to report"""
+    """Fixture to add screenshots to report."""
     test_id = request.node.nodeid
     
     def screenshot(path: str, description: str = ""):
@@ -625,7 +621,7 @@ def report_screenshot(request):
 
 @pytest.fixture
 def report_api_call(request):
-    """Fixture to add API call details to report"""
+    """Fixture to add API call details to report."""
     test_id = request.node.nodeid
     
     def api_call(method: str, url: str, status_code: int, response_time: float,
@@ -638,7 +634,7 @@ def report_api_call(request):
 
 @pytest.fixture
 def report_db_query(request):
-    """Fixture to add database query details to report"""
+    """Fixture to add database query details to report."""
     test_id = request.node.nodeid
     
     def db_query(query: str, execution_time: float, rows_affected: int = 0):
@@ -649,7 +645,7 @@ def report_db_query(request):
 
 @pytest.fixture
 def report_assertion(request):
-    """Fixture to add assertion details to report"""
+    """Fixture to add assertion details to report."""
     test_id = request.node.nodeid
     
     def assertion(assertion_type: str, expected: Any, actual: Any, 

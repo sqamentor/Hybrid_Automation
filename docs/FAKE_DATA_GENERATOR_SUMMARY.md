@@ -30,11 +30,11 @@ Three new fixtures added:
 ```python
 @pytest.fixture
 def fake_bookslot_data():
-    """Single fresh payload per test"""
+    """Single fresh payload per test."""
 
 @pytest.fixture
 def fake_bookslot_batch():
-    """5 payloads per test"""
+    """5 payloads per test."""
 
 @pytest.fixture(scope="session")
 def bookslot_data_file():
@@ -96,7 +96,7 @@ print(data['email'])  # johndoe@mailinator.com
 ### Use in Pytest Tests
 ```python
 def test_bookslot(fake_bookslot_data):
-    """Fixture automatically provides fresh data"""
+    """Fixture automatically provides fresh data."""
     email = fake_bookslot_data['email']
     first_name = fake_bookslot_data['first_name']
     # ... use in your test

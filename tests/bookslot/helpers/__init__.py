@@ -1,3 +1,1 @@
-"""
-Tests Package Helpers
-"""
+"""Tests Package Helpers."""

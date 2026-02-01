@@ -1,6 +1,4 @@
-"""
-Core Utilities Package
-"""
+"""Core Utilities Package."""
 
 from .human_actions import (
     HumanBehaviorSimulator,

@@ -50,7 +50,7 @@ def demo_quick_workflow():
 
 
 def demo_full_workflow():
-    """Demonstrate full workflow with all options"""
+    """Demonstrate full workflow with all options."""
     print("\n" + "="*60)
     print("DEMO 2: Full Workflow with Custom Options")
     print("="*60)
@@ -77,7 +77,7 @@ def demo_full_workflow():
 
 
 def demo_step_by_step():
-    """Demonstrate step-by-step workflow for full control"""
+    """Demonstrate step-by-step workflow for full control."""
     print("\n" + "="*60)
     print("DEMO 3: Step-by-Step Workflow (Advanced)")
     print("="*60)
@@ -134,7 +134,7 @@ def demo_step_by_step():
 
 
 def demo_python_api():
-    """Demonstrate convenience Python API"""
+    """Demonstrate convenience Python API."""
     print("\n" + "="*60)
     print("DEMO 4: One-Line Python API")
     print("="*60)
@@ -156,7 +156,7 @@ def demo_python_api():
 
 
 def demo_cli_commands():
-    """Show CLI command examples"""
+    """Show CLI command examples."""
     print("\n" + "="*60)
     print("DEMO 5: CLI Commands Reference")
     print("="*60)
@@ -192,7 +192,7 @@ def demo_cli_commands():
 
 
 def main():
-    """Run all demos"""
+    """Run all demos."""
     print("\n" + "="*70)
     print(" RECORDING WORKFLOW DEMONSTRATION")
     print("="*70)

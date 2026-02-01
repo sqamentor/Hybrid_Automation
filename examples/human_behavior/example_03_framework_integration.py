@@ -14,9 +14,7 @@ from framework.core.utils.human_actions import HumanBehaviorSimulator
 
 
 def test_selenium_engine_integration():
-    """
-    Using human behavior with Selenium Engine from framework
-    """
+    """Using human behavior with Selenium Engine from framework."""
     print("🎯 Testing with Selenium Engine...")
     
     # Initialize Selenium engine
@@ -64,9 +62,7 @@ def test_selenium_engine_integration():
 
 
 def test_playwright_engine_integration():
-    """
-    Using human behavior with Playwright Engine from framework
-    """
+    """Using human behavior with Playwright Engine from framework."""
     print("\n🎯 Testing with Playwright Engine...")
     
     try:
@@ -114,16 +110,14 @@ def test_playwright_engine_integration():
 
 
 def test_page_object_integration():
-    """
-    Using human behavior with Page Object pattern
-    """
+    """Using human behavior with Page Object pattern."""
     print("\n🎯 Testing with Page Object Pattern...")
     
     from selenium import webdriver
     from selenium.webdriver.common.by import By
     
     class LoginPage:
-        """Example Page Object with human behavior"""
+        """Example Page Object with human behavior."""
         
         def __init__(self, driver, use_human_behavior=True):
             self.driver = driver
@@ -134,7 +128,7 @@ def test_page_object_integration():
             self.human.simulate_idle((1.0, 2.0))
         
         def login(self, username, password):
-            """Login with human-like behavior"""
+            """Login with human-like behavior."""
             print(f"  → Logging in as {username}...")
             
             # Type username
@@ -178,9 +172,7 @@ def test_page_object_integration():
 
 
 def test_configuration_based_behavior():
-    """
-    Demonstrate configuration-based behavior control
-    """
+    """Demonstrate configuration-based behavior control."""
     print("\n🎯 Testing Configuration-Based Behavior...")
     
     from framework.core.utils.human_actions import get_behavior_config
@@ -227,9 +219,7 @@ def test_configuration_based_behavior():
 
 
 def test_standalone_functions():
-    """
-    Using standalone helper functions
-    """
+    """Using standalone helper functions."""
     print("\n🎯 Testing Standalone Functions...")
     
     from selenium import webdriver
@@ -266,7 +256,7 @@ def test_standalone_functions():
 
 
 if __name__ == "__main__":
-    """Run all integration examples"""
+    """Run all integration examples."""
     
     print("="*70)
     print("HUMAN BEHAVIOR INTEGRATION EXAMPLES")

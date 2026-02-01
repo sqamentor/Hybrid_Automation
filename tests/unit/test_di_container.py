@@ -1,5 +1,4 @@
-"""
-Comprehensive tests for framework.di_container
+"""Comprehensive tests for framework.di_container.
 
 Tests dependency injection, lifetime management (Singleton, Transient, Scoped),
 auto-injection, pattern matching, and circular dependency detection.
@@ -25,7 +24,7 @@ from framework.di_container import (
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class ILogger(Protocol):
-    """Test logger interface"""
+    """Test logger interface."""
 
     def log(self, message: str) -> None:
         ...
@@ -34,7 +33,7 @@ class ILogger(Protocol):
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class ConsoleLogger:
-    """Test console logger implementation"""
+    """Test console logger implementation."""
 
     def __init__(self):
         self.messages = []
@@ -46,7 +45,7 @@ class ConsoleLogger:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class IDatabase(Protocol):
-    """Test database interface"""
+    """Test database interface."""
 
     def connect(self) -> str:
         ...
@@ -55,7 +54,7 @@ class IDatabase(Protocol):
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class PostgresDatabase:
-    """Test PostgreSQL database implementation"""
+    """Test PostgreSQL database implementation."""
 
     def __init__(self):
         self.connection_id = id(self)
@@ -67,7 +66,7 @@ class PostgresDatabase:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class IRepository(Protocol):
-    """Test repository interface"""
+    """Test repository interface."""
 
     def save(self, data: str) -> None:
         ...
@@ -76,7 +75,7 @@ class IRepository(Protocol):
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class UserRepository:
-    """Test user repository with dependency"""
+    """Test user repository with dependency."""
 
     def __init__(self, database: IDatabase, logger: ILogger):
         self.database = database
@@ -90,16 +89,16 @@ class UserRepository:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestLifetimeEnum:
-    """Test Lifetime enum"""
+    """Test Lifetime enum."""
 
     def test_lifetime_values(self):
-        """Test Lifetime enum has correct values"""
+        """Test Lifetime enum has correct values."""
         assert Lifetime.SINGLETON.value == "singleton"
         assert Lifetime.TRANSIENT.value == "transient"
         assert Lifetime.SCOPED.value == "scoped"
 
     def test_lifetime_enum_members(self):
-        """Test all Lifetime enum members"""
+        """Test all Lifetime enum members."""
         lifetimes = list(Lifetime)
         assert len(lifetimes) == 3
         assert Lifetime.SINGLETON in lifetimes
@@ -110,10 +109,10 @@ class TestLifetimeEnum:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestServiceDescriptor:
-    """Test ServiceDescriptor dataclass"""
+    """Test ServiceDescriptor dataclass."""
 
     def test_create_service_descriptor(self):
-        """Test creating ServiceDescriptor"""
+        """Test creating ServiceDescriptor."""
         descriptor = ServiceDescriptor(
             service_type=ILogger,
             implementation=ConsoleLogger,
@@ -125,7 +124,7 @@ class TestServiceDescriptor:
         assert descriptor.instance is None
 
     def test_service_descriptor_with_instance(self):
-        """Test ServiceDescriptor with instance"""
+        """Test ServiceDescriptor with instance."""
         logger = ConsoleLogger()
         descriptor = ServiceDescriptor(
             service_type=ILogger,
@@ -138,17 +137,17 @@ class TestServiceDescriptor:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestDIContainerBasics:
-    """Test basic DIContainer functionality"""
+    """Test basic DIContainer functionality."""
 
     def test_create_container(self):
-        """Test creating DIContainer"""
+        """Test creating DIContainer."""
         container = DIContainer()
         assert container is not None
         assert hasattr(container, "register")
         assert hasattr(container, "resolve")
 
     def test_register_singleton(self):
-        """Test registering singleton service"""
+        """Test registering singleton service."""
         container = DIContainer()
         container.register(ILogger, implementation=ConsoleLogger, lifetime=Lifetime.SINGLETON)
 
@@ -160,7 +159,7 @@ class TestDIContainerBasics:
         assert logger1 is logger2  # Same instance
 
     def test_register_transient(self):
-        """Test registering transient service"""
+        """Test registering transient service."""
         container = DIContainer()
         container.register(ILogger, implementation=ConsoleLogger, lifetime=Lifetime.TRANSIENT)
 
@@ -173,7 +172,7 @@ class TestDIContainerBasics:
         assert logger1 is not logger2  # Different instances
 
     def test_register_scoped(self):
-        """Test registering scoped service"""
+        """Test registering scoped service."""
         container = DIContainer()
         container.register(IDatabase, implementation=PostgresDatabase, lifetime=Lifetime.SCOPED)
 
@@ -189,7 +188,7 @@ class TestDIContainerBasics:
             assert db3 is not db1  # Different instance in new scope
 
     def test_register_with_factory_function(self):
-        """Test registering with factory function"""
+        """Test registering with factory function."""
         container = DIContainer()
 
         def logger_factory():
@@ -207,7 +206,7 @@ class TestDIContainerPatternMatching:
     """Test pattern matching in DIContainer.resolve()"""
 
     def test_pattern_matching_singleton(self):
-        """Test pattern matching resolves singleton correctly"""
+        """Test pattern matching resolves singleton correctly."""
         container = DIContainer()
         container.register(ILogger, implementation=ConsoleLogger, lifetime=Lifetime.SINGLETON)
 
@@ -219,7 +218,7 @@ class TestDIContainerPatternMatching:
         assert logger1 is logger2
 
     def test_pattern_matching_transient(self):
-        """Test pattern matching resolves transient correctly"""
+        """Test pattern matching resolves transient correctly."""
         container = DIContainer()
         container.register(ILogger, implementation=ConsoleLogger, lifetime=Lifetime.TRANSIENT)
 
@@ -230,7 +229,7 @@ class TestDIContainerPatternMatching:
         assert logger1 is not logger2
 
     def test_pattern_matching_scoped(self):
-        """Test pattern matching resolves scoped correctly"""
+        """Test pattern matching resolves scoped correctly."""
         container = DIContainer()
         container.register(IDatabase, implementation=PostgresDatabase, lifetime=Lifetime.SCOPED)
 
@@ -244,10 +243,10 @@ class TestDIContainerPatternMatching:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestDIContainerDependencies:
-    """Test dependency injection with multiple services"""
+    """Test dependency injection with multiple services."""
 
     def test_resolve_with_dependencies(self):
-        """Test resolving service with dependencies"""
+        """Test resolving service with dependencies."""
         container = DIContainer()
         container.register(ILogger, implementation=ConsoleLogger, lifetime=Lifetime.SINGLETON)
         container.register(IDatabase, implementation=PostgresDatabase, lifetime=Lifetime.SINGLETON)
@@ -261,7 +260,7 @@ class TestDIContainerDependencies:
         assert isinstance(repo.database, PostgresDatabase)
 
     def test_nested_dependencies(self):
-        """Test resolving nested dependencies"""
+        """Test resolving nested dependencies."""
 
         class IService(Protocol):
             def execute(self) -> str:
@@ -292,10 +291,10 @@ class TestDIContainerDependencies:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestDIScope:
-    """Test DIScope context manager"""
+    """Test DIScope context manager."""
 
     def test_scope_context_manager(self):
-        """Test DIScope as context manager"""
+        """Test DIScope as context manager."""
         container = DIContainer()
         container.register(IDatabase, implementation=PostgresDatabase, lifetime=Lifetime.SCOPED)
 
@@ -306,7 +305,7 @@ class TestDIScope:
             assert isinstance(db, PostgresDatabase)
 
     def test_scope_isolation(self):
-        """Test scopes are isolated"""
+        """Test scopes are isolated."""
         container = DIContainer()
         container.register(IDatabase, implementation=PostgresDatabase, lifetime=Lifetime.SCOPED)
 
@@ -323,7 +322,7 @@ class TestDIScope:
         assert conn_id1 != conn_id2
 
     def test_scope_reuse_within_same_scope(self):
-        """Test same instance reused within scope"""
+        """Test same instance reused within scope."""
         container = DIContainer()
         container.register(IDatabase, implementation=PostgresDatabase, lifetime=Lifetime.SCOPED)
 
@@ -336,10 +335,10 @@ class TestDIScope:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestInjectDecorator:
-    """Test @inject decorator for auto-injection"""
+    """Test @inject decorator for auto-injection."""
 
     def test_inject_decorator_basic(self):
-        """Test @inject decorator injects dependencies"""
+        """Test @inject decorator injects dependencies."""
         container = DIContainer()
         container.register(ILogger, implementation=ConsoleLogger, lifetime=Lifetime.SINGLETON)
 
@@ -353,7 +352,7 @@ class TestInjectDecorator:
         assert "test message" in result.messages
 
     def test_inject_decorator_multiple_params(self):
-        """Test @inject with multiple parameters"""
+        """Test @inject with multiple parameters."""
         container = DIContainer()
         container.register(ILogger, implementation=ConsoleLogger, lifetime=Lifetime.SINGLETON)
         container.register(IDatabase, implementation=PostgresDatabase, lifetime=Lifetime.SINGLETON)
@@ -367,7 +366,7 @@ class TestInjectDecorator:
         assert isinstance(database, PostgresDatabase)
 
     def test_inject_decorator_partial_injection(self):
-        """Test @inject with mix of injected and regular params"""
+        """Test @inject with mix of injected and regular params."""
         container = DIContainer()
         container.register(ILogger, implementation=ConsoleLogger, lifetime=Lifetime.SINGLETON)
 
@@ -386,17 +385,17 @@ class TestInjectDecorator:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestDIContainerErrors:
-    """Test error handling in DIContainer"""
+    """Test error handling in DIContainer."""
 
     def test_resolve_unregistered_service(self):
-        """Test resolving unregistered service raises error"""
+        """Test resolving unregistered service raises error."""
         container = DIContainer()
 
         with pytest.raises(ValueError, match="not registered"):
             container.resolve(ILogger)
 
     def test_resolve_scoped_without_scope(self):
-        """Test resolving scoped service without active scope"""
+        """Test resolving scoped service without active scope."""
         container = DIContainer()
         container.register(IDatabase, implementation=PostgresDatabase, lifetime=Lifetime.SCOPED)
 
@@ -424,10 +423,10 @@ class TestDIContainerErrors:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestDIContainerAdvanced:
-    """Test advanced DIContainer features"""
+    """Test advanced DIContainer features."""
 
     def test_lazy_initialization(self):
-        """Test singleton is lazily initialized"""
+        """Test singleton is lazily initialized."""
         container = DIContainer()
 
         init_count = 0
@@ -451,7 +450,7 @@ class TestDIContainerAdvanced:
         assert init_count == 1
 
     def test_mixed_lifetimes(self):
-        """Test container with mixed lifetimes"""
+        """Test container with mixed lifetimes."""
         container = DIContainer()
         container.register(ILogger, implementation=ConsoleLogger, lifetime=Lifetime.SINGLETON)
         container.register(IDatabase, implementation=PostgresDatabase, lifetime=Lifetime.TRANSIENT)
@@ -465,7 +464,7 @@ class TestDIContainerAdvanced:
         assert db1 is not db2  # Transient
 
     def test_clear_services(self):
-        """Test clearing all registered services"""
+        """Test clearing all registered services."""
         container = DIContainer()
         container.register(ILogger, implementation=ConsoleLogger, lifetime=Lifetime.SINGLETON)
         container.register(IDatabase, implementation=PostgresDatabase, lifetime=Lifetime.TRANSIENT)
@@ -483,10 +482,10 @@ class TestDIContainerAdvanced:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestDIContainerIntegration:
-    """Integration tests for real-world scenarios"""
+    """Integration tests for real-world scenarios."""
 
     def test_complete_application_stack(self):
-        """Test complete DI setup for application"""
+        """Test complete DI setup for application."""
         container = DIContainer()
 
         # Register infrastructure
@@ -505,7 +504,7 @@ class TestDIContainerIntegration:
             assert "Saving: user_data" in repo.logger.messages
 
     def test_multiple_scopes_parallel(self):
-        """Test multiple scopes can exist independently"""
+        """Test multiple scopes can exist independently."""
         container = DIContainer()
         container.register(IDatabase, implementation=PostgresDatabase, lifetime=Lifetime.SCOPED)
 

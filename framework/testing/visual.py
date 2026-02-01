@@ -1,5 +1,4 @@
-"""
-Visual regression testing using Playwright's visual comparison.
+"""Visual regression testing using Playwright's visual comparison.
 
 Features:
 - Pixel-perfect screenshot comparison
@@ -11,9 +10,12 @@ import asyncio
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Literal, Optional
 
 from playwright.async_api import Locator, Page
+
+AnimationsMode = Literal["allow", "disabled"]
+CaretMode = Literal["hide", "initial"]
 
 
 @dataclass
@@ -23,32 +25,31 @@ class VisualConfig:
     diff_dir: str = "tests/visual/diffs"
     threshold: float = 0.2  # 20% pixel difference threshold
     max_diff_pixels: Optional[int] = None
-    animations: str = "disabled"  # disabled, allow
-    caret: str = "hide"  # hide, initial
+    animations: AnimationsMode = "disabled"  # disabled, allow
+    caret: CaretMode = "hide"  # hide, initial
 
 
 class VisualTester:
-    """
-    Visual regression tester using Playwright.
-    
+    """Visual regression tester using Playwright.
+
     Example:
         ```python
         from framework.testing.visual import VisualTester, VisualConfig
-        
+
         config = VisualConfig(
             baseline_dir="tests/visual/baselines",
             threshold=0.1  # 10% threshold
         )
-        
+
         tester = VisualTester(config)
-        
+
         # Compare full page
         is_match = await tester.compare_page(
             page,
             "homepage",
             update_baseline=False
         )
-        
+
         # Compare element
         is_match = await tester.compare_element(
             page.locator("#login-form"),
@@ -58,9 +59,8 @@ class VisualTester:
     """
     
     def __init__(self, config: Optional[VisualConfig] = None):
-        """
-        Initialize visual tester.
-        
+        """Initialize visual tester.
+
         Args:
             config: Visual testing configuration
         """
@@ -76,26 +76,25 @@ class VisualTester:
         name: str,
         update_baseline: bool = False,
         full_page: bool = True,
-        mask: Optional[list] = None
+        mask: Optional[List[Locator]] = None
     ) -> bool:
-        """
-        Compare full page screenshot with baseline.
-        
+        """Compare full page screenshot with baseline.
+
         Args:
             page: Playwright Page object
             name: Test name for baseline
             update_baseline: Whether to update baseline
             full_page: Capture full page or viewport only
             mask: List of locators to mask
-        
+
         Returns:
             True if visual matches baseline, False otherwise
-        
+
         Example:
             ```python
             # First run - create baseline
             await tester.compare_page(page, "homepage", update_baseline=True)
-            
+
             # Subsequent runs - compare with baseline
             is_match = await tester.compare_page(page, "homepage")
             assert is_match, "Visual regression detected"
@@ -137,20 +136,19 @@ class VisualTester:
         element: Locator,
         name: str,
         update_baseline: bool = False,
-        mask: Optional[list] = None
+        mask: Optional[List[Locator]] = None
     ) -> bool:
-        """
-        Compare element screenshot with baseline.
-        
+        """Compare element screenshot with baseline.
+
         Args:
             element: Playwright Locator object
             name: Test name for baseline
             update_baseline: Whether to update baseline
             mask: List of locators to mask
-        
+
         Returns:
             True if visual matches baseline, False otherwise
-        
+
         Example:
             ```python
             # Compare specific element
@@ -190,9 +188,8 @@ class VisualTester:
         current_path: Path,
         diff_path: Path
     ) -> None:
-        """
-        Generate visual diff between images.
-        
+        """Generate visual diff between images.
+
         Args:
             baseline_path: Path to baseline image
             current_path: Path to current screenshot
@@ -219,18 +216,17 @@ class VisualTester:
         threshold: Optional[float] = None,
         max_diff_pixels: Optional[int] = None
     ) -> Dict[str, Any]:
-        """
-        Compare with custom threshold and get detailed results.
-        
+        """Compare with custom threshold and get detailed results.
+
         Args:
             page: Playwright Page object
             name: Test name
             threshold: Custom threshold (overrides config)
             max_diff_pixels: Maximum allowed different pixels
-        
+
         Returns:
             Dictionary with comparison results
-        
+
         Example:
             ```python
             result = await tester.compare_with_threshold(
@@ -238,7 +234,7 @@ class VisualTester:
                 "homepage",
                 threshold=0.05  # 5% difference allowed
             )
-            
+
             print(f"Match: {result['is_match']}")
             print(f"Diff percentage: {result['diff_percentage']}")
             ```
@@ -277,15 +273,14 @@ class VisualTester:
         threshold: float,
         max_diff_pixels: Optional[int]
     ) -> Dict[str, Any]:
-        """
-        Compare two images and return detailed results.
-        
+        """Compare two images and return detailed results.
+
         Args:
             baseline_path: Path to baseline image
             current_path: Path to current image
             threshold: Difference threshold
             max_diff_pixels: Maximum allowed different pixels
-        
+
         Returns:
             Comparison results dictionary
         """
@@ -329,9 +324,8 @@ class VisualTester:
             }
     
     def cleanup_diffs(self) -> None:
-        """
-        Clean up diff directory.
-        
+        """Clean up diff directory.
+
         Removes all generated diff images.
         """
         diff_dir = Path(self.config.diff_dir)
@@ -339,10 +333,9 @@ class VisualTester:
         for file in diff_dir.glob("*.png"):
             file.unlink()
     
-    def get_baselines(self) -> list:
-        """
-        Get list of available baselines.
-        
+    def get_baselines(self) -> List[str]:
+        """Get list of available baselines.
+
         Returns:
             List of baseline names
         """
@@ -350,9 +343,8 @@ class VisualTester:
         return [f.stem for f in baseline_dir.glob("*.png")]
     
     def export_report(self, output_path: str) -> None:
-        """
-        Export visual testing report.
-        
+        """Export visual testing report.
+
         Args:
             output_path: Path to save JSON report
         """
@@ -377,21 +369,20 @@ class VisualTester:
 # ============================================================================
 
 class PytestVisualPlugin:
-    """
-    Pytest plugin for visual regression testing.
-    
+    """Pytest plugin for visual regression testing.
+
     Usage in conftest.py:
         ```python
         from framework.testing.visual import PytestVisualPlugin, VisualConfig
-        
+
         def pytest_configure(config):
             config.visual_tester = PytestVisualPlugin(VisualConfig())
-        
+
         @pytest.fixture
         def visual(request):
             return request.config.visual_tester
         ```
-    
+
     Usage in tests:
         ```python
         @pytest.mark.visual
@@ -402,24 +393,22 @@ class PytestVisualPlugin:
     """
     
     def __init__(self, config: Optional[VisualConfig] = None):
-        """
-        Initialize pytest visual plugin.
-        
+        """Initialize pytest visual plugin.
+
         Args:
             config: Visual testing configuration
         """
         self.tester = VisualTester(config)
-        self.results = []
+        self.results: List[Dict[str, Any]] = []
     
-    async def compare_page(self, page: Page, name: str, **kwargs) -> bool:
-        """
-        Compare page (pytest wrapper).
-        
+    async def compare_page(self, page: Page, name: str, **kwargs: Any) -> bool:
+        """Compare page (pytest wrapper).
+
         Args:
             page: Playwright Page
             name: Test name
             **kwargs: Additional arguments
-        
+
         Returns:
             Comparison result
         """
@@ -433,15 +422,14 @@ class PytestVisualPlugin:
         
         return result
     
-    async def compare_element(self, element: Locator, name: str, **kwargs) -> bool:
-        """
-        Compare element (pytest wrapper).
-        
+    async def compare_element(self, element: Locator, name: str, **kwargs: Any) -> bool:
+        """Compare element (pytest wrapper).
+
         Args:
             element: Playwright Locator
             name: Test name
             **kwargs: Additional arguments
-        
+
         Returns:
             Comparison result
         """
@@ -456,9 +444,8 @@ class PytestVisualPlugin:
         return result
     
     def generate_html_report(self, output_path: str) -> None:
-        """
-        Generate HTML report with visual diffs.
-        
+        """Generate HTML report with visual diffs.
+
         Args:
             output_path: Path to save HTML report
         """

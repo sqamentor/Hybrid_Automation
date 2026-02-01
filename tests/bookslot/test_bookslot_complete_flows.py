@@ -38,7 +38,7 @@ from playwright.sync_api import Page
 @pytest.mark.bookslot
 @pytest.mark.e2e
 class TestBookslotCompleteFlows:
-    """End-to-end booking flow test suite"""
+    """End-to-end booking flow test suite."""
 
     @allure.story("Happy Path Booking")
     @allure.title("Complete booking: New Patient with Morning Slot")
@@ -268,11 +268,8 @@ class TestBookslotCompleteFlows:
     def test_booking_with_human_behavior_simulation(
         self, page: Page, multi_project_config, smart_actions, fake_bookslot_data
     ):
-        """
-        Complete bookslot test with human behavior simulation
-        Follows recorded test strategy for maximum reliability
-        Incorporates ALL logic from test_bookslot_complete_workflow.py
-        """
+        """Complete bookslot test with human behavior simulation Follows recorded test strategy for
+        maximum reliability Incorporates ALL logic from test_bookslot_complete_workflow.py."""
         base_url = multi_project_config['bookslot']['ui_url']
         act = smart_actions
         data = fake_bookslot_data
@@ -359,7 +356,7 @@ class TestBookslotCompleteFlows:
             act.wait_for_scheduler("Time Slot Scheduler")
             
             def select_time_slot():
-                """Smart slot selection with error detection"""
+                """Smart slot selection with error detection."""
                 slots = page.locator("button[role='button']:has-text('AM'), button[role='button']:has-text('PM')").all()
                 if slots:
                     act.click(slots[0], "Time Slot")

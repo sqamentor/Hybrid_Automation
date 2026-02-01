@@ -1,7 +1,5 @@
-"""
-Dependency Checker for Test Automation Framework
-Checks all required and optional dependencies and provides installation guidance.
-"""
+"""Dependency Checker for Test Automation Framework Checks all required and optional dependencies
+and provides installation guidance."""
 
 import importlib.util
 import sys
@@ -52,12 +50,12 @@ OPTIONAL_DEPENDENCIES = [
 
 
 def check_dependency(module_name: str) -> bool:
-    """Check if a Python module is installed"""
+    """Check if a Python module is installed."""
     return importlib.util.find_spec(module_name) is not None
 
 
 def check_all_dependencies() -> Tuple[Dict, Dict, Dict]:
-    """Check all dependencies and return status"""
+    """Check all dependencies and return status."""
     critical_status = {}
     core_status = {}
     optional_status = {}
@@ -87,7 +85,7 @@ def check_all_dependencies() -> Tuple[Dict, Dict, Dict]:
 
 
 def print_section(title: str, status_dict: Dict, show_installed: bool = False):
-    """Print a section of dependency status"""
+    """Print a section of dependency status."""
     print(f"\n{Colors.BOLD}{title}{Colors.RESET}")
     print("=" * 80)
     
@@ -112,7 +110,7 @@ def print_section(title: str, status_dict: Dict, show_installed: bool = False):
 
 
 def print_installation_commands(critical_status: Dict, optional_status: Dict):
-    """Print installation commands for missing packages"""
+    """Print installation commands for missing packages."""
     critical_missing = [pkg for pkg, info in critical_status.items() if not info['installed']]
     optional_missing = [pkg for pkg, info in optional_status.items() if not info['installed']]
     
@@ -142,7 +140,7 @@ def print_installation_commands(critical_status: Dict, optional_status: Dict):
 
 
 def print_framework_status(critical_status: Dict, core_status: Dict):
-    """Print framework functionality status"""
+    """Print framework functionality status."""
     critical_ok = all(info['installed'] for info in critical_status.values())
     core_ok = all(info['installed'] for info in core_status.values())
     
@@ -198,7 +196,7 @@ def print_framework_status(critical_status: Dict, core_status: Dict):
 
 
 def main():
-    """Main function"""
+    """Main function."""
     print(f"\n{Colors.BOLD}{Colors.CYAN}{'=' * 80}{Colors.RESET}")
     print(f"{Colors.BOLD}{Colors.CYAN}  TEST AUTOMATION FRAMEWORK - DEPENDENCY CHECKER{Colors.RESET}")
     print(f"{Colors.BOLD}{Colors.CYAN}{'=' * 80}{Colors.RESET}")

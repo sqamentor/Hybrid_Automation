@@ -1,1 +1,1 @@
-"""Database Module"""
+"""Database Module."""

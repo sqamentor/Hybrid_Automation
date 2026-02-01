@@ -15,7 +15,7 @@ from framework.intelligence import AIValidationSuggester, suggest_and_validate
 # ========================================================================
 
 def pattern_1_review_suggestions(api_client, db_client):
-    """Get AI suggestions and review before executing"""
+    """Get AI suggestions and review before executing."""
     
     # Make API call
     response = api_client.post("/api/orders/submit", json_data={
@@ -51,7 +51,7 @@ def pattern_1_review_suggestions(api_client, db_client):
 # ========================================================================
 
 def pattern_2_auto_execute(api_client, db_client):
-    """Use convenience function to auto-execute all validations"""
+    """Use convenience function to auto-execute all validations."""
     
     # Make API call
     response = api_client.post("/api/payments/process", json_data={
@@ -83,7 +83,7 @@ def pattern_2_auto_execute(api_client, db_client):
 # ========================================================================
 
 def pattern_3_integration_test(ui_engine, api_client, db_client, ui_url):
-    """Complete UI → API → DB flow with AI validation"""
+    """Complete UI → API → DB flow with AI validation."""
     
     # 1. UI Action
     ui_engine.navigate(f"{ui_url}/checkout")
@@ -116,7 +116,7 @@ def pattern_3_integration_test(ui_engine, api_client, db_client, ui_url):
 # ========================================================================
 
 def pattern_4_selective_execution(api_client, db_client):
-    """Execute only specific priority levels"""
+    """Execute only specific priority levels."""
     
     response = api_client.put("/api/inventory/adjust", json_data={
         "product_id": "PROD123",
@@ -156,7 +156,7 @@ def pattern_4_selective_execution(api_client, db_client):
 # ========================================================================
 
 def pattern_5_confidence_filtering(api_client, db_client):
-    """Execute only high-confidence suggestions"""
+    """Execute only high-confidence suggestions."""
     
     response = api_client.post("/api/users/register", json_data={
         "email": "newuser@example.com",
@@ -193,7 +193,7 @@ def pattern_5_confidence_filtering(api_client, db_client):
 # ========================================================================
 
 def pattern_6_fallback_mode():
-    """Test that fallback works when AI is disabled"""
+    """Test that fallback works when AI is disabled."""
     
     import os
     
@@ -231,13 +231,13 @@ import pytest
 
 @pytest.fixture
 def ai_validator(db_client):
-    """Fixture for AI validation suggester"""
+    """Fixture for AI validation suggester."""
     return AIValidationSuggester()
 
 
 @pytest.mark.api_validation
 def test_with_ai_fixture(api_client, db_client, ai_validator):
-    """Use AI validator as a pytest fixture"""
+    """Use AI validator as a pytest fixture."""
     
     response = api_client.post("/api/orders/submit", json_data={})
     

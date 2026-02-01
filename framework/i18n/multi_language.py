@@ -7,7 +7,7 @@ Provides multi-language test data generation and localization testing support.
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 from utils.logger import get_logger
 
@@ -15,7 +15,7 @@ logger = get_logger(__name__)
 
 
 class MultiLanguageSupport:
-    """Multi-language testing support"""
+    """Multi-language testing support."""
     
     # Common languages with locale codes
     LANGUAGES = {
@@ -34,19 +34,18 @@ class MultiLanguageSupport:
     }
     
     def __init__(self, translations_dir: str = "tests/data/translations"):
-        """
-        Initialize multi-language support
-        
+        """Initialize multi-language support.
+
         Args:
             translations_dir: Directory containing translation files
         """
         self.translations_dir = Path(translations_dir)
         self.translations: Dict[str, Dict[str, str]] = {}
-        self.current_language = 'en'
+        self.current_language: str = 'en'
         self.load_translations()
     
-    def load_translations(self):
-        """Load translation files"""
+    def load_translations(self) -> None:
+        """Load translation files."""
         if not self.translations_dir.exists():
             logger.warning(f"Translations directory not found: {self.translations_dir}")
             return
@@ -58,10 +57,9 @@ class MultiLanguageSupport:
                     self.translations[lang_code] = json.load(f)
                 logger.debug(f"Loaded translations for: {lang_code}")
     
-    def set_language(self, lang_code: str):
-        """
-        Set current language
-        
+    def set_language(self, lang_code: str) -> None:
+        """Set current language.
+
         Args:
             lang_code: Language code (e.g., 'en', 'es', 'fr')
         """
@@ -72,13 +70,12 @@ class MultiLanguageSupport:
         logger.info(f"Language set to: {self.LANGUAGES[lang_code]['name']}")
     
     def get_text(self, key: str, lang_code: Optional[str] = None) -> str:
-        """
-        Get translated text
-        
+        """Get translated text.
+
         Args:
             key: Translation key
             lang_code: Language code (uses current if not specified)
-        
+
         Returns:
             Translated text
         """
@@ -91,12 +88,11 @@ class MultiLanguageSupport:
         return self.translations[lang].get(key, key)
     
     def get_all_translations(self, key: str) -> Dict[str, str]:
-        """
-        Get text in all languages
-        
+        """Get text in all languages.
+
         Args:
             key: Translation key
-        
+
         Returns:
             Dictionary of language_code: translated_text
         """
@@ -106,13 +102,12 @@ class MultiLanguageSupport:
         }
     
     def generate_test_data(self, data_type: str, lang_code: Optional[str] = None) -> Any:
-        """
-        Generate language-specific test data
-        
+        """Generate language-specific test data.
+
         Args:
             data_type: Data type ('name', 'email', 'address', 'phone', 'text')
             lang_code: Language code
-        
+
         Returns:
             Generated test data
         """
@@ -126,7 +121,7 @@ class MultiLanguageSupport:
             logger.warning("Faker library not installed. Using default data.")
             return f"test_{data_type}"
         
-        generators = {
+        generators: Dict[str, Callable[[], Any]] = {
             'name': fake.name,
             'email': fake.email,
             'address': fake.address,
@@ -139,15 +134,14 @@ class MultiLanguageSupport:
         }
         
         generator = generators.get(data_type)
-        if generator:
+        if generator is not None:
             return generator()
         
         return f"test_{data_type}"
     
-    def set_browser_language(self, ui_engine, lang_code: str):
-        """
-        Set browser language preference
-        
+    def set_browser_language(self, ui_engine: Any, lang_code: str) -> None:
+        """Set browser language preference.
+
         Args:
             ui_engine: UI engine instance
             lang_code: Language code
@@ -169,25 +163,24 @@ class MultiLanguageSupport:
             logger.warning("Browser language must be set during browser initialization for Selenium")
     
     def verify_translations_exist(self, keys: List[str], languages: Optional[List[str]] = None) -> Dict[str, List[str]]:
-        """
-        Verify translation keys exist in specified languages
-        
+        """Verify translation keys exist in specified languages.
+
         Args:
             keys: List of translation keys to check
             languages: Languages to check (default: all)
-        
+
         Returns:
             Dictionary of missing translations by language
         """
         check_langs = languages or list(self.translations.keys())
-        missing = {}
+        missing: Dict[str, List[str]] = {}
         
         for lang in check_langs:
             if lang not in self.translations:
                 missing[lang] = keys
                 continue
             
-            lang_missing = []
+            lang_missing: List[str] = []
             for key in keys:
                 if key not in self.translations[lang]:
                     lang_missing.append(key)
@@ -202,19 +195,18 @@ class MultiLanguageSupport:
         
         return missing
     
-    def test_text_rendering(self, ui_engine, element_locator: str, expected_key: str) -> Dict[str, bool]:
-        """
-        Test text rendering in multiple languages
-        
+    def test_text_rendering(self, ui_engine: Any, element_locator: str, expected_key: str) -> Dict[str, bool]:
+        """Test text rendering in multiple languages.
+
         Args:
             ui_engine: UI engine instance
             element_locator: Element locator
             expected_key: Expected translation key
-        
+
         Returns:
             Dictionary of language: test_passed
         """
-        results = {}
+        results: Dict[str, bool] = {}
         
         for lang_code in self.translations.keys():
             # Set language
@@ -243,8 +235,8 @@ class MultiLanguageSupport:
         
         return results
     
-    def generate_sample_translations(self, output_dir: Optional[str] = None):
-        """Generate sample translation files"""
+    def generate_sample_translations(self, output_dir: Optional[str] = None) -> None:
+        """Generate sample translation files."""
         output_path = Path(output_dir) if output_dir else self.translations_dir
         output_path.mkdir(parents=True, exist_ok=True)
         
@@ -277,24 +269,23 @@ class MultiLanguageSupport:
 
 
 class RTLTesting:
-    """Right-to-Left (RTL) language testing support"""
+    """Right-to-Left (RTL) language testing support."""
     
     RTL_LANGUAGES = ['ar', 'he', 'fa', 'ur']
     
     @staticmethod
     def is_rtl(lang_code: str) -> bool:
-        """Check if language is RTL"""
+        """Check if language is RTL."""
         return lang_code in RTLTesting.RTL_LANGUAGES
     
     @staticmethod
-    def verify_rtl_layout(ui_engine, lang_code: str) -> bool:
-        """
-        Verify page has RTL layout for RTL languages
-        
+    def verify_rtl_layout(ui_engine: Any, lang_code: str) -> bool:
+        """Verify page has RTL layout for RTL languages.
+
         Args:
             ui_engine: UI engine instance
             lang_code: Language code
-        
+
         Returns:
             True if layout is correct
         """
@@ -307,7 +298,7 @@ class RTLTesting:
         if engine_type == 'PlaywrightEngine':
             page = ui_engine.get_page()
             dir_attr = page.evaluate("document.documentElement.dir")
-            has_rtl_dir = (dir_attr == 'rtl')
+            has_rtl_dir = bool(dir_attr == 'rtl')
             
             if not has_rtl_dir:
                 logger.warning(f"RTL language {lang_code} but HTML dir attribute is not 'rtl'")

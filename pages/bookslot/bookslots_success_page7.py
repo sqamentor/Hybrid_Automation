@@ -29,9 +29,8 @@ class BookslotSuccessPage:
     """Page Object for Bookslot Success Page - Appointment Confirmation"""
 
     def __init__(self, page: Page, base_url: str):
-        """
-        Initialize page object
-        
+        """Initialize page object.
+
         Args:
             page: Playwright Page instance
             base_url: Base URL from multi_project_config
@@ -48,7 +47,7 @@ class BookslotSuccessPage:
     
     @property
     def redirect_message(self):
-        """Redirect countdown message"""
+        """Redirect countdown message."""
         return self.page.locator("div").filter(has_text=re.compile(r"^You will be redirected in \d+ seconds$"))
     
     # ===================================================================
@@ -56,7 +55,7 @@ class BookslotSuccessPage:
     # ===================================================================
 
     def navigate(self):
-        """Navigate to the success page"""
+        """Navigate to the success page."""
         url = f"{self.base_url}{self.path}"
         self.page.goto(url)
         return self
@@ -66,7 +65,7 @@ class BookslotSuccessPage:
     # ===================================================================
     
     def click_redirect_message(self):
-        """Click redirect message"""
+        """Click redirect message."""
         self.redirect_message.click()
         return self
 
@@ -75,14 +74,14 @@ class BookslotSuccessPage:
     # ===================================================================
     
     def is_page_loaded(self) -> bool:
-        """Check if success page is loaded"""
+        """Check if success page is loaded."""
         try:
             return "/success" in self.page.url
         except:
             return False
     
     def is_redirect_message_visible(self) -> bool:
-        """Check if redirect countdown is visible"""
+        """Check if redirect countdown is visible."""
         try:
             return self.redirect_message.is_visible()
         except:

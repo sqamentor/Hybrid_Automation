@@ -1,6 +1,5 @@
-"""
-POST-AUDIT VALIDATION SCRIPT
-Verifies that all hardcoded values have been removed and framework uses dynamic configuration
+"""POST-AUDIT VALIDATION SCRIPT Verifies that all hardcoded values have been removed and framework
+uses dynamic configuration.
 
 Author: Lokendra Singh
 Website: www.sqamentor.com
@@ -34,7 +33,7 @@ def print_info(text):
     print(f"{Colors.YELLOW}ℹ️  {text}{Colors.ENDC}")
 
 def check_projects_yaml():
-    """Verify projects.yaml exists and is properly configured"""
+    """Verify projects.yaml exists and is properly configured."""
     print_header("1. CHECKING PROJECTS.YAML CONFIGURATION")
     
     config_path = Path(__file__).parent / "config" / "projects.yaml"
@@ -77,7 +76,7 @@ def check_projects_yaml():
         return False
 
 def check_no_hardcoded_urls():
-    """Check for hardcoded URLs in key files"""
+    """Check for hardcoded URLs in key files."""
     print_header("2. CHECKING FOR HARDCODED URLs")
     
     files_to_check = [
@@ -117,7 +116,7 @@ def check_no_hardcoded_urls():
         return True
 
 def check_recorded_test_uses_fixture():
-    """Verify recorded test uses multi_project_config fixture"""
+    """Verify recorded test uses multi_project_config fixture."""
     print_header("3. CHECKING RECORDED TEST FIXTURE USAGE")
     
     test_file = Path(__file__).parent / "recorded_tests/bookslot/test_bookslot_bookslots_complete.py"
@@ -145,7 +144,7 @@ def check_recorded_test_uses_fixture():
         return False
 
 def check_conftest_no_fallback():
-    """Verify conftest raises error instead of using fallback"""
+    """Verify conftest raises error instead of using fallback."""
     print_header("4. CHECKING CONFTEST ERROR HANDLING")
     
     conftest_file = Path(__file__).parent / "conftest.py"
@@ -167,7 +166,7 @@ def check_conftest_no_fallback():
         return False
 
 def check_cli_uses_dynamic_urls():
-    """Verify CLI loads URLs from projects.yaml"""
+    """Verify CLI loads URLs from projects.yaml."""
     print_header("5. CHECKING CLI DYNAMIC URL LOADING")
     
     cli_file = Path(__file__).parent / "run_tests_cli.py"
@@ -198,7 +197,7 @@ def check_cli_uses_dynamic_urls():
         return False
 
 def check_env_example_exists():
-    """Verify .env.example template exists"""
+    """Verify .env.example template exists."""
     print_header("6. CHECKING .ENV.EXAMPLE TEMPLATE")
     
     env_example = Path(__file__).parent / "env.example"
@@ -223,7 +222,7 @@ def check_env_example_exists():
         return False
 
 def run_validation_tests():
-    """Run actual tests to verify dynamic behavior"""
+    """Run actual tests to verify dynamic behavior."""
     print_header("7. RUNNING VALIDATION TESTS")
     
     print_info("Testing with staging environment...")
@@ -257,7 +256,7 @@ def run_validation_tests():
     return True
 
 def main():
-    """Run all validation checks"""
+    """Run all validation checks."""
     print(f"\n{Colors.BOLD}{Colors.BLUE}")
     print("="*80)
     print("  POST-AUDIT VALIDATION - FRAMEWORK DYNAMIC CONFIGURATION CHECK")

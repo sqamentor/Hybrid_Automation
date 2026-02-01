@@ -1,5 +1,4 @@
-"""
-Example Plugin Implementations
+"""Example Plugin Implementations.
 
 Production-ready plugins demonstrating the plugin system:
 - SlackReporter: Post test results to Slack
@@ -20,7 +19,7 @@ from typing import Any, Dict, List, Optional
 
 from framework.plugins.plugin_system import (
     BasePlugin,
-    PluginHook,
+    PluginPriority,
     PluginMetadata,
 )
 
@@ -28,8 +27,7 @@ from framework.plugins.plugin_system import (
 
 
 class SlackReporterPlugin(BasePlugin):
-    """
-    Posts test results to Slack channels.
+    """Posts test results to Slack channels.
 
     Features:
     - Post test failures immediately
@@ -38,30 +36,21 @@ class SlackReporterPlugin(BasePlugin):
     - Support multiple webhooks
     """
 
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        super().__init__(self._initialize_metadata(), config)
+
     def _initialize_metadata(self) -> PluginMetadata:
-        """Initialize plugin metadata"""
+        """Initialize plugin metadata."""
         return PluginMetadata(
             name="SlackReporter",
             version="1.0.0",
             author="Lokendra Singh",
             description="Post test results to Slack",
             dependencies=[],
-            hooks=[
-                PluginHook(
-                    name="test_failed",
-                    callback=self.on_test_failed,
-                    priority=10,
-                ),
-                PluginHook(
-                    name="test_session_finish",
-                    callback=self.on_session_finish,
-                    priority=5,
-                ),
-            ],
         )
 
     def load(self) -> None:
-        """Load plugin configuration"""
+        """Load plugin configuration."""
         self.webhook_url = self.config.get(
             "webhook_url", "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
         )
@@ -69,12 +58,25 @@ class SlackReporterPlugin(BasePlugin):
         self.notify_on_pass = self.config.get("notify_on_pass", False)
         self.notify_on_fail = self.config.get("notify_on_fail", True)
 
+        self.register_hook(
+            hook_name="test_failed",
+            callback=self.on_test_failed,
+            description="Notify Slack on test failure",
+            priority=PluginPriority.HIGH,
+        )
+        self.register_hook(
+            hook_name="test_session_finish",
+            callback=self.on_session_finish,
+            description="Slack summary at session end",
+            priority=PluginPriority.NORMAL,
+        )
+
     def unload(self) -> None:
-        """Cleanup resources"""
+        """Cleanup resources."""
         pass
 
-    async def on_test_failed(self, *args, **kwargs) -> None:
-        """Handle test failure"""
+    async def on_test_failed(self, *args: Any, **kwargs: Any) -> None:
+        """Handle test failure."""
         test_name = kwargs.get("test_name", "Unknown Test")
         error_message = kwargs.get("error", "No error message")
 
@@ -82,8 +84,8 @@ class SlackReporterPlugin(BasePlugin):
             message = self._format_failure_message(test_name, error_message)
             await self._send_to_slack(message)
 
-    async def on_session_finish(self, *args, **kwargs) -> None:
-        """Handle test session finish"""
+    async def on_session_finish(self, *args: Any, **kwargs: Any) -> None:
+        """Handle test session finish."""
         total = kwargs.get("total", 0)
         passed = kwargs.get("passed", 0)
         failed = kwargs.get("failed", 0)
@@ -93,7 +95,7 @@ class SlackReporterPlugin(BasePlugin):
         await self._send_to_slack(message)
 
     def _format_failure_message(self, test_name: str, error: str) -> Dict[str, Any]:
-        """Format test failure message"""
+        """Format test failure message."""
         return {
             "channel": self.channel,
             "username": "Test Automation Bot",
@@ -112,7 +114,7 @@ class SlackReporterPlugin(BasePlugin):
     def _format_summary_message(
         self, total: int, passed: int, failed: int, duration: float
     ) -> Dict[str, Any]:
-        """Format test summary message"""
+        """Format test summary message."""
         pass_rate = (passed / total * 100) if total > 0 else 0
         color = "good" if failed == 0 else "warning" if pass_rate > 80 else "danger"
 
@@ -146,7 +148,7 @@ class SlackReporterPlugin(BasePlugin):
         }
 
     async def _send_to_slack(self, message: Dict[str, Any]) -> bool:
-        """Send message to Slack webhook"""
+        """Send message to Slack webhook."""
         try:
             # TODO: Implement actual HTTP POST request
             # import httpx
@@ -167,8 +169,7 @@ class SlackReporterPlugin(BasePlugin):
 
 
 class ScreenshotCompressorPlugin(BasePlugin):
-    """
-    Automatically compresses screenshots to reduce storage.
+    """Automatically compresses screenshots to reduce storage.
 
     Features:
     - Compress on capture
@@ -177,36 +178,39 @@ class ScreenshotCompressorPlugin(BasePlugin):
     - Maintain aspect ratio
     """
 
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        super().__init__(self._initialize_metadata(), config)
+
     def _initialize_metadata(self) -> PluginMetadata:
-        """Initialize plugin metadata"""
+        """Initialize plugin metadata."""
         return PluginMetadata(
             name="ScreenshotCompressor",
             version="1.0.0",
             author="Lokendra Singh",
             description="Compress screenshots to save storage",
             dependencies=[],
-            hooks=[
-                PluginHook(
-                    name="screenshot_captured",
-                    callback=self.on_screenshot_captured,
-                    priority=10,
-                ),
-            ],
         )
 
     def load(self) -> None:
-        """Load plugin configuration"""
+        """Load plugin configuration."""
         self.quality = self.config.get("quality", 85)  # 0-100
         self.format = self.config.get("format", "JPEG")  # PNG or JPEG
         self.max_width = self.config.get("max_width", 1920)
         self.enabled = self.config.get("enabled", True)
 
+        self.register_hook(
+            hook_name="screenshot_captured",
+            callback=self.on_screenshot_captured,
+            description="Compress screenshots on capture",
+            priority=PluginPriority.HIGH,
+        )
+
     def unload(self) -> None:
-        """Cleanup resources"""
+        """Cleanup resources."""
         pass
 
-    async def on_screenshot_captured(self, *args, **kwargs) -> None:
-        """Handle screenshot capture"""
+    async def on_screenshot_captured(self, *args: Any, **kwargs: Any) -> None:
+        """Handle screenshot capture."""
         if not self.enabled:
             return
 
@@ -217,7 +221,7 @@ class ScreenshotCompressorPlugin(BasePlugin):
         await self._compress_screenshot(Path(screenshot_path))
 
     async def _compress_screenshot(self, path: Path) -> bool:
-        """Compress screenshot image"""
+        """Compress screenshot image."""
         try:
             # TODO: Implement actual image compression
             # from PIL import Image
@@ -259,8 +263,7 @@ class ScreenshotCompressorPlugin(BasePlugin):
 
 
 class TestRetryPlugin(BasePlugin):
-    """
-    Smart retry mechanism for flaky tests.
+    """Smart retry mechanism for flaky tests.
 
     Features:
     - Automatic retry on failure
@@ -269,32 +272,35 @@ class TestRetryPlugin(BasePlugin):
     - Retry statistics
     """
 
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        super().__init__(self._initialize_metadata(), config)
+
     def _initialize_metadata(self) -> PluginMetadata:
-        """Initialize plugin metadata"""
+        """Initialize plugin metadata."""
         return PluginMetadata(
             name="TestRetry",
             version="1.0.0",
             author="Lokendra Singh",
             description="Smart retry for flaky tests",
             dependencies=[],
-            hooks=[
-                PluginHook(
-                    name="test_failed",
-                    callback=self.on_test_failed,
-                    priority=20,  # Higher priority
-                ),
-            ],
         )
 
     def load(self) -> None:
-        """Load plugin configuration"""
+        """Load plugin configuration."""
         self.max_retries = self.config.get("max_retries", 3)
         self.retry_delay = self.config.get("retry_delay", 1.0)  # seconds
         self.exponential_backoff = self.config.get("exponential_backoff", True)
         self.flaky_tests: Dict[str, int] = {}  # Track retry counts
 
+        self.register_hook(
+            hook_name="test_failed",
+            callback=self.on_test_failed,
+            description="Retry failed tests",
+            priority=PluginPriority.HIGH,
+        )
+
     def unload(self) -> None:
-        """Cleanup and save flaky test report"""
+        """Cleanup and save flaky test report."""
         if self.flaky_tests:
             report_path = Path("reports/flaky_tests.json")
             report_path.parent.mkdir(exist_ok=True)
@@ -304,8 +310,8 @@ class TestRetryPlugin(BasePlugin):
 
             print(f"[TestRetry] Flaky test report saved to {report_path}")
 
-    async def on_test_failed(self, *args, **kwargs) -> Optional[bool]:
-        """Handle test failure and retry logic"""
+    async def on_test_failed(self, *args: Any, **kwargs: Any) -> Optional[bool]:
+        """Handle test failure and retry logic."""
         test_name = kwargs.get("test_name", "Unknown Test")
         attempt = self.flaky_tests.get(test_name, 0)
 
@@ -335,7 +341,7 @@ class TestRetryPlugin(BasePlugin):
             return False
 
     def get_flaky_tests(self) -> Dict[str, int]:
-        """Get tests that required retries"""
+        """Get tests that required retries."""
         return self.flaky_tests.copy()
 
 
@@ -343,8 +349,7 @@ class TestRetryPlugin(BasePlugin):
 
 
 class CustomReportPlugin(BasePlugin):
-    """
-    Generate branded custom HTML reports.
+    """Generate branded custom HTML reports.
 
     Features:
     - Custom branding/styling
@@ -353,25 +358,21 @@ class CustomReportPlugin(BasePlugin):
     - Export to multiple formats
     """
 
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        super().__init__(self._initialize_metadata(), config)
+
     def _initialize_metadata(self) -> PluginMetadata:
-        """Initialize plugin metadata"""
+        """Initialize plugin metadata."""
         return PluginMetadata(
             name="CustomReport",
             version="1.0.0",
             author="Lokendra Singh",
             description="Generate branded HTML reports",
             dependencies=[],
-            hooks=[
-                PluginHook(
-                    name="test_session_finish",
-                    callback=self.on_session_finish,
-                    priority=1,  # Run last
-                ),
-            ],
         )
 
     def load(self) -> None:
-        """Load plugin configuration"""
+        """Load plugin configuration."""
         self.report_dir = Path(self.config.get("report_dir", "reports/custom"))
         self.report_dir.mkdir(parents=True, exist_ok=True)
 
@@ -381,12 +382,19 @@ class CustomReportPlugin(BasePlugin):
 
         self.test_results: List[Dict[str, Any]] = []
 
+        self.register_hook(
+            hook_name="test_session_finish",
+            callback=self.on_session_finish,
+            description="Generate custom report at session end",
+            priority=PluginPriority.LOW,
+        )
+
     def unload(self) -> None:
-        """Cleanup resources"""
+        """Cleanup resources."""
         pass
 
-    async def on_session_finish(self, *args, **kwargs) -> None:
-        """Generate report at session end"""
+    async def on_session_finish(self, *args: Any, **kwargs: Any) -> None:
+        """Generate report at session end."""
         total = kwargs.get("total", 0)
         passed = kwargs.get("passed", 0)
         failed = kwargs.get("failed", 0)
@@ -412,7 +420,7 @@ class CustomReportPlugin(BasePlugin):
         duration: float,
         results: List[Dict[str, Any]],
     ) -> str:
-        """Generate HTML report"""
+        """Generate HTML report."""
         pass_rate = (passed / total * 100) if total > 0 else 0
 
         html = f"""
@@ -510,7 +518,7 @@ class CustomReportPlugin(BasePlugin):
         return html
 
     def _format_test_result(self, result: Dict[str, Any]) -> str:
-        """Format individual test result"""
+        """Format individual test result."""
         test_name = result.get("test_name", "Unknown")
         status = result.get("status", "unknown")
         duration = result.get("duration", 0)
@@ -531,7 +539,7 @@ class CustomReportPlugin(BasePlugin):
 
 
 def create_all_plugins() -> List[BasePlugin]:
-    """Create all example plugins"""
+    """Create all example plugins."""
     return [
         SlackReporterPlugin(),
         ScreenshotCompressorPlugin(),

@@ -1,9 +1,7 @@
-"""
-Base Page Object
+"""Base Page Object.
 
-Abstract base class for all page objects.
-Provides common methods and structure for both Playwright and Selenium.
-Includes optional human behavior simulation for realistic interactions.
+Abstract base class for all page objects. Provides common methods and structure for both Playwright
+and Selenium. Includes optional human behavior simulation for realistic interactions.
 """
 
 from abc import ABC, abstractmethod
@@ -13,11 +11,11 @@ from framework.core.utils.human_actions import HumanBehaviorSimulator, get_behav
 
 
 class BasePage(ABC):
-    """Abstract base class for page objects with human behavior support"""
+    """Abstract base class for page objects with human behavior support."""
     
     def __init__(self, driver_or_page: Any, enable_human_behavior: Optional[bool] = None):
         self.driver = driver_or_page
-        self._human_simulator = None
+        self._human_simulator: Optional[HumanBehaviorSimulator] = None
         self._human_enabled = enable_human_behavior
         
         # Initialize human behavior simulator if enabled
@@ -25,7 +23,7 @@ class BasePage(ABC):
             self._init_human_behavior()
     
     def _should_enable_human_behavior(self) -> bool:
-        """Determine if human behavior should be enabled"""
+        """Determine if human behavior should be enabled."""
         if self._human_enabled is not None:
             return self._human_enabled
         
@@ -34,15 +32,15 @@ class BasePage(ABC):
         return config.is_enabled()
     
     def _init_human_behavior(self):
-        """Initialize human behavior simulator"""
+        """Initialize human behavior simulator."""
         try:
             self._human_simulator = HumanBehaviorSimulator(self.driver, enabled=self._human_enabled)
         except Exception as e:
             print(f"[BasePage] Failed to initialize human behavior: {e}")
             self._human_simulator = None
     
-    def enable_human_behavior(self, enabled: bool = True):
-        """Enable or disable human behavior for this page instance"""
+    def enable_human_behavior(self, enabled: bool = True) -> None:
+        """Enable or disable human behavior for this page instance."""
         self._human_enabled = enabled
         if enabled and self._human_simulator is None:
             self._init_human_behavior()
@@ -50,7 +48,7 @@ class BasePage(ABC):
             self._human_simulator._enabled = enabled
     
     def human_type(self, locator: str, text: str, clear_first: bool = True) -> bool:
-        """Type text with human-like behavior if enabled, otherwise normal typing"""
+        """Type text with human-like behavior if enabled, otherwise normal typing."""
         if self._human_simulator and self._human_enabled:
             return self._human_simulator.type_text(locator, text, clear_first)
         else:
@@ -59,7 +57,7 @@ class BasePage(ABC):
             return True
     
     def human_click(self, locator: str) -> bool:
-        """Click with human-like behavior if enabled, otherwise normal click"""
+        """Click with human-like behavior if enabled, otherwise normal click."""
         if self._human_simulator and self._human_enabled:
             return self._human_simulator.click_element(locator)
         else:
@@ -68,52 +66,52 @@ class BasePage(ABC):
             return True
     
     def human_scroll(self, direction: str = 'down', distance: Optional[int] = None) -> bool:
-        """Scroll with human-like behavior if enabled"""
+        """Scroll with human-like behavior if enabled."""
         if self._human_simulator and self._human_enabled:
             return self._human_simulator.scroll_page(direction, distance)
         return True
     
     @abstractmethod
-    def navigate(self, url: str):
-        """Navigate to URL"""
+    def navigate(self, url: str) -> None:
+        """Navigate to URL."""
         pass
     
     @abstractmethod
-    def click(self, locator: str):
-        """Click element"""
+    def click(self, locator: str) -> None:
+        """Click element."""
         pass
     
     @abstractmethod
-    def fill(self, locator: str, text: str):
-        """Fill input field"""
+    def fill(self, locator: str, text: str) -> None:
+        """Fill input field."""
         pass
     
     @abstractmethod
     def get_text(self, locator: str) -> str:
-        """Get element text"""
+        """Get element text."""
         pass
     
     @abstractmethod
     def is_visible(self, locator: str) -> bool:
-        """Check if element is visible"""
+        """Check if element is visible."""
         pass
     
     @abstractmethod
-    def wait_for_element(self, locator: str, timeout: int = 10000):
-        """Wait for element to be visible"""
+    def wait_for_element(self, locator: str, timeout: int = 10000) -> None:
+        """Wait for element to be visible."""
         pass
     
     @abstractmethod
-    def take_screenshot(self, filename: str):
-        """Take screenshot"""
+    def take_screenshot(self, filename: str) -> None:
+        """Take screenshot."""
         pass
     
     @abstractmethod
     def get_current_url(self) -> str:
-        """Get current page URL"""
+        """Get current page URL."""
         pass
     
     @abstractmethod
     def get_title(self) -> str:
-        """Get page title"""
+        """Get page title."""
         pass

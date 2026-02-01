@@ -1,6 +1,4 @@
-"""
-Selenium Grid Integration Example
-Demonstrates Selenium Grid remote execution capabilities
+"""Selenium Grid Integration Example Demonstrates Selenium Grid remote execution capabilities.
 
 This example shows:
 1. Selenium Grid support for remote execution
@@ -16,10 +14,7 @@ import pytest
 @pytest.mark.grid
 @pytest.mark.legacy_ui
 def test_selenium_grid_execution():
-    """
-    Test Selenium Grid remote execution
-    Demonstrates running tests on remote Selenium Grid
-    """
+    """Test Selenium Grid remote execution Demonstrates running tests on remote Selenium Grid."""
     from framework.ui.selenium_engine import SeleniumEngine
 
     # Configure for Grid execution

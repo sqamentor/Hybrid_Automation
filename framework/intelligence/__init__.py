@@ -1,8 +1,7 @@
-"""
-AI-Driven API → DB Validation Suggester
+"""AI-Driven API → DB Validation Suggester.
 
-This module uses AI to analyze API responses and suggest appropriate database validations.
-It learns from API → DB mappings and generates intelligent validation queries.
+This module uses AI to analyze API responses and suggest appropriate database validations. It learns
+from API → DB mappings and generates intelligent validation queries.
 """
 
 import hashlib
@@ -12,9 +11,10 @@ import time
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 from config.settings import settings
+from framework.ai.ai_provider_factory import BaseAIProvider, get_ai_provider
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -22,7 +22,7 @@ logger = get_logger(__name__)
 
 @dataclass
 class ValidationSuggestion:
-    """AI-suggested database validation"""
+    """AI-suggested database validation."""
     query: str
     reason: str
     priority: str  # 'critical', 'high', 'medium', 'low'
@@ -37,7 +37,7 @@ class ValidationSuggestion:
 
 @dataclass
 class ValidationStrategy:
-    """Complete validation strategy for an API endpoint"""
+    """Complete validation strategy for an API endpoint."""
     endpoint: str
     method: str
     suggestions: List[ValidationSuggestion]
@@ -48,12 +48,11 @@ class ValidationStrategy:
 
 
 class ValidationPatternCache:
-    """Cache for common API validation patterns"""
+    """Cache for common API validation patterns."""
     
     def __init__(self, ttl_seconds: int = 3600, max_size: int = 100):
-        """
-        Initialize pattern cache
-        
+        """Initialize pattern cache.
+
         Args:
             ttl_seconds: Time-to-live for cached entries (default: 1 hour)
             max_size: Maximum cache size (default: 100 patterns)
@@ -67,9 +66,8 @@ class ValidationPatternCache:
         logger.info(f"Initialized validation cache (TTL={ttl_seconds}s, max_size={max_size})")
     
     def generate_cache_key(self, endpoint: str, method: str, response_structure: Dict) -> str:
-        """
-        Generate cache key based on endpoint, method, and response structure
-        
+        """Generate cache key based on endpoint, method, and response structure.
+
         Args:
             endpoint: API endpoint
             method: HTTP method
@@ -88,7 +86,7 @@ class ValidationPatternCache:
         return cache_key
     
     def _normalize_endpoint(self, endpoint: str) -> str:
-        """Normalize endpoint by replacing IDs with placeholders"""
+        """Normalize endpoint by replacing IDs with placeholders."""
         import re
 
         # Replace numeric IDs
@@ -100,7 +98,7 @@ class ValidationPatternCache:
         return normalized
     
     def _extract_keys(self, data: Any, prefix: str = "") -> List[str]:
-        """Recursively extract all keys from nested structure"""
+        """Recursively extract all keys from nested structure."""
         keys = []
         
         if isinstance(data, dict):
@@ -115,7 +113,7 @@ class ValidationPatternCache:
         return keys
     
     def get(self, cache_key: str) -> Optional[ValidationStrategy]:
-        """Get cached strategy if available and not expired"""
+        """Get cached strategy if available and not expired."""
         if cache_key in self.cache:
             strategy, timestamp = self.cache[cache_key]
             
@@ -138,8 +136,8 @@ class ValidationPatternCache:
         logger.debug(f"Cache MISS for key {cache_key[:8]}...")
         return None
     
-    def put(self, cache_key: str, strategy: ValidationStrategy):
-        """Store strategy in cache"""
+    def put(self, cache_key: str, strategy: ValidationStrategy) -> None:
+        """Store strategy in cache."""
         # Enforce max size (LRU eviction)
         if len(self.cache) >= self.max_size:
             # Remove oldest entry
@@ -151,7 +149,7 @@ class ValidationPatternCache:
         logger.info(f"Cached strategy for key {cache_key[:8]}...")
     
     def clear(self):
-        """Clear all cached entries"""
+        """Clear all cached entries."""
         self.cache.clear()
         self.hits = 0
         self.misses = 0
@@ -159,7 +157,7 @@ class ValidationPatternCache:
         logger.info("Validation cache cleared")
     
     def get_statistics(self) -> Dict[str, Any]:
-        """Get cache statistics"""
+        """Get cache statistics."""
         total = self.hits + self.misses
         hit_rate = (self.hits / total * 100) if total > 0 else 0
         
@@ -185,12 +183,11 @@ class ValidationPatternCache:
 
 
 class AIValidationSuggester:
-    """AI-powered API → DB validation suggester"""
+    """AI-powered API → DB validation suggester."""
     
     def __init__(self, provider_name: Optional[str] = None, enable_cache: bool = True):
-        """
-        Initialize AI Validation Suggester
-        
+        """Initialize AI Validation Suggester.
+
         Args:
             provider_name: AI provider to use ('openai', 'claude', 'azure', 'ollama')
                           If None, uses default from configuration
@@ -198,12 +195,16 @@ class AIValidationSuggester:
         """
         self.provider_name = provider_name
         self.enabled = False
-        self.ai_provider = None
+        self.ai_provider: Optional[BaseAIProvider] = None
         self.api_db_mappings = settings.get_api_db_mapping()
         
         # Initialize cache
         self.cache_enabled = enable_cache
-        self.cache = ValidationPatternCache(ttl_seconds=3600, max_size=100) if enable_cache else None
+        self.cache: Optional[ValidationPatternCache] = (
+            ValidationPatternCache(ttl_seconds=3600, max_size=100)
+            if enable_cache
+            else None
+        )
         
         # Enhanced validation patterns
         self.validation_patterns = self._initialize_validation_patterns()
@@ -211,7 +212,7 @@ class AIValidationSuggester:
         self._initialize_client()
     
     def _initialize_validation_patterns(self) -> Dict[str, List[Dict]]:
-        """Initialize comprehensive validation patterns"""
+        """Initialize comprehensive validation patterns."""
         return {
             # CRUD Operation Patterns
             "CREATE": [
@@ -440,15 +441,22 @@ class AIValidationSuggester:
         }
     
     def _initialize_client(self):
-        """Initialize AI client using multi-provider factory"""
+        """Initialize AI client using multi-provider factory."""
         try:
-            from framework.ai.ai_provider_factory import get_ai_provider
+            provider = get_ai_provider(self.provider_name)
+            if not provider:
+                logger.warning("AI provider not available. Falling back to rule-based suggestions")
+                self.enabled = False
+                self.ai_provider = None
+                return
 
             # Get AI provider
-            self.ai_provider = get_ai_provider(self.provider_name)
+            self.ai_provider = provider
             self.enabled = True
             
-            logger.info(f"AI Validation Suggester initialized with provider: {self.ai_provider.get_provider_name()}")
+            logger.info(
+                f"AI Validation Suggester initialized with provider: {self.ai_provider.get_provider_name()}"
+            )
         
         except Exception as e:
             logger.warning(f"AI provider not available: {e}. Using fallback suggestions.")
@@ -462,18 +470,17 @@ class AIValidationSuggester:
         api_response: Dict[str, Any],
         use_cache: bool = True
     ) -> ValidationStrategy:
-        """
-        Analyze API call and suggest database validations
-        
+        """Analyze API call and suggest database validations.
+
         NEVER FAILS: Always returns suggestions using fallback if AI unavailable
-        
+
         Args:
             api_endpoint: API endpoint (e.g., /api/orders/submit)
             api_method: HTTP method (POST, GET, etc.)
             api_request: Request payload
             api_response: Response data
             use_cache: Use cached patterns if available (default: True)
-        
+
         Returns:
             ValidationStrategy with suggested DB validations (AI or rule-based)
         """
@@ -536,7 +543,7 @@ class AIValidationSuggester:
         response: Dict,
         existing_mapping: Optional[Dict]
     ) -> str:
-        """Build prompt for AI"""
+        """Build prompt for AI."""
         
         prompt = f"""You are a QA database validation expert. Analyze this API call and suggest database validations.
 
@@ -607,7 +614,7 @@ Focus on:
         return prompt
     
     def _query_ai(self, prompt: str) -> str:
-        """Query AI provider with timeout and error protection"""
+        """Query AI provider with timeout and error protection."""
         if not self.enabled or not self.ai_provider:
             raise RuntimeError("AI provider not available")
         
@@ -648,7 +655,7 @@ Focus on:
         method: str,
         api_response: Dict
     ) -> ValidationStrategy:
-        """Parse AI response into ValidationStrategy"""
+        """Parse AI response into ValidationStrategy."""
         
         try:
             # Extract JSON from response
@@ -689,11 +696,14 @@ Focus on:
             logger.error(f"Failed to parse AI response: {e}")
             raise
     
-    def _get_existing_mapping(self, endpoint: str, method: str) -> Optional[Dict]:
-        """Get existing API → DB mapping if available"""
+    def _get_existing_mapping(self, endpoint: str, method: str) -> Optional[Dict[str, Any]]:
+        """Get existing API → DB mapping if available."""
         mappings = self.api_db_mappings.get('api_db_mappings', {})
         key = f"{method} {endpoint}"
-        return mappings.get(key)
+        mapping = mappings.get(key)
+        if mapping is None:
+            return None
+        return cast(Dict[str, Any], mapping)
     
     def _fallback_suggestions(
         self,
@@ -701,7 +711,7 @@ Focus on:
         method: str,
         response: Dict
     ) -> ValidationStrategy:
-        """Enhanced fallback suggestions using pattern matching"""
+        """Enhanced fallback suggestions using pattern matching."""
         
         logger.info("Using enhanced pattern-based validation suggestions")
         
@@ -742,7 +752,7 @@ Focus on:
         )
     
     def _detect_business_context(self, endpoint: str, response: Dict) -> str:
-        """Detect business context from endpoint and response"""
+        """Detect business context from endpoint and response."""
         endpoint_lower = endpoint.lower()
         response_str = json.dumps(response).lower()
         
@@ -772,7 +782,7 @@ Focus on:
         correlation_keys: Dict,
         response: Dict
     ) -> List[ValidationSuggestion]:
-        """Generate suggestions based on patterns"""
+        """Generate suggestions based on patterns."""
         suggestions = []
         
         # Map HTTP method to pattern category
@@ -834,7 +844,7 @@ Focus on:
         return suggestions
     
     def _has_foreign_keys(self, response: Dict) -> bool:
-        """Detect if response contains foreign key references"""
+        """Detect if response contains foreign key references."""
         fk_patterns = ['_id', 'Id', 'user_id', 'customer_id', 'product_id', 'order_id']
         response_str = str(response)
         return any(pattern in response_str for pattern in fk_patterns)
@@ -845,15 +855,14 @@ Focus on:
         correlation_keys: Dict,
         context: str
     ) -> int:
-        """
-        Calculate confidence score for validation suggestion
-        
+        """Calculate confidence score for validation suggestion.
+
         Factors:
         - Base confidence from pattern
         - Availability of correlation keys (0-15 points)
         - Context match (0-10 points)
         - Query complexity (-5 to +5 points)
-        
+
         Returns:
             Confidence score (0-100)
         """
@@ -890,7 +899,7 @@ Focus on:
         return max(0, min(100, score))
     
     def _extract_keys_from_response(self, response: Dict) -> Dict[str, Any]:
-        """Extract potential correlation keys from API response"""
+        """Extract potential correlation keys from API response."""
         keys = {}
         
         # Common key patterns
@@ -907,7 +916,7 @@ Focus on:
         return keys
     
     def generate_validation_report(self, strategy: ValidationStrategy) -> str:
-        """Generate human-readable validation report"""
+        """Generate human-readable validation report."""
         
         report = f"""
 {'='*80}
@@ -951,7 +960,7 @@ SUGGESTED VALIDATIONS ({len(strategy.suggestions)} total)
         suggestion: ValidationSuggestion,
         correlation_values: Dict[str, Any]
     ) -> str:
-        """Apply correlation values to query template"""
+        """Apply correlation values to query template."""
         
         query = suggestion.query
         
@@ -966,18 +975,16 @@ SUGGESTED VALIDATIONS ({len(strategy.suggestions)} total)
         self,
         strategy: ValidationStrategy,
         execution_results: List[Dict[str, Any]]
-    ):
-        """
-        Learn from validation execution results (for future enhancement)
-        This can be used to improve suggestions over time
-        """
+    ) -> None:
+        """Learn from validation execution results (for future enhancement) This can be used to
+        improve suggestions over time."""
         # Placeholder for learning mechanism
         # Could store in a database or file for analysis
         logger.info(f"Learning from {len(execution_results)} validation executions")
         pass
     
     def get_cache_statistics(self) -> Dict[str, Any]:
-        """Get cache statistics"""
+        """Get cache statistics."""
         if not self.cache_enabled or not self.cache:
             return {"cache_enabled": False}
         
@@ -987,7 +994,7 @@ SUGGESTED VALIDATIONS ({len(strategy.suggestions)} total)
         }
     
     def clear_cache(self):
-        """Clear validation pattern cache"""
+        """Clear validation pattern cache."""
         if self.cache_enabled and self.cache:
             self.cache.clear()
             logger.info("Validation cache cleared")
@@ -995,11 +1002,11 @@ SUGGESTED VALIDATIONS ({len(strategy.suggestions)} total)
             logger.warning("Cache not enabled")
     
     def get_pattern_categories(self) -> List[str]:
-        """Get list of available pattern categories"""
+        """Get list of available pattern categories."""
         return list(self.validation_patterns.keys())
     
     def get_patterns_by_category(self, category: str) -> List[Dict]:
-        """Get all patterns in a specific category"""
+        """Get all patterns in a specific category."""
         return self.validation_patterns.get(category, [])
 
 
@@ -1010,9 +1017,9 @@ SUGGESTED VALIDATIONS ({len(strategy.suggestions)} total)
 def suggest_and_validate(
     api_endpoint: str,
     api_method: str,
-    api_request: Dict,
-    api_response: Dict,
-    db_client,
+    api_request: Dict[str, Any],
+    api_response: Dict[str, Any],
+    db_client: Any,
     auto_execute: bool = False
 ) -> Dict[str, Any]:
     """
@@ -1043,11 +1050,12 @@ def suggest_and_validate(
     report = suggester.generate_validation_report(strategy)
     print(report)
     
-    results = {
+    results: Dict[str, Any] = {
         "strategy": strategy,
         "report": report,
         "validations_executed": []
     }
+    executed_results: List[Dict[str, Any]] = results["validations_executed"]
     
     # Execute if requested
     if auto_execute and db_client:
@@ -1071,13 +1079,13 @@ def suggest_and_validate(
                     "passed": len(result) > 0 if suggestion.expected_result.get('row_count') else True
                 }
                 
-                results["validations_executed"].append(execution_result)
+                executed_results.append(execution_result)
                 
                 logger.info(f"✓ Validation passed: {suggestion.reason}")
             
             except Exception as e:
                 logger.error(f"✗ Validation failed: {suggestion.reason} - {e}")
-                results["validations_executed"].append({
+                executed_results.append({
                     "suggestion": suggestion.reason,
                     "query": query,
                     "error": str(e),

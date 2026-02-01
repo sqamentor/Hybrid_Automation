@@ -1,5 +1,4 @@
-"""
-Playwright Engine Implementation
+"""Playwright Engine Implementation.
 
 Modern UI automation engine using Playwright for Python.
 
@@ -17,7 +16,7 @@ from typing import Any, Dict, List, Optional
 
 from playwright.sync_api import Browser, BrowserContext
 from playwright.sync_api import Error as PlaywrightError
-from playwright.sync_api import Page, sync_playwright
+from playwright.sync_api import Page, Playwright, sync_playwright
 
 from framework.ui.base_page import BasePage
 from utils.logger import get_audit_logger, get_logger
@@ -27,19 +26,18 @@ audit_logger = get_audit_logger()
 
 
 class BrowserStartupError(Exception):
-    """Custom exception for browser startup failures"""
+    """Custom exception for browser startup failures."""
     pass
 
 
 class ContextPoolExhausted(Exception):
-    """Exception when context pool has no available contexts"""
+    """Exception when context pool has no available contexts."""
     pass
 
 
 class PlaywrightEngine:
-    """
-    Playwright browser engine with enhanced error handling and context pooling
-    
+    """Playwright browser engine with enhanced error handling and context pooling.
+
     Features:
     - Automatic retry on browser startup failures
     - Browser context pooling for parallel execution
@@ -56,9 +54,8 @@ class PlaywrightEngine:
         enable_context_pool: bool = False,
         pool_size: int = 5
     ):
-        """
-        Initialize Playwright Engine
-        
+        """Initialize Playwright Engine.
+
         Args:
             headless: Run browser in headless mode
             slow_mo: Slow down operations by milliseconds
@@ -67,7 +64,7 @@ class PlaywrightEngine:
             enable_context_pool: Enable browser context pooling
             pool_size: Number of contexts in the pool
         """
-        self.playwright = None
+        self.playwright: Optional[Playwright] = None
         self.browser: Optional[Browser] = None
         self.context: Optional[BrowserContext] = None
         self.page: Optional[Page] = None
@@ -82,17 +79,41 @@ class PlaywrightEngine:
         self.context_pool: Optional['ContextPool'] = None
         self._pool_context: Optional[BrowserContext] = None
     
-    def start(self, browser_type: str = "chromium"):
-        """
-        Start Playwright browser with enhanced error handling
-        
+    def _require_playwright(self) -> Playwright:
+        if not self.playwright:
+            raise RuntimeError("Playwright runtime not initialized")
+        return self.playwright
+    
+    def _require_browser(self) -> Browser:
+        if not self.browser:
+            raise RuntimeError("Playwright browser not started")
+        return self.browser
+    
+    def _require_context(self) -> BrowserContext:
+        if not self.context:
+            raise RuntimeError("Playwright context not initialized")
+        return self.context
+    
+    def _require_page(self) -> Page:
+        if not self.page:
+            raise RuntimeError("Playwright page not initialized")
+        return self.page
+    
+    def _require_context_pool(self) -> 'ContextPool':
+        if not self.context_pool:
+            raise RuntimeError("Context pool not configured")
+        return self.context_pool
+    
+    def start(self, browser_type: str = "chromium") -> None:
+        """Start Playwright browser with enhanced error handling.
+
         Args:
             browser_type: Browser type ('chromium', 'firefox', 'webkit')
-        
+
         Raises:
             BrowserStartupError: If browser fails to start after retries
         """
-        last_error = None
+        last_error: Optional[BaseException] = None
         
         for attempt in range(self.max_retries):
             try:
@@ -176,9 +197,10 @@ class PlaywrightEngine:
         raise BrowserStartupError(error_msg)
     
     def _create_context(self) -> BrowserContext:
-        """Create a new browser context with standard configuration"""
+        """Create a new browser context with standard configuration."""
         try:
-            context = self.browser.new_context(
+            browser = self._require_browser()
+            context = browser.new_context(
                 viewport={"width": 1920, "height": 1080},
                 record_video_dir="videos/" if not self.headless else None,
                 ignore_https_errors=True,
@@ -194,8 +216,8 @@ class PlaywrightEngine:
             logger.error(f"Failed to create browser context: {e}")
             raise BrowserStartupError(f"Context creation failed: {e}")
     
-    def _cleanup_on_failure(self):
-        """Clean up resources on startup failure"""
+    def _cleanup_on_failure(self) -> None:
+        """Clean up resources on startup failure."""
         try:
             if self.context:
                 self.context.close()
@@ -217,12 +239,13 @@ class PlaywrightEngine:
         except Exception as e:
             logger.debug(f"Error stopping playwright during cleanup: {e}")
     
-    def stop(self):
-        """Stop Playwright browser with proper cleanup"""
+    def stop(self) -> None:
+        """Stop Playwright browser with proper cleanup."""
         try:
             # Return context to pool if using pooling
             if self.enable_context_pool and self._pool_context:
-                self.context_pool.release_context(self._pool_context)
+                context_pool = self._require_context_pool()
+                context_pool.release_context(self._pool_context)
                 self._pool_context = None
                 logger.debug("Context returned to pool")
             
@@ -280,61 +303,68 @@ class PlaywrightEngine:
     # PAGE INTERACTION METHODS
     # ========================================================================
     
-    def navigate(self, url: str):
-        """Navigate to URL"""
-        self.page.goto(url)
+    def navigate(self, url: str) -> None:
+        """Navigate to URL."""
+        page = self._require_page()
+        page.goto(url)
         logger.info(f"Navigated to: {url}")
     
-    def click(self, locator: str):
-        """
-        Click an element
-        
+    def click(self, locator: str) -> None:
+        """Click an element.
+
         Args:
             locator: Playwright locator
         """
-        self.page.locator(locator).click()
+        page = self._require_page()
+        page.locator(locator).click()
         logger.debug(f"Clicked: {locator}")
     
-    def fill(self, locator: str, text: str):
-        """
-        Fill an input field
-        
+    def fill(self, locator: str, text: str) -> None:
+        """Fill an input field.
+
         Args:
             locator: Playwright locator
             text: Text to fill
         """
-        self.page.locator(locator).fill(text)
+        page = self._require_page()
+        page.locator(locator).fill(text)
         logger.debug(f"Filled {locator} with: {text}")
     
     def get_text(self, locator: str) -> str:
-        """Get text content of element"""
-        text = self.page.locator(locator).text_content()
-        return text
+        """Get text content of element."""
+        page = self._require_page()
+        text = page.locator(locator).text_content()
+        return text or ""
     
     def is_visible(self, locator: str) -> bool:
-        """Check if element is visible"""
-        return self.page.locator(locator).is_visible()
+        """Check if element is visible."""
+        page = self._require_page()
+        return page.locator(locator).is_visible()
     
-    def wait_for_element(self, locator: str, timeout: int = 10000):
-        """Wait for element to be visible"""
-        self.page.locator(locator).wait_for(state="visible", timeout=timeout)
+    def wait_for_element(self, locator: str, timeout: int = 10000) -> None:
+        """Wait for element to be visible."""
+        page = self._require_page()
+        page.locator(locator).wait_for(state="visible", timeout=timeout)
     
-    def take_screenshot(self, filename: str):
-        """Take screenshot"""
-        self.page.screenshot(path=filename)
+    def take_screenshot(self, filename: str) -> None:
+        """Take screenshot."""
+        page = self._require_page()
+        page.screenshot(path=filename)
         logger.info(f"Screenshot saved: {filename}")
     
     # ========================================================================
     # TRACING METHODS
     # ========================================================================
     
-    def start_tracing(self):
-        """Start Playwright tracing"""
-        self.context.tracing.start(screenshots=True, snapshots=True)
+    def start_tracing(self) -> None:
+        """Start Playwright tracing."""
+        context = self._require_context()
+        context.tracing.start(screenshots=True, snapshots=True)
     
-    def stop_tracing(self, filename: str = "trace.zip"):
-        """Stop tracing and save"""
-        self.context.tracing.stop(path=filename)
+    def stop_tracing(self, filename: str = "trace.zip") -> None:
+        """Stop tracing and save."""
+        context = self._require_context()
+        context.tracing.stop(path=filename)
         logger.info(f"Trace saved: {filename}")
     
     # ========================================================================
@@ -342,51 +372,44 @@ class PlaywrightEngine:
     # ========================================================================
     
     def get_page(self) -> Page:
-        """Get Playwright page object"""
-        return self.page
+        """Get Playwright page object."""
+        return self._require_page()
     
     def get_context_pool_stats(self) -> Dict[str, Any]:
-        """Get context pool statistics"""
+        """Get context pool statistics."""
         if not self.enable_context_pool or not self.context_pool:
             return {"enabled": False}
         
         return self.context_pool.get_stats()
     
     def acquire_pooled_context(self, timeout: float = 5.0) -> BrowserContext:
-        """
-        Acquire a context from the pool for parallel execution
-        
+        """Acquire a context from the pool for parallel execution.
+
         Args:
             timeout: Maximum time to wait for available context
-        
+
         Returns:
             BrowserContext from the pool
-        
+
         Raises:
             ContextPoolExhausted: If no context available within timeout
         """
         if not self.enable_context_pool or not self.context_pool:
             raise RuntimeError("Context pooling not enabled")
         
-        return self.context_pool.acquire_context(timeout=timeout)
+        context_pool = self._require_context_pool()
+        return context_pool.acquire_context(timeout=timeout)
     
-    def release_pooled_context(self, context: BrowserContext):
-        """
-        Release a context back to the pool
-        
+    def release_pooled_context(self, context: BrowserContext) -> None:
+        """Release a context back to the pool.
+
         Args:
             context: Context to release
         """
-        if not self.enable_context_pool or not self.context_pool:
+        if not self.enable_context_pool:
             raise RuntimeError("Context pooling not enabled")
-        
-        self.context_pool.release_context(context)
-
-    'PlaywrightEngine',
-    'PlaywrightPage',
-    'ContextPool',
-    'BrowserStartupError',
-    'ContextPoolExhausted'
+        context_pool = self._require_context_pool()
+        context_pool.release_context(context)
 
 
 # ========================================================================
@@ -394,9 +417,8 @@ class PlaywrightEngine:
 # ========================================================================
 
 class ContextPool:
-    """
-    Browser context pool for parallel test execution
-    
+    """Browser context pool for parallel test execution.
+
     Features:
     - Reusable browser contexts
     - Thread-safe acquisition/release
@@ -405,9 +427,8 @@ class ContextPool:
     """
     
     def __init__(self, browser: Browser, pool_size: int = 5, headless: bool = True):
-        """
-        Initialize context pool
-        
+        """Initialize context pool.
+
         Args:
             browser: Playwright browser instance
             pool_size: Number of contexts to create
@@ -434,8 +455,8 @@ class ContextPool:
         # Initialize pool
         self._initialize_pool()
     
-    def _initialize_pool(self):
-        """Create initial pool of contexts"""
+    def _initialize_pool(self) -> None:
+        """Create initial pool of contexts."""
         logger.info(f"Initializing context pool with {self.pool_size} contexts")
         
         for i in range(self.pool_size):
@@ -465,15 +486,14 @@ class ContextPool:
         logger.info(f"Context pool initialized with {len(self.all_contexts)} contexts")
     
     def acquire_context(self, timeout: float = 5.0) -> BrowserContext:
-        """
-        Acquire a context from the pool
-        
+        """Acquire a context from the pool.
+
         Args:
             timeout: Maximum wait time in seconds
-        
+
         Returns:
             BrowserContext from pool
-        
+
         Raises:
             ContextPoolExhausted: If no context available
         """
@@ -496,10 +516,9 @@ class ContextPool:
             logger.error(error_msg)
             raise ContextPoolExhausted(error_msg)
     
-    def release_context(self, context: BrowserContext):
-        """
-        Release a context back to the pool
-        
+    def release_context(self, context: BrowserContext) -> None:
+        """Release a context back to the pool.
+
         Args:
             context: Context to release
         """
@@ -530,7 +549,7 @@ class ContextPool:
             logger.error(f"Error releasing context: {e}")
     
     def get_stats(self) -> Dict[str, Any]:
-        """Get pool statistics"""
+        """Get pool statistics."""
         with self._lock:
             return {
                 'enabled': True,
@@ -542,8 +561,8 @@ class ContextPool:
                 'wait_timeouts': self._stats['wait_timeouts']
             }
     
-    def close_all(self):
-        """Close all contexts in the pool"""
+    def close_all(self) -> None:
+        """Close all contexts in the pool."""
         logger.info("Closing all contexts in pool")
         
         for context in self.all_contexts:
@@ -569,19 +588,19 @@ class ContextPool:
 # ========================================================================
 
 class PlaywrightPage(BasePage):
-    """Playwright-based page object"""
+    """Playwright-based page object."""
     
     def __init__(self, page: Page):
         super().__init__(page)
-        self.page = page
+        self.page: Page = page
     
-    def navigate(self, url: str):
+    def navigate(self, url: str) -> None:
         self.page.goto(url)
     
-    def click(self, locator: str):
+    def click(self, locator: str) -> None:
         self.page.click(locator)
     
-    def fill(self, locator: str, text: str):
+    def fill(self, locator: str, text: str) -> None:
         self.page.fill(locator, text)
     
     def get_text(self, locator: str) -> str:
@@ -590,10 +609,10 @@ class PlaywrightPage(BasePage):
     def is_visible(self, locator: str) -> bool:
         return self.page.locator(locator).is_visible()
     
-    def wait_for_element(self, locator: str, timeout: int = 10000):
+    def wait_for_element(self, locator: str, timeout: int = 10000) -> None:
         self.page.wait_for_selector(locator, timeout=timeout)
     
-    def take_screenshot(self, filename: str):
+    def take_screenshot(self, filename: str) -> None:
         self.page.screenshot(path=filename)
     
     def get_current_url(self) -> str:

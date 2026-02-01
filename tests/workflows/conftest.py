@@ -1,5 +1,4 @@
-"""
-Workflow Test Fixtures
+"""Workflow Test Fixtures.
 
 Provides pytest fixtures for cross-engine workflow testing.
 Integrates SessionManager, AuthenticationService, and WorkflowOrchestrator.
@@ -22,9 +21,8 @@ logger = logging.getLogger(__name__)
 
 @pytest.fixture(scope='session')
 def session_manager() -> SessionManager:
-    """
-    Provides SessionManager instance for session bridging
-    
+    """Provides SessionManager instance for session bridging.
+
     Usage:
         def test_example(session_manager):
             session = session_manager.extract_session_from_selenium(driver)
@@ -35,9 +33,8 @@ def session_manager() -> SessionManager:
 
 @pytest.fixture(scope='session')
 def auth_service(session_manager: SessionManager) -> AuthenticationService:
-    """
-    Provides AuthenticationService with SessionManager
-    
+    """Provides AuthenticationService with SessionManager.
+
     Usage:
         def test_example(auth_service):
             session = auth_service.authenticate_sso(driver, sso_config, credentials)
@@ -51,9 +48,8 @@ def workflow_orchestrator(
     auth_service: AuthenticationService,
     session_manager: SessionManager
 ) -> WorkflowOrchestrator:
-    """
-    Provides WorkflowOrchestrator for multi-step workflows
-    
+    """Provides WorkflowOrchestrator for multi-step workflows.
+
     Usage:
         def test_workflow(workflow_orchestrator):
             workflow = workflow_orchestrator.define_workflow("My Workflow")
@@ -73,12 +69,11 @@ def cross_engine_session(
     playwright_page_sync,
     session_manager: SessionManager
 ) -> Tuple[Any, Any, SessionManager]:
-    """
-    Provides pre-configured cross-engine session setup
-    
+    """Provides pre-configured cross-engine session setup.
+
     Returns:
         (selenium_driver, playwright_page, session_manager)
-    
+
     Usage:
         def test_cross_engine(cross_engine_session):
             selenium_driver, playwright_page, session_mgr = cross_engine_session
@@ -100,15 +95,14 @@ def workflow_engines(
     selenium_driver,
     playwright_page_sync
 ) -> Dict[str, Any]:
-    """
-    Provides engines dict for workflow orchestrator
-    
+    """Provides engines dict for workflow orchestrator.
+
     Returns:
         {
             'selenium': WebDriver instance,
             'playwright': Playwright Page instance (sync)
         }
-    
+
     Usage:
         def test_workflow(workflow_orchestrator, workflow_engines):
             workflow = workflow_orchestrator.define_workflow("Test")
@@ -128,18 +122,17 @@ def workflow_engines(
 
 @pytest.fixture(scope='function')
 def sso_config(config) -> Dict[str, str]:
-    """
-    Provides SSO configuration from config
-    
+    """Provides SSO configuration from config.
+
     Expected in config YAML:
         sso:
           provider: okta
           okta_domain: https://company.okta.com
           app_id: xxxxx
-    
+
     Returns:
         SSO configuration dict
-    
+
     Usage:
         def test_sso(auth_service, sso_config):
             session = auth_service.authenticate_sso(driver, sso_config, credentials)
@@ -156,18 +149,17 @@ def sso_config(config) -> Dict[str, str]:
 
 @pytest.fixture(scope='function')
 def sso_credentials(config) -> Dict[str, str]:
-    """
-    Provides SSO credentials from config or environment
-    
+    """Provides SSO credentials from config or environment.
+
     Expected in config YAML:
         credentials:
           sso_username: user@company.com
           sso_password: xxx
           mfa_token: xxx (optional)
-    
+
     Returns:
         Credentials dict
-    
+
     Usage:
         def test_sso(auth_service, sso_credentials):
             session = auth_service.authenticate_sso(driver, sso_config, sso_credentials)
@@ -199,12 +191,11 @@ def authenticated_selenium(
     sso_config: Dict[str, str],
     sso_credentials: Dict[str, str]
 ) -> Tuple[Any, Any]:
-    """
-    Provides pre-authenticated Selenium driver with session
-    
+    """Provides pre-authenticated Selenium driver with session.
+
     Returns:
         (selenium_driver, session_data)
-    
+
     Usage:
         def test_with_auth(authenticated_selenium):
             driver, session = authenticated_selenium
@@ -237,17 +228,16 @@ def authenticated_workflow(
     sso_config: Dict[str, str],
     sso_credentials: Dict[str, str]
 ) -> Tuple[WorkflowOrchestrator, Dict[str, Any], Any]:
-    """
-    Provides workflow orchestrator with pre-authenticated Selenium session
-    
+    """Provides workflow orchestrator with pre-authenticated Selenium session.
+
     Returns:
         (workflow_orchestrator, workflow_engines, session_data)
-    
+
     Usage:
         def test_workflow(authenticated_workflow):
             orchestrator, engines, session = authenticated_workflow
             # Selenium is authenticated, session available
-            
+
             workflow = orchestrator.define_workflow("Test")
             # Add steps that use session
             orchestrator.execute_workflow_sync(workflow, engines)
@@ -274,9 +264,7 @@ def authenticated_workflow(
 
 @pytest.fixture(autouse=True, scope='function')
 def workflow_test_logging(request):
-    """
-    Automatically log workflow test execution
-    """
+    """Automatically log workflow test execution."""
     test_name = request.node.name
     logger.info(f"\n{'='*100}")
     logger.info(f"WORKFLOW TEST: {test_name}")

@@ -1,25 +1,26 @@
-"""
-Microservices Architecture Base
+"""Microservices Architecture Base.
 
-Modern microservice foundation with service discovery, health checks,
-and event-driven communication patterns.
+Modern microservice foundation with service discovery, health checks, and event-driven communication
+patterns.
 """
 
 from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
+from logging import Logger
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Protocol
+from typing import Any, Awaitable, Callable, Dict, List, Optional, Protocol, Union
 
 
 class ServiceList(list):
-    """Custom list that supports 'in' operator with service names"""
+    """Custom list that supports 'in' operator with service names."""
     def __contains__(self, item):
         if isinstance(item, str):
             # Check by name
@@ -29,7 +30,7 @@ class ServiceList(list):
 
 
 class ServiceStatus(str, Enum):
-    """Service health status"""
+    """Service health status."""
     STOPPED = "stopped"
     STARTING = "starting"
     RUNNING = "running"
@@ -41,7 +42,7 @@ class ServiceStatus(str, Enum):
 
 
 class MessagePriority(str, Enum):
-    """Message priority levels"""
+    """Message priority levels."""
     LOW = "low"
     NORMAL = "normal"
     HIGH = "high"
@@ -50,7 +51,7 @@ class MessagePriority(str, Enum):
 
 @dataclass
 class HealthCheck:
-    """Service health check result"""
+    """Service health check result."""
     service_name: str
     status: ServiceStatus
     timestamp: datetime
@@ -59,13 +60,13 @@ class HealthCheck:
     
     @property
     def is_healthy(self) -> bool:
-        """Check if service is healthy"""
+        """Check if service is healthy."""
         return self.status == ServiceStatus.HEALTHY
 
 
 @dataclass
 class ServiceInfo:
-    """Service registration information"""
+    """Service registration information."""
     name: str
     version: str
     host: str
@@ -76,13 +77,13 @@ class ServiceInfo:
     
     @property
     def base_url(self) -> str:
-        """Get service base URL"""
+        """Get service base URL."""
         return f"http://{self.host}:{self.port}"
 
 
 @dataclass
 class Message:
-    """Event-driven message"""
+    """Event-driven message."""
     event: str  # Alias for topic to match test expectations
     data: Optional[Dict[str, Any]] = None  # Alias for payload
     sender: str = ""  # Make sender optional with default
@@ -93,45 +94,47 @@ class Message:
     
     @property
     def topic(self) -> str:
-        """Alias for event"""
+        """Alias for event."""
         return self.event
     
     @property
     def payload(self) -> Optional[Dict[str, Any]]:
-        """Alias for data"""
+        """Alias for data."""
         return self.data
 
 
+MessageHandler = Callable[[Message], Union[Awaitable[Any], None]]
+
+
 class IService(Protocol):
-    """Service interface protocol"""
+    """Service interface protocol."""
     
     @property
     def name(self) -> str:
-        """Service name"""
+        """Service name."""
         ...
     
     @property
     def version(self) -> str:
-        """Service version"""
+        """Service version."""
         ...
     
     async def start(self) -> None:
-        """Start service"""
+        """Start service."""
         ...
     
     async def stop(self) -> None:
-        """Stop service"""
+        """Stop service."""
         ...
     
     async def health_check(self) -> HealthCheck:
-        """Perform health check"""
+        """Perform health check."""
         ...
 
 
 class BaseService(ABC):
-    """
-    Base class for microservices.
-    
+    """Base class for microservices.
+
     Provides:
     - Service lifecycle management
     - Health check framework
@@ -145,32 +148,35 @@ class BaseService(ABC):
         self._host = host
         self._port = port
         self._status = ServiceStatus.STOPPED
-        self._message_handlers: Dict[str, List[Callable]] = {}
+        self._message_handlers: Dict[str, List[MessageHandler]] = {}
         self._health_checks: List[Callable[[], bool]] = []
+        self.service_id: str = name
+        self.logger: Logger = logging.getLogger(f"{self.__class__.__name__}:{name}")
+        self.message_bus: MessageBus = get_message_bus()
     
     @property
     def name(self) -> str:
-        """Get service name"""
+        """Get service name."""
         return self._name
     
     @property
     def version(self) -> str:
-        """Get service version"""
+        """Get service version."""
         return self._version
     
     @property
     def status(self) -> ServiceStatus:
-        """Get current service status"""
+        """Get current service status."""
         return self._status
     
     @status.setter
     def status(self, value: ServiceStatus) -> None:
-        """Set service status"""
+        """Set service status."""
         self._status = value
     
     @property
     def info(self) -> ServiceInfo:
-        """Get service information"""
+        """Get service information."""
         return ServiceInfo(
             name=self._name,
             version=self._version,
@@ -182,21 +188,20 @@ class BaseService(ABC):
         )
     
     async def start(self) -> None:
-        """Start the service"""
+        """Start the service."""
         self._status = ServiceStatus.STARTING
         await self.on_start()
         self._status = ServiceStatus.RUNNING
     
     async def stop(self) -> None:
-        """Stop the service"""
+        """Stop the service."""
         self._status = ServiceStatus.STOPPING
         await self.on_stop()
         self._status = ServiceStatus.STOPPED
     
     async def health_check(self) -> HealthCheck:
-        """
-        Perform comprehensive health check.
-        
+        """Perform comprehensive health check.
+
         Returns:
             HealthCheck result
         """
@@ -233,19 +238,20 @@ class BaseService(ABC):
         )
     
     async def _run_health_check(self, check_fn: Callable) -> bool:
-        """Run a single health check function"""
+        """Run a single health check function."""
         if asyncio.iscoroutinefunction(check_fn):
-            return await check_fn()
-        return check_fn()
+            result = await check_fn()
+        else:
+            result = check_fn()
+        return bool(result)
     
     def register_health_check(self, check_fn: Callable[[], bool]) -> None:
-        """Register a health check function"""
+        """Register a health check function."""
         self._health_checks.append(check_fn)
     
-    def subscribe(self, topic: str, handler: Callable[[Message], None]) -> None:
-        """
-        Subscribe to message topic.
-        
+    def subscribe(self, topic: str, handler: MessageHandler) -> None:
+        """Subscribe to message topic.
+
         Args:
             topic: Topic to subscribe to
             handler: Message handler function
@@ -255,9 +261,8 @@ class BaseService(ABC):
         self._message_handlers[topic].append(handler)
     
     async def publish(self, message: Message) -> None:
-        """
-        Publish message to subscribers.
-        
+        """Publish message to subscribers.
+
         Args:
             message: Message to publish
         """
@@ -301,32 +306,30 @@ class BaseService(ABC):
 
 
 class ServiceRegistry:
-    """
-    Service registry for service discovery.
-    
+    """Service registry for service discovery.
+
     Features:
     - Service registration/deregistration
     - Service discovery by name or tags
     - Health check monitoring
     """
     
-    _instance = None
+    _instance: Optional['ServiceRegistry'] = None
     
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            cls._instance._initialized = False
         return cls._instance
     
     def __init__(self):
-        if self._initialized:
+        if getattr(self, "_initialized", False):
             return
         self._services: Dict[str, ServiceInfo] = {}
         self._service_instances: Dict[str, BaseService] = {}  # Store actual service objects
         self._health_cache: Dict[str, HealthCheck] = {}
         self._initialized = True
     
-    def register(self, service_or_info) -> None:
+    def register(self, service_or_info: Union[BaseService, ServiceInfo]) -> None:
         """Register a service (accepts BaseService or ServiceInfo)"""
         if isinstance(service_or_info, BaseService):
             # Store the service instance
@@ -340,17 +343,17 @@ class ServiceRegistry:
             self._services[service_or_info.name] = service_or_info
     
     def deregister(self, service_name: str) -> None:
-        """Deregister a service"""
+        """Deregister a service."""
         self._services.pop(service_name, None)
         self._service_instances.pop(service_name, None)
         self._health_cache.pop(service_name, None)
     
     def unregister(self, service_name: str) -> None:
-        """Alias for deregister"""
+        """Alias for deregister."""
         self.deregister(service_name)
     
     def discover(self, service_name: str) -> Optional[ServiceInfo]:
-        """Discover service by name"""
+        """Discover service by name."""
         return self._services.get(service_name)
     
     def get(self, service_name: str) -> Optional[BaseService]:
@@ -358,14 +361,14 @@ class ServiceRegistry:
         return self._service_instances.get(service_name)
     
     def discover_by_tag(self, tag: str) -> List[ServiceInfo]:
-        """Discover services by tag"""
+        """Discover services by tag."""
         return [
             service for service in self._services.values()
             if tag in service.tags
         ]
     
     def get_all_services(self) -> List[ServiceInfo]:
-        """Get all registered services"""
+        """Get all registered services."""
         return list(self._services.values())
     
     def get_all(self) -> ServiceList:
@@ -373,11 +376,11 @@ class ServiceRegistry:
         return ServiceList(self._service_instances.values())
     
     def update_health(self, service_name: str, health: HealthCheck) -> None:
-        """Update service health status"""
+        """Update service health status."""
         self._health_cache[service_name] = health
     
     def get_healthy_services(self) -> List[ServiceInfo]:
-        """Get all healthy services"""
+        """Get all healthy services."""
         return [
             service for service in self._services.values()
             if service.name in self._health_cache
@@ -385,61 +388,66 @@ class ServiceRegistry:
         ]
     
     async def start_all(self) -> None:
-        """Start all registered service instances"""
+        """Start all registered service instances."""
         for service in self._service_instances.values():
             await service.start()
     
     async def stop_all(self) -> None:
-        """Stop all registered service instances"""
+        """Stop all registered service instances."""
         for service in self._service_instances.values():
             await service.stop()
     
-    async def health_check_all(self) -> Dict[str, Dict[str, Any]]:
-        """Perform health check on all registered service instances"""
-        results = {}
+    async def health_check_all(self) -> Dict[str, HealthCheck]:
+        """Perform health check on all registered service instances."""
+        results: Dict[str, HealthCheck] = {}
         for name, service in self._service_instances.items():
             results[name] = await service.health_check()
         return results
 
 
 class MessageBus:
-    """
-    Simple in-memory message bus for event-driven communication.
-    
+    """Simple in-memory message bus for event-driven communication.
+
     Features:
     - Topic-based pub/sub
     - Priority message queues
     - Message filtering
     """
     
-    _instance = None
+    _instance: Optional['MessageBus'] = None
     
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            cls._instance._initialized = False
         return cls._instance
     
     def __init__(self):
-        if self._initialized:
+        if getattr(self, "_initialized", False):
             return
-        self._subscribers: Dict[str, List[Callable]] = {}
+        self._subscribers: Dict[str, List[MessageHandler]] = {}
         self._message_queue: asyncio.Queue = asyncio.Queue()
         self._initialized = True
-    
-    def subscribe(self, topic: str, handler: Callable[[Message], None]) -> None:
-        """Subscribe to topic"""
+
+    def subscribe(self, topic: str, handler: MessageHandler) -> None:
+        """Subscribe to topic."""
         if topic not in self._subscribers:
             self._subscribers[topic] = []
         self._subscribers[topic].append(handler)
-    
-    def unsubscribe(self, topic: str, handler: Callable[[Message], None]) -> None:
-        """Unsubscribe from topic"""
+
+    def unsubscribe(self, topic: str, handler: MessageHandler) -> None:
+        """Unsubscribe from topic."""
         if topic in self._subscribers:
             self._subscribers[topic].remove(handler)
-    
-    async def publish(self, event_or_message, data: Optional[Dict[str, Any]] = None) -> None:
-        """Publish message to topic. Accepts either (event, data) or (Message object)"""
+
+    async def publish(
+        self,
+        event_or_message: Union[str, Message],
+        data: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        """Publish message to topic.
+
+        Accepts either (event, data) or (Message object)
+        """
         if isinstance(event_or_message, Message):
             message = event_or_message
         else:
@@ -473,7 +481,7 @@ class MessageBus:
         return re.match(f"^{regex_pattern}$", event) is not None
     
     def get_subscriber_count(self, topic: str) -> int:
-        """Get number of subscribers for topic"""
+        """Get number of subscribers for topic."""
         return len(self._subscribers.get(topic, []))
 
 
@@ -483,10 +491,10 @@ _message_bus = MessageBus()
 
 
 def get_service_registry() -> ServiceRegistry:
-    """Get global service registry"""
+    """Get global service registry."""
     return _service_registry
 
 
 def get_message_bus() -> MessageBus:
-    """Get global message bus"""
+    """Get global message bus."""
     return _message_bus

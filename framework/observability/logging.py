@@ -1,5 +1,4 @@
-"""
-Structured logging with structlog for better observability.
+"""Structured logging with structlog for better observability.
 
 Provides:
 - JSON-formatted logs
@@ -10,9 +9,15 @@ Provides:
 import logging
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional
+from types import TracebackType
+from typing import Any, Awaitable, Callable, Dict, Optional, ParamSpec, Type, TypeVar
 
 import structlog
+from structlog.stdlib import BoundLogger
+
+FuncParams = ParamSpec("FuncParams")
+FuncReturn = TypeVar("FuncReturn")
+AsyncFuncReturn = TypeVar("AsyncFuncReturn")
 
 
 class LogConfig:
@@ -27,9 +32,8 @@ class LogConfig:
         include_caller: bool = True,
         include_thread: bool = False
     ):
-        """
-        Initialize logging configuration.
-        
+        """Initialize logging configuration.
+
         Args:
             level: Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
             format: Output format (json or console)
@@ -47,16 +51,15 @@ class LogConfig:
 
 
 def configure_logging(config: LogConfig) -> None:
-    """
-    Configure structlog with the specified configuration.
-    
+    """Configure structlog with the specified configuration.
+
     Args:
         config: Logging configuration
-    
+
     Example:
         ```python
         from framework.observability.logging import configure_logging, LogConfig
-        
+
         config = LogConfig(
             level="DEBUG",
             format="json",
@@ -133,19 +136,18 @@ def configure_logging(config: LogConfig) -> None:
 
 
 def get_logger(name: Optional[str] = None) -> structlog.stdlib.BoundLogger:
-    """
-    Get a structured logger instance.
-    
+    """Get a structured logger instance.
+
     Args:
         name: Optional logger name (defaults to module name)
-    
+
     Returns:
         Configured structlog logger
-    
+
     Example:
         ```python
         from framework.observability.logging import get_logger
-        
+
         logger = get_logger(__name__)
         logger.info("test_started", test_name="test_login", user="admin")
         logger.error("test_failed", test_name="test_login", error="timeout")
@@ -155,15 +157,14 @@ def get_logger(name: Optional[str] = None) -> structlog.stdlib.BoundLogger:
 
 
 class LogContext:
-    """
-    Context manager for adding context to logs.
-    
+    """Context manager for adding context to logs.
+
     Example:
         ```python
         from framework.observability.logging import LogContext, get_logger
-        
+
         logger = get_logger(__name__)
-        
+
         with LogContext(test_id="test_001", user="admin"):
             logger.info("operation_started")
             # All logs in this context will include test_id and user
@@ -171,34 +172,37 @@ class LogContext:
         ```
     """
     
-    def __init__(self, **context):
-        """
-        Initialize log context.
-        
+    def __init__(self, **context: Any):
+        """Initialize log context.
+
         Args:
             **context: Context key-value pairs
         """
-        self.context = context
-        self.token = None
+        self.context: Dict[str, Any] = context
+        self.token: Optional[Any] = None
     
-    def __enter__(self):
+    def __enter__(self) -> "LogContext":
         """Enter context."""
         self.token = structlog.contextvars.bind_contextvars(**self.context)
         return self
     
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType]
+    ) -> None:
         """Exit context."""
         structlog.contextvars.unbind_contextvars(*self.context.keys())
 
 
 class TestLogger:
-    """
-    Specialized logger for test execution.
-    
+    """Specialized logger for test execution.
+
     Example:
         ```python
         from framework.observability.logging import TestLogger
-        
+
         test_logger = TestLogger("test_login")
         test_logger.test_started()
         test_logger.step("enter_username", username="admin")
@@ -207,38 +211,40 @@ class TestLogger:
     """
     
     def __init__(self, test_name: str):
-        """
-        Initialize test logger.
-        
+        """Initialize test logger.
+
         Args:
             test_name: Name of the test
         """
         self.test_name = test_name
-        self.logger = get_logger("test")
+        self.logger: BoundLogger = get_logger("test")
         self.context = LogContext(test_name=test_name)
     
-    def __enter__(self):
+    def __enter__(self) -> "TestLogger":
         """Enter test context."""
         self.context.__enter__()
         return self
     
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType]
+    ) -> None:
         """Exit test context."""
         self.context.__exit__(exc_type, exc_val, exc_tb)
     
-    def test_started(self, **kwargs) -> None:
-        """
-        Log test start.
-        
+    def test_started(self, **kwargs: Any) -> None:
+        """Log test start.
+
         Args:
             **kwargs: Additional context
         """
         self.logger.info("test_started", **kwargs)
     
-    def test_passed(self, duration: Optional[float] = None, **kwargs) -> None:
-        """
-        Log test pass.
-        
+    def test_passed(self, duration: Optional[float] = None, **kwargs: Any) -> None:
+        """Log test pass.
+
         Args:
             duration: Test duration in seconds
             **kwargs: Additional context
@@ -247,40 +253,36 @@ class TestLogger:
             kwargs["duration"] = duration
         self.logger.info("test_passed", **kwargs)
     
-    def test_failed(self, error: str, **kwargs) -> None:
-        """
-        Log test failure.
-        
+    def test_failed(self, error: str, **kwargs: Any) -> None:
+        """Log test failure.
+
         Args:
             error: Error message
             **kwargs: Additional context
         """
         self.logger.error("test_failed", error=error, **kwargs)
     
-    def test_skipped(self, reason: str, **kwargs) -> None:
-        """
-        Log test skip.
-        
+    def test_skipped(self, reason: str, **kwargs: Any) -> None:
+        """Log test skip.
+
         Args:
             reason: Skip reason
             **kwargs: Additional context
         """
         self.logger.warning("test_skipped", reason=reason, **kwargs)
     
-    def step(self, step_name: str, **kwargs) -> None:
-        """
-        Log test step.
-        
+    def step(self, step_name: str, **kwargs: Any) -> None:
+        """Log test step.
+
         Args:
             step_name: Name of the step
             **kwargs: Additional context
         """
         self.logger.info("test_step", step=step_name, **kwargs)
     
-    def assertion(self, assertion: str, result: bool, **kwargs) -> None:
-        """
-        Log assertion result.
-        
+    def assertion(self, assertion: str, result: bool, **kwargs: Any) -> None:
+        """Log assertion result.
+
         Args:
             assertion: Assertion description
             result: Assertion result (True/False)
@@ -294,10 +296,9 @@ class TestLogger:
             **kwargs
         )
     
-    def screenshot(self, path: str, **kwargs) -> None:
-        """
-        Log screenshot capture.
-        
+    def screenshot(self, path: str, **kwargs: Any) -> None:
+        """Log screenshot capture.
+
         Args:
             path: Screenshot file path
             **kwargs: Additional context
@@ -310,11 +311,10 @@ class TestLogger:
         url: str,
         status_code: Optional[int] = None,
         duration: Optional[float] = None,
-        **kwargs
+        **kwargs: Any
     ) -> None:
-        """
-        Log API request.
-        
+        """Log API request.
+
         Args:
             method: HTTP method
             url: Request URL
@@ -336,11 +336,10 @@ class TestLogger:
         query: str,
         rows_affected: Optional[int] = None,
         duration: Optional[float] = None,
-        **kwargs
+        **kwargs: Any
     ) -> None:
-        """
-        Log database query.
-        
+        """Log database query.
+
         Args:
             query: SQL query
             rows_affected: Number of rows affected
@@ -357,15 +356,14 @@ class TestLogger:
 
 
 class PerformanceLogger:
-    """
-    Logger for performance metrics.
-    
+    """Logger for performance metrics.
+
     Example:
         ```python
         from framework.observability.logging import PerformanceLogger
-        
+
         perf_logger = PerformanceLogger()
-        
+
         with perf_logger.measure("page_load"):
             # Code to measure
             page.load()
@@ -374,16 +372,15 @@ class PerformanceLogger:
     
     def __init__(self):
         """Initialize performance logger."""
-        self.logger = get_logger("performance")
+        self.logger: BoundLogger = get_logger("performance")
     
-    def measure(self, operation: str, **context):
-        """
-        Context manager for measuring operation duration.
-        
+    def measure(self, operation: str, **context: Any) -> "PerformanceMeasurement":
+        """Context manager for measuring operation duration.
+
         Args:
             operation: Name of the operation
             **context: Additional context
-        
+
         Returns:
             Performance measurement context
         """
@@ -393,10 +390,9 @@ class PerformanceLogger:
 class PerformanceMeasurement:
     """Context manager for performance measurements."""
     
-    def __init__(self, logger, operation: str, context: Dict[str, Any]):
-        """
-        Initialize performance measurement.
-        
+    def __init__(self, logger: BoundLogger, operation: str, context: Dict[str, Any]):
+        """Initialize performance measurement.
+
         Args:
             logger: Logger instance
             operation: Operation name
@@ -405,17 +401,24 @@ class PerformanceMeasurement:
         self.logger = logger
         self.operation = operation
         self.context = context
-        self.start_time = None
+        self.start_time: Optional[float] = None
     
-    def __enter__(self):
+    def __enter__(self) -> "PerformanceMeasurement":
         """Start measurement."""
         import time
         self.start_time = time.time()
         return self
     
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType]
+    ) -> None:
         """End measurement and log."""
         import time
+        if self.start_time is None:
+            return
         duration = time.time() - self.start_time
         
         self.logger.info(
@@ -430,16 +433,17 @@ class PerformanceMeasurement:
 # Convenience Functions
 # ============================================================================
 
-def log_test_execution(test_name: str):
-    """
-    Decorator for logging test execution.
-    
+def log_test_execution(
+    test_name: str
+) -> Callable[[Callable[FuncParams, FuncReturn]], Callable[FuncParams, FuncReturn]]:
+    """Decorator for logging test execution.
+
     Args:
         test_name: Name of the test
-    
+
     Returns:
         Decorated test function
-    
+
     Example:
         ```python
         @log_test_execution("test_user_login")
@@ -451,9 +455,9 @@ def log_test_execution(test_name: str):
     import time
     from functools import wraps
     
-    def decorator(func):
+    def decorator(func: Callable[FuncParams, FuncReturn]) -> Callable[FuncParams, FuncReturn]:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: FuncParams.args, **kwargs: FuncParams.kwargs) -> FuncReturn:
             test_logger = TestLogger(test_name)
             
             with test_logger:
@@ -474,16 +478,17 @@ def log_test_execution(test_name: str):
     return decorator
 
 
-def log_async_test_execution(test_name: str):
-    """
-    Decorator for logging async test execution.
-    
+def log_async_test_execution(
+    test_name: str
+) -> Callable[[Callable[FuncParams, Awaitable[AsyncFuncReturn]]], Callable[FuncParams, Awaitable[AsyncFuncReturn]]]:
+    """Decorator for logging async test execution.
+
     Args:
         test_name: Name of the test
-    
+
     Returns:
         Decorated async test function
-    
+
     Example:
         ```python
         @log_async_test_execution("test_async_api_call")
@@ -495,9 +500,14 @@ def log_async_test_execution(test_name: str):
     import time
     from functools import wraps
     
-    def decorator(func):
+    def decorator(
+        func: Callable[FuncParams, Awaitable[AsyncFuncReturn]]
+    ) -> Callable[FuncParams, Awaitable[AsyncFuncReturn]]:
         @wraps(func)
-        async def wrapper(*args, **kwargs):
+        async def wrapper(
+            *args: FuncParams.args,
+            **kwargs: FuncParams.kwargs,
+        ) -> AsyncFuncReturn:
             test_logger = TestLogger(test_name)
             
             with test_logger:

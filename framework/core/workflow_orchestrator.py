@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class StepStatus(Enum):
-    """Workflow step execution status"""
+    """Workflow step execution status."""
     PENDING = "pending"
     RUNNING = "running"
     SUCCESS = "success"
@@ -31,14 +31,14 @@ class StepStatus(Enum):
 
 
 class EngineType(Enum):
-    """Engine types"""
+    """Engine types."""
     SELENIUM = "selenium"
     PLAYWRIGHT = "playwright"
     PLAYWRIGHT_ASYNC = "playwright_async"
 
 
 class OnFailureStrategy(Enum):
-    """What to do when a step fails"""
+    """What to do when a step fails."""
     STOP = "stop"  # Stop entire workflow
     CONTINUE = "continue"  # Continue to next step
     RETRY = "retry"  # Retry failed step
@@ -46,9 +46,8 @@ class OnFailureStrategy(Enum):
 
 @dataclass
 class WorkflowStep:
-    """
-    A single step in a workflow
-    
+    """A single step in a workflow.
+
     Attributes:
         name: Human-readable step name
         engine_type: Which engine to use (selenium/playwright)
@@ -78,9 +77,8 @@ class WorkflowStep:
 
 @dataclass
 class Workflow:
-    """
-    Multi-step cross-engine workflow
-    
+    """Multi-step cross-engine workflow.
+
     Attributes:
         name: Workflow name
         description: Workflow description
@@ -96,31 +94,30 @@ class Workflow:
 
 
 class WorkflowOrchestrator:
-    """
-    Orchestrates multi-step workflows across engines
-    
+    """Orchestrates multi-step workflows across engines.
+
     Features:
     - Execute workflows with Selenium and Playwright steps
     - Automatic session transfer between engines
     - Error recovery and retry logic
     - Workflow state tracking
     - Detailed execution logging
-    
+
     Example:
         orchestrator = WorkflowOrchestrator(auth_service, session_manager)
-        
+
         workflow = orchestrator.define_workflow(
             name="SSO to CallCenter to PatientIntake",
             description="Complete cross-engine workflow"
         )
-        
+
         orchestrator.add_step(
             workflow,
             name="SSO Login",
             engine_type=EngineType.SELENIUM,
             action=lambda driver: auth_service.authenticate_sso(...)
         )
-        
+
         orchestrator.add_step(
             workflow,
             name="CallCenter Operations",
@@ -128,7 +125,7 @@ class WorkflowOrchestrator:
             action=lambda page: callcenter_page.navigate_and_verify(...),
             requires_session=True
         )
-        
+
         result = orchestrator.execute_workflow_sync(workflow, engines)
     """
     
@@ -152,14 +149,13 @@ class WorkflowOrchestrator:
         description: str = "",
         metadata: Optional[Dict[str, Any]] = None
     ) -> Workflow:
-        """
-        Create a new workflow definition
-        
+        """Create a new workflow definition.
+
         Args:
             name: Workflow name
             description: Workflow description
             metadata: Additional metadata
-        
+
         Returns:
             Workflow instance
         """
@@ -184,9 +180,8 @@ class WorkflowOrchestrator:
         retry_count: int = 0,
         metadata: Optional[Dict[str, Any]] = None
     ) -> WorkflowStep:
-        """
-        Add a step to a workflow
-        
+        """Add a step to a workflow.
+
         Args:
             workflow: Target workflow
             name: Step name
@@ -197,7 +192,7 @@ class WorkflowOrchestrator:
             timeout: Max execution time
             retry_count: How many retries on failure
             metadata: Additional metadata
-        
+
         Returns:
             Created WorkflowStep
         """
@@ -233,16 +228,15 @@ class WorkflowOrchestrator:
         workflow: Workflow,
         engines: Dict[str, Any]
     ) -> bool:
-        """
-        Execute workflow synchronously
-        
+        """Execute workflow synchronously.
+
         Args:
             workflow: Workflow to execute
             engines: {
                 'selenium': WebDriver instance,
                 'playwright': Playwright Page instance (sync)
             }
-        
+
         Returns:
             True if workflow completed successfully
         """
@@ -373,16 +367,15 @@ class WorkflowOrchestrator:
         workflow: Workflow,
         engines: Dict[str, Any]
     ) -> bool:
-        """
-        Execute workflow asynchronously
-        
+        """Execute workflow asynchronously.
+
         Args:
             workflow: Workflow to execute
             engines: {
                 'selenium': WebDriver instance,
                 'playwright': Playwright Page instance (async)
             }
-        
+
         Returns:
             True if workflow completed successfully
         """
@@ -472,7 +465,7 @@ class WorkflowOrchestrator:
     # ========================================================================
     
     def get_workflow_status(self, workflow: Workflow) -> Dict[str, Any]:
-        """Get workflow execution status"""
+        """Get workflow execution status."""
         total_steps = len(workflow.steps)
         completed_steps = sum(1 for step in workflow.steps if step.status == StepStatus.SUCCESS)
         failed_steps = sum(1 for step in workflow.steps if step.status == StepStatus.FAILED)
@@ -487,7 +480,7 @@ class WorkflowOrchestrator:
         }
     
     def get_step_details(self, step: WorkflowStep) -> Dict[str, Any]:
-        """Get detailed step information"""
+        """Get detailed step information."""
         duration = None
         if step.start_time and step.end_time:
             duration = step.end_time - step.start_time
@@ -502,7 +495,7 @@ class WorkflowOrchestrator:
         }
     
     def reset_workflow(self, workflow: Workflow) -> None:
-        """Reset workflow to initial state"""
+        """Reset workflow to initial state."""
         for step in workflow.steps:
             step.status = StepStatus.PENDING
             step.start_time = None

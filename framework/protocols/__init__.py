@@ -1,8 +1,7 @@
-"""
-Protocol Interfaces Package
+"""Protocol Interfaces Package.
 
-This module defines Protocol classes for interface contracts across the framework.
-Protocols enable structural subtyping (duck typing) with type safety.
+This module defines Protocol classes for interface contracts across the framework. Protocols enable
+structural subtyping (duck typing) with type safety.
 """
 
 from framework.protocols.automation_protocols import (

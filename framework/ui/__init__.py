@@ -1,1 +1,1 @@
-"""UI Module"""
+"""UI Module."""

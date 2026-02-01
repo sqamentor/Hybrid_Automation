@@ -1,5 +1,4 @@
-"""
-Engine Selector Advanced Features Demo
+"""Engine Selector Advanced Features Demo.
 
 This example demonstrates the new advanced features:
 1. Rule Priority Weighting
@@ -14,7 +13,7 @@ import time
 
 
 def demo_rule_priority_weighting():
-    """Demonstrate rule priority weighting"""
+    """Demonstrate rule priority weighting."""
     print("\n" + "=" * 70)
     print("DEMO 1: Rule Priority Weighting")
     print("=" * 70)
@@ -90,7 +89,7 @@ def demo_rule_priority_weighting():
 
 
 def demo_caching():
-    """Demonstrate caching for frequently used patterns"""
+    """Demonstrate caching for frequently used patterns."""
     print("\n" + "=" * 70)
     print("DEMO 2: Caching for Frequently Used Test Metadata Patterns")
     print("=" * 70)
@@ -148,7 +147,7 @@ def demo_caching():
 
 
 def demo_cache_performance():
-    """Demonstrate cache performance impact"""
+    """Demonstrate cache performance impact."""
     print("\n" + "=" * 70)
     print("DEMO 3: Cache Performance Impact")
     print("=" * 70)
@@ -195,7 +194,7 @@ def demo_cache_performance():
 
 
 def demo_dynamic_priority_update():
-    """Demonstrate dynamic priority updates"""
+    """Demonstrate dynamic priority updates."""
     print("\n" + "=" * 70)
     print("DEMO 4: Dynamic Rule Priority Updates")
     print("=" * 70)
@@ -269,7 +268,7 @@ def demo_cache_ttl():
 
 
 def main():
-    """Run all demos"""
+    """Run all demos."""
     print("\n" + "=" * 70)
     print("ENGINE SELECTOR ADVANCED FEATURES DEMO")
     print("=" * 70)

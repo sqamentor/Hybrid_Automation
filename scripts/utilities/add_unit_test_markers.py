@@ -1,7 +1,5 @@
-"""
-Script to automatically add @pytest.mark.modern_spa and @pytest.mark.unit
-markers to all unit test classes
-"""
+"""Script to automatically add @pytest.mark.modern_spa and @pytest.mark.unit markers to all unit
+test classes."""
 
 import re
 from pathlib import Path
@@ -10,7 +8,7 @@ UNIT_TEST_DIR = Path("tests/unit")
 
 
 def add_markers_to_file(file_path: Path):
-    """Add markers to all classes in a unit test file"""
+    """Add markers to all classes in a unit test file."""
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
@@ -56,7 +54,7 @@ def add_markers_to_file(file_path: Path):
 
 
 def main():
-    """Process all unit test files"""
+    """Process all unit test files."""
     print("🔍 Adding markers to unit tests...")
     print(f"📁 Scanning: {UNIT_TEST_DIR.absolute()}\n")
     

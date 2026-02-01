@@ -47,7 +47,7 @@ from pages.bookslot.bookslots_scheduler_page import BookslotSchedulerPage
 @pytest.mark.bookslot
 @pytest.mark.validation
 class TestBasicInfoValidations:
-    """Validation tests for Basic Info page fields"""
+    """Validation tests for Basic Info page fields."""
 
     @allure.story("Email Validation")
     @allure.title("Verify email format validation")
@@ -169,7 +169,7 @@ class TestBasicInfoValidations:
 @pytest.mark.bookslot
 @pytest.mark.validation
 class TestPersonalInfoValidations:
-    """Validation tests for Personal Info page fields"""
+    """Validation tests for Personal Info page fields."""
 
     @allure.story("Zip Code Validation")
     @allure.title("Verify zip code format validation")
@@ -285,7 +285,7 @@ class TestPersonalInfoValidations:
 @pytest.mark.bookslot
 @pytest.mark.validation
 class TestInsuranceValidations:
-    """Validation tests for Insurance page fields"""
+    """Validation tests for Insurance page fields."""
 
     @allure.story("Insurance ID Validation")
     @allure.title("Verify insurance ID number format validation")

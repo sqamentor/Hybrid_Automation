@@ -6,7 +6,7 @@ resource sizes, Core Web Vitals, and custom performance marks.
 """
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, cast
 
 from utils.logger import get_logger
 
@@ -14,23 +14,21 @@ logger = get_logger(__name__)
 
 
 class PerformanceMetrics:
-    """Performance monitoring and metrics collection"""
+    """Performance monitoring and metrics collection."""
     
-    def __init__(self, ui_engine):
-        """
-        Initialize performance metrics collector
-        
+    def __init__(self, ui_engine: Any) -> None:
+        """Initialize performance metrics collector.
+
         Args:
             ui_engine: PlaywrightEngine or SeleniumEngine instance
         """
         self.ui_engine = ui_engine
         self.engine_type = type(ui_engine).__name__
-        self.metrics: List[Dict] = []
+        self.metrics: List[Dict[str, Any]] = []
     
     def collect_metrics(self) -> Dict[str, Any]:
-        """
-        Collect performance metrics for current page
-        
+        """Collect performance metrics for current page.
+
         Returns:
             Performance metrics dictionary
         """
@@ -41,8 +39,8 @@ class PerformanceMetrics:
         else:
             raise ValueError(f"Unsupported engine type: {self.engine_type}")
     
-    def _collect_playwright_metrics(self) -> Dict:
-        """Collect metrics using Playwright"""
+    def _collect_playwright_metrics(self) -> Dict[str, Any]:
+        """Collect metrics using Playwright."""
         page = self.ui_engine.get_page()
         
         # Navigation Timing API
@@ -142,8 +140,8 @@ class PerformanceMetrics:
         
         return metrics
     
-    def _collect_selenium_metrics(self) -> Dict:
-        """Collect metrics using Selenium"""
+    def _collect_selenium_metrics(self) -> Dict[str, Any]:
+        """Collect metrics using Selenium."""
         driver = self.ui_engine.get_driver()
         
         # Use Performance Timing API
@@ -166,7 +164,7 @@ class PerformanceMetrics:
         self.metrics.append(metrics)
         return metrics
     
-    def _get_web_vitals(self) -> Dict:
+    def _get_web_vitals(self) -> Dict[str, Any]:
         """Get Core Web Vitals (LCP, FID, CLS)"""
         page = self.ui_engine.get_page() if self.engine_type == 'PlaywrightEngine' else None
         
@@ -221,20 +219,19 @@ class PerformanceMetrics:
         """
         
         try:
-            web_vitals = page.evaluate(web_vitals_script)
+            web_vitals = cast(Dict[str, Any], page.evaluate(web_vitals_script))
             return web_vitals
         except Exception as e:
             logger.warning(f"Could not collect Web Vitals: {e}")
             return {}
     
-    def assert_load_time(self, max_seconds: float, metric: str = 'load_complete'):
-        """
-        Assert page load time is within threshold
-        
+    def assert_load_time(self, max_seconds: float, metric: str = 'load_complete') -> None:
+        """Assert page load time is within threshold.
+
         Args:
             max_seconds: Maximum allowed seconds
             metric: Metric to check (load_complete, dom_content_loaded, etc.)
-        
+
         Raises:
             AssertionError: If load time exceeds threshold
         """
@@ -252,13 +249,12 @@ class PerformanceMetrics:
         
         logger.info(f"✓ Load time check passed: {actual_time:.2f}s <= {max_seconds:.2f}s")
     
-    def assert_resource_size(self, max_mb: float):
-        """
-        Assert total resource size is within limit
-        
+    def assert_resource_size(self, max_mb: float) -> None:
+        """Assert total resource size is within limit.
+
         Args:
             max_mb: Maximum allowed size in megabytes
-        
+
         Raises:
             AssertionError: If resource size exceeds limit
         """
@@ -276,15 +272,14 @@ class PerformanceMetrics:
         
         logger.info(f"✓ Resource size check passed: {total_mb:.2f}MB <= {max_mb:.2f}MB")
     
-    def assert_web_vitals(self, lcp_ms: float = 2500, fid_ms: float = 100, cls: float = 0.1):
-        """
-        Assert Core Web Vitals are within Google's thresholds
-        
+    def assert_web_vitals(self, lcp_ms: float = 2500, fid_ms: float = 100, cls: float = 0.1) -> None:
+        """Assert Core Web Vitals are within Google's thresholds.
+
         Args:
             lcp_ms: Max Largest Contentful Paint (default: 2500ms)
             fid_ms: Max First Input Delay (default: 100ms)
             cls: Max Cumulative Layout Shift (default: 0.1)
-        
+
         Raises:
             AssertionError: If any vital exceeds threshold
         """
@@ -310,10 +305,9 @@ class PerformanceMetrics:
         
         logger.info("✓ Core Web Vitals check passed")
     
-    def start_performance_mark(self, name: str):
-        """
-        Start a custom performance mark
-        
+    def start_performance_mark(self, name: str) -> None:
+        """Start a custom performance mark.
+
         Args:
             name: Mark name
         """
@@ -324,34 +318,32 @@ class PerformanceMetrics:
             logger.debug(f"Performance mark started: {name}")
     
     def end_performance_mark(self, name: str) -> float:
-        """
-        End a performance mark and return duration
-        
+        """End a performance mark and return duration.
+
         Args:
             name: Mark name
-        
+
         Returns:
             Duration in milliseconds
         """
         page = self.ui_engine.get_page() if self.engine_type == 'PlaywrightEngine' else None
         
         if page:
-            duration = page.evaluate(f"""
+            duration = cast(float, page.evaluate(f"""
                 (() => {{
                     window.performance.mark('{name}-end');
                     const measure = window.performance.measure('{name}', '{name}-start', '{name}-end');
                     return measure.duration;
                 }})()
-            """)
+            """))
             logger.info(f"Performance mark '{name}': {duration:.2f}ms")
             return duration
         
-        return 0
+        return 0.0
     
-    def generate_report(self, output_path: str = "reports/performance_report.html"):
-        """
-        Generate HTML performance report
-        
+    def generate_report(self, output_path: str = "reports/performance_report.html") -> str:
+        """Generate HTML performance report.
+
         Args:
             output_path: Output file path
         """

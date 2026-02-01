@@ -54,9 +54,8 @@ ZIP_DISTANCES = ["5","25", "50", "75", "100"]
 
 
 def generate_custom_email() -> str:
-    """
-    Generate a custom email using allowed temporary email domains.
-    
+    """Generate a custom email using allowed temporary email domains.
+
     Returns:
         str: Email address with mailinator.com or yopmail.com domain
     """
@@ -66,9 +65,8 @@ def generate_custom_email() -> str:
 
 
 def generate_bookslot_payload() -> Dict[str, Any]:
-    """
-    Generate a single bookslot test data payload with all required fields.
-    
+    """Generate a single bookslot test data payload with all required fields.
+
     Returns:
         dict: Complete bookslot payload with personal info and insurance details
     """
@@ -97,14 +95,13 @@ def generate_bookslot_payload_with_options(
     use_all_contact_methods: bool = False,
     state: str = "MD"
 ) -> Dict[str, Any]:
-    """
-    Generate a bookslot payload with configurable options.
-    
+    """Generate a bookslot payload with configurable options.
+
     Args:
         use_dynamic_zip: If True, generates random ZIP code for the specified state
         use_all_contact_methods: If True, allows all contact methods instead of just "Text"
         state: State code for ZIP generation (default: "MD")
-        
+
     Returns:
         dict: Bookslot payload with custom configuration
     """
@@ -120,13 +117,12 @@ def generate_bookslot_payload_with_options(
 
 
 def generate_and_save_bookslot_data(count: int = 5, filename_prefix: str = "bookslot_data") -> List[Dict[str, Any]]:
-    """
-    Generate multiple bookslot payloads and save to JSON and YAML files.
-    
+    """Generate multiple bookslot payloads and save to JSON and YAML files.
+
     Args:
         count: Number of bookslot payloads to generate (default: 5)
         filename_prefix: Prefix for output files (default: "bookslot_data")
-        
+
     Returns:
         list: List of generated bookslot payloads
     """
@@ -152,14 +148,13 @@ def generate_and_save_with_options(
     filename_prefix: str = "bookslot_data_custom",
     **kwargs
 ) -> List[Dict[str, Any]]:
-    """
-    Generate multiple bookslot payloads with custom options and save to files.
-    
+    """Generate multiple bookslot payloads with custom options and save to files.
+
     Args:
         count: Number of bookslot payloads to generate
         filename_prefix: Prefix for output files
         **kwargs: Options to pass to generate_bookslot_payload_with_options
-        
+
     Returns:
         list: List of generated bookslot payloads
     """
@@ -181,15 +176,14 @@ def generate_and_save_with_options(
 
 
 def load_bookslot_data(filename: str = "bookslot_data.json") -> List[Dict[str, Any]]:
-    """
-    Load bookslot data from a JSON file.
-    
+    """Load bookslot data from a JSON file.
+
     Args:
         filename: Name of the JSON file to load (default: "bookslot_data.json")
-        
+
     Returns:
         list: List of bookslot payloads
-        
+
     Raises:
         FileNotFoundError: If the file doesn't exist
     """
@@ -202,8 +196,8 @@ def load_bookslot_data(filename: str = "bookslot_data.json") -> List[Dict[str, A
 
 
 def main():
-    """
-    Main function for command-line usage.
+    """Main function for command-line usage.
+
     Generates 5 bookslot payloads and saves them to JSON and YAML.
     """
     print("\n" + "=" * 60)

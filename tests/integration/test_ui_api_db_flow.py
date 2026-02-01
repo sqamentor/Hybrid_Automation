@@ -19,7 +19,7 @@ from framework.database.db_validator import DBValidator
 @pytest.mark.modern_spa
 @pytest.mark.ui_framework("React")
 class TestOrderPlacement:
-    """Integration test for order placement flow"""
+    """Integration test for order placement flow."""
     
     def test_complete_order_flow(self, ui_engine, api_client, db_client, ui_url):
         """
@@ -156,10 +156,8 @@ class TestAdminPanel:
     """Integration test for admin panel (forces Selenium)"""
     
     def test_admin_login_and_report_generation(self, ui_engine, db_client):
-        """
-        Test admin panel access with SSO
-        This test will be auto-routed to Selenium due to SSO marker
-        """
+        """Test admin panel access with SSO This test will be auto-routed to Selenium due to SSO
+        marker."""
         ctx = execution_flow.start_execution("test_admin_login_and_report_generation", "selenium")
         
         try:

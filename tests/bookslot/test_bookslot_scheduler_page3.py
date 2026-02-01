@@ -31,7 +31,7 @@ from tests.bookslot.helpers.navigation_helper import BookslotNavigator
 @pytest.mark.modern_spa
 @pytest.mark.bookslot
 class TestSchedulerPage:
-    """Test suite for Scheduler page functionality"""
+    """Test suite for Scheduler page functionality."""
 
     @allure.story("Page Load")
     @allure.title("Verify Scheduler page loads successfully")

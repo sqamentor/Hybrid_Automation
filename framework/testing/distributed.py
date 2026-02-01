@@ -1,5 +1,4 @@
-"""
-Distributed test execution configuration using pytest-xdist.
+"""Distributed test execution configuration using pytest-xdist.
 
 Features:
 - Parallel test execution across multiple CPUs
@@ -9,7 +8,7 @@ Features:
 """
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Sequence, TypedDict
 
 import pytest
 
@@ -25,9 +24,8 @@ class DistributedTestConfig:
         timeout: Optional[int] = None,
         rsync_dirs: Optional[list] = None
     ):
-        """
-        Initialize distributed test configuration.
-        
+        """Initialize distributed test configuration.
+
         Args:
             num_workers: Number of workers ("auto", "logical", or integer)
             dist_mode: Distribution mode:
@@ -45,23 +43,22 @@ class DistributedTestConfig:
         self.rsync_dirs = rsync_dirs or []
 
 
-def get_pytest_args(config: DistributedTestConfig) -> list:
-    """
-    Get pytest arguments for distributed execution.
-    
+def get_pytest_args(config: DistributedTestConfig) -> List[str]:
+    """Get pytest arguments for distributed execution.
+
     Args:
         config: Distributed test configuration
-    
+
     Returns:
         List of pytest arguments
-    
+
     Example:
         ```python
         config = DistributedTestConfig(
             num_workers="4",
             dist_mode="loadscope"
         )
-        
+
         args = get_pytest_args(config)
         pytest.main(args)
         ```
@@ -84,27 +81,26 @@ def get_pytest_args(config: DistributedTestConfig) -> list:
 def run_distributed_tests(
     test_path: str,
     config: Optional[DistributedTestConfig] = None,
-    additional_args: Optional[list] = None
+    additional_args: Optional[Sequence[str]] = None
 ) -> int:
-    """
-    Run tests in distributed mode.
-    
+    """Run tests in distributed mode.
+
     Args:
         test_path: Path to tests directory or specific test file
         config: Distributed test configuration
         additional_args: Additional pytest arguments
-    
+
     Returns:
         Exit code (0 = success, >0 = failures)
-    
+
     Example:
         ```python
         from framework.testing.distributed import run_distributed_tests, DistributedTestConfig
-        
+
         # Run all tests with 4 workers
         config = DistributedTestConfig(num_workers="4")
         exit_code = run_distributed_tests("tests/", config)
-        
+
         # Run specific tests with auto workers
         config = DistributedTestConfig(num_workers="auto")
         exit_code = run_distributed_tests(
@@ -117,11 +113,12 @@ def run_distributed_tests(
     config = config or DistributedTestConfig()
     additional_args = additional_args or []
     
-    args = get_pytest_args(config)
-    args.extend(additional_args)
+    args: List[str] = get_pytest_args(config)
+    args.extend(list(additional_args))
     args.append(test_path)
     
-    return pytest.main(args)
+    exit_code = pytest.main(args)
+    return int(exit_code)
 
 
 # ============================================================================
@@ -129,17 +126,16 @@ def run_distributed_tests(
 # ============================================================================
 
 class WorkerManager:
-    """
-    Manages distributed test workers.
-    
+    """Manages distributed test workers.
+
     Example:
         ```python
         manager = WorkerManager()
-        
+
         # Get worker info
         info = manager.get_worker_info()
         print(f"Worker ID: {info['worker_id']}")
-        
+
         # Check if running in worker
         if manager.is_worker():
             print("Running in distributed worker")
@@ -148,9 +144,8 @@ class WorkerManager:
     
     @staticmethod
     def is_worker() -> bool:
-        """
-        Check if running in a pytest-xdist worker.
-        
+        """Check if running in a pytest-xdist worker.
+
         Returns:
             True if running in worker, False if main process
         """
@@ -158,9 +153,8 @@ class WorkerManager:
     
     @staticmethod
     def get_worker_id() -> Optional[str]:
-        """
-        Get current worker ID.
-        
+        """Get current worker ID.
+
         Returns:
             Worker ID (e.g., "gw0", "gw1") or None if not in worker
         """
@@ -170,9 +164,8 @@ class WorkerManager:
     
     @staticmethod
     def get_worker_info() -> Dict[str, Any]:
-        """
-        Get worker information.
-        
+        """Get worker information.
+
         Returns:
             Dictionary with worker details
         """
@@ -188,9 +181,8 @@ class WorkerManager:
 # ============================================================================
 
 def pytest_configure(config):
-    """
-    Configure pytest for distributed execution.
-    
+    """Configure pytest for distributed execution.
+
     Add custom markers and configure xdist.
     """
     config.addinivalue_line(
@@ -204,9 +196,8 @@ def pytest_configure(config):
 
 
 def pytest_collection_modifyitems(items):
-    """
-    Modify test collection for distributed execution.
-    
+    """Modify test collection for distributed execution.
+
     Group tests by custom markers.
     """
     for item in items:
@@ -224,30 +215,28 @@ def pytest_collection_modifyitems(items):
 # ============================================================================
 
 class LoadBalancer:
-    """
-    Custom load balancing strategies for distributed testing.
-    
+    """Custom load balancing strategies for distributed testing.
+
     Example:
         ```python
         balancer = LoadBalancer()
-        
+
         # Group tests by estimated duration
         groups = balancer.balance_by_duration(test_items, num_workers=4)
-        
+
         # Group tests by complexity
         groups = balancer.balance_by_complexity(test_items, num_workers=4)
         ```
     """
     
     @staticmethod
-    def balance_by_duration(test_items: list, num_workers: int) -> Dict[int, list]:
-        """
-        Balance tests by estimated duration.
-        
+    def balance_by_duration(test_items: Sequence[Any], num_workers: int) -> Dict[int, List[Any]]:
+        """Balance tests by estimated duration.
+
         Args:
             test_items: List of test items
             num_workers: Number of workers
-        
+
         Returns:
             Dictionary mapping worker ID to test items
         """
@@ -259,26 +248,25 @@ class LoadBalancer:
         )
         
         # Distribute to workers
-        worker_loads = {i: [] for i in range(num_workers)}
-        worker_times = {i: 0.0 for i in range(num_workers)}
+        worker_loads: Dict[int, List[Any]] = {i: [] for i in range(num_workers)}
+        worker_times: Dict[int, float] = {i: 0.0 for i in range(num_workers)}
         
         for item in sorted_items:
             # Assign to worker with least load
-            min_worker = min(worker_times, key=worker_times.get)
+            min_worker = min(worker_times, key=lambda worker_id: worker_times[worker_id])
             worker_loads[min_worker].append(item)
             worker_times[min_worker] += getattr(item, "estimated_duration", 1.0)
         
         return worker_loads
     
     @staticmethod
-    def balance_by_complexity(test_items: list, num_workers: int) -> Dict[int, list]:
-        """
-        Balance tests by complexity score.
-        
+    def balance_by_complexity(test_items: Sequence[Any], num_workers: int) -> Dict[int, List[Any]]:
+        """Balance tests by complexity score.
+
         Args:
             test_items: List of test items
             num_workers: Number of workers
-        
+
         Returns:
             Dictionary mapping worker ID to test items
         """
@@ -290,8 +278,7 @@ class LoadBalancer:
         )
         
         # Round-robin distribution
-        worker_loads = {i: [] for i in range(num_workers)}
-        
+        worker_loads: Dict[int, List[Any]] = {i: [] for i in range(num_workers)}
         for idx, item in enumerate(sorted_items):
             worker_id = idx % num_workers
             worker_loads[worker_id].append(item)
@@ -299,18 +286,46 @@ class LoadBalancer:
         return worker_loads
 
 
+class WorkerResult(TypedDict, total=False):
+    """Result reported by a single worker."""
+
+    passed: int
+    failed: int
+    skipped: int
+
+
+class AggregatedSummary(TypedDict):
+    """Aggregated summary structure."""
+
+    total_passed: int
+    total_failed: int
+    total_skipped: int
+    total_tests: int
+    num_workers: int
+    workers: List[str]
+
+
+class WorkerStatistics(TypedDict):
+    """Worker statistics for reporting."""
+
+    total_tests: int
+    passed: int
+    failed: int
+    skipped: int
+    pass_rate: float
+
+
 # ============================================================================
 # Result Aggregation
 # ============================================================================
 
 class DistributedResultAggregator:
-    """
-    Aggregates test results from distributed workers.
-    
+    """Aggregates test results from distributed workers.
+
     Example:
         ```python
         aggregator = DistributedResultAggregator()
-        
+
         # Add worker results
         aggregator.add_worker_result("gw0", {
             "passed": 10,
@@ -322,7 +337,7 @@ class DistributedResultAggregator:
             "failed": 1,
             "skipped": 0
         })
-        
+
         # Get summary
         summary = aggregator.get_summary()
         print(f"Total passed: {summary['total_passed']}")
@@ -331,26 +346,24 @@ class DistributedResultAggregator:
     
     def __init__(self):
         """Initialize result aggregator."""
-        self.worker_results: Dict[str, Dict[str, Any]] = {}
+        self.worker_results: Dict[str, WorkerResult] = {}
     
-    def add_worker_result(self, worker_id: str, result: Dict[str, Any]) -> None:
-        """
-        Add result from a worker.
-        
+    def add_worker_result(self, worker_id: str, result: WorkerResult) -> None:
+        """Add result from a worker.
+
         Args:
             worker_id: Worker ID
             result: Result dictionary
         """
         self.worker_results[worker_id] = result
     
-    def get_summary(self) -> Dict[str, Any]:
-        """
-        Get aggregated summary of all worker results.
-        
+    def get_summary(self) -> AggregatedSummary:
+        """Get aggregated summary of all worker results.
+
         Returns:
             Summary dictionary with totals
         """
-        summary = {
+        summary: AggregatedSummary = {
             "total_passed": 0,
             "total_failed": 0,
             "total_skipped": 0,
@@ -372,14 +385,13 @@ class DistributedResultAggregator:
         
         return summary
     
-    def get_worker_statistics(self) -> Dict[str, Dict[str, Any]]:
-        """
-        Get statistics for each worker.
-        
+    def get_worker_statistics(self) -> Dict[str, WorkerStatistics]:
+        """Get statistics for each worker.
+
         Returns:
             Dictionary mapping worker ID to statistics
         """
-        stats = {}
+        stats: Dict[str, WorkerStatistics] = {}
         
         for worker_id, result in self.worker_results.items():
             total = (

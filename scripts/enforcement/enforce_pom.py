@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-POM Enforcement Linter
-Automated detection of Page Object Model violations
+"""POM Enforcement Linter Automated detection of Page Object Model violations.
 
 Usage:
     python enforce_pom.py                 # Check all files
@@ -19,7 +17,7 @@ from dataclasses import dataclass
 
 @dataclass
 class POMViolation:
-    """Represents a POM compliance violation"""
+    """Represents a POM compliance violation."""
     file: str
     line: int
     rule: str
@@ -32,7 +30,7 @@ class POMViolation:
 
 
 class POMEnforcer:
-    """Enforces Page Object Model architectural rules"""
+    """Enforces Page Object Model architectural rules."""
     
     # Patterns forbidden in Page Objects
     FORBIDDEN_IN_PAGES = {
@@ -104,7 +102,7 @@ class POMEnforcer:
         self.violations: List[POMViolation] = []
     
     def check_page_object(self, file_path: Path) -> List[POMViolation]:
-        """Check a page object file for violations"""
+        """Check a page object file for violations."""
         violations = []
         
         try:
@@ -141,7 +139,7 @@ class POMEnforcer:
         return violations
     
     def check_test_file(self, file_path: Path) -> List[POMViolation]:
-        """Check a test file for violations"""
+        """Check a test file for violations."""
         violations = []
         
         try:
@@ -181,12 +179,12 @@ class POMEnforcer:
         return violations
     
     def _is_in_comment(self, line: str) -> bool:
-        """Check if line is a comment"""
+        """Check if line is a comment."""
         stripped = line.strip()
         return stripped.startswith('#') or stripped.startswith('//')
     
     def _is_in_docstring(self, lines: List[str], line_num: int) -> bool:
-        """Check if line is inside a docstring"""
+        """Check if line is inside a docstring."""
         # Simple check: look for triple quotes
         in_docstring = False
         for i in range(0, line_num):
@@ -195,7 +193,7 @@ class POMEnforcer:
         return in_docstring
     
     def _is_in_fixture(self, lines: List[str], line_num: int) -> bool:
-        """Check if line is inside a pytest fixture"""
+        """Check if line is inside a pytest fixture."""
         # Look backwards for @pytest.fixture
         for i in range(max(0, line_num - 30), line_num):
             if '@pytest.fixture' in lines[i]:
@@ -203,7 +201,7 @@ class POMEnforcer:
         return False
     
     def check_directory(self, directory: Path) -> None:
-        """Check all Python files in directory"""
+        """Check all Python files in directory."""
         print(f"🔍 Checking directory: {directory}")
         
         # Check page objects
@@ -227,7 +225,7 @@ class POMEnforcer:
                 self.violations.extend(violations)
     
     def report(self) -> int:
-        """Print violations and return error count"""
+        """Print violations and return error count."""
         if not self.violations:
             print("\n✅ No POM violations detected!")
             print("✅ Framework is POM compliant")

@@ -1,19 +1,19 @@
-"""
-Framework Settings and Configuration Manager
+"""Framework Settings and Configuration Manager.
 
-This module provides centralized configuration management for the entire framework.
-It loads environment-specific settings and provides a singleton interface.
+This module provides centralized configuration management for the entire framework. It loads
+environment-specific settings and provides a singleton interface.
 """
 
 import os
-import yaml
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any, Dict, List, Optional, cast
+
+import yaml  # type: ignore[import-untyped]
 from dataclasses import dataclass
 
 
 class SettingsManager:
-    """Singleton configuration manager"""
+    """Singleton configuration manager."""
     
     _instance = None
     _config: Dict[str, Any] = {}
@@ -26,7 +26,7 @@ class SettingsManager:
         return cls._instance
     
     def _load_configuration(self):
-        """Load all configuration files"""
+        """Load all configuration files."""
         config_dir = Path(__file__).parent
         
         # Load environments.yaml
@@ -57,44 +57,54 @@ class SettingsManager:
         
         # Set environment from environment variable or default to 'dev'
         self._environment = os.getenv('TEST_ENV', 'dev')
+
+    @staticmethod
+    def _ensure_dict(value: Any) -> Dict[str, Any]:
+        """Ensure value is a dictionary for type-safe access."""
+        return value if isinstance(value, dict) else {}
     
     def get_environment_config(self, env: Optional[str] = None) -> Dict[str, Any]:
-        """Get configuration for a specific environment"""
+        """Get configuration for a specific environment."""
         env = env or self._environment
-        return self._config.get('environments', {}).get(env, {})
+        environments = self._ensure_dict(self._config.get('environments', {}))
+        return self._ensure_dict(environments.get(env, {}))
     
     def get_engine_decision_matrix(self) -> Dict[str, Any]:
-        """Get engine selection decision matrix"""
-        return self._config.get('engine_matrix', {})
+        """Get engine selection decision matrix."""
+        return self._ensure_dict(self._config.get('engine_matrix', {}))
     
     def get_api_db_mapping(self) -> Dict[str, Any]:
-        """Get API to database mapping registry"""
-        return self._config.get('api_db_mapping', {})
+        """Get API to database mapping registry."""
+        return self._ensure_dict(self._config.get('api_db_mapping', {}))
     
     def get_projects_config(self) -> Dict[str, Any]:
-        """Get projects configuration from projects.yaml"""
-        return self._config.get('projects', {}).get('projects', {})
+        """Get projects configuration from projects.yaml."""
+        projects = self._ensure_dict(self._config.get('projects', {}))
+        return self._ensure_dict(projects.get('projects', {}))
     
     def get_project_config(self, project_name: str, env: Optional[str] = None) -> Dict[str, Any]:
-        """Get specific project configuration for given environment"""
+        """Get specific project configuration for given environment."""
         env = env or self._environment
         projects = self.get_projects_config()
-        project = projects.get(project_name, {})
-        return project.get('environments', {}).get(env, {})
+        project = self._ensure_dict(projects.get(project_name, {}))
+        environments = self._ensure_dict(project.get('environments', {}))
+        return self._ensure_dict(environments.get(env, {}))
     
     def get_global_config(self) -> Dict[str, Any]:
-        """Get global configuration"""
-        return self._config.get('environments', {}).get('global', {})
+        """Get global configuration."""
+        environments = self._ensure_dict(self._config.get('environments', {}))
+        return self._ensure_dict(environments.get('global', {}))
     
     @property
     def current_environment(self) -> str:
-        """Get current environment name"""
+        """Get current environment name."""
         return self._environment
     
     @current_environment.setter
-    def current_environment(self, env: str):
-        """Set current environment"""
-        if env in self._config.get('environments', {}):
+    def current_environment(self, env: str) -> None:
+        """Set current environment."""
+        environments = self._ensure_dict(self._config.get('environments', {}))
+        if env in environments:
             self._environment = env
         else:
             raise ValueError(f"Unknown environment: {env}")
@@ -105,7 +115,7 @@ class SettingsManager:
         Example: settings.get('dev.database.primary.host')
         """
         keys = key_path.split('.')
-        value = self._config
+        value: Any = self._config
         
         for key in keys:
             if isinstance(value, dict):
@@ -125,7 +135,7 @@ class SettingsManager:
 
 @dataclass
 class BrowserConfig:
-    """Browser configuration"""
+    """Browser configuration."""
     headless: bool = True
     slow_mo: int = 0
     video: bool = False
@@ -135,7 +145,7 @@ class BrowserConfig:
 
 @dataclass
 class DatabaseConfig:
-    """Database configuration"""
+    """Database configuration."""
     host: str
     port: int
     name: str
@@ -147,7 +157,7 @@ class DatabaseConfig:
 
 @dataclass
 class TimeoutConfig:
-    """Timeout configuration"""
+    """Timeout configuration."""
     page_load: int = 30000
     element_wait: int = 10000
     api_response: int = 15000
@@ -156,7 +166,7 @@ class TimeoutConfig:
 
 @dataclass
 class RetryConfig:
-    """Retry configuration"""
+    """Retry configuration."""
     max_attempts: int = 2
     delay_ms: int = 1000
 
@@ -174,21 +184,22 @@ settings = SettingsManager()
 # ========================================================================
 
 def get_ui_url(env: Optional[str] = None) -> str:
-    """Get UI base URL for environment"""
+    """Get UI base URL for environment."""
     config = settings.get_environment_config(env)
-    return config.get('ui_url', '')
+    return cast(str, config.get('ui_url', ''))
 
 
 def get_api_url(env: Optional[str] = None) -> str:
-    """Get API base URL for environment"""
+    """Get API base URL for environment."""
     config = settings.get_environment_config(env)
-    return config.get('api_base_url', '')
+    return cast(str, config.get('api_base_url', ''))
 
 
 def get_database_config(env: Optional[str] = None, db_name: str = 'primary') -> DatabaseConfig:
-    """Get database configuration"""
+    """Get database configuration."""
     config = settings.get_environment_config(env)
-    db_config = config.get('database', {}).get(db_name, {})
+    database_group = settings._ensure_dict(config.get('database', {}))
+    db_config = settings._ensure_dict(database_group.get(db_name, {}))
     
     # Replace environment variables in password
     password = db_config.get('password', '')
@@ -208,15 +219,16 @@ def get_database_config(env: Optional[str] = None, db_name: str = 'primary') -> 
 
 
 def get_test_user(role: str = 'standard_user', env: Optional[str] = None) -> Dict[str, str]:
-    """Get test user credentials"""
+    """Get test user credentials."""
     config = settings.get_environment_config(env)
-    return config.get('test_users', {}).get(role, {})
+    test_users = settings._ensure_dict(config.get('test_users', {}))
+    return cast(Dict[str, str], settings._ensure_dict(test_users.get(role, {})))
 
 
 def get_browser_config(env: Optional[str] = None) -> BrowserConfig:
-    """Get browser configuration"""
+    """Get browser configuration."""
     config = settings.get_environment_config(env)
-    browser_cfg = config.get('browser', {})
+    browser_cfg = settings._ensure_dict(config.get('browser', {}))
     
     return BrowserConfig(
         headless=browser_cfg.get('headless', True),
@@ -228,9 +240,9 @@ def get_browser_config(env: Optional[str] = None) -> BrowserConfig:
 
 
 def get_timeout_config(env: Optional[str] = None) -> TimeoutConfig:
-    """Get timeout configuration"""
+    """Get timeout configuration."""
     config = settings.get_environment_config(env)
-    timeouts = config.get('timeouts', {})
+    timeouts = settings._ensure_dict(config.get('timeouts', {}))
     
     return TimeoutConfig(
         page_load=timeouts.get('page_load', 30000),
@@ -241,28 +253,29 @@ def get_timeout_config(env: Optional[str] = None) -> TimeoutConfig:
 
 
 def is_ai_enabled() -> bool:
-    """Check if AI engine selector is enabled"""
+    """Check if AI engine selector is enabled."""
     global_config = settings.get_global_config()
-    return global_config.get('ai_engine', {}).get('enabled', False)
+    ai_engine = settings._ensure_dict(global_config.get('ai_engine', {}))
+    return bool(ai_engine.get('enabled', False))
 
 
 def is_cloud_grid_enabled() -> bool:
-    """Check if cloud grid execution is enabled"""
+    """Check if cloud grid execution is enabled."""
     global_config = settings.get_global_config()
-    return global_config.get('cloud_grid', {}).get('enabled', False)
+    cloud_grid = settings._ensure_dict(global_config.get('cloud_grid', {}))
+    return bool(cloud_grid.get('enabled', False))
 
 
 def get_execution_mode() -> str:
     """Get execution flow mode (ui_only, ui_api, ui_api_db)"""
     global_config = settings.get_global_config()
-    flow_config = global_config.get('execution_flow', {})
-    return flow_config.get('mode', 'ui_api_db')
+    flow_config = settings._ensure_dict(global_config.get('execution_flow', {}))
+    return cast(str, flow_config.get('mode', 'ui_api_db'))
 
 
-def get_enabled_components() -> list[str]:
-    """
-    Get list of enabled execution components
-    
+def get_enabled_components() -> List[str]:
+    """Get list of enabled execution components.
+
     Returns:
         List of enabled components: ['ui'], ['ui', 'api'], or ['ui', 'api', 'database']
     """
@@ -290,22 +303,21 @@ def get_enabled_components() -> list[str]:
 
 
 def should_run_api_validation() -> bool:
-    """Check if API validation is enabled"""
+    """Check if API validation is enabled."""
     return 'api' in get_enabled_components()
 
 
 def should_run_db_validation() -> bool:
-    """Check if database validation is enabled"""
+    """Check if database validation is enabled."""
     return 'database' in get_enabled_components()
 
 
 def should_skip_component(component: str) -> bool:
-    """
-    Check if a component should be skipped
-    
+    """Check if a component should be skipped.
+
     Args:
         component: Component name ('api' or 'database')
-    
+
     Returns:
         True if component should be skipped
     """
@@ -316,13 +328,12 @@ def should_skip_component(component: str) -> bool:
 # ENVIRONMENT VARIABLE HELPERS
 # ========================================================================
 
-def expand_env_vars(value: str) -> str:
-    """
-    Expand environment variables in format ${VAR_NAME}
-    
+def expand_env_vars(value: Any) -> Any:
+    """Expand environment variables in format ${VAR_NAME}
+
     Args:
         value: String potentially containing ${VAR_NAME} patterns
-    
+
     Returns:
         String with environment variables expanded
     """

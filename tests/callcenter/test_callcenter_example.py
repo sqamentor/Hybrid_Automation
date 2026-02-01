@@ -15,13 +15,12 @@ import pytest
 
 @pytest.mark.modern_spa
 class TestCallCenter:
-    """Test class for CallCenter functionality"""
+    """Test class for CallCenter functionality."""
     
     @pytest.mark.callcenter
     def test_callcenter_placeholder(self):
-        """
-        Placeholder test for CallCenter project.
-        
+        """Placeholder test for CallCenter project.
+
         TODO: Add actual callcenter tests here.
         """
         # This is a placeholder

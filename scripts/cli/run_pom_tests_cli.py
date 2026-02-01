@@ -47,7 +47,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 # ============================================================================
 
 class Colors:
-    """ANSI color codes for beautiful output"""
+    """ANSI color codes for beautiful output."""
     HEADER = '\033[95m'
     BLUE = '\033[94m'
     CYAN = '\033[96m'
@@ -61,7 +61,7 @@ class Colors:
 
 
 def print_banner():
-    """Print beautiful POM CLI banner"""
+    """Print beautiful POM CLI banner."""
     banner = f"""
 {Colors.CYAN}{Colors.BOLD}
 +============================================================================+
@@ -77,14 +77,14 @@ def print_banner():
 
 
 def print_section(title: str, icon: str = "[*]"):
-    """Print section header"""
+    """Print section header."""
     print(f"\n{Colors.CYAN}{Colors.BOLD}{'='*80}{Colors.ENDC}")
     print(f"{Colors.CYAN}{Colors.BOLD}{icon}  {title}{Colors.ENDC}")
     print(f"{Colors.CYAN}{Colors.BOLD}{'='*80}{Colors.ENDC}\n")
 
 
 def print_option(number: str, text: str, description: str = "", highlight: bool = False):
-    """Print menu option with description"""
+    """Print menu option with description."""
     if highlight:
         print(f"{Colors.GREEN}{Colors.BOLD}  [{number}] {text}{Colors.ENDC}")
     else:
@@ -94,27 +94,27 @@ def print_option(number: str, text: str, description: str = "", highlight: bool 
 
 
 def print_success(message: str):
-    """Print success message"""
+    """Print success message."""
     print(f"{Colors.GREEN}[OK] {message}{Colors.ENDC}")
 
 
 def print_error(message: str):
-    """Print error message"""
+    """Print error message."""
     print(f"{Colors.RED}[X] {message}{Colors.ENDC}")
 
 
 def print_info(message: str):
-    """Print info message"""
+    """Print info message."""
     print(f"{Colors.BLUE}[i] {message}{Colors.ENDC}")
 
 
 def print_warning(message: str):
-    """Print warning message"""
+    """Print warning message."""
     print(f"{Colors.YELLOW}[!] {message}{Colors.ENDC}")
 
 
 def print_command(command: str):
-    """Print command to be executed"""
+    """Print command to be executed."""
     print(f"\n{Colors.BOLD}[*] Command to Execute:{Colors.ENDC}")
     print(f"{Colors.CYAN}{'-'*80}{Colors.ENDC}")
     print(f"{Colors.GREEN}{command}{Colors.ENDC}")
@@ -122,7 +122,7 @@ def print_command(command: str):
 
 
 def get_input(prompt: str, default: str = None) -> str:
-    """Get user input with optional default"""
+    """Get user input with optional default."""
     if default:
         full_prompt = f"{Colors.YELLOW}> {prompt} [{Colors.GREEN}{default}{Colors.YELLOW}]{Colors.ENDC}: "
     else:
@@ -133,7 +133,7 @@ def get_input(prompt: str, default: str = None) -> str:
 
 
 def confirm(prompt: str, default: bool = True) -> bool:
-    """Ask for confirmation"""
+    """Ask for confirmation."""
     default_str = "Y/n" if default else "y/N"
     full_prompt = f"{Colors.YELLOW}> {prompt} [{default_str}]{Colors.ENDC}: "
     
@@ -148,7 +148,7 @@ def confirm(prompt: str, default: bool = True) -> bool:
 # ============================================================================
 
 class ConfigLoader:
-    """Load and validate framework configuration"""
+    """Load and validate framework configuration."""
     
     def __init__(self, root_dir: Path):
         self.root_dir = root_dir
@@ -157,7 +157,7 @@ class ConfigLoader:
         self.environments = {}
         
     def load_projects(self) -> Dict:
-        """Load projects configuration"""
+        """Load projects configuration."""
         projects_file = self.config_dir / "projects.yaml"
         
         if not projects_file.exists():
@@ -170,7 +170,7 @@ class ConfigLoader:
         return self.projects
     
     def load_environments(self) -> Dict:
-        """Load environments configuration"""
+        """Load environments configuration."""
         env_file = self.config_dir / "environments.yaml"
         
         if not env_file.exists():
@@ -183,18 +183,18 @@ class ConfigLoader:
         return self.environments
     
     def get_project_url(self, project: str, environment: str) -> str:
-        """Get project URL for specific environment"""
+        """Get project URL for specific environment."""
         try:
             return self.projects[project]['environments'][environment]['ui_url']
         except KeyError:
             raise ValueError(f"URL not found for project '{project}' in environment '{environment}'")
     
     def validate_project(self, project: str) -> bool:
-        """Validate if project exists"""
+        """Validate if project exists."""
         return project in self.projects
     
     def validate_environment(self, environment: str) -> bool:
-        """Validate if environment exists"""
+        """Validate if environment exists."""
         return environment in self.environments
 
 
@@ -203,7 +203,7 @@ class ConfigLoader:
 # ============================================================================
 
 class POMTestDiscovery:
-    """Discover POM tests across all projects"""
+    """Discover POM tests across all projects."""
     
     def __init__(self, root_dir: Path):
         self.root_dir = root_dir
@@ -211,14 +211,13 @@ class POMTestDiscovery:
         self.pages_dir = root_dir / "pages"
         
     def discover_pom_tests(self, project: str = None) -> Dict[str, List[Path]]:
-        """
-        Discover all tests for a specific project
-        
+        """Discover all tests for a specific project.
+
         Strategy:
         1. Find tests with project name in filename (e.g., test_bookslot*.py)
         2. Find tests that use project's POM fixture (e.g., bookslot_page)
         3. Exclude cross-application tests (tests using multiple project fixtures)
-        
+
         Returns:
             Dict[project_name, List[test_files]]
         """
@@ -283,7 +282,7 @@ class POMTestDiscovery:
         return pom_tests
     
     def list_page_objects(self, project: str) -> List[Path]:
-        """List all page objects for a project"""
+        """List all page objects for a project."""
         page_objects = []
         project_pages = self.pages_dir / project
         
@@ -295,7 +294,7 @@ class POMTestDiscovery:
         return page_objects
     
     def get_test_functions(self, test_file: Path) -> List[str]:
-        """Extract test function names from test file"""
+        """Extract test function names from test file."""
         test_functions = []
         
         try:
@@ -317,14 +316,14 @@ class POMTestDiscovery:
 # ============================================================================
 
 class PreFlightValidator:
-    """Validate environment before test execution"""
+    """Validate environment before test execution."""
     
     def __init__(self, root_dir: Path):
         self.root_dir = root_dir
         self.validation_results = {}
         
     def validate_all(self) -> Tuple[bool, List[str]]:
-        """Run all validation checks"""
+        """Run all validation checks."""
         issues = []
         
         print_section("Pre-Flight Validation", "[CHK]")
@@ -363,7 +362,7 @@ class PreFlightValidator:
             return True, []
     
     def _validate_python(self) -> bool:
-        """Validate Python version"""
+        """Validate Python version."""
         version = sys.version_info
         required = (3, 8)
         
@@ -375,7 +374,7 @@ class PreFlightValidator:
             return False
     
     def _validate_pytest(self) -> bool:
-        """Validate pytest installation"""
+        """Validate pytest installation."""
         # Try multiple methods to detect pytest
         methods = [
             (["pytest", "--version"], "direct"),
@@ -402,7 +401,7 @@ class PreFlightValidator:
         return False
     
     def _validate_playwright(self) -> bool:
-        """Validate Playwright installation"""
+        """Validate Playwright installation."""
         # Try multiple methods to detect playwright
         methods = [
             (["playwright", "--version"], "direct"),
@@ -429,7 +428,7 @@ class PreFlightValidator:
         return False
     
     def _validate_configs(self) -> bool:
-        """Validate configuration files exist"""
+        """Validate configuration files exist."""
         config_dir = self.root_dir / "config"
         required_files = ["projects.yaml", "environments.yaml"]
         
@@ -445,7 +444,7 @@ class PreFlightValidator:
         return all_exist
     
     def _validate_page_objects(self) -> bool:
-        """Validate page objects directory exists"""
+        """Validate page objects directory exists."""
         pages_dir = self.root_dir / "pages"
         
         if pages_dir.exists():
@@ -465,7 +464,7 @@ class PreFlightValidator:
         return False
     
     def _validate_fixtures(self) -> bool:
-        """Validate conftest.py exists with POM fixtures"""
+        """Validate conftest.py exists with POM fixtures."""
         conftest = self.root_dir / "tests" / "conftest.py"
         
         if not conftest.exists():
@@ -490,7 +489,7 @@ class PreFlightValidator:
 # ============================================================================
 
 class POMCommandBuilder:
-    """Build pytest command for POM test execution"""
+    """Build pytest command for POM test execution."""
     
     def __init__(self):
         # Use current Python interpreter to run pytest module
@@ -499,7 +498,7 @@ class POMCommandBuilder:
         self.markers = []  # Collect all markers to combine later
         
     def set_project(self, project: str, environment: str):
-        """Set project and environment"""
+        """Set project and environment."""
         self.options['project'] = project
         self.options['env'] = environment
         self.command_parts.append(f"--project={project}")
@@ -507,7 +506,7 @@ class POMCommandBuilder:
         return self
     
     def set_browser(self, browser: str, headless: bool = False):
-        """Set browser configuration"""
+        """Set browser configuration."""
         self.options['browser'] = browser
         self.command_parts.append(f"--test-browser={browser}")
         
@@ -525,7 +524,7 @@ class POMCommandBuilder:
         return self
     
     def set_human_behavior(self, enabled: bool = True):
-        """Enable/disable human behavior simulation"""
+        """Enable/disable human behavior simulation."""
         if enabled:
             self.markers.append("human_behavior")
             self.options['human_behavior'] = True
@@ -536,13 +535,13 @@ class POMCommandBuilder:
         return self
     
     def set_test_file(self, test_file: Path):
-        """Set specific test file"""
+        """Set specific test file."""
         self.options['test_file'] = str(test_file)
         self.command_parts.append(str(test_file))
         return self
     
     def set_test_function(self, test_function: str):
-        """Set specific test function"""
+        """Set specific test function."""
         self.options['test_function'] = test_function
         # Append to last test file
         if self.command_parts[-1].endswith('.py'):
@@ -550,14 +549,14 @@ class POMCommandBuilder:
         return self
     
     def set_markers(self, markers: List[str]):
-        """Set pytest markers"""
+        """Set pytest markers."""
         if markers:
             self.markers.extend(markers)
             self.options['markers'] = markers
         return self
     
     def set_parallel(self, num_workers: int = None):
-        """Enable parallel execution"""
+        """Enable parallel execution."""
         if num_workers:
             self.command_parts.append(f"-n {num_workers}")
             self.options['parallel'] = num_workers
@@ -567,7 +566,7 @@ class POMCommandBuilder:
         return self
     
     def set_reports(self, html: bool = True, allure: bool = False):
-        """Configure report generation"""
+        """Configure report generation."""
         if html:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             html_report = f"reports/pom_test_report_{timestamp}.html"
@@ -582,7 +581,7 @@ class POMCommandBuilder:
         return self
     
     def set_verbosity(self, verbose: bool = True):
-        """Set output verbosity"""
+        """Set output verbosity."""
         if verbose:
             self.command_parts.append("-v")
             self.options['verbose'] = True
@@ -592,12 +591,12 @@ class POMCommandBuilder:
         return self
     
     def add_custom_args(self, args: List[str]):
-        """Add custom pytest arguments"""
+        """Add custom pytest arguments."""
         self.command_parts.extend(args)
         return self
     
     def build(self) -> str:
-        """Build final command string"""
+        """Build final command string."""
         # Disable pytest-asyncio plugin (required for Playwright sync API)
         # Playwright sync API cannot run inside asyncio event loops
         self.command_parts.append("-p no:asyncio")
@@ -610,7 +609,7 @@ class POMCommandBuilder:
         return " ".join(self.command_parts)
     
     def get_summary(self) -> str:
-        """Get human-readable summary of options"""
+        """Get human-readable summary of options."""
         lines = [
             f"{Colors.BOLD}Test Execution Configuration:{Colors.ENDC}",
             ""
@@ -650,7 +649,7 @@ class POMCommandBuilder:
 # ============================================================================
 
 class InteractivePOMRunner:
-    """Interactive POM test runner"""
+    """Interactive POM test runner."""
     
     def __init__(self):
         self.root_dir = Path(__file__).parent.parent.parent  # Project root (up from scripts/cli/)
@@ -668,7 +667,7 @@ class InteractivePOMRunner:
             sys.exit(1)
     
     def run(self):
-        """Main interactive flow"""
+        """Main interactive flow."""
         print_banner()
         
         # Step 1: Pre-flight validation
@@ -717,7 +716,7 @@ class InteractivePOMRunner:
         self._execute_tests()
     
     def _run_preflight_check(self) -> bool:
-        """Run pre-flight validation"""
+        """Run pre-flight validation."""
         print_info("Running pre-flight validation checks...")
         valid, issues = self.validator.validate_all()
         
@@ -728,7 +727,7 @@ class InteractivePOMRunner:
         return True
     
     def _select_project(self) -> Optional[str]:
-        """Interactive project selection"""
+        """Interactive project selection."""
         print_section("Project Selection", "[*]")
         
         available_projects = list(self.projects.keys())
@@ -762,7 +761,7 @@ class InteractivePOMRunner:
                 print_error("Please enter a number")
     
     def _select_environment(self, project: str) -> Optional[str]:
-        """Interactive environment selection"""
+        """Interactive environment selection."""
         print_section("Environment Selection", "[ENV]")
         
         # Get environments from the selected project
@@ -803,7 +802,7 @@ class InteractivePOMRunner:
                 print_error("Please enter a number")
     
     def _select_browser(self) -> Tuple[str, bool]:
-        """Interactive browser selection"""
+        """Interactive browser selection."""
         print_section("Browser Configuration", "[WEB]")
         
         browsers = [
@@ -987,7 +986,7 @@ class InteractivePOMRunner:
         return None, None, None
     
     def _configure_human_behavior(self) -> bool:
-        """Configure human behavior simulation"""
+        """Configure human behavior simulation."""
         print_section("Human Behavior Simulation", "[AI]")
         
         print_info("Human behavior simulation adds realistic delays and interactions")
@@ -1039,7 +1038,7 @@ class InteractivePOMRunner:
         return parallel, markers
     
     def _configure_reports(self) -> Tuple[bool, bool]:
-        """Configure report generation"""
+        """Configure report generation."""
         print_section("Report Configuration", "[RPT]")
         
         html_report = confirm("Generate HTML report?", default=True)
@@ -1058,7 +1057,7 @@ class InteractivePOMRunner:
         parallel, markers, html_report, allure_report,
         project_test_files=None
     ):
-        """Build pytest command with all options"""
+        """Build pytest command with all options."""
         self.command_builder.set_project(project, environment)
         self.command_builder.set_browser(browser, headless)
         
@@ -1088,7 +1087,7 @@ class InteractivePOMRunner:
         self.command_builder.set_verbosity(verbose=True)
     
     def _confirm_execution(self) -> bool:
-        """Show summary and confirm execution"""
+        """Show summary and confirm execution."""
         print_section("Execution Summary", "[SUM]")
         
         print(self.command_builder.get_summary())
@@ -1098,7 +1097,7 @@ class InteractivePOMRunner:
         return confirm("Execute tests now?", default=True)
     
     def _execute_tests(self):
-        """Execute the tests"""
+        """Execute the tests."""
         print_section("Test Execution", "[RUN]")
         
         command = self.command_builder.build()
@@ -1144,7 +1143,7 @@ class InteractivePOMRunner:
 # ============================================================================
 
 def main():
-    """Main entry point"""
+    """Main entry point."""
     try:
         runner = InteractivePOMRunner()
         runner.run()

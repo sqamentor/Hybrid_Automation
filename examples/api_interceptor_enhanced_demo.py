@@ -21,14 +21,14 @@ logger = get_logger(__name__)
 
 
 def print_section(title: str):
-    """Print a formatted section title"""
+    """Print a formatted section title."""
     print("\n" + "="*80)
     print(f"  {title}")
     print("="*80 + "\n")
 
 
 def demo_http_interception():
-    """Demo HTTP request/response interception"""
+    """Demo HTTP request/response interception."""
     print_section("Demo: HTTP Request/Response Interception")
     
     engine = PlaywrightEngine(headless=True)
@@ -77,7 +77,7 @@ def demo_http_interception():
 
 
 def demo_request_modification():
-    """Demo request header/body modification"""
+    """Demo request header/body modification."""
     print_section("Demo: Request Modification")
     
     engine = PlaywrightEngine(headless=True)
@@ -128,7 +128,7 @@ def demo_request_modification():
 
 
 def demo_response_mocking():
-    """Demo response mocking"""
+    """Demo response mocking."""
     print_section("Demo: Response Mocking")
     
     engine = PlaywrightEngine(headless=True)
@@ -187,7 +187,7 @@ def demo_response_mocking():
 
 
 def demo_websocket_tracking():
-    """Demo WebSocket connection tracking"""
+    """Demo WebSocket connection tracking."""
     print_section("Demo: WebSocket Tracking")
     
     engine = PlaywrightEngine(headless=True)
@@ -231,7 +231,7 @@ def demo_websocket_tracking():
 
 
 def demo_har_export():
-    """Demo HAR export functionality"""
+    """Demo HAR export functionality."""
     print_section("Demo: HAR Export")
     
     engine = PlaywrightEngine(headless=True)
@@ -263,7 +263,7 @@ def demo_har_export():
 
 
 def main():
-    """Run all demos"""
+    """Run all demos."""
     print("\n" + "="*80)
     print("  API INTERCEPTOR ENHANCED FEATURES DEMO")
     print("="*80)

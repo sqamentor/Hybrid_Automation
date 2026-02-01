@@ -1,10 +1,9 @@
-"""
-AI Validation Suggester Module
+"""AI Validation Suggester Module.
 
 Provides AI-driven API → DB validation suggestions.
 """
 
-from framework.intelligence.ai_validation_suggester import (
+from framework.intelligence import (
     AIValidationSuggester,
     ValidationStrategy,
     ValidationSuggestion,

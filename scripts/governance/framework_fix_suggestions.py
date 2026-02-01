@@ -16,7 +16,7 @@ from framework_audit_engine import Violation, Category, Severity
 
 
 class FixSuggestionEngine:
-    """Generates context-aware fix suggestions for violations"""
+    """Generates context-aware fix suggestions for violations."""
     
     # Fix suggestion templates
     FIX_TEMPLATES = {
@@ -220,12 +220,11 @@ This marks the test as a protected canonical flow that requires explicit approva
     
     @classmethod
     def generate_suggestion(cls, violation: Violation) -> str:
-        """
-        Generate fix suggestion for a violation
-        
+        """Generate fix suggestion for a violation.
+
         Args:
             violation: Violation object
-            
+
         Returns:
             Formatted fix suggestion string
         """
@@ -244,7 +243,7 @@ This marks the test as a protected canonical flow that requires explicit approva
     
     @classmethod
     def _generate_generic_fix(cls, violation: Violation) -> str:
-        """Generate generic fix suggestion when no template exists"""
+        """Generate generic fix suggestion when no template exists."""
         
         if violation.severity == Severity.CRITICAL:
             priority = "IMMEDIATE ACTION REQUIRED"
@@ -280,12 +279,12 @@ This marks the test as a protected canonical flow that requires explicit approva
     
     @classmethod
     def get_all_templates(cls) -> dict:
-        """Get all fix templates"""
+        """Get all fix templates."""
         return cls.FIX_TEMPLATES.copy()
     
     @classmethod
     def has_template(cls, rule_id: str) -> bool:
-        """Check if template exists for rule_id"""
+        """Check if template exists for rule_id."""
         return rule_id in cls.FIX_TEMPLATES
 
 

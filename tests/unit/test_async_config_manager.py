@@ -1,5 +1,4 @@
-"""
-Comprehensive tests for framework.config.async_config_manager
+"""Comprehensive tests for framework.config.async_config_manager.
 
 Tests async configuration loading, parallel I/O, singleton pattern,
 and Pydantic integration.
@@ -23,11 +22,11 @@ from framework.models.config_models import BrowserConfig, BrowserEngine, GlobalS
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAsyncConfigManagerSingleton:
-    """Test AsyncConfigManager singleton pattern"""
+    """Test AsyncConfigManager singleton pattern."""
 
     @pytest.mark.asyncio
     async def test_get_instance_returns_singleton(self):
-        """Test get_instance returns same instance"""
+        """Test get_instance returns same instance."""
         manager1 = await AsyncConfigManager.get_instance()
         manager2 = await AsyncConfigManager.get_instance()
 
@@ -35,7 +34,7 @@ class TestAsyncConfigManagerSingleton:
 
     @pytest.mark.asyncio
     async def test_singleton_thread_safe(self):
-        """Test singleton is thread-safe with asyncio.Lock"""
+        """Test singleton is thread-safe with asyncio.Lock."""
         instances = []
 
         async def get_manager():
@@ -56,11 +55,11 @@ class TestAsyncConfigManagerSingleton:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAsyncConfigManagerInit:
-    """Test AsyncConfigManager initialization"""
+    """Test AsyncConfigManager initialization."""
 
     @pytest.mark.asyncio
     async def test_create_manager_with_config_dir(self):
-        """Test creating manager with custom config directory"""
+        """Test creating manager with custom config directory."""
         with tempfile.TemporaryDirectory() as tmpdir:
             config_dir = Path(tmpdir)
             manager = AsyncConfigManager(config_dir=config_dir)
@@ -69,7 +68,7 @@ class TestAsyncConfigManagerInit:
 
     @pytest.mark.asyncio
     async def test_create_manager_default_config_dir(self):
-        """Test manager uses default config directory"""
+        """Test manager uses default config directory."""
         manager = AsyncConfigManager()
 
         # Should use config/ directory
@@ -79,11 +78,11 @@ class TestAsyncConfigManagerInit:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAsyncConfigManagerYAMLLoading:
-    """Test async YAML file loading"""
+    """Test async YAML file loading."""
 
     @pytest.mark.asyncio
     async def test_load_yaml_config_success(self):
-        """Test successfully loading YAML config"""
+        """Test successfully loading YAML config."""
         yaml_content = """
         browser:
           engine: chromium
@@ -103,7 +102,7 @@ class TestAsyncConfigManagerYAMLLoading:
 
     @pytest.mark.asyncio
     async def test_load_yaml_file_not_found(self):
-        """Test loading non-existent YAML file"""
+        """Test loading non-existent YAML file."""
         with tempfile.TemporaryDirectory() as tmpdir:
             manager = AsyncConfigManager(config_dir=Path(tmpdir))
             non_existent = Path(tmpdir) / "missing.yaml"
@@ -113,7 +112,7 @@ class TestAsyncConfigManagerYAMLLoading:
 
     @pytest.mark.asyncio
     async def test_load_invalid_yaml(self):
-        """Test loading invalid YAML content"""
+        """Test loading invalid YAML content."""
         invalid_yaml = "invalid: yaml: content: {"
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -130,11 +129,11 @@ class TestAsyncConfigManagerYAMLLoading:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAsyncConfigManagerJSONLoading:
-    """Test async JSON file loading"""
+    """Test async JSON file loading."""
 
     @pytest.mark.asyncio
     async def test_load_json_config_success(self):
-        """Test successfully loading JSON config"""
+        """Test successfully loading JSON config."""
         json_content = {
             "api": {"base_url": "https://api.example.com", "timeout": 30}
         }
@@ -151,7 +150,7 @@ class TestAsyncConfigManagerJSONLoading:
 
     @pytest.mark.asyncio
     async def test_load_json_file_not_found(self):
-        """Test loading non-existent JSON file"""
+        """Test loading non-existent JSON file."""
         with tempfile.TemporaryDirectory() as tmpdir:
             manager = AsyncConfigManager(config_dir=Path(tmpdir))
             non_existent = Path(tmpdir) / "missing.json"
@@ -161,7 +160,7 @@ class TestAsyncConfigManagerJSONLoading:
 
     @pytest.mark.asyncio
     async def test_load_invalid_json(self):
-        """Test loading invalid JSON content"""
+        """Test loading invalid JSON content."""
         invalid_json = '{"invalid": json content}'
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -177,11 +176,11 @@ class TestAsyncConfigManagerJSONLoading:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAsyncConfigManagerParallelLoading:
-    """Test parallel configuration loading"""
+    """Test parallel configuration loading."""
 
     @pytest.mark.asyncio
     async def test_load_all_configs_parallel(self):
-        """Test loading multiple configs in parallel"""
+        """Test loading multiple configs in parallel."""
         browser_config = """
         engine: chromium
         headless: true
@@ -225,7 +224,7 @@ class TestAsyncConfigManagerParallelLoading:
 
     @pytest.mark.asyncio
     async def test_parallel_loading_performance(self):
-        """Test parallel loading is faster than sequential"""
+        """Test parallel loading is faster than sequential."""
         with tempfile.TemporaryDirectory() as tmpdir:
             # Create multiple config files
             for i in range(3):
@@ -254,11 +253,11 @@ class TestAsyncConfigManagerParallelLoading:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAsyncConfigManagerBrowserConfig:
-    """Test loading browser configuration"""
+    """Test loading browser configuration."""
 
     @pytest.mark.asyncio
     async def test_load_browser_config(self):
-        """Test loading browser configuration"""
+        """Test loading browser configuration."""
         browser_yaml = """
         engine: chromium
         headless: true
@@ -280,7 +279,7 @@ class TestAsyncConfigManagerBrowserConfig:
 
     @pytest.mark.asyncio
     async def test_load_browser_config_with_validation(self):
-        """Test browser config validates with Pydantic"""
+        """Test browser config validates with Pydantic."""
         invalid_browser = """
         engine: chromium
         timeout: 500
@@ -300,11 +299,11 @@ class TestAsyncConfigManagerBrowserConfig:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAsyncConfigManagerAPIConfig:
-    """Test loading API configuration"""
+    """Test loading API configuration."""
 
     @pytest.mark.asyncio
     async def test_load_api_config(self):
-        """Test loading API configuration"""
+        """Test loading API configuration."""
         api_json = {
             "base_url": "https://api.example.com",
             "timeout": 30,
@@ -326,11 +325,11 @@ class TestAsyncConfigManagerAPIConfig:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAsyncConfigManagerDatabaseConfig:
-    """Test loading database configuration"""
+    """Test loading database configuration."""
 
     @pytest.mark.asyncio
     async def test_load_database_config(self):
-        """Test loading database configuration"""
+        """Test loading database configuration."""
         db_yaml = """
         host: localhost
         port: 5432
@@ -355,11 +354,11 @@ class TestAsyncConfigManagerDatabaseConfig:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAsyncConfigManagerGlobalSettings:
-    """Test loading complete global settings"""
+    """Test loading complete global settings."""
 
     @pytest.mark.asyncio
     async def test_load_complete_global_settings(self):
-        """Test loading all configurations into GlobalSettings"""
+        """Test loading all configurations into GlobalSettings."""
         browser_yaml = "engine: chromium\nheadless: true"
         api_json = {"base_url": "https://api.example.com", "timeout": 30}
         db_yaml = (
@@ -401,11 +400,11 @@ class TestAsyncConfigManagerGlobalSettings:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAsyncConfigManagerCaching:
-    """Test configuration caching"""
+    """Test configuration caching."""
 
     @pytest.mark.asyncio
     async def test_config_caching_same_instance(self):
-        """Test configs are cached and reused"""
+        """Test configs are cached and reused."""
         browser_yaml = "engine: chromium\nheadless: true"
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -424,11 +423,11 @@ class TestAsyncConfigManagerCaching:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAsyncConfigManagerErrorHandling:
-    """Test error handling in AsyncConfigManager"""
+    """Test error handling in AsyncConfigManager."""
 
     @pytest.mark.asyncio
     async def test_handle_missing_config_directory(self):
-        """Test handling missing config directory"""
+        """Test handling missing config directory."""
         non_existent_dir = Path("/non/existent/directory")
 
         # Should handle gracefully or raise clear error
@@ -438,7 +437,7 @@ class TestAsyncConfigManagerErrorHandling:
 
     @pytest.mark.asyncio
     async def test_handle_corrupted_config_file(self):
-        """Test handling corrupted config files"""
+        """Test handling corrupted config files."""
         corrupted_yaml = "invalid: yaml: structure: {{"
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -453,11 +452,11 @@ class TestAsyncConfigManagerErrorHandling:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAsyncConfigManagerIntegration:
-    """Integration tests for real-world scenarios"""
+    """Integration tests for real-world scenarios."""
 
     @pytest.mark.asyncio
     async def test_complete_config_loading_workflow(self):
-        """Test complete configuration loading workflow"""
+        """Test complete configuration loading workflow."""
         # Create complete config set
         configs = {
             "browser.yaml": "engine: chromium\nheadless: false\ntimeout: 30000",

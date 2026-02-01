@@ -42,7 +42,7 @@ import re
 from playwright.sync_api import Page, expect
 
 class PageObjectName:
-    """Page object with proper error handling"""
+    """Page object with proper error handling."""
     
     def __init__(self, page: Page, base_url: str = None):
         # Validates base_url is provided - NO HARDCODED FALLBACK

@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
-"""
-════════════════════════════════════════════════════════════════════════════
-QUICK GOVERNANCE AUDIT
-════════════════════════════════════════════════════════════════════════════
+"""════════════════════════════════════════════════════════════════════════════ QUICK GOVERNANCE
+AUDIT ════════════════════════════════════════════════════════════════════════════
 
 Fast audit for quick checks before committing.
 
 USAGE:
     python scripts/quick-start/quick_governance_audit.py
-    
+
     # Specific category
     python scripts/quick-start/quick_governance_audit.py --category engine-mix
-    
+
     # With report
     python scripts/quick-start/quick_governance_audit.py --report
 

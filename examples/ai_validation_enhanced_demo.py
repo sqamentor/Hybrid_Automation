@@ -34,7 +34,7 @@ logger = get_logger(__name__)
 
 
 def print_section(title: str):
-    """Print a formatted section title"""
+    """Print a formatted section title."""
     print("\n" + "="*80)
     print(f"  {title}")
     print("="*80 + "\n")
@@ -503,7 +503,7 @@ def demo_7_comprehensive_report():
 
 
 def main():
-    """Run all demos"""
+    """Run all demos."""
     print("\n" + "="*80)
     print("  AI VALIDATION SUGGESTER ENHANCED FEATURES DEMO")
     print("="*80)
