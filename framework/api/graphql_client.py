@@ -5,9 +5,11 @@ Provides comprehensive GraphQL API testing with schema introspection,
 query validation, and response assertions.
 """
 
-from typing import Dict, List, Optional, Any
-import requests
 import json
+from typing import Any, Dict, List, Optional
+
+import requests
+
 from utils.logger import get_logger
 
 logger = get_logger(__name__)

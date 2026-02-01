@@ -15,11 +15,11 @@ def test_imports():
     
     try:
         from framework.recording import (
-            PlaywrightCodegen,
             AIScriptRefactorer,
             PageObjectGenerator,
+            PlaywrightCodegen,
             RecordingWorkflow,
-            quick_record_and_generate
+            quick_record_and_generate,
         )
         print("✓ All imports successful")
         return True
@@ -34,12 +34,12 @@ def test_instantiation():
     
     try:
         from framework.recording import (
-            PlaywrightCodegen,
             AIScriptRefactorer,
             PageObjectGenerator,
-            RecordingWorkflow
+            PlaywrightCodegen,
+            RecordingWorkflow,
         )
-        
+
         # Test PlaywrightCodegen
         codegen = PlaywrightCodegen()
         assert codegen is not None
@@ -73,7 +73,7 @@ def test_directories():
     print("\nTesting directory creation...")
     
     try:
-        from framework.recording import PlaywrightCodegen, PageObjectGenerator
+        from framework.recording import PageObjectGenerator, PlaywrightCodegen
         
         codegen = PlaywrightCodegen()
         assert codegen.output_dir.exists()
@@ -95,7 +95,7 @@ def test_ai_integration():
     
     try:
         from framework.recording import AIScriptRefactorer
-        
+
         # Test with different AI providers
         providers = [None, "openai", "claude", "azure", "ollama"]
         

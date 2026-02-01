@@ -8,11 +8,13 @@ Author: Principal QA Architect
 Date: January 31, 2026
 """
 
-import pytest
 import logging
-from typing import Dict, Any, Tuple
-from framework.core.session_manager import SessionManager
+from typing import Any, Dict, Tuple
+
+import pytest
+
 from framework.auth.auth_service import AuthenticationService
+from framework.core.session_manager import SessionManager
 from framework.core.workflow_orchestrator import WorkflowOrchestrator
 
 logger = logging.getLogger(__name__)
@@ -171,7 +173,7 @@ def sso_credentials(config) -> Dict[str, str]:
             session = auth_service.authenticate_sso(driver, sso_config, sso_credentials)
     """
     import os
-    
+
     # Try to get from config first
     creds_data = config.get('credentials', {})
     

@@ -5,6 +5,7 @@ Tests the custom exception classes.
 """
 
 import pytest
+
 from framework.core.exceptions import *
 
 

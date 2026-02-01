@@ -4,7 +4,7 @@ Base Protocol Interfaces
 Fundamental protocols that define common contracts across the framework.
 """
 
-from typing import Protocol, Dict, Any, List, runtime_checkable
+from typing import Any, Dict, List, Protocol, runtime_checkable
 
 
 @runtime_checkable

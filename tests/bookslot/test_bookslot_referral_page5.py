@@ -19,10 +19,11 @@ Run Commands:
     pytest tests/bookslot/test_referral_page.py -m smoke -v
 """
 
-import pytest
 import allure
-from tests.bookslot.helpers.navigation_helper import BookslotNavigator
+import pytest
+
 from pages.bookslot.bookslots_referral_page5 import BookslotReferralPage
+from tests.bookslot.helpers.navigation_helper import BookslotNavigator
 
 
 @allure.epic("Bookslot")

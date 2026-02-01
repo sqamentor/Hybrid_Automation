@@ -6,16 +6,16 @@ Modern microservices architecture for test automation framework.
 
 from framework.microservices.base import (
     BaseService,
-    IService,
-    ServiceRegistry,
-    MessageBus,
-    ServiceInfo,
     HealthCheck,
+    IService,
     Message,
-    ServiceStatus,
+    MessageBus,
     MessagePriority,
-    get_service_registry,
+    ServiceInfo,
+    ServiceRegistry,
+    ServiceStatus,
     get_message_bus,
+    get_service_registry,
 )
 
 __all__ = [

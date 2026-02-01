@@ -8,11 +8,12 @@ Configuration determines which AI provider to use for different features.
 """
 
 import os
-from typing import Dict, Any, Optional, List
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from utils.logger import get_logger
 from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+from utils.logger import get_logger
 
 # Load environment variables from .env file
 try:
@@ -365,7 +366,7 @@ class OllamaProvider(BaseAIProvider):
         """Initialize Ollama client"""
         try:
             import requests
-            
+
             # Default Ollama endpoint
             self.api_base = self.config.api_base or os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')
             
@@ -487,7 +488,7 @@ class AIProviderFactory:
     def _load_providers(self):
         """Load AI providers from configuration"""
         from config.settings import settings
-        
+
         # Get AI configuration
         ai_config = settings.get('global.ai_providers', {})
         

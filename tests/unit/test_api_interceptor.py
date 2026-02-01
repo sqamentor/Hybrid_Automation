@@ -4,8 +4,10 @@ Unit Tests for API Interceptor
 Tests the APIInterceptor functionality.
 """
 
+from unittest.mock import MagicMock, Mock, patch
+
 import pytest
-from unittest.mock import Mock, MagicMock, patch
+
 from framework.api.api_interceptor import APIInterceptor
 
 

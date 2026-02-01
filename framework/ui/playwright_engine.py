@@ -10,13 +10,17 @@ Features:
 - Resource cleanup and management
 """
 
-import time
 import threading
-from typing import Any, Optional, List, Dict
-from queue import Queue, Empty
-from playwright.sync_api import sync_playwright, Page, BrowserContext, Browser, Error as PlaywrightError
+import time
+from queue import Empty, Queue
+from typing import Any, Dict, List, Optional
+
+from playwright.sync_api import Browser, BrowserContext
+from playwright.sync_api import Error as PlaywrightError
+from playwright.sync_api import Page, sync_playwright
+
 from framework.ui.base_page import BasePage
-from utils.logger import get_logger, get_audit_logger
+from utils.logger import get_audit_logger, get_logger
 
 logger = get_logger(__name__)
 audit_logger = get_audit_logger()

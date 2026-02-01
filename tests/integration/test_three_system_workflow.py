@@ -14,9 +14,11 @@ Workflow:
 - Verify cancellation is reflected in all three systems
 """
 
-import pytest
 import logging
 from datetime import datetime, timedelta
+
+import pytest
+
 from models import Appointment, TestContext
 
 logger = logging.getLogger(__name__)

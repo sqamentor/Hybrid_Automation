@@ -25,17 +25,17 @@ Enterprise-grade comprehensive test reporting capturing ALL framework capabiliti
 This captures 95% of framework capabilities vs 30% in basic reports.
 """
 
-import pytest
-import os
-import json
 import base64
-from pathlib import Path
+import json
+import os
 from datetime import datetime
-from typing import Dict, List, Any, Optional
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+import pytest
 from _pytest.nodes import Item
 from _pytest.reports import TestReport
 from pytest_html import extras
-
 
 # ========================================================================
 # COMPREHENSIVE DATA COLLECTOR

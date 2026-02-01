@@ -29,13 +29,14 @@ Run Commands:
     pytest tests/bookslot/test_bookslot_validations.py::TestBasicInfoValidations -v
 """
 
-import pytest
 import allure
+import pytest
+
 from pages.bookslot.bookslots_basicinfo_page1 import BookslotBasicInfoPage
-from pages.bookslot.bookslots_personalInfo_page4 import BookslotPersonalInfoPage
 from pages.bookslot.bookslots_insurance_page6 import BookslotInsurancePage
-from pages.bookslot.bookslots_referral_page5 import BookslotReferralPage
 from pages.bookslot.bookslots_patient_type_page import BookslotPatientTypePage
+from pages.bookslot.bookslots_personalInfo_page4 import BookslotPersonalInfoPage
+from pages.bookslot.bookslots_referral_page5 import BookslotReferralPage
 from pages.bookslot.bookslots_scheduler_page import BookslotSchedulerPage
 
 

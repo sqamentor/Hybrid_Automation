@@ -8,6 +8,7 @@ Includes optional human behavior simulation for realistic interactions.
 
 from abc import ABC, abstractmethod
 from typing import Any, Optional
+
 from framework.core.utils.human_actions import HumanBehaviorSimulator, get_behavior_config
 
 

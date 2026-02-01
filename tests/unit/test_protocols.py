@@ -3,19 +3,19 @@ Unit tests for framework.protocols module.
 
 Tests Protocol compliance, runtime_checkable, and structural subtyping.
 """
-import pytest
-from typing import Dict, Any, List, Protocol, runtime_checkable
 from abc import abstractmethod
+from typing import Any, Dict, List, Protocol, runtime_checkable
+
+import pytest
 
 from framework.protocols import (
+    AsyncExecutable,
     Configurable,
     Executable,
+    LifecycleManaged,
     Reportable,
     Validatable,
-    AsyncExecutable,
-    LifecycleManaged
 )
-
 
 # ============================================================================
 # Test Configurable Protocol

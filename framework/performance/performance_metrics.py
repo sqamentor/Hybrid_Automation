@@ -5,8 +5,9 @@ Provides comprehensive performance metrics including load times,
 resource sizes, Core Web Vitals, and custom performance marks.
 """
 
-from typing import Dict, List, Optional, Any
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
 from utils.logger import get_logger
 
 logger = get_logger(__name__)

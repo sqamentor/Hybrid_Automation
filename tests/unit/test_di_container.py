@@ -7,15 +7,16 @@ auto-injection, pattern matching, and circular dependency detection.
 Author: Lokendra Singh
 """
 
-import pytest
 from typing import Protocol
 from unittest.mock import Mock
 
+import pytest
+
 from framework.di_container import (
     DIContainer,
+    DIScope,
     Lifetime,
     ServiceDescriptor,
-    DIScope,
     inject,
 )
 

@@ -22,10 +22,11 @@ Run Commands:
     pytest tests/bookslot/test_insurance_page.py -k "insurance_id" -v
 """
 
-import pytest
 import allure
-from tests.bookslot.helpers.navigation_helper import BookslotNavigator
+import pytest
+
 from pages.bookslot.bookslots_insurance_page6 import BookslotInsurancePage
+from tests.bookslot.helpers.navigation_helper import BookslotNavigator
 
 
 @allure.epic("Bookslot")

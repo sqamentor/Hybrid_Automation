@@ -5,18 +5,18 @@ Tests service lifecycle, MessageBus pub/sub, ServiceRegistry,
 and service health checks.
 """
 import asyncio
-import pytest
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from framework.microservices.base import (
     BaseService,
+    Message,
     MessageBus,
     ServiceRegistry,
     ServiceStatus,
-    Message
 )
-
 
 # ============================================================================
 # Test BaseService

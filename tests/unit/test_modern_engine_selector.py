@@ -7,14 +7,16 @@ caching, and UI framework detection.
 Author: Lokendra Singh
 """
 
-import pytest
-from unittest.mock import Mock, patch
 from dataclasses import dataclass
+from unittest.mock import Mock, patch
+
+import pytest
+
 from framework.core.modern_engine_selector import (
     ModernEngineSelector,
+    TestComplexity,
     TestMetadata,
     UIFramework,
-    TestComplexity,
 )
 from framework.models.config_models import EngineType
 from framework.protocols.config_protocols import ConfigProvider

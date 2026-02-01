@@ -7,15 +7,15 @@ Supports dynamic plugin loading, lifecycle management, and dependency resolution
 
 from __future__ import annotations
 
+import asyncio
+import importlib.util
+import inspect
+import sys
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Type
-import asyncio
-import importlib.util
-import inspect
-import sys
 
 
 class PluginStatus(str, Enum):

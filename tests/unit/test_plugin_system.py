@@ -3,21 +3,21 @@ Unit tests for framework.plugins.plugin_system module.
 
 Tests plugin loading, hooks, dependency resolution, and plugin lifecycle.
 """
-import pytest
-from typing import Dict, Any, List
 from pathlib import Path
-from unittest.mock import MagicMock, patch, mock_open
+from typing import Any, Dict, List
+from unittest.mock import MagicMock, mock_open, patch
+
+import pytest
 
 from framework.plugins.plugin_system import (
     BasePlugin,
+    PluginDependencyError,
+    PluginError,
+    PluginHook,
+    PluginLoadError,
     PluginManager,
     PluginMetadata,
-    PluginHook,
-    PluginError,
-    PluginLoadError,
-    PluginDependencyError
 )
-
 
 # ============================================================================
 # Test PluginMetadata

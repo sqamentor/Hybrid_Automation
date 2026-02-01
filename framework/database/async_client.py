@@ -9,10 +9,10 @@ Features:
 - Automatic retry
 """
 import asyncio
-from typing import Dict, Any, List, Optional, Union
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any, Dict, List, Optional, Union
 
 try:
     import asyncpg

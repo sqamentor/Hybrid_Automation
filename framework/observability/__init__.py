@@ -7,8 +7,8 @@ from framework.observability.telemetry import (
     get_telemetry,
     initialize_telemetry,
     shutdown_telemetry,
+    trace_async_test_execution,
     trace_test_execution,
-    trace_async_test_execution
 )
 
 __all__ = [

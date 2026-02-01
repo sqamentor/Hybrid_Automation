@@ -5,13 +5,14 @@ This module provides the factory for creating UI engine instances
 and implements the Playwright → Selenium fallback strategy.
 """
 
-from typing import Optional, Any
+from typing import Any, Optional
+
+from config.settings import is_ai_enabled, settings
+from framework.core.ai_engine_selector import AIEngineSelector
+from framework.core.engine_selector import EngineDecision, EngineSelector
 from framework.ui.playwright_engine import PlaywrightEngine
 from framework.ui.selenium_engine import SeleniumEngine
-from framework.core.engine_selector import EngineSelector, EngineDecision
-from framework.core.ai_engine_selector import AIEngineSelector
 from utils.logger import get_logger
-from config.settings import settings, is_ai_enabled
 
 logger = get_logger(__name__)
 
