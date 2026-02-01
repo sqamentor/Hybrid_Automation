@@ -15,10 +15,11 @@ from selenium.webdriver.common.by import By
 
 @pytest.mark.human_like
 def test_saucedemo_login_with_human_behavior(human_behavior):
-    """Test login on SauceDemo with human-like behavior.
-
-    The @pytest.mark.human_like marker automatically enables human behavior simulation for this
-    test.
+    """
+    Test login on SauceDemo with human-like behavior
+    
+    The @pytest.mark.human_like marker automatically enables
+    human behavior simulation for this test.
     """
     # Setup driver
     driver = webdriver.Chrome()
@@ -64,7 +65,10 @@ def test_saucedemo_login_with_human_behavior(human_behavior):
 
 
 def test_saucedemo_without_human_behavior():
-    """Same test without human behavior for comparison This will run much faster."""
+    """
+    Same test without human behavior for comparison
+    This will run much faster
+    """
     driver = webdriver.Chrome()
     driver.maximize_window()
     driver.get("https://www.saucedemo.com/")

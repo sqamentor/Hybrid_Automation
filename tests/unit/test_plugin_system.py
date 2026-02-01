@@ -1,4 +1,5 @@
-"""Unit tests for framework.plugins.plugin_system module.
+"""
+Unit tests for framework.plugins.plugin_system module.
 
 Tests plugin loading, hooks, dependency resolution, and plugin lifecycle.
 """

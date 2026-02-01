@@ -1,4 +1,5 @@
-"""Shared data models for multi-project testing.
+"""
+Shared data models for multi-project testing
 
 Author: Lokendra Singh
 Email: qa.lokendra@gmail.com

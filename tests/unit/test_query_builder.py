@@ -1,4 +1,5 @@
-"""Unit Tests for Query Builder.
+"""
+Unit Tests for Query Builder
 
 Tests the QueryBuilder functionality.
 """
@@ -19,10 +20,10 @@ from framework.database.query_builder import (
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestQueryBuilder:
-    """Test QueryBuilder class."""
+    """Test QueryBuilder class"""
     
     def test_simple_select(self):
-        """Test basic SELECT query."""
+        """Test basic SELECT query"""
         builder = QueryBuilder()
         query, params = builder.select("*").from_table("users").build()
         
@@ -31,7 +32,7 @@ class TestQueryBuilder:
         assert params == {}
     
     def test_select_specific_columns(self):
-        """Test SELECT with specific columns."""
+        """Test SELECT with specific columns"""
         builder = QueryBuilder()
         query, params = builder.select("id", "name", "email").from_table("users").build()
         
@@ -39,7 +40,7 @@ class TestQueryBuilder:
         assert "FROM dbo.users" in query
     
     def test_where_equals(self):
-        """Test WHERE with equals operator."""
+        """Test WHERE with equals operator"""
         builder = QueryBuilder()
         query, params = builder.select("*").from_table("users").where("id", 123).build()
         
@@ -47,7 +48,7 @@ class TestQueryBuilder:
         assert params["param_0"] == 123
     
     def test_where_operators(self):
-        """Test different WHERE operators."""
+        """Test different WHERE operators"""
         # Greater than
         builder = QueryBuilder()
         query, params = builder.select("*").from_table("orders").where("total", 100, Operator.GT).build()
@@ -60,7 +61,7 @@ class TestQueryBuilder:
         assert "email LIKE :param_0" in query
     
     def test_where_in(self):
-        """Test WHERE IN operator."""
+        """Test WHERE IN operator"""
         builder = QueryBuilder()
         query, params = builder.select("*").from_table("users").where("id", [1, 2, 3], Operator.IN).build()
         
@@ -71,7 +72,7 @@ class TestQueryBuilder:
         assert params["param_3"] == 3
     
     def test_where_between(self):
-        """Test WHERE BETWEEN operator."""
+        """Test WHERE BETWEEN operator"""
         builder = QueryBuilder()
         query, params = builder.select("*").from_table("orders").where("created_at", ["2024-01-01", "2024-12-31"], Operator.BETWEEN).build()
         
@@ -81,7 +82,7 @@ class TestQueryBuilder:
         assert params["param_2"] == "2024-12-31"
     
     def test_multiple_where(self):
-        """Test multiple WHERE conditions."""
+        """Test multiple WHERE conditions"""
         builder = QueryBuilder()
         query, params = (
             builder.select("*")
@@ -96,7 +97,7 @@ class TestQueryBuilder:
         assert params["param_1"] == 100
     
     def test_join(self):
-        """Test JOIN clause."""
+        """Test JOIN clause"""
         builder = QueryBuilder()
         query, params = (
             builder.select("users.name", "orders.total")
@@ -108,7 +109,7 @@ class TestQueryBuilder:
         assert "INNER JOIN orders ON users.id = orders.user_id" in query
     
     def test_left_join(self):
-        """Test LEFT JOIN."""
+        """Test LEFT JOIN"""
         builder = QueryBuilder()
         query, params = (
             builder.select("*")
@@ -120,7 +121,7 @@ class TestQueryBuilder:
         assert "LEFT JOIN orders ON users.id = orders.user_id" in query
     
     def test_group_by(self):
-        """Test GROUP BY clause."""
+        """Test GROUP BY clause"""
         builder = QueryBuilder()
         query, params = (
             builder.select("status", "COUNT(*) as cnt")
@@ -132,7 +133,7 @@ class TestQueryBuilder:
         assert "GROUP BY status" in query
     
     def test_order_by(self):
-        """Test ORDER BY clause."""
+        """Test ORDER BY clause"""
         builder = QueryBuilder()
         query, params = (
             builder.select("*")
@@ -144,7 +145,7 @@ class TestQueryBuilder:
         assert "ORDER BY created_at DESC" in query
     
     def test_limit(self):
-        """Test LIMIT clause."""
+        """Test LIMIT clause"""
         builder = QueryBuilder()
         query, params = (
             builder.select("*")
@@ -156,7 +157,7 @@ class TestQueryBuilder:
         assert "LIMIT 10" in query
     
     def test_offset(self):
-        """Test OFFSET clause."""
+        """Test OFFSET clause"""
         builder = QueryBuilder()
         query, params = (
             builder.select("*")
@@ -169,7 +170,7 @@ class TestQueryBuilder:
         assert "LIMIT 10 OFFSET 20" in query
     
     def test_complex_query(self):
-        """Test complex query with multiple clauses."""
+        """Test complex query with multiple clauses"""
         builder = QueryBuilder()
         query, params = (
             builder.select("users.name", "COUNT(orders.id) as order_count")
@@ -196,10 +197,10 @@ class TestQueryBuilder:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestConvenienceFunctions:
-    """Test convenience functions."""
+    """Test convenience functions"""
     
     def test_select_all(self):
-        """Test select_all function."""
+        """Test select_all function"""
         builder = select_all("users")
         query, params = builder.build()
         
@@ -207,7 +208,7 @@ class TestConvenienceFunctions:
         assert "FROM dbo.users" in query
     
     def test_count_rows(self):
-        """Test count_rows function."""
+        """Test count_rows function"""
         builder = count_rows("users", where={"status": "active"})
         query, params = builder.build()
         
@@ -216,7 +217,7 @@ class TestConvenienceFunctions:
         assert params["param_0"] == "active"
     
     def test_find_by_id(self):
-        """Test find_by_id function."""
+        """Test find_by_id function"""
         builder = find_by_id("users", "id", 123)
         query, params = builder.build()
         
@@ -226,7 +227,7 @@ class TestConvenienceFunctions:
         assert params["param_0"] == 123
     
     def test_exists(self):
-        """Test exists function."""
+        """Test exists function"""
         builder = exists("users", {"email": "test@example.com"})
         query, params = builder.build()
         
@@ -238,10 +239,10 @@ class TestConvenienceFunctions:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestQueryBuilderReset:
-    """Test QueryBuilder reset functionality."""
+    """Test QueryBuilder reset functionality"""
     
     def test_reset(self):
-        """Test reset clears all state."""
+        """Test reset clears all state"""
         builder = QueryBuilder()
         builder.select("*").from_table("users").where("id", 123).limit(10)
         

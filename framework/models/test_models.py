@@ -1,4 +1,5 @@
-"""Test Execution Models.
+"""
+Test Execution Models
 
 Pydantic models for test context, results, and metadata.
 """
@@ -14,7 +15,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class TestStatus(str, Enum):
-    """Test execution status."""
+    """Test execution status"""
     PASSED = "passed"
     FAILED = "failed"
     SKIPPED = "skipped"
@@ -23,7 +24,7 @@ class TestStatus(str, Enum):
 
 
 class TestPriority(str, Enum):
-    """Test priority levels."""
+    """Test priority levels"""
     CRITICAL = "critical"
     HIGH = "high"
     MEDIUM = "medium"
@@ -31,7 +32,7 @@ class TestPriority(str, Enum):
 
 
 class TestContext(BaseModel):
-    """Test execution context with all runtime information."""
+    """Test execution context with all runtime information"""
     
     model_config = ConfigDict(
         frozen=False,
@@ -72,17 +73,17 @@ class TestContext(BaseModel):
     steps: List[str] = Field(default_factory=list, description="Test execution steps")
     
     def add_step(self, step: str) -> None:
-        """Add a step to the test execution log."""
+        """Add a step to the test execution log"""
         self.steps.append(step)
     
     def mark_completed(self, duration_ms: int) -> None:
-        """Mark test as completed."""
+        """Mark test as completed"""
         self.end_time = datetime.now()
         self.duration_ms = duration_ms
 
 
 class TestResult(BaseModel):
-    """Test execution result with detailed outcome."""
+    """Test execution result with detailed outcome"""
     
     model_config = ConfigDict(
         frozen=False,
@@ -119,7 +120,7 @@ class TestResult(BaseModel):
     
     @property
     def pass_rate(self) -> float:
-        """Calculate assertion pass rate."""
+        """Calculate assertion pass rate"""
         total = self.assertions_passed + self.assertions_failed
         if total == 0:
             return 100.0
@@ -127,7 +128,7 @@ class TestResult(BaseModel):
 
 
 class TestMetadata(BaseModel):
-    """Test metadata for reporting and analytics."""
+    """Test metadata for reporting and analytics"""
     
     model_config = ConfigDict(
         frozen=False,

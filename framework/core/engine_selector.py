@@ -15,16 +15,16 @@ import time
 from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, cast
+from typing import Any, Dict, List, Optional, Tuple
 
-import yaml  # type: ignore[import-untyped]
+import yaml
 
 from config.settings import settings
 
 
 @dataclass
 class EngineDecision:
-    """Engine selection decision."""
+    """Engine selection decision"""
     engine: str  # 'playwright' or 'selenium'
     confidence: int  # 0-100
     reason: str
@@ -36,7 +36,7 @@ class EngineDecision:
 
 @dataclass
 class CacheEntry:
-    """Cache entry for engine decisions."""
+    """Cache entry for engine decisions"""
     decision: EngineDecision
     timestamp: float
     hit_count: int = 0
@@ -44,8 +44,9 @@ class CacheEntry:
 
 
 class EngineSelector:
-    """YAML-based engine selector with rule priority weighting and caching.
-
+    """
+    YAML-based engine selector with rule priority weighting and caching
+    
     Features:
     - Priority-based rule evaluation (higher priority rules evaluated first)
     - LRU cache for frequently used test metadata patterns
@@ -53,16 +54,17 @@ class EngineSelector:
     """
     
     def __init__(self, cache_size: int = 100, cache_ttl: int = 3600):
-        """Initialize Engine Selector.
-
+        """
+        Initialize Engine Selector
+        
         Args:
             cache_size: Maximum number of cached decisions (default: 100)
             cache_ttl: Cache time-to-live in seconds (default: 3600)
         """
         self.decision_matrix = settings.get_engine_decision_matrix()
-        self.rules = cast(List[Dict[str, Any]], self.decision_matrix.get('engine_selection_rules', []))
-        self.module_profiles = cast(Dict[str, Any], self.decision_matrix.get('module_profiles', {}))
-        self.custom_overrides = cast(Dict[str, Any], self.decision_matrix.get('custom_overrides', {}))
+        self.rules = self.decision_matrix.get('engine_selection_rules', [])
+        self.module_profiles = self.decision_matrix.get('module_profiles', {})
+        self.custom_overrides = self.decision_matrix.get('custom_overrides', {})
         
         # Sort rules by priority (higher priority first)
         self._sort_rules_by_priority()
@@ -89,8 +91,9 @@ class EngineSelector:
         self.rules.sort(key=lambda r: r.get('priority', 50), reverse=True)
     
     def select_engine(self, test_metadata: Dict[str, Any]) -> EngineDecision:
-        """Select UI engine based on test metadata with caching.
-
+        """
+        Select UI engine based on test metadata with caching
+        
         Args:
             test_metadata: Dictionary containing test characteristics
                 - module: str (e.g., 'checkout', 'admin')
@@ -99,7 +102,7 @@ class EngineSelector:
                 - auth_type: str (e.g., 'SSO', 'Basic')
                 - priority_override: int (optional, override rule priorities)
                 - etc.
-
+        
         Returns:
             EngineDecision with selected engine and reasoning
         """
@@ -125,11 +128,12 @@ class EngineSelector:
         return decision
     
     def _select_engine_internal(self, test_metadata: Dict[str, Any]) -> EngineDecision:
-        """Internal engine selection logic (without caching)
-
+        """
+        Internal engine selection logic (without caching)
+        
         Args:
             test_metadata: Test metadata dictionary
-
+        
         Returns:
             EngineDecision object
         """
@@ -185,12 +189,13 @@ class EngineSelector:
         )
     
     def _evaluate_rule(self, rule: Dict[str, Any], metadata: Dict[str, Any]) -> bool:
-        """Evaluate if a rule matches the test metadata.
-
+        """
+        Evaluate if a rule matches the test metadata
+        
         Args:
             rule: Rule from decision matrix
             metadata: Test metadata
-
+        
         Returns:
             True if rule matches, False otherwise
         """
@@ -211,36 +216,29 @@ class EngineSelector:
             
             # Handle comparison operators (>= for numbers)
             elif isinstance(expected_value, str) and expected_value.startswith('>='):
-                threshold_str = expected_value[2:].strip()
                 try:
-                    threshold = int(threshold_str)
-                except ValueError:
-                    return False
-                try:
-                    actual_int = int(str(actual_value))
-                except (TypeError, ValueError):
-                    return False
-                if actual_int < threshold:
+                    threshold = int(expected_value.split()[1])
+                    if not (actual_value and int(actual_value) >= threshold):
+                        return False
+                except (ValueError, TypeError):
                     return False
             
             # Handle comparison operators (> for numbers)
             elif isinstance(expected_value, str) and expected_value.startswith('>'):
-                threshold_str = expected_value[1:].strip()
-                if any(suffix in threshold_str for suffix in ('m', 'h')):
-                    expected_minutes = self._parse_duration(threshold_str)
-                    actual_minutes = self._parse_duration(str(actual_value))
-                    if expected_minutes is None or actual_minutes is None:
-                        return False
-                    if actual_minutes <= expected_minutes:
-                        return False
-                else:
-                    try:
-                        threshold_val = int(threshold_str)
-                        actual_int = int(str(actual_value))
-                    except (TypeError, ValueError):
-                        return False
-                    if actual_int <= threshold_val:
-                        return False
+                try:
+                    threshold = expected_value.split()[1]
+                    # Handle time strings like "> 30m"
+                    if 'm' in threshold:
+                        threshold = int(threshold.replace('m', ''))
+                        actual_minutes = self._parse_duration(str(actual_value))
+                        if not (actual_minutes and actual_minutes > threshold):
+                            return False
+                    else:
+                        threshold = int(threshold)
+                        if not (actual_value and int(actual_value) > threshold):
+                            return False
+                except (ValueError, TypeError):
+                    return False
             
             # Handle boolean values
             elif isinstance(expected_value, bool):
@@ -255,12 +253,13 @@ class EngineSelector:
         return True
     
     def _matches_pattern(self, text: str, pattern: str) -> bool:
-        """Check if text matches a pattern with wildcards.
-
+        """
+        Check if text matches a pattern with wildcards
+        
         Args:
             text: Text to check
             pattern: Pattern with * wildcard
-
+        
         Returns:
             True if pattern matches
         """
@@ -283,11 +282,12 @@ class EngineSelector:
         return bool(re.match(f"^{regex_pattern}$", text))
     
     def _parse_duration(self, duration_str: str) -> Optional[int]:
-        """Parse duration string to minutes.
-
+        """
+        Parse duration string to minutes
+        
         Args:
             duration_str: Duration like "30m", "1h", "90"
-
+        
         Returns:
             Duration in minutes or None
         """
@@ -302,15 +302,16 @@ class EngineSelector:
             return None
     
     def get_fallback_policy(self) -> Dict[str, Any]:
-        """Get fallback policy configuration."""
-        return cast(Dict[str, Any], self.decision_matrix.get('fallback_policy', {}))
+        """Get fallback policy configuration"""
+        return self.decision_matrix.get('fallback_policy', {})
     
     def should_fallback(self, error_type: str) -> bool:
-        """Determine if error should trigger fallback.
-
+        """
+        Determine if error should trigger fallback
+        
         Args:
             error_type: Type of error encountered
-
+        
         Returns:
             True if fallback should be triggered
         """
@@ -319,8 +320,8 @@ class EngineSelector:
         if not policy.get('enabled', True):
             return False
         
-        trigger_conditions = cast(List[str], policy.get('trigger_conditions', []))
-        non_trigger_conditions = cast(List[str], policy.get('non_trigger_conditions', []))
+        trigger_conditions = policy.get('trigger_conditions', [])
+        non_trigger_conditions = policy.get('non_trigger_conditions', [])
         
         # Check if error is in non-trigger list (takes precedence)
         if error_type in non_trigger_conditions:
@@ -334,11 +335,12 @@ class EngineSelector:
     # ========================================================================
     
     def _generate_cache_key(self, test_metadata: Dict[str, Any]) -> str:
-        """Generate unique cache key from test metadata.
-
+        """
+        Generate unique cache key from test metadata
+        
         Args:
             test_metadata: Test metadata dictionary
-
+        
         Returns:
             MD5 hash of normalized metadata
         """
@@ -353,11 +355,12 @@ class EngineSelector:
         return hashlib.md5(metadata_str.encode()).hexdigest()
     
     def _get_cached_decision(self, cache_key: str) -> Optional[EngineDecision]:
-        """Retrieve cached decision if valid.
-
+        """
+        Retrieve cached decision if valid
+        
         Args:
             cache_key: Cache key
-
+        
         Returns:
             Cached EngineDecision or None
         """
@@ -377,9 +380,10 @@ class EngineSelector:
         return entry.decision
     
     def _cache_decision(self, cache_key: str, decision: EngineDecision, 
-                        test_metadata: Dict[str, Any]) -> None:
-        """Cache an engine decision.
-
+                        test_metadata: Dict[str, Any]):
+        """
+        Cache an engine decision
+        
         Args:
             cache_key: Cache key
             decision: EngineDecision to cache
@@ -414,13 +418,14 @@ class EngineSelector:
         self._cache_stats['evictions'] += 1
     
     def clear_cache(self):
-        """Clear all cached decisions."""
+        """Clear all cached decisions"""
         self._decision_cache.clear()
         self._cache_stats['evictions'] += len(self._decision_cache)
     
     def get_cache_stats(self) -> Dict[str, Any]:
-        """Get cache statistics.
-
+        """
+        Get cache statistics
+        
         Returns:
             Dictionary with cache performance metrics
         """
@@ -440,11 +445,12 @@ class EngineSelector:
         }
     
     def _get_top_cached_patterns(self, limit: int = 10) -> List[Dict[str, Any]]:
-        """Get most frequently accessed cache patterns.
-
+        """
+        Get most frequently accessed cache patterns
+        
         Args:
             limit: Maximum number of patterns to return
-
+        
         Returns:
             List of top cache patterns with hit counts
         """
@@ -471,8 +477,9 @@ class EngineSelector:
     # ========================================================================
     
     def get_rule_priorities(self) -> List[Dict[str, Any]]:
-        """Get all rules sorted by priority.
-
+        """
+        Get all rules sorted by priority
+        
         Returns:
             List of rules with their priorities
         """
@@ -488,12 +495,13 @@ class EngineSelector:
         ]
     
     def update_rule_priority(self, rule_name: str, new_priority: int) -> bool:
-        """Update priority of a specific rule.
-
+        """
+        Update priority of a specific rule
+        
         Args:
             rule_name: Name of the rule to update
             new_priority: New priority value (0-100)
-
+        
         Returns:
             True if rule was found and updated, False otherwise
         """
@@ -510,12 +518,13 @@ class EngineSelector:
 # HELPER FUNCTIONS
 # ========================================================================
 
-def extract_test_metadata(test_item: Any) -> Dict[str, Any]:
-    """Extract metadata from pytest test item.
-
+def extract_test_metadata(test_item) -> Dict[str, Any]:
+    """
+    Extract metadata from pytest test item
+    
     Args:
         test_item: pytest test item
-
+    
     Returns:
         Dictionary of test metadata
     """

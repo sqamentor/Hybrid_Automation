@@ -1,4 +1,5 @@
-"""Selenium Engine Enhanced Features Demo.
+"""
+Selenium Engine Enhanced Features Demo
 
 Demonstrates:
 1. Better browser driver management with auto-download
@@ -304,7 +305,7 @@ def demo_combined_features():
 
 
 def main():
-    """Run all demos."""
+    """Run all demos"""
     print("\n" + "="*70)
     print("SELENIUM ENGINE ENHANCED FEATURES DEMO")
     print("="*70)

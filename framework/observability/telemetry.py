@@ -1,4 +1,5 @@
-"""OpenTelemetry integration for distributed tracing and observability.
+"""
+OpenTelemetry integration for distributed tracing and observability.
 
 Provides instrumentation for:
 - HTTP requests (httpx)
@@ -9,17 +10,7 @@ Provides instrumentation for:
 import asyncio
 from contextlib import asynccontextmanager, contextmanager
 from functools import wraps
-from typing import (
-    Any,
-    AsyncIterator,
-    Awaitable,
-    Callable,
-    Dict,
-    Iterator,
-    Optional,
-    ParamSpec,
-    TypeVar,
-)
+from typing import Any, Callable, Dict, Optional
 
 from opentelemetry import trace
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
@@ -28,14 +19,6 @@ from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
 from opentelemetry.trace import Status, StatusCode
-
-
-FuncParams = ParamSpec("FuncParams")
-FuncReturn = TypeVar("FuncReturn")
-AsyncFuncReturn = TypeVar("AsyncFuncReturn")
-TestParams = ParamSpec("TestParams")
-TestReturn = TypeVar("TestReturn")
-AsyncTestReturn = TypeVar("AsyncTestReturn")
 
 
 class TelemetryConfig:
@@ -49,8 +32,9 @@ class TelemetryConfig:
         enable_console: bool = True,
         enable_otlp: bool = False
     ):
-        """Initialize telemetry configuration.
-
+        """
+        Initialize telemetry configuration.
+        
         Args:
             service_name: Name of the service for tracing
             environment: Environment (dev, staging, prod)
@@ -66,12 +50,13 @@ class TelemetryConfig:
 
 
 class TelemetryManager:
-    """Manages OpenTelemetry instrumentation and tracing.
-
+    """
+    Manages OpenTelemetry instrumentation and tracing.
+    
     Example:
         ```python
         from framework.observability.telemetry import TelemetryManager, TelemetryConfig
-
+        
         # Initialize
         config = TelemetryConfig(
             service_name="my-tests",
@@ -80,20 +65,21 @@ class TelemetryManager:
         )
         telemetry = TelemetryManager(config)
         telemetry.initialize()
-
+        
         # Use in code
         with telemetry.span("test_execution", {"test_name": "test_login"}):
             # Your test code
             pass
-
+        
         # Cleanup
         telemetry.shutdown()
         ```
     """
     
     def __init__(self, config: TelemetryConfig):
-        """Initialize telemetry manager.
-
+        """
+        Initialize telemetry manager.
+        
         Args:
             config: Telemetry configuration
         """
@@ -103,8 +89,9 @@ class TelemetryManager:
         self._initialized = False
     
     def initialize(self) -> None:
-        """Initialize OpenTelemetry with configured exporters.
-
+        """
+        Initialize OpenTelemetry with configured exporters.
+        
         Sets up:
         - TracerProvider with service resource
         - Console exporter (if enabled)
@@ -153,17 +140,18 @@ class TelemetryManager:
         name: str,
         attributes: Optional[Dict[str, Any]] = None,
         kind: trace.SpanKind = trace.SpanKind.INTERNAL
-    ) -> Iterator[Optional[trace.Span]]:
-        """Create a traced span context.
-
+    ):
+        """
+        Create a traced span context.
+        
         Args:
             name: Name of the span
             attributes: Additional attributes for the span
             kind: Span kind (INTERNAL, CLIENT, SERVER, etc.)
-
+        
         Yields:
             The created span
-
+        
         Example:
             ```python
             with telemetry.span("database_query", {"table": "users"}):
@@ -192,17 +180,18 @@ class TelemetryManager:
         name: str,
         attributes: Optional[Dict[str, Any]] = None,
         kind: trace.SpanKind = trace.SpanKind.INTERNAL
-    ) -> AsyncIterator[Optional[trace.Span]]:
-        """Create an async traced span context.
-
+    ):
+        """
+        Create an async traced span context.
+        
         Args:
             name: Name of the span
             attributes: Additional attributes for the span
             kind: Span kind
-
+        
         Yields:
             The created span
-
+        
         Example:
             ```python
             async with telemetry.async_span("api_request", {"endpoint": "/api/users"}):
@@ -229,16 +218,17 @@ class TelemetryManager:
         self,
         span_name: Optional[str] = None,
         attributes: Optional[Dict[str, Any]] = None
-    ) -> Callable[[Callable[FuncParams, FuncReturn]], Callable[FuncParams, FuncReturn]]:
-        """Decorator to automatically trace a function.
-
+    ):
+        """
+        Decorator to automatically trace a function.
+        
         Args:
             span_name: Optional span name (defaults to function name)
             attributes: Additional attributes for the span
-
+        
         Returns:
             Decorated function
-
+        
         Example:
             ```python
             @telemetry.trace_function(attributes={"component": "auth"})
@@ -247,11 +237,11 @@ class TelemetryManager:
                 pass
             ```
         """
-        def decorator(func: Callable[FuncParams, FuncReturn]) -> Callable[FuncParams, FuncReturn]:
+        def decorator(func: Callable):
             name = span_name or func.__name__
             
             @wraps(func)
-            def wrapper(*args: FuncParams.args, **kwargs: FuncParams.kwargs) -> FuncReturn:
+            def wrapper(*args, **kwargs):
                 with self.span(name, attributes):
                     return func(*args, **kwargs)
             
@@ -263,16 +253,17 @@ class TelemetryManager:
         self,
         span_name: Optional[str] = None,
         attributes: Optional[Dict[str, Any]] = None
-    ) -> Callable[[Callable[FuncParams, Awaitable[AsyncFuncReturn]]], Callable[FuncParams, Awaitable[AsyncFuncReturn]]]:
-        """Decorator to automatically trace an async function.
-
+    ):
+        """
+        Decorator to automatically trace an async function.
+        
         Args:
             span_name: Optional span name (defaults to function name)
             attributes: Additional attributes for the span
-
+        
         Returns:
             Decorated async function
-
+        
         Example:
             ```python
             @telemetry.trace_async_function(attributes={"component": "api"})
@@ -281,16 +272,11 @@ class TelemetryManager:
                 pass
             ```
         """
-        def decorator(
-            func: Callable[FuncParams, Awaitable[AsyncFuncReturn]]
-        ) -> Callable[FuncParams, Awaitable[AsyncFuncReturn]]:
+        def decorator(func: Callable):
             name = span_name or func.__name__
             
             @wraps(func)
-            async def wrapper(
-                *args: FuncParams.args,
-                **kwargs: FuncParams.kwargs,
-            ) -> AsyncFuncReturn:
+            async def wrapper(*args, **kwargs):
                 async with self.async_span(name, attributes):
                     return await func(*args, **kwargs)
             
@@ -299,12 +285,13 @@ class TelemetryManager:
         return decorator
     
     def add_event(self, name: str, attributes: Optional[Dict[str, Any]] = None) -> None:
-        """Add an event to the current span.
-
+        """
+        Add an event to the current span.
+        
         Args:
             name: Event name
             attributes: Event attributes
-
+        
         Example:
             ```python
             with telemetry.span("test_execution"):
@@ -318,8 +305,9 @@ class TelemetryManager:
             current_span.add_event(name, attributes or {})
     
     def set_attribute(self, key: str, value: Any) -> None:
-        """Set an attribute on the current span.
-
+        """
+        Set an attribute on the current span.
+        
         Args:
             key: Attribute key
             value: Attribute value
@@ -329,8 +317,9 @@ class TelemetryManager:
             current_span.set_attribute(key, str(value))
     
     def record_exception(self, exception: Exception) -> None:
-        """Record an exception in the current span.
-
+        """
+        Record an exception in the current span.
+        
         Args:
             exception: The exception to record
         """
@@ -340,8 +329,9 @@ class TelemetryManager:
             current_span.set_status(Status(StatusCode.ERROR))
     
     def shutdown(self) -> None:
-        """Shutdown telemetry and flush all spans.
-
+        """
+        Shutdown telemetry and flush all spans.
+        
         Call this before application exit to ensure all spans are exported.
         """
         if self.tracer_provider:
@@ -359,14 +349,15 @@ _global_telemetry: Optional[TelemetryManager] = None
 
 
 def get_telemetry() -> TelemetryManager:
-    """Get the global telemetry manager instance.
-
+    """
+    Get the global telemetry manager instance.
+    
     Returns:
         Global TelemetryManager instance
-
+    
     Raises:
         RuntimeError: If telemetry not initialized
-
+    
     Example:
         ```python
         telemetry = get_telemetry()
@@ -386,24 +377,25 @@ def get_telemetry() -> TelemetryManager:
 
 
 def initialize_telemetry(config: TelemetryConfig) -> TelemetryManager:
-    """Initialize global telemetry manager.
-
+    """
+    Initialize global telemetry manager.
+    
     Args:
         config: Telemetry configuration
-
+    
     Returns:
         Initialized TelemetryManager
-
+    
     Example:
         ```python
         from framework.observability.telemetry import initialize_telemetry, TelemetryConfig
-
+        
         config = TelemetryConfig(
             service_name="my-service",
             enable_console=True,
             enable_otlp=False
         )
-
+        
         telemetry = initialize_telemetry(config)
         ```
     """
@@ -416,14 +408,15 @@ def initialize_telemetry(config: TelemetryConfig) -> TelemetryManager:
 
 
 def shutdown_telemetry() -> None:
-    """Shutdown global telemetry manager.
-
+    """
+    Shutdown global telemetry manager.
+    
     Call this before application exit.
-
+    
     Example:
         ```python
         from framework.observability.telemetry import shutdown_telemetry
-
+        
         # At application exit
         shutdown_telemetry()
         ```
@@ -440,15 +433,16 @@ def shutdown_telemetry() -> None:
 # ============================================================================
 
 class TestTracer:
-    """Helper class for instrumenting pytest tests with OpenTelemetry.
-
+    """
+    Helper class for instrumenting pytest tests with OpenTelemetry.
+    
     Example:
         ```python
         # conftest.py
         from framework.observability.telemetry import TestTracer
-
+        
         tracer = TestTracer()
-
+        
         @pytest.fixture(autouse=True)
         def trace_test(request):
             tracer.start_test(request.node.name)
@@ -458,17 +452,19 @@ class TestTracer:
     """
     
     def __init__(self, telemetry: Optional[TelemetryManager] = None):
-        """Initialize test tracer.
-
+        """
+        Initialize test tracer.
+        
         Args:
             telemetry: Optional telemetry manager (uses global if not provided)
         """
         self.telemetry = telemetry
-        self._test_spans: Dict[str, trace.Span] = {}
+        self._test_spans: Dict[str, Any] = {}
     
     def start_test(self, test_name: str, attributes: Optional[Dict[str, Any]] = None) -> None:
-        """Start tracing a test.
-
+        """
+        Start tracing a test.
+        
         Args:
             test_name: Name of the test
             attributes: Additional test attributes
@@ -479,15 +475,10 @@ class TestTracer:
             except RuntimeError:
                 return
         
-        telemetry = self.telemetry
-        tracer = telemetry.tracer if telemetry else None
-        if telemetry is None or tracer is None:
-            return
-
         attrs = attributes or {}
         attrs["test.name"] = test_name
         
-        span = tracer.start_span(
+        span = self.telemetry.tracer.start_span(
             f"test:{test_name}",
             kind=trace.SpanKind.INTERNAL
         )
@@ -503,8 +494,9 @@ class TestTracer:
         status: str = "passed",
         error: Optional[Exception] = None
     ) -> None:
-        """End tracing a test.
-
+        """
+        End tracing a test.
+        
         Args:
             test_name: Name of the test
             status: Test status (passed, failed, skipped)
@@ -526,8 +518,9 @@ class TestTracer:
         del self._test_spans[test_name]
     
     def add_test_event(self, test_name: str, event: str, attributes: Optional[Dict[str, Any]] = None) -> None:
-        """Add an event to a test span.
-
+        """
+        Add an event to a test span.
+        
         Args:
             test_name: Name of the test
             event: Event name
@@ -542,15 +535,16 @@ class TestTracer:
 # Convenience Functions
 # ============================================================================
 
-def trace_test_execution(test_name: str) -> Callable[[Callable[TestParams, TestReturn]], Callable[TestParams, TestReturn]]:
-    """Decorator for tracing test execution.
-
+def trace_test_execution(test_name: str):
+    """
+    Decorator for tracing test execution.
+    
     Args:
         test_name: Name of the test
-
+    
     Returns:
         Decorated test function
-
+    
     Example:
         ```python
         @trace_test_execution("test_user_login")
@@ -559,9 +553,9 @@ def trace_test_execution(test_name: str) -> Callable[[Callable[TestParams, TestR
             pass
         ```
     """
-    def decorator(func: Callable[TestParams, TestReturn]) -> Callable[TestParams, TestReturn]:
+    def decorator(func: Callable):
         @wraps(func)
-        def wrapper(*args: TestParams.args, **kwargs: TestParams.kwargs) -> TestReturn:
+        def wrapper(*args, **kwargs):
             try:
                 telemetry = get_telemetry()
                 with telemetry.span(f"test:{test_name}", {"test.name": test_name}):
@@ -575,15 +569,16 @@ def trace_test_execution(test_name: str) -> Callable[[Callable[TestParams, TestR
     return decorator
 
 
-def trace_async_test_execution(test_name: str) -> Callable[[Callable[TestParams, Awaitable[AsyncTestReturn]]], Callable[TestParams, Awaitable[AsyncTestReturn]]]:
-    """Decorator for tracing async test execution.
-
+def trace_async_test_execution(test_name: str):
+    """
+    Decorator for tracing async test execution.
+    
     Args:
         test_name: Name of the test
-
+    
     Returns:
         Decorated async test function
-
+    
     Example:
         ```python
         @trace_async_test_execution("test_async_api_call")
@@ -592,14 +587,9 @@ def trace_async_test_execution(test_name: str) -> Callable[[Callable[TestParams,
             pass
         ```
     """
-    def decorator(
-        func: Callable[TestParams, Awaitable[AsyncTestReturn]]
-    ) -> Callable[TestParams, Awaitable[AsyncTestReturn]]:
+    def decorator(func: Callable):
         @wraps(func)
-        async def wrapper(
-            *args: TestParams.args,
-            **kwargs: TestParams.kwargs,
-        ) -> AsyncTestReturn:
+        async def wrapper(*args, **kwargs):
             try:
                 telemetry = get_telemetry()
                 async with telemetry.async_span(f"test:{test_name}", {"test.name": test_name}):

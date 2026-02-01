@@ -1,4 +1,4 @@
-"""Quick test to verify projects.yaml works."""
+"""Quick test to verify projects.yaml works"""
 import yaml
 from pathlib import Path
 

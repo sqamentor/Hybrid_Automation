@@ -27,8 +27,9 @@ from playwright.sync_api import Page
 
 
 class BookslotEventInfoPage:
-    """Page Object for Bookslot Event Type Selection Page.
-
+    """
+    Page Object for Bookslot Event Type Selection Page
+    
     What a user can do on this page:
     - Navigate to event type page
     - Request callback
@@ -37,8 +38,9 @@ class BookslotEventInfoPage:
     """
 
     def __init__(self, page: Page, base_url: str):
-        """Initialize page object.
-
+        """
+        Initialize page object
+        
         Args:
             page: Playwright Page instance
             base_url: Base URL from multi_project_config
@@ -55,47 +57,47 @@ class BookslotEventInfoPage:
     
     @property
     def button_request_callback(self):
-        """Request Call back button."""
+        """Request Call back button"""
         return self.page.get_by_role("button", name="Request Call back")
     
     @property
     def text_callback_confirmation(self):
-        """Callback request submission confirmation."""
+        """Callback request submission confirmation"""
         return self.page.get_by_text("Request has been submitted")
     
     @property
     def heading_new_patient(self):
-        """New Patient Appointment heading."""
+        """New Patient Appointment heading"""
         return self.page.get_by_role("heading", name="New Patient Appointment")
     
     @property
     def text_new_patient_details(self):
-        """New Patient appointment details."""
+        """New Patient appointment details"""
         return self.page.get_by_text("90-minute appointment with")
     
     @property
     def button_new_patient_book(self):
-        """Book Now button for New Patient."""
+        """Book Now button for New Patient"""
         return self.page.get_by_role("button", name="Book Now").first
     
     @property
     def heading_complimentary(self):
-        """Complimentary Consultation heading."""
+        """Complimentary Consultation heading"""
         return self.page.get_by_role("heading", name="Complimentary Consultation")
     
     @property
     def text_complimentary_details(self):
-        """Complimentary Consultation details."""
+        """Complimentary Consultation details"""
         return self.page.get_by_text("15-minute appointmentwith a")
     
     @property
     def button_complimentary_book(self):
-        """Book Now button for Complimentary Consultation."""
+        """Book Now button for Complimentary Consultation"""
         return self.page.get_by_role("button", name="Book Now").nth(1)
     
     @property
     def button_next(self):
-        """Next button to proceed."""
+        """Next button to proceed"""
         return self.page.get_by_role("button", name="Next")
 
     # ===================================================================
@@ -103,7 +105,7 @@ class BookslotEventInfoPage:
     # ===================================================================
     
     def navigate(self):
-        """Navigate to the event type page."""
+        """Navigate to the event type page"""
         url = f"{self.base_url}{self.path}"
         self.page.goto(url)
         return self
@@ -113,27 +115,28 @@ class BookslotEventInfoPage:
     # ===================================================================
     
     def request_callback(self):
-        """Request a callback from the clinic."""
+        """Request a callback from the clinic"""
         self.button_request_callback.click()
         return self
     
     def select_new_patient(self):
-        """Select New Patient appointment type."""
+        """Select New Patient appointment type"""
         self.heading_new_patient.click()
         self.text_new_patient_details.click()
         self.button_new_patient_book.click()
         return self
     
     def select_complimentary_consultation(self):
-        """Select Complimentary Consultation type."""
+        """Select Complimentary Consultation type"""
         self.heading_complimentary.click()
         self.text_complimentary_details.click()
         self.button_complimentary_book.click()
         return self
     
     def select_event_by_name(self, event_name: str):
-        """Select any event type by button name.
-
+        """
+        Select any event type by button name
+        
         Args:
             event_name: Name of the event button (e.g., "New Patient", "Complimentary Consultation")
         """
@@ -141,11 +144,12 @@ class BookslotEventInfoPage:
         return self
     
     def is_event_button_visible(self, event_name: str) -> bool:
-        """Check if an event button is visible.
-
+        """
+        Check if an event button is visible
+        
         Args:
             event_name: Name of the event button
-
+            
         Returns:
             bool: True if visible, False otherwise
         """
@@ -155,7 +159,7 @@ class BookslotEventInfoPage:
             return False
     
     def proceed_to_next(self):
-        """Click Next button."""
+        """Click Next button"""
         self.button_next.click()
         return self
 
@@ -164,14 +168,14 @@ class BookslotEventInfoPage:
     # ===================================================================
     
     def is_page_loaded(self) -> bool:
-        """Check if page is loaded."""
+        """Check if page is loaded"""
         try:
             return self.heading_new_patient.is_visible()
         except:
             return False
     
     def is_callback_confirmed(self) -> bool:
-        """Check if callback request was confirmed."""
+        """Check if callback request was confirmed"""
         try:
             return self.text_callback_confirmation.is_visible()
         except:

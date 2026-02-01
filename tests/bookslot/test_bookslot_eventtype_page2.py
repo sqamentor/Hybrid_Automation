@@ -33,7 +33,7 @@ from tests.bookslot.helpers.navigation_helper import BookslotNavigator
 @pytest.mark.modern_spa
 @pytest.mark.bookslot
 class TestEventTypePage:
-    """Test suite for Event Type page functionality."""
+    """Test suite for Event Type page functionality"""
 
     @allure.story("Page Load")
     @allure.title("Verify Event Type page loads successfully")

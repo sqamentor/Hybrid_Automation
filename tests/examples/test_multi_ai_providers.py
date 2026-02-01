@@ -16,8 +16,9 @@ from framework.intelligence import AIValidationSuggester
 # ============================================================================
 
 def test_default_ai_provider(api_client, db_client):
-    """Uses default provider from config (usually OpenAI)
-
+    """
+    Uses default provider from config (usually OpenAI)
+    
     To run: pytest tests/examples/test_multi_ai_providers.py::test_default_ai_provider -v -s
     """
     print("\n" + "="*80)
@@ -50,8 +51,9 @@ def test_default_ai_provider(api_client, db_client):
 # ============================================================================
 
 def test_use_openai_provider():
-    """Explicitly use OpenAI (ChatGPT / GPT-4)
-
+    """
+    Explicitly use OpenAI (ChatGPT / GPT-4)
+    
     Best for: General purpose, high quality
     To run: pytest tests/examples/test_multi_ai_providers.py::test_use_openai_provider -v -s
     """
@@ -90,8 +92,9 @@ def test_use_openai_provider():
 # ============================================================================
 
 def test_use_claude_provider():
-    """Explicitly use Claude (Anthropic)
-
+    """
+    Explicitly use Claude (Anthropic)
+    
     Best for: Code generation, long context
     To run: pytest tests/examples/test_multi_ai_providers.py::test_use_claude_provider -v -s
     """
@@ -132,8 +135,9 @@ def test_use_claude_provider():
 # ============================================================================
 
 def test_use_azure_provider():
-    """Explicitly use Azure OpenAI.
-
+    """
+    Explicitly use Azure OpenAI
+    
     Best for: Enterprise compliance, Azure ecosystem
     To run: pytest tests/examples/test_multi_ai_providers.py::test_use_azure_provider -v -s
     """
@@ -216,8 +220,9 @@ def test_use_ollama_provider():
 # ============================================================================
 
 def test_switch_providers_dynamically():
-    """Switch between providers based on task.
-
+    """
+    Switch between providers based on task
+    
     To run: pytest tests/examples/test_multi_ai_providers.py::test_switch_providers_dynamically -v -s
     """
     print("\n" + "="*80)
@@ -254,8 +259,9 @@ def test_switch_providers_dynamically():
 # ============================================================================
 
 def test_check_available_providers():
-    """Check which AI providers are currently available.
-
+    """
+    Check which AI providers are currently available
+    
     To run: pytest tests/examples/test_multi_ai_providers.py::test_check_available_providers -v -s
     """
     print("\n" + "="*80)
@@ -292,8 +298,9 @@ def test_check_available_providers():
 # ============================================================================
 
 def test_automatic_fallback():
-    """Demonstrates automatic fallback to available provider.
-
+    """
+    Demonstrates automatic fallback to available provider
+    
     If default provider fails, tries next priority provider automatically
     To run: pytest tests/examples/test_multi_ai_providers.py::test_automatic_fallback -v -s
     """
@@ -331,8 +338,9 @@ def test_automatic_fallback():
 # ============================================================================
 
 def test_direct_provider_usage():
-    """Use AI provider directly for custom prompts.
-
+    """
+    Use AI provider directly for custom prompts
+    
     To run: pytest tests/examples/test_multi_ai_providers.py::test_direct_provider_usage -v -s
     """
     print("\n" + "="*80)
@@ -372,8 +380,9 @@ def test_direct_provider_usage():
 # ============================================================================
 
 def test_environment_based_provider(request):
-    """Select provider based on environment.
-
+    """
+    Select provider based on environment
+    
     To run: pytest tests/examples/test_multi_ai_providers.py::test_environment_based_provider -v -s --env=dev
     """
     print("\n" + "="*80)

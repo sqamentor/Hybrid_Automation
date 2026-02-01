@@ -1,7 +1,8 @@
-"""Async Configuration Manager with Pydantic V2.
+"""
+Async Configuration Manager with Pydantic V2
 
-Modern async configuration management using Pydantic models for validation and async I/O for
-performance.
+Modern async configuration management using Pydantic models for validation
+and async I/O for performance.
 """
 
 from __future__ import annotations
@@ -9,14 +10,11 @@ from __future__ import annotations
 import asyncio
 import json
 from pathlib import Path
-from typing import Any, Dict, Optional, cast
+from typing import Any, Dict, Optional
 
-import yaml  # type: ignore[import-untyped]
+import yaml
 
 from framework.models.config_models import (
-    APIConfig,
-    BrowserConfig,
-    DatabaseConfig,
     EngineDecisionMatrix,
     EnvironmentConfig,
     FrameworkConfig,
@@ -27,8 +25,9 @@ from framework.protocols.config_protocols import ConfigProvider
 
 
 class AsyncConfigManager(ConfigProvider):
-    """Async configuration manager with Pydantic validation.
-
+    """
+    Async configuration manager with Pydantic validation.
+    
     Features:
     - Async file I/O for performance
     - Pydantic V2 validation
@@ -60,7 +59,7 @@ class AsyncConfigManager(ConfigProvider):
             return cls._instance
     
     async def load_all_configs(self) -> GlobalSettings:
-        """Load all configuration files asynchronously."""
+        """Load all configuration files asynchronously"""
         # Return cached settings if already loaded
         if self._settings is not None:
             return self._settings
@@ -76,18 +75,16 @@ class AsyncConfigManager(ConfigProvider):
         ]
         
         results = await asyncio.gather(*tasks, return_exceptions=True)
-        browser_config: Optional[BrowserConfig] = None
-        api_config: Optional[APIConfig] = None
-        db_config: Optional[DatabaseConfig] = None
+        browser_config, api_config, db_config = None, None, None
         
         # Extract results from tasks (last 3 are browser, api, db)
         if len(results) >= 6:
             if not isinstance(results[3], Exception):
-                browser_config = cast(BrowserConfig, results[3])
+                browser_config = results[3]
             if not isinstance(results[4], Exception):
-                api_config = cast(APIConfig, results[4])
+                api_config = results[4]
             if not isinstance(results[5], Exception):
-                db_config = cast(DatabaseConfig, results[5])
+                db_config = results[5]
         
         # Build global settings
         self._settings = GlobalSettings(
@@ -109,11 +106,11 @@ class AsyncConfigManager(ConfigProvider):
         return self._settings
     
     async def _load_framework_config(self) -> None:
-        """Load framework configuration."""
+        """Load framework configuration"""
         self._framework_config = FrameworkConfig()
     
     async def _load_projects_config(self) -> None:
-        """Load projects configuration from YAML."""
+        """Load projects configuration from YAML"""
         projects_file = self.config_dir / "projects.yaml"
         if not projects_file.exists():
             return
@@ -146,7 +143,7 @@ class AsyncConfigManager(ConfigProvider):
                 print(f"Error parsing project {project_name}: {e}")
     
     async def _load_engine_matrix(self) -> None:
-        """Load engine decision matrix."""
+        """Load engine decision matrix"""
         matrix_file = self.config_dir / "engine_decision_matrix.yaml"
         if not matrix_file.exists():
             return
@@ -162,8 +159,10 @@ class AsyncConfigManager(ConfigProvider):
         except Exception as e:
             print(f"Error parsing engine matrix: {e}")
     
-    async def _load_browser_config(self) -> BrowserConfig:
-        """Load browser configuration from framework config."""
+    async def _load_browser_config(self):
+        """Load browser configuration from framework config"""
+        from framework.models.config_models import BrowserConfig
+        
         config_file = self.config_dir / "browser.yaml"
         if config_file.exists():
             data = await self._read_yaml_async(config_file)
@@ -172,8 +171,10 @@ class AsyncConfigManager(ConfigProvider):
         # Return default config
         return BrowserConfig()
     
-    async def _load_api_config(self) -> APIConfig:
-        """Load API configuration."""
+    async def _load_api_config(self):
+        """Load API configuration"""
+        from framework.models.config_models import APIConfig
+
         # Try YAML first
         config_file = self.config_dir / "api.yaml"
         if config_file.exists():
@@ -191,8 +192,10 @@ class AsyncConfigManager(ConfigProvider):
         # Return default with required base_url
         return APIConfig(base_url="http://localhost:8000")
     
-    async def _load_database_config(self) -> DatabaseConfig:
-        """Load database configuration."""
+    async def _load_database_config(self):
+        """Load database configuration"""
+        from framework.models.config_models import DatabaseConfig
+        
         config_file = self.config_dir / "database.yaml"
         if config_file.exists():
             data = await self._read_yaml_async(config_file)
@@ -209,7 +212,7 @@ class AsyncConfigManager(ConfigProvider):
         )
     
     async def _read_yaml_async(self, file_path: Path) -> Dict[str, Any]:
-        """Read YAML file asynchronously."""
+        """Read YAML file asynchronously"""
         loop = asyncio.get_event_loop()
         
         def _read():
@@ -223,7 +226,7 @@ class AsyncConfigManager(ConfigProvider):
         return await loop.run_in_executor(None, _read)
     
     async def _read_json_async(self, file_path: Path) -> Dict[str, Any]:
-        """Read JSON file asynchronously."""
+        """Read JSON file asynchronously"""
         loop = asyncio.get_event_loop()
         
         def _read():
@@ -235,13 +238,13 @@ class AsyncConfigManager(ConfigProvider):
     # ConfigProvider protocol implementation
     
     def get_config(self, key: str, default: Any = None) -> Any:
-        """Get configuration value by key."""
+        """Get configuration value by key"""
         if not self._settings:
             return default
         
         # Support dot notation for nested keys
         keys = key.split(".")
-        value: Any = self._settings
+        value = self._settings
         
         for k in keys:
             if isinstance(value, dict):
@@ -254,7 +257,7 @@ class AsyncConfigManager(ConfigProvider):
         return value
     
     def get_project_config(self, project_name: str) -> Optional[ProjectConfig]:
-        """Get project configuration."""
+        """Get project configuration"""
         if not self._settings:
             return None
         return self._settings.get_project(project_name)
@@ -264,7 +267,7 @@ class AsyncConfigManager(ConfigProvider):
         project_name: str,
         env_name: Optional[str] = None
     ) -> Optional[EnvironmentConfig]:
-        """Get environment configuration."""
+        """Get environment configuration"""
         if not self._settings:
             return None
         return self._settings.get_environment(project_name, env_name)
@@ -274,11 +277,11 @@ class AsyncConfigManager(ConfigProvider):
         asyncio.run(self.load_all_configs())
     
     async def reload_config_async(self) -> None:
-        """Reload configuration asynchronously."""
+        """Reload configuration asynchronously"""
         await self.load_all_configs()
     
     def validate_config(self) -> bool:
-        """Validate configuration integrity."""
+        """Validate configuration integrity"""
         if not self._settings:
             return False
         
@@ -291,19 +294,20 @@ class AsyncConfigManager(ConfigProvider):
     
     @property
     def settings(self) -> Optional[GlobalSettings]:
-        """Get global settings."""
+        """Get global settings"""
         return self._settings
     
     @property
     def framework_config(self) -> Optional[FrameworkConfig]:
-        """Get framework configuration."""
+        """Get framework configuration"""
         return self._framework_config
 
 
 # Async helper function for easy usage
 async def get_config_manager(config_dir: Optional[Path] = None) -> AsyncConfigManager:
-    """Get async config manager instance.
-
+    """
+    Get async config manager instance.
+    
     Usage:
         config = await get_config_manager()
         project_config = config.get_project_config("my_project")

@@ -1,1 +1,3 @@
-"""Examples Package."""
+"""
+Examples Package
+"""

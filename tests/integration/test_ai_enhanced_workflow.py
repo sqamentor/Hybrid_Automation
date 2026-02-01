@@ -1,4 +1,5 @@
-"""AI-Enhanced Three-System Workflow Test Example.
+"""
+AI-Enhanced Three-System Workflow Test Example
 
 This demonstrates how to use AI capabilities during test execution:
 - AI-powered engine selection
@@ -21,7 +22,7 @@ logger = logging.getLogger(__name__)
 @pytest.mark.integration
 @pytest.mark.ai_enhanced
 class TestAIEnhancedWorkflow:
-    """Three-system workflow with AI capabilities."""
+    """Three-system workflow with AI capabilities"""
     
     def test_ai_powered_booking_and_cancellation(
         self,
@@ -226,10 +227,12 @@ class TestAIEnhancedWorkflow:
 
 @pytest.mark.modern_spa
 class TestAIEngineSelection:
-    """Demonstrate AI-powered engine selection."""
+    """Demonstrate AI-powered engine selection"""
     
     def test_ai_chooses_optimal_engine(self):
-        """AI analyzes test requirements and chooses best engine."""
+        """
+        AI analyzes test requirements and chooses best engine
+        """
         from framework.core.ai_engine_selector import AIEngineSelector
         
         logger.info("Testing AI engine selection...")
@@ -266,10 +269,12 @@ class TestAIEngineSelection:
 
 @pytest.mark.modern_spa
 class TestAIValidationSuggester:
-    """Demonstrate AI validation suggestions."""
+    """Demonstrate AI validation suggestions"""
     
     def test_ai_suggests_database_validations(self):
-        """AI analyzes API response and suggests DB checks."""
+        """
+        AI analyzes API response and suggests DB checks
+        """
         from framework.intelligence import AIValidationSuggester
         
         logger.info("Testing AI validation suggester...")
@@ -319,15 +324,19 @@ class TestAIValidationSuggester:
 # ========================================================================
 
 def get_ai_test_analysis():
-    """Get AI analysis of current test execution Can be called anytime during test."""
+    """
+    Get AI analysis of current test execution
+    Can be called anytime during test
+    """
     from framework.intelligence import analyze_current_test
     
     return analyze_current_test()
 
 
 def ask_ai(question: str) -> str:
-    """Ask AI a question during test execution.
-
+    """
+    Ask AI a question during test execution
+    
     Example:
         answer = ask_ai("What's the best way to verify this appointment was cancelled?")
     """
@@ -337,8 +346,9 @@ def ask_ai(question: str) -> str:
 
 
 def ai_debug(error_message: str, context: dict) -> dict:
-    """Use AI to debug test failure.
-
+    """
+    Use AI to debug test failure
+    
     Returns:
         {
             "root_cause": "...",

@@ -31,8 +31,9 @@ import pytest
 @pytest.mark.critical
 @pytest.mark.ui_only
 def test_enhanced_report_demo_success(report_log, report_assertion, ui_url):
-    """Demo test showing enhanced reporting for PASSED tests.
-
+    """
+    Demo test showing enhanced reporting for PASSED tests
+    
     This test demonstrates:
     - Custom logging with report_log
     - Assertion tracking with report_assertion
@@ -79,8 +80,9 @@ def test_enhanced_report_demo_success(report_log, report_assertion, ui_url):
 @pytest.mark.integration
 @pytest.mark.high
 def test_enhanced_report_with_api(report_log, report_api_call, report_assertion):
-    """Demo test showing API call logging in reports.
-
+    """
+    Demo test showing API call logging in reports
+    
     This test demonstrates:
     - API call logging with response times
     - Request/response data capture
@@ -122,8 +124,9 @@ def test_enhanced_report_with_api(report_log, report_api_call, report_assertion)
 @pytest.mark.db_only
 @pytest.mark.medium
 def test_enhanced_report_with_database(report_log, report_db_query, report_assertion):
-    """Demo test showing database query logging in reports.
-
+    """
+    Demo test showing database query logging in reports
+    
     This test demonstrates:
     - Database query logging
     - Execution time tracking
@@ -176,8 +179,9 @@ def test_enhanced_report_with_database(report_log, report_db_query, report_asser
     ("python", 6),
 ])
 def test_enhanced_report_with_parameters(test_input, expected, report_log, report_assertion):
-    """Demo test showing parameter display in reports.
-
+    """
+    Demo test showing parameter display in reports
+    
     This test demonstrates:
     - Parameterized test display
     - Multiple test instances
@@ -203,8 +207,9 @@ def test_enhanced_report_with_parameters(test_input, expected, report_log, repor
 @pytest.mark.critical
 @pytest.mark.slow
 def test_comprehensive_enhanced_report(report_log, report_api_call, report_db_query, report_assertion):
-    """Comprehensive test demonstrating all reporting features together.
-
+    """
+    Comprehensive test demonstrating all reporting features together
+    
     This test demonstrates:
     - Multiple markers
     - Combined logging (UI + API + DB)
@@ -290,13 +295,13 @@ def test_comprehensive_enhanced_report(report_log, report_api_call, report_db_qu
 
 @pytest.mark.skip(reason="Example of skipped test in report")
 def test_skipped_example():
-    """This test is skipped to demonstrate skipped tests in report."""
+    """This test is skipped to demonstrate skipped tests in report"""
     assert False
 
 
 @pytest.mark.xfail(reason="Example of expected failure in report")
 def test_expected_failure_example():
-    """This test is expected to fail."""
+    """This test is expected to fail"""
     assert False, "This is an expected failure"
 
 

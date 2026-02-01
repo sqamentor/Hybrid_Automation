@@ -24,8 +24,9 @@ from framework.intelligence import AIValidationSuggester
 # ============================================================================
 
 def test_missing_api_keys_does_not_fail():
-    """When API keys are missing, tests continue with rule-based fallback.
-
+    """
+    When API keys are missing, tests continue with rule-based fallback
+    
     Result: ✓ Test PASSES (does not fail)
     """
     print("\n" + "="*80)
@@ -82,8 +83,9 @@ def test_missing_api_keys_does_not_fail():
 # ============================================================================
 
 def test_invalid_api_key_does_not_fail():
-    """When API key is invalid, tests continue with fallback.
-
+    """
+    When API key is invalid, tests continue with fallback
+    
     Result: ✓ Test PASSES
     """
     print("\n" + "="*80)
@@ -124,8 +126,9 @@ def test_invalid_api_key_does_not_fail():
 # ============================================================================
 
 def test_all_providers_unavailable_does_not_fail():
-    """When ALL AI providers are unavailable, tests still continue.
-
+    """
+    When ALL AI providers are unavailable, tests still continue
+    
     Result: ✓ Test PASSES
     """
     print("\n" + "="*80)
@@ -164,8 +167,9 @@ def test_all_providers_unavailable_does_not_fail():
 # ============================================================================
 
 def test_test_generation_without_ai():
-    """When AI unavailable, test generator returns template code.
-
+    """
+    When AI unavailable, test generator returns template code
+    
     Result: ✓ Test PASSES, returns template
     """
     print("\n" + "="*80)
@@ -198,8 +202,9 @@ def test_test_generation_without_ai():
 # ============================================================================
 
 def test_ai_timeout_does_not_block():
-    """If AI request times out, test continues.
-
+    """
+    If AI request times out, test continues
+    
     Result: ✓ Test PASSES (fallback used)
     """
     print("\n" + "="*80)
@@ -229,8 +234,9 @@ def test_ai_timeout_does_not_block():
 # ============================================================================
 
 def test_provider_fallback_chain():
-    """If primary provider fails, automatically tries next priority.
-
+    """
+    If primary provider fails, automatically tries next priority
+    
     Result: ✓ Test PASSES with fallback
     """
     print("\n" + "="*80)
@@ -310,8 +316,9 @@ def test_real_scenario_with_ai_unavailable(api_client, db_client):
 # ============================================================================
 
 def test_concurrent_tests_with_ai_issues():
-    """Multiple tests can run concurrently even if AI has issues.
-
+    """
+    Multiple tests can run concurrently even if AI has issues
+    
     Result: ✓ All tests PASS independently
     """
     print("\n" + "="*80)
@@ -342,8 +349,9 @@ def test_concurrent_tests_with_ai_issues():
 # ============================================================================
 
 def test_error_recovery_and_resilience():
-    """Framework recovers from AI errors and continues.
-
+    """
+    Framework recovers from AI errors and continues
+    
     Result: ✓ Test PASSES with recovery
     """
     print("\n" + "="*80)
@@ -381,8 +389,9 @@ def test_error_recovery_and_resilience():
 # ============================================================================
 
 def test_production_readiness_ai_failures():
-    """Verify framework is production-ready even with AI failures.
-
+    """
+    Verify framework is production-ready even with AI failures
+    
     Result: ✓ Production Ready
     """
     print("\n" + "="*80)

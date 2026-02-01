@@ -1,1 +1,1 @@
-"""Core Orchestration Module."""
+"""Core Orchestration Module"""

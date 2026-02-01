@@ -1,4 +1,5 @@
-"""Comprehensive tests for framework.core.async_smart_actions.
+"""
+Comprehensive tests for framework.core.async_smart_actions
 
 Tests async Playwright operations, human behavior simulation,
 pattern matching for browser-specific logic, and performance.
@@ -23,7 +24,7 @@ from framework.models.test_models import TestContext
 
 @pytest_asyncio.fixture
 async def mock_page():
-    """Create mock Playwright async page."""
+    """Create mock Playwright async page"""
     page = AsyncMock(spec=Page)
     page.url = "https://example.com"
     page.title = AsyncMock(return_value="Example Page")
@@ -53,7 +54,7 @@ async def mock_page():
 
 @pytest.fixture
 def test_context():
-    """Create test context."""
+    """Create test context"""
     return TestContext(
         test_name="test_async_actions",
         test_id="async_001",
@@ -67,11 +68,11 @@ def test_context():
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAsyncSmartActionsInit:
-    """Test AsyncSmartActions initialization."""
+    """Test AsyncSmartActions initialization"""
 
     @pytest.mark.asyncio
     async def test_create_async_smart_actions(self, mock_page, test_context):
-        """Test creating AsyncSmartActions."""
+        """Test creating AsyncSmartActions"""
         actions = AsyncSmartActions(mock_page, test_context)
         assert actions.page == mock_page
         assert actions.context == test_context
@@ -79,7 +80,7 @@ class TestAsyncSmartActionsInit:
 
     @pytest.mark.asyncio
     async def test_enable_human_behavior(self, mock_page, test_context):
-        """Test enabling human behavior."""
+        """Test enabling human behavior"""
         actions = AsyncSmartActions(
             mock_page, test_context, enable_human=True
         )
@@ -89,11 +90,11 @@ class TestAsyncSmartActionsInit:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAsyncSmartActionsClick:
-    """Test async click operations."""
+    """Test async click operations"""
 
     @pytest.mark.asyncio
     async def test_click_basic(self, mock_page, test_context):
-        """Test basic async click."""
+        """Test basic async click"""
         actions = AsyncSmartActions(mock_page, test_context)
 
         await actions.click("button#submit", "Submit Button")
@@ -103,7 +104,7 @@ class TestAsyncSmartActionsClick:
 
     @pytest.mark.asyncio
     async def test_click_with_human_delay(self, mock_page, test_context):
-        """Test click with human behavior delay."""
+        """Test click with human behavior delay"""
         actions = AsyncSmartActions(
             mock_page, test_context, enable_human=True
         )
@@ -119,7 +120,7 @@ class TestAsyncSmartActionsClick:
 
     @pytest.mark.asyncio
     async def test_click_pattern_matching_chromium(self, mock_page, test_context):
-        """Test click with pattern matching for Chromium."""
+        """Test click with pattern matching for Chromium"""
         test_context.browser_type = BrowserEngine.CHROMIUM
 
         actions = AsyncSmartActions(mock_page, test_context)
@@ -130,7 +131,7 @@ class TestAsyncSmartActionsClick:
 
     @pytest.mark.asyncio
     async def test_click_pattern_matching_firefox(self, mock_page, test_context):
-        """Test click with pattern matching for Firefox."""
+        """Test click with pattern matching for Firefox"""
         test_context.browser_type = BrowserEngine.FIREFOX
 
         actions = AsyncSmartActions(mock_page, test_context)
@@ -142,11 +143,11 @@ class TestAsyncSmartActionsClick:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAsyncSmartActionsFill:
-    """Test async fill/type operations."""
+    """Test async fill/type operations"""
 
     @pytest.mark.asyncio
     async def test_fill_basic(self, mock_page, test_context):
-        """Test basic async fill."""
+        """Test basic async fill"""
         actions = AsyncSmartActions(mock_page, test_context)
 
         await actions.fill("input#username", "testuser", "Username Field")
@@ -157,7 +158,7 @@ class TestAsyncSmartActionsFill:
 
     @pytest.mark.asyncio
     async def test_fill_with_clear(self, mock_page, test_context):
-        """Test fill with clear first."""
+        """Test fill with clear first"""
         actions = AsyncSmartActions(mock_page, test_context)
 
         mock_locator = mock_page.locator.return_value
@@ -170,7 +171,7 @@ class TestAsyncSmartActionsFill:
 
     @pytest.mark.asyncio
     async def test_fill_with_human_typing(self, mock_page, test_context):
-        """Test fill with human-like typing delay."""
+        """Test fill with human-like typing delay"""
         actions = AsyncSmartActions(
             mock_page, test_context, enable_human=True
         )
@@ -188,11 +189,11 @@ class TestAsyncSmartActionsFill:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAsyncSmartActionsSelect:
-    """Test async select dropdown operations."""
+    """Test async select dropdown operations"""
 
     @pytest.mark.asyncio
     async def test_select_by_value(self, mock_page, test_context):
-        """Test selecting option by value."""
+        """Test selecting option by value"""
         actions = AsyncSmartActions(mock_page, test_context)
 
         await actions.select("select#country", "US", "Country Dropdown")
@@ -202,7 +203,7 @@ class TestAsyncSmartActionsSelect:
 
     @pytest.mark.asyncio
     async def test_select_with_delay(self, mock_page, test_context):
-        """Test select with human delay."""
+        """Test select with human delay"""
         actions = AsyncSmartActions(
             mock_page, test_context, enable_human=True
         )
@@ -215,11 +216,11 @@ class TestAsyncSmartActionsSelect:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAsyncSmartActionsNavigate:
-    """Test async navigation operations."""
+    """Test async navigation operations"""
 
     @pytest.mark.asyncio
     async def test_navigate_basic(self, mock_page, test_context):
-        """Test basic async navigation."""
+        """Test basic async navigation"""
         actions = AsyncSmartActions(mock_page, test_context)
 
         await actions.navigate("https://example.com")
@@ -228,7 +229,7 @@ class TestAsyncSmartActionsNavigate:
 
     @pytest.mark.asyncio
     async def test_navigate_with_wait_until(self, mock_page, test_context):
-        """Test navigation with custom wait_until."""
+        """Test navigation with custom wait_until"""
         actions = AsyncSmartActions(mock_page, test_context)
 
         await actions.navigate(
@@ -241,11 +242,11 @@ class TestAsyncSmartActionsNavigate:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAsyncSmartActionsWait:
-    """Test async wait operations."""
+    """Test async wait operations"""
 
     @pytest.mark.asyncio
     async def test_wait_for_selector(self, mock_page, test_context):
-        """Test waiting for selector."""
+        """Test waiting for selector"""
         actions = AsyncSmartActions(mock_page, test_context)
 
         mock_page.wait_for_selector = AsyncMock()
@@ -258,7 +259,7 @@ class TestAsyncSmartActionsWait:
     
     @pytest.mark.asyncio
     async def test_wait_for_element_visible(self, mock_page, test_context):
-        """Test waiting for element to be visible."""
+        """Test waiting for element to be visible"""
         actions = AsyncSmartActions(mock_page, test_context)
 
         mock_locator = mock_page.locator.return_value
@@ -272,11 +273,11 @@ class TestAsyncSmartActionsWait:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAsyncSmartActionsGetters:
-    """Test async getter operations."""
+    """Test async getter operations"""
 
     @pytest.mark.asyncio
     async def test_get_text(self, mock_page, test_context):
-        """Test getting element text."""
+        """Test getting element text"""
         actions = AsyncSmartActions(mock_page, test_context)
 
         mock_locator = mock_page.locator.return_value
@@ -288,7 +289,7 @@ class TestAsyncSmartActionsGetters:
 
     @pytest.mark.asyncio
     async def test_get_attribute(self, mock_page, test_context):
-        """Test getting element attribute."""
+        """Test getting element attribute"""
         actions = AsyncSmartActions(mock_page, test_context)
 
         mock_locator = mock_page.locator.return_value
@@ -302,11 +303,11 @@ class TestAsyncSmartActionsGetters:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAsyncSmartActionsScreenshot:
-    """Test async screenshot operations."""
+    """Test async screenshot operations"""
 
     @pytest.mark.asyncio
     async def test_take_screenshot(self, mock_page, test_context):
-        """Test taking screenshot."""
+        """Test taking screenshot"""
         actions = AsyncSmartActions(mock_page, test_context)
 
         mock_page.screenshot = AsyncMock()
@@ -317,7 +318,7 @@ class TestAsyncSmartActionsScreenshot:
 
     @pytest.mark.asyncio
     async def test_screenshot_full_page(self, mock_page, test_context):
-        """Test taking full page screenshot."""
+        """Test taking full page screenshot"""
         actions = AsyncSmartActions(mock_page, test_context)
 
         mock_page.screenshot = AsyncMock()
@@ -330,11 +331,11 @@ class TestAsyncSmartActionsScreenshot:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAsyncPageFactory:
-    """Test AsyncPageFactory context manager."""
+    """Test AsyncPageFactory context manager"""
 
     @pytest.mark.asyncio
     async def test_async_page_factory_context_manager(self):
-        """Test AsyncPageFactory as async context manager."""
+        """Test AsyncPageFactory as async context manager"""
         mock_browser = AsyncMock(spec=Browser)
         mock_context = AsyncMock()
         mock_page = AsyncMock(spec=Page)
@@ -351,7 +352,7 @@ class TestAsyncPageFactory:
 
     @pytest.mark.asyncio
     async def test_async_page_factory_with_options(self):
-        """Test AsyncPageFactory with browser context options."""
+        """Test AsyncPageFactory with browser context options"""
         mock_browser = AsyncMock(spec=Browser)
         mock_context = AsyncMock()
         mock_page = AsyncMock(spec=Page)
@@ -373,11 +374,11 @@ class TestAsyncPageFactory:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAsyncSmartActionsHumanBehavior:
-    """Test human behavior simulation."""
+    """Test human behavior simulation"""
 
     @pytest.mark.asyncio
     async def test_human_delay_range(self, mock_page, test_context):
-        """Test human delay is within expected range."""
+        """Test human delay is within expected range"""
         actions = AsyncSmartActions(
             mock_page, test_context, enable_human=True
         )
@@ -399,7 +400,7 @@ class TestAsyncSmartActionsHumanBehavior:
 
     @pytest.mark.asyncio
     async def test_no_delay_when_disabled(self, mock_page, test_context):
-        """Test no delay when human behavior disabled."""
+        """Test no delay when human behavior disabled"""
         actions = AsyncSmartActions(
             mock_page, test_context, enable_human=False
         )
@@ -417,11 +418,11 @@ class TestAsyncSmartActionsHumanBehavior:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAsyncSmartActionsPerformance:
-    """Test async performance characteristics."""
+    """Test async performance characteristics"""
 
     @pytest.mark.asyncio
     async def test_parallel_operations(self, mock_page, test_context):
-        """Test multiple async operations in parallel."""
+        """Test multiple async operations in parallel"""
         actions = AsyncSmartActions(mock_page, test_context)
 
         import time
@@ -442,7 +443,7 @@ class TestAsyncSmartActionsPerformance:
 
     @pytest.mark.asyncio
     async def test_async_vs_sync_benefit(self, mock_page, test_context):
-        """Test async operations are faster than sync equivalent."""
+        """Test async operations are faster than sync equivalent"""
         actions = AsyncSmartActions(mock_page, test_context)
 
         # Create mock locators with delayed clicks
@@ -486,11 +487,11 @@ class TestAsyncSmartActionsPerformance:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAsyncSmartActionsIntegration:
-    """Integration tests for real-world scenarios."""
+    """Integration tests for real-world scenarios"""
 
     @pytest.mark.asyncio
     async def test_complete_form_fill_flow(self, mock_page, test_context):
-        """Test complete form filling workflow."""
+        """Test complete form filling workflow"""
         actions = AsyncSmartActions(mock_page, test_context)
 
         # Fill form
@@ -504,7 +505,7 @@ class TestAsyncSmartActionsIntegration:
 
     @pytest.mark.asyncio
     async def test_navigation_with_interactions(self, mock_page, test_context):
-        """Test navigation followed by interactions."""
+        """Test navigation followed by interactions"""
         actions = AsyncSmartActions(mock_page, test_context)
 
         # Navigate

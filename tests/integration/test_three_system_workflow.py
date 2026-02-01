@@ -1,4 +1,5 @@
-"""Three-System Workflow Integration Tests.
+"""
+Three-System Workflow Integration Tests
 
 Tests the complete workflow across three systems:
 1. Bookslot - Appointment creation
@@ -26,7 +27,7 @@ logger = logging.getLogger(__name__)
 @pytest.mark.modern_spa
 @pytest.mark.integration
 class TestThreeSystemWorkflow:
-    """Integration tests for Bookslot -> PatientIntake -> CallCenter workflow."""
+    """Integration tests for Bookslot -> PatientIntake -> CallCenter workflow"""
     
     def test_book_and_verify_in_all_systems(
         self,
@@ -332,7 +333,7 @@ class TestThreeSystemWorkflow:
 @pytest.mark.smoke
 @pytest.mark.modern_spa
 class TestThreeSystemSmoke:
-    """Smoke tests for three-system integration."""
+    """Smoke tests for three-system integration"""
     
     def test_all_systems_accessible(
         self,

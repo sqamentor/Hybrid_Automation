@@ -31,7 +31,7 @@ from framework_audit_engine import FrameworkAuditEngine, AuditResult, Severity
 
 
 def get_staged_python_files() -> List[Path]:
-    """Get list of staged Python files."""
+    """Get list of staged Python files"""
     try:
         result = subprocess.run(
             ['git', 'diff', '--cached', '--name-only', '--diff-filter=ACM'],
@@ -53,7 +53,7 @@ def get_staged_python_files() -> List[Path]:
 
 
 def get_current_commit_info() -> dict:
-    """Get current commit information."""
+    """Get current commit information"""
     try:
         branch = subprocess.run(
             ['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
@@ -93,7 +93,7 @@ def get_current_commit_info() -> dict:
 
 def save_commit_audit_history(staged_files: List[Path], result: AuditResult, 
                               commit_info: dict):
-    """Save audit history for this commit attempt."""
+    """Save audit history for this commit attempt"""
     history_dir = Path("artifacts/commit_history")
     history_dir.mkdir(parents=True, exist_ok=True)
     
@@ -148,7 +148,7 @@ def save_commit_audit_history(staged_files: List[Path], result: AuditResult,
 
 
 def display_violations(result: AuditResult, staged_files: Set[str]):
-    """Display violations in terminal."""
+    """Display violations in terminal"""
     print("\n" + "="*70)
     print("ARCHITECTURE AUDIT - PRE-COMMIT CHECK")
     print("="*70)
@@ -223,7 +223,7 @@ def display_violations(result: AuditResult, staged_files: Set[str]):
 
 
 def main():
-    """Main pre-commit hook logic."""
+    """Main pre-commit hook logic"""
     print("\n[AUDIT] Running architecture audit on staged files...")
     
     # Get staged files

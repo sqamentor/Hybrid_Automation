@@ -26,13 +26,14 @@ from playwright.sync_api import Page
 @pytest.mark.human_like
 @pytest.mark.recorded
 def test_bookslot_complete_flow(page: Page, multi_project_config, smart_actions, fake_bookslot_data) -> None:
-    """Complete bookslot test flow with smart automation.
-
+    """
+    Complete bookslot test flow with smart automation
+    
     Auto-features (via fixtures):
         ✅ Fake data generation (fake_bookslot_data)
         ✅ Smart actions with auto-delays (smart_actions)
         ✅ Human behavior simulation (when --enable-human-behavior flag used)
-
+    
     Run Options:
         Fast:  pytest recorded_tests/bookslot/test_bookslot_complete_workflow.py -v
         Human: pytest recorded_tests/bookslot/test_bookslot_complete_workflow.py --enable-human-behavior -v

@@ -1,4 +1,5 @@
-"""AI Integration Setup & Test Script.
+"""
+AI Integration Setup & Test Script
 
 This script helps you:
 1. Check if AI is configured correctly
@@ -30,7 +31,7 @@ except ImportError:
 
 
 def check_ai_setup():
-    """Check AI configuration."""
+    """Check AI configuration"""
     print("\n" + "="*70)
     print("🤖 AI INTEGRATION CHECK")
     print("="*70 + "\n")
@@ -123,7 +124,7 @@ def check_ai_setup():
 
 
 def test_ai_features():
-    """Test AI features if available."""
+    """Test AI features if available"""
     print("\n" + "="*70)
     print("🧪 TESTING AI FEATURES")
     print("="*70 + "\n")
@@ -163,7 +164,7 @@ def test_ai_features():
 
 
 def show_usage_examples():
-    """Show usage examples."""
+    """Show usage examples"""
     print("\n" + "="*70)
     print("📖 USAGE EXAMPLES")
     print("="*70 + "\n")
@@ -217,7 +218,7 @@ pytest tests/integration/test_ai_enhanced_workflow.py::TestAIEngineSelection -v
 
 
 def show_cost_info():
-    """Show AI cost information."""
+    """Show AI cost information"""
     print("\n" + "="*70)
     print("💰 AI COST INFORMATION")
     print("="*70 + "\n")
@@ -244,7 +245,7 @@ def show_cost_info():
 
 
 def main():
-    """Main function."""
+    """Main function"""
     print("""
     ╔══════════════════════════════════════════════════════════════╗
     ║                                                              ║

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
-"""════════════════════════════════════════════════════════════════════════════ GOVERNANCE SYSTEM
-VERIFICATION ════════════════════════════════════════════════════════════════════════════
+"""
+════════════════════════════════════════════════════════════════════════════
+GOVERNANCE SYSTEM VERIFICATION
+════════════════════════════════════════════════════════════════════════════
 
 Verifies that the complete governance system is properly installed and functional.
 
@@ -18,7 +20,7 @@ import importlib.util
 
 
 def check_file_exists(file_path: Path, description: str) -> bool:
-    """Check if file exists."""
+    """Check if file exists"""
     if file_path.exists():
         print(f"  ✅ {description}: {file_path.name}")
         return True
@@ -28,7 +30,7 @@ def check_file_exists(file_path: Path, description: str) -> bool:
 
 
 def check_module_imports(module_path: Path, module_name: str) -> bool:
-    """Check if module can be imported."""
+    """Check if module can be imported"""
     try:
         spec = importlib.util.spec_from_file_location(module_name, module_path)
         if spec and spec.loader:

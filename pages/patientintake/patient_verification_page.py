@@ -1,4 +1,5 @@
-"""PatientIntake Verification Page Object.
+"""
+PatientIntake Verification Page Object
 
 This Page Object provides methods for verifying authenticated access
 to the PatientIntake application during cross-engine workflows.
@@ -11,11 +12,12 @@ from playwright.sync_api import Page
 
 
 class PatientIntakeVerificationPage:
-    """Page Object for PatientIntake verification in workflows."""
+    """Page Object for PatientIntake verification in workflows"""
     
     def __init__(self, page: Page):
-        """Initialize PatientIntake verification page.
-
+        """
+        Initialize PatientIntake verification page
+        
         Args:
             page: Playwright page instance (from ui_engine fixture)
         """
@@ -26,11 +28,12 @@ class PatientIntakeVerificationPage:
         self.user_menu_selector = "[data-testid='user-menu'], .user-profile, #user-menu"
     
     def navigate_to(self, url: str) -> 'PatientIntakeVerificationPage':
-        """Navigate to PatientIntake URL.
-
+        """
+        Navigate to PatientIntake URL
+        
         Args:
             url: PatientIntake application URL
-
+            
         Returns:
             Self for method chaining
         """
@@ -39,16 +42,18 @@ class PatientIntakeVerificationPage:
         return self
     
     def get_current_url(self) -> str:
-        """Get current page URL.
-
+        """
+        Get current page URL
+        
         Returns:
             Current URL as string
         """
         return self.page.url
     
     def is_authenticated(self) -> bool:
-        """Check if user is authenticated (not redirected to login)
-
+        """
+        Check if user is authenticated (not redirected to login)
+        
         Returns:
             True if authenticated, False if redirected to login
         """
@@ -56,8 +61,9 @@ class PatientIntakeVerificationPage:
         return 'login' not in current_url.lower()
     
     def has_user_menu(self) -> bool:
-        """Check if user menu is visible (authentication indicator)
-
+        """
+        Check if user menu is visible (authentication indicator)
+        
         Returns:
             True if user menu found, False otherwise
         """
@@ -68,20 +74,22 @@ class PatientIntakeVerificationPage:
             return False
     
     def get_page_title(self) -> str:
-        """Get current page title.
-
+        """
+        Get current page title
+        
         Returns:
             Page title as string
         """
         return self.page.title()
     
     def verify_authenticated_access(self) -> bool:
-        """Verify authenticated access to PatientIntake application.
-
+        """
+        Verify authenticated access to PatientIntake application
+        
         Checks:
         - Not redirected to login page
         - User menu is visible
-
+        
         Returns:
             True if all checks pass, False otherwise
         """
@@ -96,8 +104,9 @@ class PatientIntakeVerificationPage:
             return False
     
     def get_verification_details(self) -> dict:
-        """Get comprehensive verification details.
-
+        """
+        Get comprehensive verification details
+        
         Returns:
             Dict with verification status, URL, title, and indicators
         """

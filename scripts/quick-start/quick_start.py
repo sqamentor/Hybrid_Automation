@@ -14,7 +14,7 @@ from pathlib import Path
 
 
 def create_env_file():
-    """Create .env file with template."""
+    """Create .env file with template"""
     print("=" * 80)
     print("CREATING .env FILE")
     print("=" * 80)
@@ -74,7 +74,7 @@ LOG_TO_FILE=true
 
 
 def show_quick_start_guide():
-    """Show quick start guide."""
+    """Show quick start guide"""
     print("\n" + "=" * 80)
     print("QUICK START GUIDE")
     print("=" * 80)
@@ -154,7 +154,7 @@ NEED HELP?
 
 
 def check_prerequisites():
-    """Check if prerequisites are met."""
+    """Check if prerequisites are met"""
     print("\n" + "=" * 80)
     print("CHECKING PREREQUISITES")
     print("=" * 80)
@@ -200,7 +200,7 @@ def check_prerequisites():
 
 
 def main():
-    """Main setup function."""
+    """Main setup function"""
     print("\n")
     print("╔" + "=" * 78 + "╗")
     print("║" + " " * 20 + "QUICK START - FIRST TIME SETUP" + " " * 28 + "║")

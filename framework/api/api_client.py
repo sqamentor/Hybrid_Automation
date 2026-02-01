@@ -5,9 +5,9 @@ Provides a unified interface for making API requests with logging and validation
 """
 
 import time
-from typing import Any, Dict, Optional, cast
+from typing import Any, Dict, Optional
 
-import requests  # type: ignore[import-untyped]
+import requests
 
 from utils.logger import get_audit_logger, get_logger
 
@@ -16,7 +16,7 @@ audit_logger = get_audit_logger()
 
 
 class APIClient:
-    """HTTP API client with logging, audit trail and validation."""
+    """HTTP API client with logging, audit trail and validation"""
     
     def __init__(self, base_url: str):
         self.base_url = base_url.rstrip('/')
@@ -33,7 +33,7 @@ class APIClient:
         data: Optional[Any] = None,
         timeout: int = 30
     ) -> requests.Response:
-        """Make HTTP request with comprehensive logging."""
+        """Make HTTP request with comprehensive logging"""
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
         
         logger.info(f"API Request: {method} {url}")
@@ -89,40 +89,36 @@ class APIClient:
             )
             raise
     
-    def get(self, endpoint: str, **kwargs: Any) -> requests.Response:
-        """GET request."""
+    def get(self, endpoint: str, **kwargs) -> requests.Response:
+        """GET request"""
         return self.request("GET", endpoint, **kwargs)
     
-    def post(self, endpoint: str, **kwargs: Any) -> requests.Response:
-        """POST request."""
+    def post(self, endpoint: str, **kwargs) -> requests.Response:
+        """POST request"""
         return self.request("POST", endpoint, **kwargs)
     
-    def put(self, endpoint: str, **kwargs: Any) -> requests.Response:
-        """PUT request."""
+    def put(self, endpoint: str, **kwargs) -> requests.Response:
+        """PUT request"""
         return self.request("PUT", endpoint, **kwargs)
     
-    def patch(self, endpoint: str, **kwargs: Any) -> requests.Response:
-        """PATCH request."""
+    def patch(self, endpoint: str, **kwargs) -> requests.Response:
+        """PATCH request"""
         return self.request("PATCH", endpoint, **kwargs)
     
-    def delete(self, endpoint: str, **kwargs: Any) -> requests.Response:
-        """DELETE request."""
+    def delete(self, endpoint: str, **kwargs) -> requests.Response:
+        """DELETE request"""
         return self.request("DELETE", endpoint, **kwargs)
     
-    def assert_status_code(self, expected: int) -> None:
-        """Assert last response status code."""
-        if self.last_response is None:
-            raise AssertionError("No response available to assert")
+    def assert_status_code(self, expected: int):
+        """Assert last response status code"""
         actual = self.last_response.status_code
         logger.info(f"Asserting status code: expected={expected}, actual={actual}")
         assert actual == expected, \
             f"Expected {expected}, got {actual}"
     
-    def get_json(self) -> Dict[str, Any]:
-        """Get JSON from last response."""
-        if self.last_response is None:
-            raise ValueError("No response available to parse JSON")
-        return cast(Dict[str, Any], self.last_response.json())
+    def get_json(self) -> Dict:
+        """Get JSON from last response"""
+        return self.last_response.json()
 
 
 __all__ = ['APIClient']

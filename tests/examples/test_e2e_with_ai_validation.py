@@ -16,8 +16,9 @@ from framework.intelligence import AIValidationSuggester, suggest_and_validate
 @pytest.mark.module("checkout")
 @pytest.mark.modern_spa
 class TestE2EOrderWithAIValidation:
-    """Complete end-to-end test with AI-driven validation.
-
+    """
+    Complete end-to-end test with AI-driven validation
+    
     Flow:
     1. UI: User browses product catalog and adds items to cart
     2. UI: User proceeds to checkout and submits order
@@ -34,7 +35,9 @@ class TestE2EOrderWithAIValidation:
         db_client,
         ui_url
     ):
-        """Complete order placement with AI-suggested validations."""
+        """
+        Complete order placement with AI-suggested validations
+        """
         
         # ================================================================
         # STEP 1: UI INTERACTIONS
@@ -263,7 +266,9 @@ class TestE2EOrderWithAIValidation:
 @pytest.mark.module("checkout")
 @pytest.mark.modern_spa
 class TestConvenienceFunctionApproach:
-    """Same test using the convenience function for simpler code."""
+    """
+    Same test using the convenience function for simpler code
+    """
     
     def test_order_with_auto_validation(
         self,
@@ -272,7 +277,9 @@ class TestConvenienceFunctionApproach:
         db_client,
         ui_url
     ):
-        """Simplified approach using suggest_and_validate()"""
+        """
+        Simplified approach using suggest_and_validate()
+        """
         
         # UI interactions (same as above)
         ui_engine.navigate(f"{ui_url}/products")
@@ -315,7 +322,9 @@ class TestConvenienceFunctionApproach:
 @pytest.mark.module("payments")
 @pytest.mark.modern_spa
 class TestPaymentValidation:
-    """Payment processing with AI validation."""
+    """
+    Payment processing with AI validation
+    """
     
     def test_payment_processing(
         self,
@@ -325,7 +334,9 @@ class TestPaymentValidation:
         ai_validator,
         ui_url
     ):
-        """Test payment processing with AI-suggested validations."""
+        """
+        Test payment processing with AI-suggested validations
+        """
         
         # Place order (prerequisite)
         order_id = "ORD-12345"  # From previous test or setup
@@ -383,8 +394,9 @@ class TestPaymentValidation:
 # ================================================================
 
 def assert_ai_suggested_validations_passed(validation_results, priority_level='critical'):
-    """Custom assertion for AI-suggested validations.
-
+    """
+    Custom assertion for AI-suggested validations
+    
     Args:
         validation_results: List of validation results
         priority_level: Minimum priority level to check

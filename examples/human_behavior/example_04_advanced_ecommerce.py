@@ -17,7 +17,9 @@ from framework.core.utils.human_actions import HumanBehaviorSimulator
 
 @pytest.mark.human_like
 def test_ecommerce_shopping_journey():
-    """Complete e-commerce shopping journey with realistic human behavior."""
+    """
+    Complete e-commerce shopping journey with realistic human behavior
+    """
     print("\n🛒 Starting E-commerce Shopping Journey...")
     
     driver = webdriver.Chrome()
@@ -228,7 +230,9 @@ def test_ecommerce_shopping_journey():
 
 @pytest.mark.human_like
 def test_product_comparison_behavior():
-    """Realistic product comparison behavior."""
+    """
+    Realistic product comparison behavior
+    """
     print("\n🔍 Testing Product Comparison Behavior...")
     
     driver = webdriver.Chrome()
@@ -349,7 +353,7 @@ def test_cart_modification_behavior():
 
 
 if __name__ == "__main__":
-    """Run advanced e-commerce scenarios."""
+    """Run advanced e-commerce scenarios"""
     
     print("\n" + "="*70)
     print("ADVANCED E-COMMERCE SCENARIOS WITH HUMAN BEHAVIOR")

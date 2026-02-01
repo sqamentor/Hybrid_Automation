@@ -6,9 +6,9 @@ SQL injection, XSS, CSRF, and other vulnerability scanning.
 """
 
 import time
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Dict, List, Optional
 
-import requests  # type: ignore[import-untyped]
+import requests
 
 from utils.logger import get_logger
 
@@ -16,25 +16,27 @@ logger = get_logger(__name__)
 
 
 class SecurityTester:
-    """Security testing and vulnerability scanning."""
+    """Security testing and vulnerability scanning"""
     
     def __init__(self, zap_proxy_url: str = "http://localhost:8080"):
-        """Initialize security tester.
-
+        """
+        Initialize security tester
+        
         Args:
             zap_proxy_url: OWASP ZAP proxy URL
         """
         self.zap_url = zap_proxy_url
         self.api_key: Optional[str] = None
-        self.alerts: List[Dict[str, Any]] = []
+        self.alerts: List[Dict] = []
     
-    def set_api_key(self, api_key: str) -> None:
-        """Set ZAP API key."""
+    def set_api_key(self, api_key: str):
+        """Set ZAP API key"""
         self.api_key = api_key
     
-    def start_zap_session(self, session_name: str = "test_session") -> None:
-        """Start new ZAP session.
-
+    def start_zap_session(self, session_name: str = "test_session"):
+        """
+        Start new ZAP session
+        
         Args:
             session_name: Session name
         """
@@ -53,12 +55,13 @@ class SecurityTester:
         logger.info(f"ZAP session started: {session_name}")
     
     def spider_url(self, target_url: str, max_children: int = 10) -> str:
-        """Spider target URL to discover pages.
-
+        """
+        Spider target URL to discover pages
+        
         Args:
             target_url: URL to spider
             max_children: Max child nodes to spider
-
+        
         Returns:
             Scan ID
         """
@@ -74,8 +77,7 @@ class SecurityTester:
         response = requests.get(url, params=params)
         response.raise_for_status()
         
-        data = cast(Dict[str, Any], response.json())
-        scan_id = cast(str, data.get('scan', ''))
+        scan_id = response.json()['scan']
         logger.info(f"Spider scan started: {scan_id}")
         
         # Wait for spider to complete
@@ -83,8 +85,8 @@ class SecurityTester:
         
         return scan_id
     
-    def _wait_for_spider(self, scan_id: str, timeout: int = 300) -> None:
-        """Wait for spider scan to complete."""
+    def _wait_for_spider(self, scan_id: str, timeout: int = 300):
+        """Wait for spider scan to complete"""
         url = f"{self.zap_url}/JSON/spider/view/status/"
         params = {'scanId': scan_id}
         
@@ -105,11 +107,12 @@ class SecurityTester:
         logger.warning("Spider scan timeout")
     
     def active_scan(self, target_url: str) -> str:
-        """Run active security scan.
-
+        """
+        Run active security scan
+        
         Args:
             target_url: URL to scan
-
+        
         Returns:
             Scan ID
         """
@@ -122,8 +125,7 @@ class SecurityTester:
         response = requests.get(url, params=params)
         response.raise_for_status()
         
-        data = cast(Dict[str, Any], response.json())
-        scan_id = cast(str, data.get('scan', ''))
+        scan_id = response.json()['scan']
         logger.info(f"Active scan started: {scan_id}")
         
         # Wait for scan to complete
@@ -131,8 +133,8 @@ class SecurityTester:
         
         return scan_id
     
-    def _wait_for_active_scan(self, scan_id: str, timeout: int = 600) -> None:
-        """Wait for active scan to complete."""
+    def _wait_for_active_scan(self, scan_id: str, timeout: int = 600):
+        """Wait for active scan to complete"""
         url = f"{self.zap_url}/JSON/ascan/view/status/"
         params = {'scanId': scan_id}
         
@@ -152,12 +154,13 @@ class SecurityTester:
         
         logger.warning("Active scan timeout")
     
-    def get_alerts(self, base_url: Optional[str] = None) -> List[Dict[str, Any]]:
-        """Get security alerts.
-
+    def get_alerts(self, base_url: Optional[str] = None) -> List[Dict]:
+        """
+        Get security alerts
+        
         Args:
             base_url: Optional filter by base URL
-
+        
         Returns:
             List of security alerts
         """
@@ -170,31 +173,32 @@ class SecurityTester:
         response = requests.get(url, params=params)
         response.raise_for_status()
         
-        payload = cast(Dict[str, Any], response.json())
-        self.alerts = cast(List[Dict[str, Any]], payload.get('alerts', []))
+        self.alerts = response.json()['alerts']
         logger.info(f"Retrieved {len(self.alerts)} security alerts")
         
         return self.alerts
     
-    def get_high_risk_alerts(self) -> List[Dict[str, Any]]:
-        """Get high risk alerts."""
+    def get_high_risk_alerts(self) -> List[Dict]:
+        """Get high risk alerts"""
         return [a for a in self.alerts if a.get('risk') == 'High']
     
-    def get_alerts_by_type(self, alert_type: str) -> List[Dict[str, Any]]:
-        """Get alerts by type.
-
+    def get_alerts_by_type(self, alert_type: str) -> List[Dict]:
+        """
+        Get alerts by type
+        
         Args:
             alert_type: Alert type (e.g., 'SQL Injection', 'XSS', 'CSRF')
         """
         return [a for a in self.alerts if alert_type.lower() in a.get('alert', '').lower()]
     
-    def test_sql_injection(self, target_url: str, parameters: List[str]) -> List[Dict[str, Any]]:
-        """Test for SQL injection vulnerabilities.
-
+    def test_sql_injection(self, target_url: str, parameters: List[str]) -> List[Dict]:
+        """
+        Test for SQL injection vulnerabilities
+        
         Args:
             target_url: Target URL
             parameters: List of parameter names to test
-
+        
         Returns:
             SQL injection alerts
         """
@@ -207,12 +211,13 @@ class SecurityTester:
         logger.info(f"Found {len(sql_alerts)} SQL injection alerts")
         return sql_alerts
     
-    def test_xss(self, target_url: str) -> List[Dict[str, Any]]:
-        """Test for Cross-Site Scripting (XSS) vulnerabilities.
-
+    def test_xss(self, target_url: str) -> List[Dict]:
+        """
+        Test for Cross-Site Scripting (XSS) vulnerabilities
+        
         Args:
             target_url: Target URL
-
+        
         Returns:
             XSS alerts
         """
@@ -224,12 +229,13 @@ class SecurityTester:
         logger.info(f"Found {len(xss_alerts)} XSS alerts")
         return xss_alerts
     
-    def test_csrf(self, target_url: str) -> List[Dict[str, Any]]:
-        """Test for CSRF vulnerabilities.
-
+    def test_csrf(self, target_url: str) -> List[Dict]:
+        """
+        Test for CSRF vulnerabilities
+        
         Args:
             target_url: Target URL
-
+        
         Returns:
             CSRF alerts
         """
@@ -241,9 +247,10 @@ class SecurityTester:
         logger.info(f"Found {len(csrf_alerts)} CSRF alerts")
         return csrf_alerts
     
-    def assert_no_high_risk_vulnerabilities(self) -> None:
-        """Assert no high risk vulnerabilities found.
-
+    def assert_no_high_risk_vulnerabilities(self):
+        """
+        Assert no high risk vulnerabilities found
+        
         Raises:
             AssertionError: If high risk vulnerabilities found
         """
@@ -258,8 +265,8 @@ class SecurityTester:
         
         logger.info("✓ No high risk vulnerabilities found")
     
-    def assert_no_sql_injection(self, target_url: str) -> None:
-        """Assert no SQL injection vulnerabilities."""
+    def assert_no_sql_injection(self, target_url: str):
+        """Assert no SQL injection vulnerabilities"""
         sql_alerts = self.test_sql_injection(target_url, [])
         
         if sql_alerts:
@@ -267,8 +274,8 @@ class SecurityTester:
         
         logger.info("✓ No SQL injection vulnerabilities found")
     
-    def assert_no_xss(self, target_url: str) -> None:
-        """Assert no XSS vulnerabilities."""
+    def assert_no_xss(self, target_url: str):
+        """Assert no XSS vulnerabilities"""
         xss_alerts = self.test_xss(target_url)
         
         if xss_alerts:
@@ -276,9 +283,10 @@ class SecurityTester:
         
         logger.info("✓ No XSS vulnerabilities found")
     
-    def generate_report(self, output_path: str = "reports/security_report.html") -> str:
-        """Generate HTML security report.
-
+    def generate_report(self, output_path: str = "reports/security_report.html"):
+        """
+        Generate HTML security report
+        
         Args:
             output_path: Output file path
         """
@@ -359,17 +367,18 @@ class SecurityTester:
 
 
 class ManualSecurityChecks:
-    """Manual security testing helpers."""
+    """Manual security testing helpers"""
     
     @staticmethod
     def check_https(url: str) -> bool:
-        """Check if URL uses HTTPS."""
+        """Check if URL uses HTTPS"""
         return url.startswith('https://')
     
     @staticmethod
     def check_security_headers(url: str) -> Dict[str, bool]:
-        """Check for security headers.
-
+        """
+        Check for security headers
+        
         Returns:
             Dictionary of header presence
         """
@@ -386,8 +395,9 @@ class ManualSecurityChecks:
     
     @staticmethod
     def check_password_strength(password: str) -> Dict[str, Any]:
-        """Check password strength.
-
+        """
+        Check password strength
+        
         Returns:
             Strength analysis
         """

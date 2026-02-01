@@ -16,7 +16,7 @@ class TestModernDashboard:
     """Test modern React dashboard - uses Playwright"""
     
     def test_user_dashboard_loads(self, ui_engine, ui_url):
-        """Verify user dashboard loads correctly."""
+        """Verify user dashboard loads correctly"""
         # Navigate
         ui_engine.navigate(f"{ui_url}/dashboard")
         
@@ -25,7 +25,7 @@ class TestModernDashboard:
         assert "Dashboard" in ui_engine.get_title()
     
     def test_dashboard_widgets_visible(self, ui_engine, ui_url):
-        """Verify all dashboard widgets are visible."""
+        """Verify all dashboard widgets are visible"""
         ui_engine.navigate(f"{ui_url}/dashboard")
         
         # Check widgets
@@ -35,7 +35,7 @@ class TestModernDashboard:
     
     @pytest.mark.api_validation
     def test_dashboard_data_loads_from_api(self, ui_engine, api_client, ui_url):
-        """Verify dashboard loads data from API."""
+        """Verify dashboard loads data from API"""
         # Navigate to dashboard
         ui_engine.navigate(f"{ui_url}/dashboard")
         
@@ -56,7 +56,7 @@ class TestProductCatalog:
     """Test product catalog - uses Playwright for Vue SPA"""
     
     def test_product_search(self, ui_engine, ui_url):
-        """Test product search functionality."""
+        """Test product search functionality"""
         ui_engine.navigate(f"{ui_url}/products")
         
         # Search for product
@@ -84,7 +84,7 @@ class TestCheckoutFlow:
     """Critical checkout tests - Playwright for speed"""
     
     def test_add_to_cart(self, ui_engine, ui_url):
-        """Test adding product to cart."""
+        """Test adding product to cart"""
         ui_engine.navigate(f"{ui_url}/products/123")
         ui_engine.click("#add-to-cart")
         
@@ -94,7 +94,7 @@ class TestCheckoutFlow:
         assert int(cart_count) > 0
     
     def test_cart_checkout_navigation(self, ui_engine, ui_url):
-        """Test navigation from cart to checkout."""
+        """Test navigation from cart to checkout"""
         ui_engine.navigate(f"{ui_url}/cart")
         ui_engine.click("#proceed-to-checkout")
         

@@ -1,25 +1,26 @@
-"""Modern Engine Selector with Pattern Matching.
+"""
+Modern Engine Selector with Pattern Matching
 
-Python 3.12+ pattern matching for engine selection with structural pattern matching, Pydantic
-models, and dependency injection support.
+Python 3.12+ pattern matching for engine selection with structural pattern matching,
+Pydantic models, and dependency injection support.
 """
 
 from __future__ import annotations
 
 import hashlib
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Protocol, Tuple
+from typing import Any, Dict, List, Optional, Protocol
 
 from framework.models.config_models import EngineType
 from framework.protocols.config_protocols import ConfigProvider
 
 
 class TestComplexity(str, Enum):
-    """Test complexity levels."""
+    """Test complexity levels"""
     LOW = "low"
     SIMPLE = "simple"
     MODERATE = "moderate"
@@ -30,7 +31,7 @@ class TestComplexity(str, Enum):
 
 
 class UIFramework(str, Enum):
-    """UI framework types."""
+    """UI framework types"""
     UNKNOWN = "unknown"
     REACT = "react"
     ANGULAR = "angular"
@@ -42,7 +43,7 @@ class UIFramework(str, Enum):
 
 @dataclass(frozen=True)
 class EngineDecision:
-    """Immutable engine selection decision."""
+    """Immutable engine selection decision"""
     engine: EngineType
     confidence: int  # 0-100
     reason: str
@@ -54,11 +55,11 @@ class EngineDecision:
 
 @dataclass(frozen=True)
 class TestMetadata:
-    """Test metadata for engine selection."""
+    """Test metadata for engine selection"""
     module: str = ""
     ui_framework: Optional[UIFramework] = None
     complexity: Optional[TestComplexity] = None
-    markers: Tuple[str, ...] = field(default_factory=tuple)
+    markers: Optional[tuple] = None  # Changed from List to tuple for hashability
     auth_type: Optional[str] = None
     api_validation_needed: bool = False
     legacy_system: bool = False
@@ -68,11 +69,15 @@ class TestMetadata:
     requires_mobile: bool = False
     requires_javascript: bool = True
     
+    def __post_init__(self):
+        if self.markers is None:
+            object.__setattr__(self, 'markers', ())
 
 
 class ModernEngineSelector:
-    """Engine selector using Python 3.12+ structural pattern matching.
-
+    """
+    Engine selector using Python 3.12+ structural pattern matching.
+    
     Features:
     - Structural pattern matching for readable decision logic
     - Pydantic models for type safety
@@ -97,11 +102,12 @@ class ModernEngineSelector:
     
     @lru_cache(maxsize=100)
     def select_engine(self, metadata: TestMetadata) -> EngineDecision:
-        """Select engine using modern pattern matching.
-
+        """
+        Select engine using modern pattern matching.
+        
         Args:
             metadata: Test metadata for selection
-
+        
         Returns:
             Immutable EngineDecision
         """
@@ -160,7 +166,7 @@ class ModernEngineSelector:
                 return self._evaluate_additional_criteria(metadata)
     
     def _evaluate_additional_criteria(self, metadata: TestMetadata) -> EngineDecision:
-        """Evaluate additional criteria using pattern matching."""
+        """Evaluate additional criteria using pattern matching"""
         
         # Match on markers
         match metadata.markers:
@@ -243,11 +249,12 @@ class ModernEngineSelector:
         )
     
     def select_engine_from_dict(self, metadata_dict: Dict[str, Any]) -> EngineDecision:
-        """Convenience method to select engine from dictionary.
-
+        """
+        Convenience method to select engine from dictionary.
+        
         Args:
             metadata_dict: Dictionary with test metadata
-
+        
         Returns:
             EngineDecision
         """
@@ -272,7 +279,7 @@ class ModernEngineSelector:
             module=metadata_dict.get('module', 'unknown'),
             ui_framework=ui_framework,
             complexity=complexity,
-            markers=tuple(metadata_dict.get('markers', [])),
+            markers=metadata_dict.get('markers', []),
             auth_type=metadata_dict.get('auth_type'),
             api_validation_needed=metadata_dict.get('api_validation_needed', False),
             legacy_system=metadata_dict.get('legacy_system', False),
@@ -281,8 +288,8 @@ class ModernEngineSelector:
         
         return self.select_engine(metadata)
     
-    def get_cache_stats(self) -> Dict[str, Any]:
-        """Get cache statistics."""
+    def get_cache_stats(self) -> Dict[str, int]:
+        """Get cache statistics"""
         hit_rate = 0.0
         if self._cache_stats['total_lookups'] > 0:
             hit_rate = (self._cache_stats['hits'] / self._cache_stats['total_lookups']) * 100
@@ -294,7 +301,7 @@ class ModernEngineSelector:
         }
     
     def clear_cache(self) -> None:
-        """Clear engine selection cache."""
+        """Clear engine selection cache"""
         self.select_engine.cache_clear()
         self._cache_stats = {
             'hits': 0,

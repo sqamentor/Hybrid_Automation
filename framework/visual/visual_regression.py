@@ -8,7 +8,7 @@ Supports full page, element-level, and responsive screenshots.
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, cast
+from typing import Dict, List, Optional, Tuple
 
 import imagehash
 from PIL import Image, ImageChops, ImageDraw
@@ -19,12 +19,13 @@ logger = get_logger(__name__)
 
 
 class VisualRegression:
-    """Visual regression testing engine."""
+    """Visual regression testing engine"""
     
     def __init__(self, baseline_dir: str = "tests/visual_baselines", 
                  report_dir: str = "reports/visual"):
-        """Initialize visual regression tester.
-
+        """
+        Initialize visual regression tester
+        
         Args:
             baseline_dir: Directory to store baseline images
             report_dir: Directory for visual diff reports
@@ -35,16 +36,13 @@ class VisualRegression:
         self.report_dir.mkdir(parents=True, exist_ok=True)
         
         self.threshold = 0.1  # 10% difference threshold
-        self.results: List[Dict[str, Any]] = []
+        self.results: List[Dict] = []
     
-    def capture_baseline(
-        self,
-        screenshot_path: str,
-        name: str,
-        viewport: Optional[Tuple[int, int]] = None
-    ) -> Path:
-        """Capture and save baseline screenshot.
-
+    def capture_baseline(self, screenshot_path: str, name: str, 
+                        viewport: Optional[Tuple[int, int]] = None):
+        """
+        Capture and save baseline screenshot
+        
         Args:
             screenshot_path: Path to current screenshot
             name: Baseline name identifier
@@ -61,21 +59,18 @@ class VisualRegression:
         
         return baseline_path
     
-    def compare(
-        self,
-        screenshot_path: str,
-        name: str,
-        viewport: Optional[Tuple[int, int]] = None,
-        threshold: Optional[float] = None
-    ) -> Dict[str, Any]:
-        """Compare screenshot against baseline.
-
+    def compare(self, screenshot_path: str, name: str, 
+                viewport: Optional[Tuple[int, int]] = None,
+                threshold: Optional[float] = None) -> Dict:
+        """
+        Compare screenshot against baseline
+        
         Args:
             screenshot_path: Path to current screenshot
             name: Baseline name identifier
             viewport: Optional viewport size
             threshold: Custom threshold (overrides default)
-
+        
         Returns:
             Comparison result dictionary
         """
@@ -94,20 +89,19 @@ class VisualRegression:
             }
         
         # Compare images
-        current_img: Image.Image = Image.open(screenshot_path)
-        baseline_img: Image.Image = Image.open(baseline_path)
-        baseline_for_compare: Image.Image = baseline_img
+        current_img = Image.open(screenshot_path)
+        baseline_img = Image.open(baseline_path)
         
         # Ensure same size
         if current_img.size != baseline_img.size:
             logger.warning(f"Size mismatch: current={current_img.size}, baseline={baseline_img.size}")
-            baseline_for_compare = baseline_img.resize(current_img.size, Image.Resampling.LANCZOS)
+            baseline_img = baseline_img.resize(current_img.size, Image.Resampling.LANCZOS)
         
         # Calculate difference
-        diff_percentage = self._calculate_difference(current_img, baseline_for_compare)
+        diff_percentage = self._calculate_difference(current_img, baseline_img)
         
         # Generate diff image
-        diff_image_path = self._generate_diff_image(current_img, baseline_for_compare, name, viewport)
+        diff_image_path = self._generate_diff_image(current_img, baseline_img, name, viewport)
         
         # Determine pass/fail
         threshold_value = threshold if threshold is not None else self.threshold
@@ -136,12 +130,13 @@ class VisualRegression:
         return result
     
     def _calculate_difference(self, img1: Image.Image, img2: Image.Image) -> float:
-        """Calculate pixel difference percentage between images.
-
+        """
+        Calculate pixel difference percentage between images
+        
         Args:
             img1: First image
             img2: Second image
-
+        
         Returns:
             Difference percentage (0.0 to 1.0)
         """
@@ -165,21 +160,17 @@ class VisualRegression:
         
         return final_diff
     
-    def _generate_diff_image(
-        self,
-        current: Image.Image,
-        baseline: Image.Image,
-        name: str,
-        viewport: Optional[Tuple[int, int]]
-    ) -> Optional[Path]:
-        """Generate visual diff image highlighting differences.
-
+    def _generate_diff_image(self, current: Image.Image, baseline: Image.Image,
+                            name: str, viewport: Optional[Tuple[int, int]]) -> Optional[Path]:
+        """
+        Generate visual diff image highlighting differences
+        
         Args:
             current: Current screenshot
             baseline: Baseline screenshot
             name: Test name
             viewport: Viewport size
-
+        
         Returns:
             Path to diff image
         """
@@ -191,13 +182,11 @@ class VisualRegression:
             diff_highlighted = Image.new('RGB', current.size)
             diff_pixels = diff.load()
             highlight_pixels = diff_highlighted.load()
-            if diff_pixels is None or highlight_pixels is None:
-                return None
             
             for y in range(diff.height):
                 for x in range(diff.width):
-                    pixel_value = cast(Tuple[int, int, int], diff_pixels[x, y])
-                    if sum(pixel_value) > 30:  # Different pixel
+                    pixel = diff_pixels[x, y]
+                    if sum(pixel) > 30:  # Different pixel
                         highlight_pixels[x, y] = (255, 0, 0)  # Red
                     else:
                         highlight_pixels[x, y] = (0, 0, 0)  # Black
@@ -226,20 +215,17 @@ class VisualRegression:
             return None
     
     def _get_baseline_name(self, name: str, viewport: Optional[Tuple[int, int]]) -> str:
-        """Generate baseline filename."""
+        """Generate baseline filename"""
         clean_name = name.replace(' ', '_').replace('/', '_')
         if viewport:
             return f"{clean_name}_{viewport[0]}x{viewport[1]}.png"
         return f"{clean_name}.png"
     
-    def update_baseline(
-        self,
-        screenshot_path: str,
-        name: str,
-        viewport: Optional[Tuple[int, int]] = None
-    ) -> None:
-        """Update existing baseline with new screenshot.
-
+    def update_baseline(self, screenshot_path: str, name: str,
+                       viewport: Optional[Tuple[int, int]] = None):
+        """
+        Update existing baseline with new screenshot
+        
         Args:
             screenshot_path: Path to new screenshot
             name: Baseline name
@@ -248,8 +234,8 @@ class VisualRegression:
         self.capture_baseline(screenshot_path, name, viewport)
         logger.info(f"Baseline updated: {name}")
     
-    def get_results_summary(self) -> Dict[str, Any]:
-        """Get summary of all visual tests."""
+    def get_results_summary(self) -> Dict:
+        """Get summary of all visual tests"""
         total = len(self.results)
         passed = sum(1 for r in self.results if r['passed'])
         failed = total - passed
@@ -262,8 +248,8 @@ class VisualRegression:
             'results': self.results
         }
     
-    def generate_html_report(self, output_path: str = "reports/visual/report.html") -> str:
-        """Generate HTML report with visual diffs."""
+    def generate_html_report(self, output_path: str = "reports/visual/report.html"):
+        """Generate HTML report with visual diffs"""
         summary = self.get_results_summary()
         
         html = f"""

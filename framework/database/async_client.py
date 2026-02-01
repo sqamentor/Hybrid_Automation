@@ -1,4 +1,5 @@
-"""Async database client supporting PostgreSQL and MySQL.
+"""
+Async database client supporting PostgreSQL and MySQL.
 
 Features:
 - Connection pooling
@@ -11,8 +12,7 @@ import asyncio
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from enum import Enum
-from types import TracebackType
-from typing import Any, AsyncIterator, Dict, List, Optional, Sequence, Tuple, Union, cast
+from typing import Any, Dict, List, Optional, Union
 
 try:
     import asyncpg
@@ -48,12 +48,13 @@ class DatabaseConfig:
 
 
 class AsyncDatabaseClient:
-    """Async database client with connection pooling.
-
+    """
+    Async database client with connection pooling.
+    
     Example:
         ```python
         from framework.database.async_client import AsyncDatabaseClient, DatabaseConfig, DatabaseType
-
+        
         config = DatabaseConfig(
             db_type=DatabaseType.POSTGRESQL,
             host="localhost",
@@ -62,17 +63,17 @@ class AsyncDatabaseClient:
             user="testuser",
             password="testpass"
         )
-
+        
         async with AsyncDatabaseClient(config) as db:
             # Single query
             result = await db.fetch_one("SELECT * FROM users WHERE id = $1", 1)
-
+            
             # Multiple rows
             results = await db.fetch_all("SELECT * FROM users WHERE active = $1", True)
-
+            
             # Execute query
             await db.execute("UPDATE users SET last_login = NOW() WHERE id = $1", 1)
-
+            
             # Transaction
             async with db.transaction():
                 await db.execute("UPDATE accounts SET balance = balance - 100 WHERE id = 1")
@@ -81,16 +82,17 @@ class AsyncDatabaseClient:
     """
     
     def __init__(self, config: DatabaseConfig):
-        """Initialize async database client.
-
+        """
+        Initialize async database client.
+        
         Args:
             config: Database configuration
-
+        
         Raises:
             ImportError: If required database driver not installed
         """
         self.config = config
-        self.pool: Optional[Any] = None
+        self.pool = None
         
         # Check if driver is available
         if config.db_type == DatabaseType.POSTGRESQL and not ASYNCPG_AVAILABLE:
@@ -103,29 +105,19 @@ class AsyncDatabaseClient:
                 "aiomysql not installed. Install with: pip install aiomysql"
             )
     
-    async def __aenter__(self) -> "AsyncDatabaseClient":
+    async def __aenter__(self):
         """Enter async context."""
         await self.connect()
         return self
     
-    async def __aexit__(
-        self,
-        exc_type: Optional[type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType]
-    ) -> None:
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Exit async context."""
         await self.close()
-
-    def _ensure_pool(self) -> Any:
-        """Return the active pool or raise if not connected."""
-        if self.pool is None:
-            raise RuntimeError("Database pool not initialized. Call connect() first.")
-        return self.pool
     
     async def connect(self) -> None:
-        """Create database connection pool.
-
+        """
+        Create database connection pool.
+        
         Creates connection pool for efficient connection management.
         """
         if self.config.db_type == DatabaseType.POSTGRESQL:
@@ -153,37 +145,35 @@ class AsyncDatabaseClient:
             )
     
     async def close(self) -> None:
-        """Close database connection pool.
-
+        """
+        Close database connection pool.
+        
         Call this when application is shutting down.
         """
-        if self.pool is None:
-            return
-
-        if self.config.db_type == DatabaseType.POSTGRESQL:
-            await self.pool.close()
-        elif self.config.db_type == DatabaseType.MYSQL:
-            self.pool.close()
-            await self.pool.wait_closed()
-
-        self.pool = None
+        if self.pool:
+            if self.config.db_type == DatabaseType.POSTGRESQL:
+                await self.pool.close()
+            elif self.config.db_type == DatabaseType.MYSQL:
+                self.pool.close()
+                await self.pool.wait_closed()
     
     async def fetch_one(
         self,
         query: str,
-        *args: Any,
+        *args,
         timeout: Optional[float] = None
     ) -> Optional[Dict[str, Any]]:
-        """Fetch single row from database.
-
+        """
+        Fetch single row from database.
+        
         Args:
             query: SQL query
             *args: Query parameters
             timeout: Optional query timeout
-
+        
         Returns:
             Dictionary with column names as keys, or None if no results
-
+        
         Example:
             ```python
             user = await db.fetch_one("SELECT * FROM users WHERE id = $1", 123)
@@ -191,15 +181,13 @@ class AsyncDatabaseClient:
                 print(f"User: {user['name']}")
             ```
         """
-        pool = self._ensure_pool()
-
         if self.config.db_type == DatabaseType.POSTGRESQL:
-            async with pool.acquire() as conn:
+            async with self.pool.acquire() as conn:
                 row = await conn.fetchrow(query, *args, timeout=timeout)
                 return dict(row) if row else None
         
         elif self.config.db_type == DatabaseType.MYSQL:
-            async with pool.acquire() as conn:
+            async with self.pool.acquire() as conn:
                 async with conn.cursor(aiomysql.DictCursor) as cursor:
                     await cursor.execute(query, args)
                     row = await cursor.fetchone()
@@ -208,19 +196,20 @@ class AsyncDatabaseClient:
     async def fetch_all(
         self,
         query: str,
-        *args: Any,
+        *args,
         timeout: Optional[float] = None
     ) -> List[Dict[str, Any]]:
-        """Fetch all rows from database.
-
+        """
+        Fetch all rows from database.
+        
         Args:
             query: SQL query
             *args: Query parameters
             timeout: Optional query timeout
-
+        
         Returns:
             List of dictionaries with column names as keys
-
+        
         Example:
             ```python
             users = await db.fetch_all("SELECT * FROM users WHERE active = $1", True)
@@ -228,15 +217,13 @@ class AsyncDatabaseClient:
                 print(f"User: {user['name']}")
             ```
         """
-        pool = self._ensure_pool()
-
         if self.config.db_type == DatabaseType.POSTGRESQL:
-            async with pool.acquire() as conn:
+            async with self.pool.acquire() as conn:
                 rows = await conn.fetch(query, *args, timeout=timeout)
                 return [dict(row) for row in rows]
         
         elif self.config.db_type == DatabaseType.MYSQL:
-            async with pool.acquire() as conn:
+            async with self.pool.acquire() as conn:
                 async with conn.cursor(aiomysql.DictCursor) as cursor:
                     await cursor.execute(query, args)
                     rows = await cursor.fetchall()
@@ -245,19 +232,20 @@ class AsyncDatabaseClient:
     async def execute(
         self,
         query: str,
-        *args: Any,
+        *args,
         timeout: Optional[float] = None
     ) -> str:
-        """Execute query without returning results.
-
+        """
+        Execute query without returning results.
+        
         Args:
             query: SQL query (INSERT, UPDATE, DELETE, etc.)
             *args: Query parameters
             timeout: Optional query timeout
-
+        
         Returns:
             Status message (e.g., "INSERT 0 1")
-
+        
         Example:
             ```python
             await db.execute(
@@ -266,15 +254,13 @@ class AsyncDatabaseClient:
             )
             ```
         """
-        pool = self._ensure_pool()
-
         if self.config.db_type == DatabaseType.POSTGRESQL:
-            async with pool.acquire() as conn:
+            async with self.pool.acquire() as conn:
                 result = await conn.execute(query, *args, timeout=timeout)
-                return cast(str, result)
+                return result
         
         elif self.config.db_type == DatabaseType.MYSQL:
-            async with pool.acquire() as conn:
+            async with self.pool.acquire() as conn:
                 async with conn.cursor() as cursor:
                     await cursor.execute(query, args)
                     await conn.commit()
@@ -283,16 +269,17 @@ class AsyncDatabaseClient:
     async def execute_many(
         self,
         query: str,
-        args_list: Sequence[Tuple[Any, ...]],
+        args_list: List[tuple],
         timeout: Optional[float] = None
     ) -> None:
-        """Execute same query multiple times with different parameters.
-
+        """
+        Execute same query multiple times with different parameters.
+        
         Args:
             query: SQL query
             args_list: List of parameter tuples
             timeout: Optional query timeout
-
+        
         Example:
             ```python
             await db.execute_many(
@@ -305,25 +292,24 @@ class AsyncDatabaseClient:
             )
             ```
         """
-        pool = self._ensure_pool()
-
         if self.config.db_type == DatabaseType.POSTGRESQL:
-            async with pool.acquire() as conn:
+            async with self.pool.acquire() as conn:
                 await conn.executemany(query, args_list, timeout=timeout)
         
         elif self.config.db_type == DatabaseType.MYSQL:
-            async with pool.acquire() as conn:
+            async with self.pool.acquire() as conn:
                 async with conn.cursor() as cursor:
                     await cursor.executemany(query, args_list)
                     await conn.commit()
     
     @asynccontextmanager
-    async def transaction(self) -> AsyncIterator[Any]:
-        """Create database transaction context.
-
+    async def transaction(self):
+        """
+        Create database transaction context.
+        
         Yields:
             Database connection with active transaction
-
+        
         Example:
             ```python
             async with db.transaction():
@@ -332,15 +318,13 @@ class AsyncDatabaseClient:
                 # Automatically commits on success, rolls back on exception
             ```
         """
-        pool = self._ensure_pool()
-
         if self.config.db_type == DatabaseType.POSTGRESQL:
-            async with pool.acquire() as conn:
+            async with self.pool.acquire() as conn:
                 async with conn.transaction():
                     yield conn
         
         elif self.config.db_type == DatabaseType.MYSQL:
-            async with pool.acquire() as conn:
+            async with self.pool.acquire() as conn:
                 async with conn.cursor() as cursor:
                     await cursor.execute("START TRANSACTION")
                     try:
@@ -353,21 +337,22 @@ class AsyncDatabaseClient:
     async def fetch_value(
         self,
         query: str,
-        *args: Any,
+        *args,
         column: Union[str, int] = 0,
         timeout: Optional[float] = None
     ) -> Any:
-        """Fetch single value from database.
-
+        """
+        Fetch single value from database.
+        
         Args:
             query: SQL query
             *args: Query parameters
             column: Column name or index
             timeout: Optional query timeout
-
+        
         Returns:
             Single value
-
+        
         Example:
             ```python
             count = await db.fetch_value("SELECT COUNT(*) FROM users")
@@ -384,11 +369,12 @@ class AsyncDatabaseClient:
             return row.get(column)
     
     async def health_check(self) -> bool:
-        """Check database connection health.
-
+        """
+        Check database connection health.
+        
         Returns:
             True if database is reachable, False otherwise
-
+        
         Example:
             ```python
             if await db.health_check():
@@ -409,16 +395,17 @@ class AsyncDatabaseClient:
 # ============================================================================
 
 class AsyncQueryExecutor:
-    """Executor for async query builder.
-
+    """
+    Executor for async query builder.
+    
     Example:
         ```python
         from framework.database.query_builder import QueryBuilder
         from framework.database.async_client import AsyncQueryExecutor
-
+        
         async with AsyncDatabaseClient(config) as db:
             executor = AsyncQueryExecutor(db)
-
+            
             # Build and execute query
             query = QueryBuilder("users").where("active", True).limit(10)
             results = await executor.execute(query)
@@ -426,53 +413,54 @@ class AsyncQueryExecutor:
     """
     
     def __init__(self, client: AsyncDatabaseClient):
-        """Initialize query executor.
-
+        """
+        Initialize query executor.
+        
         Args:
             client: Async database client
         """
         self.client = client
     
-    async def execute(self, query_builder: Any) -> List[Dict[str, Any]]:
-        """Execute query builder and return results.
-
+    async def execute(self, query_builder) -> List[Dict[str, Any]]:
+        """
+        Execute query builder and return results.
+        
         Args:
             query_builder: QueryBuilder instance
-
+        
         Returns:
             List of result dictionaries
         """
         query, params = query_builder.build()
         return await self.client.fetch_all(query, *params)
     
-    async def execute_one(self, query_builder: Any) -> Optional[Dict[str, Any]]:
-        """Execute query builder and return single result.
-
+    async def execute_one(self, query_builder) -> Optional[Dict[str, Any]]:
+        """
+        Execute query builder and return single result.
+        
         Args:
             query_builder: QueryBuilder instance
-
+        
         Returns:
             Single result dictionary or None
         """
         query, params = query_builder.build()
         return await self.client.fetch_one(query, *params)
     
-    async def execute_count(self, query_builder: Any) -> int:
-        """Execute query builder and return count.
-
+    async def execute_count(self, query_builder) -> int:
+        """
+        Execute query builder and return count.
+        
         Args:
             query_builder: QueryBuilder instance
-
+        
         Returns:
             Count of matching rows
         """
         query, params = query_builder.build()
         # Modify query to use COUNT(*)
         query = query.replace("SELECT *", "SELECT COUNT(*)")
-        value = await self.client.fetch_value(query, *params)
-        if value is None:
-            return 0
-        return int(value)
+        return await self.client.fetch_value(query, *params)
 
 
 # ============================================================================
@@ -480,22 +468,23 @@ class AsyncQueryExecutor:
 # ============================================================================
 
 class ConnectionPoolManager:
-    """Manages multiple database connection pools.
-
+    """
+    Manages multiple database connection pools.
+    
     Example:
         ```python
         from framework.database.async_client import ConnectionPoolManager
-
+        
         manager = ConnectionPoolManager()
-
+        
         # Add pools
         await manager.add_pool("main", main_config)
         await manager.add_pool("analytics", analytics_config)
-
+        
         # Get client
         main_db = manager.get_client("main")
         result = await main_db.fetch_all("SELECT * FROM users")
-
+        
         # Cleanup
         await manager.close_all()
         ```
@@ -506,8 +495,9 @@ class ConnectionPoolManager:
         self.clients: Dict[str, AsyncDatabaseClient] = {}
     
     async def add_pool(self, name: str, config: DatabaseConfig) -> None:
-        """Add a database connection pool.
-
+        """
+        Add a database connection pool.
+        
         Args:
             name: Pool name
             config: Database configuration
@@ -517,14 +507,15 @@ class ConnectionPoolManager:
         self.clients[name] = client
     
     def get_client(self, name: str) -> AsyncDatabaseClient:
-        """Get database client by name.
-
+        """
+        Get database client by name.
+        
         Args:
             name: Pool name
-
+        
         Returns:
             Database client
-
+        
         Raises:
             KeyError: If pool not found
         """
@@ -541,8 +532,9 @@ class ConnectionPoolManager:
         self.clients.clear()
     
     async def health_check_all(self) -> Dict[str, bool]:
-        """Health check all database connections.
-
+        """
+        Health check all database connections.
+        
         Returns:
             Dictionary of pool names to health status
         """

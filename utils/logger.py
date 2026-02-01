@@ -26,8 +26,10 @@ AUDIT_DIR.mkdir(exist_ok=True)
 
 
 class AuditLogger:
-    """Specialized logger for audit trail Captures all test actions, API calls, DB operations, and
-    framework events."""
+    """
+    Specialized logger for audit trail
+    Captures all test actions, API calls, DB operations, and framework events
+    """
     
     def __init__(self):
         self.logger = logging.getLogger('audit')
@@ -58,9 +60,10 @@ class AuditLogger:
             audit_handler.setFormatter(audit_format)
             self.logger.addHandler(audit_handler)
     
-    def log_action(self, action_type: str, details: Dict[str, Any], status: str = "success") -> None:
-        """Log test action with structured data.
-
+    def log_action(self, action_type: str, details: Dict[str, Any], status: str = "success"):
+        """
+        Log test action with structured data
+        
         Args:
             action_type: Type of action (ui_click, api_call, db_query, etc.)
             details: Action details as dictionary
@@ -74,38 +77,32 @@ class AuditLogger:
         }
         self.logger.info(json.dumps(event))
     
-    def log_test_start(self, test_name: str, test_file: str) -> None:
-        """Log test execution start."""
+    def log_test_start(self, test_name: str, test_file: str):
+        """Log test execution start"""
         self.log_action("test_start", {
             "test_name": test_name,
             "test_file": test_file
         })
     
-    def log_test_end(self, test_name: str, status: str, duration: float) -> None:
-        """Log test execution end."""
+    def log_test_end(self, test_name: str, status: str, duration: float):
+        """Log test execution end"""
         self.log_action("test_end", {
             "test_name": test_name,
             "duration_seconds": duration,
             "result": status
         }, status=status)
     
-    def log_ui_action(self, action: str, element: str, value: Optional[str] = None) -> None:
-        """Log UI interaction."""
+    def log_ui_action(self, action: str, element: str, value: Optional[str] = None):
+        """Log UI interaction"""
         details = {"action": action, "element": element}
         if value:
             details["value"] = value
         self.log_action("ui_action", details)
     
-    def log_api_call(
-        self,
-        method: str,
-        url: str,
-        status_code: int,
-        duration_ms: float,
-        request_body: Optional[Dict] = None,
-        response_body: Optional[Dict] = None,
-    ) -> None:
-        """Log API call with request/response."""
+    def log_api_call(self, method: str, url: str, status_code: int, 
+                     duration_ms: float, request_body: Optional[Dict] = None,
+                     response_body: Optional[Dict] = None):
+        """Log API call with request/response"""
         details = {
             "method": method,
             "url": url,
@@ -120,15 +117,9 @@ class AuditLogger:
         status = "success" if 200 <= status_code < 300 else "failure"
         self.log_action("api_call", details, status=status)
     
-    def log_db_operation(
-        self,
-        operation: str,
-        table: str,
-        query: str,
-        rows_affected: int = 0,
-        duration_ms: float = 0,
-    ) -> None:
-        """Log database operation."""
+    def log_db_operation(self, operation: str, table: str, query: str, 
+                        rows_affected: int = 0, duration_ms: float = 0):
+        """Log database operation"""
         self.log_action("db_operation", {
             "operation": operation,
             "table": table,
@@ -137,8 +128,8 @@ class AuditLogger:
             "duration_ms": duration_ms
         })
     
-    def log_error(self, error_type: str, error_message: str, stack_trace: Optional[str] = None) -> None:
-        """Log error with details."""
+    def log_error(self, error_type: str, error_message: str, stack_trace: Optional[str] = None):
+        """Log error with details"""
         details = {
             "error_type": error_type,
             "error_message": error_message
@@ -152,7 +143,7 @@ class AuditLogger:
 _audit_logger = None
 
 def get_audit_logger() -> AuditLogger:
-    """Get the global audit logger instance."""
+    """Get the global audit logger instance"""
     global _audit_logger
     if _audit_logger is None:
         _audit_logger = AuditLogger()
@@ -160,11 +151,12 @@ def get_audit_logger() -> AuditLogger:
 
 
 def get_logger(name: str) -> logging.Logger:
-    """Get or create a logger instance.
-
+    """
+    Get or create a logger instance
+    
     Args:
         name: Logger name (typically __name__)
-
+    
     Returns:
         Configured logger instance with console and rotating file handlers
     """

@@ -6,13 +6,9 @@ API and database validation based on configuration.
 """
 
 from functools import wraps
-from types import TracebackType
-from typing import Any, Callable, List, Optional, ParamSpec, TypeVar, Literal
+from typing import Any, Callable, Optional
 
 from utils.logger import get_logger
-
-P = ParamSpec('P')
-R = TypeVar('R')
 
 try:
     from config.settings import (
@@ -27,7 +23,7 @@ except ImportError:
         return True
     def should_run_db_validation() -> bool:
         return True
-    def get_enabled_components() -> List[str]:
+    def get_enabled_components() -> list:
         return ['ui', 'api', 'database']
     def get_execution_mode() -> str:
         return 'ui_api_db'
@@ -35,9 +31,10 @@ except ImportError:
 logger = get_logger(__name__)
 
 
-def run_api_validation(func: Callable[P, R]) -> Callable[P, Optional[R]]:
-    """Decorator to conditionally run API validation.
-
+def run_api_validation(func: Callable) -> Callable:
+    """
+    Decorator to conditionally run API validation
+    
     Usage:
         @run_api_validation
         def validate_api():
@@ -45,7 +42,7 @@ def run_api_validation(func: Callable[P, R]) -> Callable[P, Optional[R]]:
             pass
     """
     @wraps(func)
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Optional[R]:
+    def wrapper(*args, **kwargs) -> Optional[Any]:
         if should_run_api_validation():
             return func(*args, **kwargs)
         else:
@@ -54,9 +51,10 @@ def run_api_validation(func: Callable[P, R]) -> Callable[P, Optional[R]]:
     return wrapper
 
 
-def run_db_validation(func: Callable[P, R]) -> Callable[P, Optional[R]]:
-    """Decorator to conditionally run database validation.
-
+def run_db_validation(func: Callable) -> Callable:
+    """
+    Decorator to conditionally run database validation
+    
     Usage:
         @run_db_validation
         def validate_database():
@@ -64,7 +62,7 @@ def run_db_validation(func: Callable[P, R]) -> Callable[P, Optional[R]]:
             pass
     """
     @wraps(func)
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Optional[R]:
+    def wrapper(*args, **kwargs) -> Optional[Any]:
         if should_run_db_validation():
             return func(*args, **kwargs)
         else:
@@ -73,9 +71,10 @@ def run_db_validation(func: Callable[P, R]) -> Callable[P, Optional[R]]:
     return wrapper
 
 
-def skip_if_api_disabled(func: Callable[P, R]) -> Callable[P, R]:
-    """Decorator to skip entire test if API validation is disabled.
-
+def skip_if_api_disabled(func: Callable) -> Callable:
+    """
+    Decorator to skip entire test if API validation is disabled
+    
     Usage:
         @skip_if_api_disabled
         def test_api_flow():
@@ -83,7 +82,7 @@ def skip_if_api_disabled(func: Callable[P, R]) -> Callable[P, R]:
             pass
     """
     @wraps(func)
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+    def wrapper(*args, **kwargs) -> Optional[Any]:
         if not should_run_api_validation():
             import pytest
             pytest.skip(f"API validation disabled (mode: {get_execution_mode()})")
@@ -91,9 +90,10 @@ def skip_if_api_disabled(func: Callable[P, R]) -> Callable[P, R]:
     return wrapper
 
 
-def skip_if_db_disabled(func: Callable[P, R]) -> Callable[P, R]:
-    """Decorator to skip entire test if database validation is disabled.
-
+def skip_if_db_disabled(func: Callable) -> Callable:
+    """
+    Decorator to skip entire test if database validation is disabled
+    
     Usage:
         @skip_if_db_disabled
         def test_db_flow():
@@ -101,7 +101,7 @@ def skip_if_db_disabled(func: Callable[P, R]) -> Callable[P, R]:
             pass
     """
     @wraps(func)
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+    def wrapper(*args, **kwargs) -> Optional[Any]:
         if not should_run_db_validation():
             import pytest
             pytest.skip(f"Database validation disabled (mode: {get_execution_mode()})")
@@ -110,11 +110,12 @@ def skip_if_db_disabled(func: Callable[P, R]) -> Callable[P, R]:
 
 
 def is_component_enabled(component: str) -> bool:
-    """Check if a specific component is enabled.
-
+    """
+    Check if a specific component is enabled
+    
     Args:
         component: Component name ('ui', 'api', or 'database')
-
+    
     Returns:
         True if component is enabled
     """
@@ -122,8 +123,9 @@ def is_component_enabled(component: str) -> bool:
 
 
 def get_active_components() -> str:
-    """Get a formatted string of active components.
-
+    """
+    Get a formatted string of active components
+    
     Returns:
         String like "UI + API + DB" or "UI only"
     """
@@ -139,8 +141,8 @@ def get_active_components() -> str:
         return " + ".join([c.upper() for c in components])
 
 
-def log_execution_mode() -> None:
-    """Log current execution mode."""
+def log_execution_mode():
+    """Log current execution mode"""
     mode = get_execution_mode()
     components = get_active_components()
     logger.info(f"Execution Mode: {mode} ({components})")
@@ -148,8 +150,9 @@ def log_execution_mode() -> None:
 
 # Context manager for conditional execution
 class ConditionalExecution:
-    """Context manager for conditional execution blocks.
-
+    """
+    Context manager for conditional execution blocks
+    
     Usage:
         with ConditionalExecution('api') as should_run:
             if should_run:
@@ -158,8 +161,9 @@ class ConditionalExecution:
     """
     
     def __init__(self, component: str):
-        """Initialize conditional execution.
-
+        """
+        Initialize conditional execution
+        
         Args:
             component: Component name ('api' or 'database')
         """
@@ -180,13 +184,8 @@ class ConditionalExecution:
         
         return self.should_run
     
-    def __exit__(
-        self,
-        exc_type: Optional[type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType]
-    ) -> Literal[False]:
-        """Exit context."""
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Exit context"""
         return False
 
 

@@ -33,14 +33,14 @@ HISTORY_DIR.mkdir(parents=True, exist_ok=True)
 
 
 class AuditHistory:
-    """Track audit history for change analysis."""
+    """Track audit history for change analysis"""
     
     def __init__(self, history_file: Path = HISTORY_DIR / "audit_history.json"):
         self.history_file = history_file
         self.history: List[Dict] = self._load_history()
     
     def _load_history(self) -> List[Dict]:
-        """Load existing audit history."""
+        """Load existing audit history"""
         if self.history_file.exists():
             try:
                 with open(self.history_file, 'r', encoding='utf-8') as f:
@@ -50,7 +50,7 @@ class AuditHistory:
         return []
     
     def save_audit(self, result: AuditResult, changed_files: List[str]):
-        """Save audit result to history."""
+        """Save audit result to history"""
         entry = {
             'timestamp': datetime.now().isoformat(),
             'files_changed': changed_files,
@@ -73,7 +73,7 @@ class AuditHistory:
             json.dump(self.history, f, indent=2)
     
     def _group_violations(self, violations: List[Violation]) -> Dict[str, int]:
-        """Group violations by category."""
+        """Group violations by category"""
         grouped = {}
         for v in violations:
             category = v.rule.split('/')[0] if '/' in v.rule else v.rule
@@ -81,11 +81,11 @@ class AuditHistory:
         return grouped
     
     def get_recent(self, count: int = 10) -> List[Dict]:
-        """Get recent audit entries."""
+        """Get recent audit entries"""
         return self.history[-count:] if self.history else []
     
     def get_trend_analysis(self) -> Dict:
-        """Analyze violation trends."""
+        """Analyze violation trends"""
         if not self.history:
             return {
                 'total_audits': 0,
@@ -116,7 +116,7 @@ class AuditHistory:
 
 
 class ChangeTracker:
-    """Track file changes for audit reporting."""
+    """Track file changes for audit reporting"""
     
     def __init__(self):
         self.changed_files: Set[Path] = set()
@@ -124,7 +124,7 @@ class ChangeTracker:
         self.debounce_seconds: float = 2.0  # Wait 2 seconds after last change
     
     def add_change(self, file_path: Path):
-        """Track a file change."""
+        """Track a file change"""
         # Only track Python files in relevant directories
         if file_path.suffix == '.py':
             if any(part in file_path.parts for part in ['tests', 'pages', 'framework', 'utils']):
@@ -132,20 +132,20 @@ class ChangeTracker:
                 self.last_audit_time = time.time()
     
     def should_audit(self) -> bool:
-        """Check if enough time has passed for debouncing."""
+        """Check if enough time has passed for debouncing"""
         if not self.changed_files:
             return False
         return (time.time() - self.last_audit_time) >= self.debounce_seconds
     
     def get_changes(self) -> List[str]:
-        """Get changed files and reset."""
+        """Get changed files and reset"""
         files = [str(f) for f in self.changed_files]
         self.changed_files.clear()
         return files
 
 
 class AuditFileSystemHandler(FileSystemEventHandler):
-    """Handle file system events and trigger audits."""
+    """Handle file system events and trigger audits"""
     
     def __init__(self, engine: FrameworkAuditEngine, history: AuditHistory, 
                  tracker: ChangeTracker, strict: bool = False):
@@ -156,24 +156,24 @@ class AuditFileSystemHandler(FileSystemEventHandler):
         self.audit_count = 0
     
     def on_modified(self, event: FileSystemEvent):
-        """Handle file modification."""
+        """Handle file modification"""
         if not event.is_directory:
             file_path = Path(event.src_path)
             self.tracker.add_change(file_path)
     
     def on_created(self, event: FileSystemEvent):
-        """Handle file creation."""
+        """Handle file creation"""
         if not event.is_directory:
             file_path = Path(event.src_path)
             self.tracker.add_change(file_path)
     
     def trigger_audit_if_ready(self):
-        """Check if audit should be triggered."""
+        """Check if audit should be triggered"""
         if self.tracker.should_audit():
             self.run_audit()
     
     def run_audit(self):
-        """Execute architecture audit."""
+        """Execute architecture audit"""
         changed_files = self.tracker.get_changes()
         
         if not changed_files:
@@ -218,7 +218,7 @@ class AuditFileSystemHandler(FileSystemEventHandler):
     
     def _generate_change_report(self, result: AuditResult, changed_files: List[str], 
                                 output_path: Path):
-        """Generate report with change context."""
+        """Generate report with change context"""
         report = []
         
         report.append("# Architecture Audit Report (Auto-Generated)")
@@ -269,7 +269,7 @@ class AuditFileSystemHandler(FileSystemEventHandler):
         generate_markdown_report(result, main_report)
     
     def _display_results(self, result: AuditResult):
-        """Display audit results in terminal."""
+        """Display audit results in terminal"""
         print("\n" + "-"*70)
         print("AUDIT RESULTS")
         print("-"*70)
@@ -299,7 +299,7 @@ class AuditFileSystemHandler(FileSystemEventHandler):
         print("-"*70)
     
     def _display_trend(self, trend: Dict):
-        """Display trend analysis."""
+        """Display trend analysis"""
         print("\n" + "-"*70)
         print("TREND ANALYSIS")
         print("-"*70)
@@ -317,7 +317,7 @@ class AuditFileSystemHandler(FileSystemEventHandler):
 
 
 class FileWatcherAudit:
-    """Main file watcher audit coordinator."""
+    """Main file watcher audit coordinator"""
     
     def __init__(self, strict: bool = False):
         self.engine = FrameworkAuditEngine()
@@ -328,7 +328,7 @@ class FileWatcherAudit:
         self.strict = strict
     
     def start(self, watch_paths: List[Path] = None):
-        """Start watching for file changes."""
+        """Start watching for file changes"""
         if watch_paths is None:
             # Default paths to watch
             watch_paths = [
@@ -392,7 +392,7 @@ class FileWatcherAudit:
 
 
 def main():
-    """Main entry point."""
+    """Main entry point"""
     import argparse
     
     parser = argparse.ArgumentParser(description="File Watcher Audit")

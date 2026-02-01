@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
-"""════════════════════════════════════════════════════════════════════════════ AI-POWERED VIOLATION
-EXPLANATION SYSTEM ════════════════════════════════════════════════════════════════════════════
+"""
+════════════════════════════════════════════════════════════════════════════
+AI-POWERED VIOLATION EXPLANATION SYSTEM
+════════════════════════════════════════════════════════════════════════════
 
 Generates detailed, educational explanations for architectural violations.
 
@@ -14,7 +16,7 @@ CRITICAL RULES:
 USAGE:
     # Generate explanation for a violation
     python ai_explainer.py --violation-file violations.json --output explained.md
-
+    
     # Interactive mode
     python ai_explainer.py --interactive
 
@@ -42,8 +44,9 @@ from framework_audit_engine import Violation, Category, Severity
 # ════════════════════════════════════════════════════════════════════════════
 
 class AIExplanationEngine:
-    """Generates AI-powered explanations for violations.
-
+    """
+    Generates AI-powered explanations for violations
+    
     IMPORTANT: This is EXPLAIN-ONLY, never auto-fix
     """
     
@@ -132,8 +135,9 @@ methods like login() or search(), not low-level locator manipulation.
     }
     
     def __init__(self, ai_enabled: bool = False):
-        """Initialize AI explainer.
-
+        """
+        Initialize AI explainer
+        
         Args:
             ai_enabled: If True, attempt to use AI. If False or unavailable, use fallbacks.
         """
@@ -144,7 +148,7 @@ methods like login() or search(), not low-level locator manipulation.
             self.ai_available = self._check_ai_availability()
     
     def _check_ai_availability(self) -> bool:
-        """Check if AI service is available."""
+        """Check if AI service is available"""
         # In real implementation, would check for:
         # - OpenAI API key
         # - Azure OpenAI endpoint
@@ -153,11 +157,12 @@ methods like login() or search(), not low-level locator manipulation.
         return False
     
     def explain_violation(self, violation: Violation) -> str:
-        """Generate explanation for a violation.
-
+        """
+        Generate explanation for a violation
+        
         Args:
             violation: Violation to explain
-
+            
         Returns:
             Detailed explanation as markdown
         """
@@ -167,8 +172,9 @@ methods like login() or search(), not low-level locator manipulation.
             return self._generate_fallback_explanation(violation)
     
     def _generate_ai_explanation(self, violation: Violation) -> str:
-        """Generate AI-powered explanation.
-
+        """
+        Generate AI-powered explanation
+        
         NOTE: This would call OpenAI/Azure/Local LLM
         For now, falls back to template
         """
@@ -182,7 +188,7 @@ methods like login() or search(), not low-level locator manipulation.
         return self._generate_fallback_explanation(violation)
     
     def _generate_fallback_explanation(self, violation: Violation) -> str:
-        """Generate template-based explanation."""
+        """Generate template-based explanation"""
         
         template = self.FALLBACK_EXPLANATIONS.get(violation.rule_id)
         
@@ -241,8 +247,9 @@ Review the architectural guidelines for details on this rule.
 """
     
     def explain_batch(self, violations: List[Violation], output_path: Path):
-        """Generate explanations for multiple violations.
-
+        """
+        Generate explanations for multiple violations
+        
         Args:
             violations: List of violations
             output_path: Where to save explanations
@@ -268,7 +275,7 @@ Review the architectural guidelines for details on this rule.
 # ════════════════════════════════════════════════════════════════════════════
 
 def interactive_mode():
-    """Interactive violation explanation."""
+    """Interactive violation explanation"""
     
     print("\n" + "="*80)
     print("🤖 AI VIOLATION EXPLAINER - Interactive Mode")

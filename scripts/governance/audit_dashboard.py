@@ -19,7 +19,7 @@ import webbrowser
 
 
 class AuditDashboard:
-    """Generate audit dashboard with trends and metrics."""
+    """Generate audit dashboard with trends and metrics"""
     
     def __init__(self):
         self.history_file = Path("artifacts/audit_history/audit_history.json")
@@ -27,7 +27,7 @@ class AuditDashboard:
         self.output_file = Path("artifacts/audit_dashboard.html")
     
     def load_data(self) -> Dict:
-        """Load all audit data."""
+        """Load all audit data"""
         data = {
             'watcher_audits': [],
             'commit_audits': [],
@@ -53,7 +53,7 @@ class AuditDashboard:
         return data
     
     def calculate_metrics(self, data: Dict) -> Dict:
-        """Calculate dashboard metrics."""
+        """Calculate dashboard metrics"""
         metrics = {
             'total_audits': 0,
             'total_commits_checked': 0,
@@ -114,7 +114,7 @@ class AuditDashboard:
         return metrics
     
     def _calculate_daily_stats(self, audits: List[Dict]) -> List[Dict]:
-        """Calculate daily audit statistics."""
+        """Calculate daily audit statistics"""
         daily = {}
         
         for audit in audits:
@@ -154,7 +154,7 @@ class AuditDashboard:
         return last_30
     
     def _calculate_top_files(self, all_audits: List[Dict]) -> Dict[str, int]:
-        """Calculate most frequently violated files."""
+        """Calculate most frequently violated files"""
         file_counts = {}
         
         for audit in all_audits:
@@ -167,7 +167,7 @@ class AuditDashboard:
         return dict(sorted_files[:10])
     
     def generate_html(self, metrics: Dict) -> str:
-        """Generate HTML dashboard."""
+        """Generate HTML dashboard"""
         
         # Prepare chart data
         daily_labels = [d['date'] for d in metrics['daily_stats']]
@@ -448,7 +448,7 @@ class AuditDashboard:
         return html
     
     def generate(self, open_browser: bool = False):
-        """Generate dashboard."""
+        """Generate dashboard"""
         print("\n" + "="*70)
         print("GENERATING AUDIT DASHBOARD")
         print("="*70)
@@ -479,7 +479,7 @@ class AuditDashboard:
 
 
 def main():
-    """Main entry point."""
+    """Main entry point"""
     import argparse
     
     parser = argparse.ArgumentParser(description="Generate Audit Dashboard")

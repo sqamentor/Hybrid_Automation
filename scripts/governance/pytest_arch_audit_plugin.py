@@ -1,21 +1,24 @@
 #!/usr/bin/env python3
-"""PYTEST PLUGIN FOR ARCHITECTURE AUDIT.
+"""
+
+PYTEST PLUGIN FOR ARCHITECTURE AUDIT
+
 
 Enables developers to run architecture audits locally via pytest.
 
 USAGE:
     # Run architecture audit
     pytest --arch-audit
-
+    
     # Audit specific category
     pytest --arch-audit --audit-category=engine-mix
-
+    
     # With baseline
     pytest --arch-audit --audit-baseline=ci/baseline_allowlist.yaml
-
+    
     # Generate report
     pytest --arch-audit --audit-report=audit_report.md
-
+    
     # Strict mode (fail on warnings)
     pytest --arch-audit --audit-strict
 
@@ -28,6 +31,7 @@ OK Detailed violation output
 
 Author: Principal QA Architect
 Date: February 1, 2026
+
 """
 
 import pytest
@@ -59,7 +63,7 @@ except ImportError as e:
 # 
 
 def pytest_addoption(parser):
-    """Add custom command-line options."""
+    """Add custom command-line options"""
     group = parser.getgroup('arch-audit', 'Architecture Audit')
     
     group.addoption(
@@ -107,7 +111,7 @@ def pytest_addoption(parser):
 
 
 def pytest_configure(config):
-    """Register custom markers."""
+    """Register custom markers"""
     config.addinivalue_line(
         "markers", 
         "arch_audit: Mark test as architecture audit test"
@@ -115,7 +119,7 @@ def pytest_configure(config):
 
 
 def pytest_collection_modifyitems(session, config, items):
-    """Modify test collection if audit mode is enabled."""
+    """Modify test collection if audit mode is enabled"""
     if config.getoption('--arch-audit'):
         # In audit mode, we don't collect regular tests
         # We'll run the audit in pytest_sessionstart instead
@@ -123,7 +127,7 @@ def pytest_collection_modifyitems(session, config, items):
 
 
 def pytest_sessionstart(session):
-    """Run architecture audit at session start if enabled."""
+    """Run architecture audit at session start if enabled"""
     config = session.config
     
     if not config.getoption('--arch-audit'):
@@ -170,7 +174,7 @@ def pytest_sessionstart(session):
 
 
 def pytest_sessionfinish(session, exitstatus):
-    """Determine exit status based on audit results."""
+    """Determine exit status based on audit results"""
     config = session.config
     
     if not config.getoption('--arch-audit'):
@@ -221,7 +225,7 @@ def pytest_sessionfinish(session, exitstatus):
 # 
 
 def _display_audit_results(result: AuditResult, show_fixes: bool = True):
-    """Display audit results in terminal."""
+    """Display audit results in terminal"""
     
     print(f" Files scanned: {result.files_scanned}")
     print(f" Total violations: {len(result.violations)}")

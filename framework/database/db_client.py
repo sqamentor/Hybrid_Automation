@@ -19,15 +19,15 @@ audit_logger = get_audit_logger()
 
 
 class DBClient:
-    """Universal database client (read-only) with audit trail."""
+    """Universal database client (read-only) with audit trail"""
     
     def __init__(self, db_name: str = 'primary', env: Optional[str] = None):
         self.config = get_database_config(env, db_name)
         self.engine: Optional[Engine] = None
         self.connect()
     
-    def connect(self) -> None:
-        """Establish database connection."""
+    def connect(self):
+        """Establish database connection"""
         connection_string = self._build_connection_string()
         self.engine = create_engine(connection_string, pool_pre_ping=True)
         logger.info(f"Connected to database: {self.config.name}")
@@ -40,7 +40,7 @@ class DBClient:
         })
     
     def _build_connection_string(self) -> str:
-        """Build SQLAlchemy connection string."""
+        """Build SQLAlchemy connection string"""
         if self.config.type == "sql_server":
             return (
                 f"mssql+pyodbc://{self.config.username}:{self.config.password}"
@@ -63,19 +63,14 @@ class DBClient:
         else:
             raise ValueError(f"Unsupported database type: {self.config.type}")
     
-    def _get_engine(self) -> Engine:
-        """Return active SQLAlchemy engine."""
-        if self.engine is None:
-            raise RuntimeError("Database engine not initialized. Call connect() first.")
-        return self.engine
-
-    def execute_query(self, query: str, params: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
-        """Execute SELECT query (read-only enforced)
-
+    def execute_query(self, query: str, params: Optional[Dict] = None) -> List[Dict]:
+        """
+        Execute SELECT query (read-only enforced)
+        
         Args:
             query: SQL query (SELECT only)
             params: Query parameters
-
+        
         Returns:
             List of result rows as dictionaries
         """
@@ -93,8 +88,7 @@ class DBClient:
         start_time = time.time()
         
         try:
-            engine = self._get_engine()
-            with engine.connect() as conn:
+            with self.engine.connect() as conn:
                 result = conn.execute(text(query), params or {})
                 columns = result.keys()
                 rows = [dict(zip(columns, row)) for row in result.fetchall()]
@@ -125,15 +119,15 @@ class DBClient:
             )
             raise
     
-    def execute_scalar(self, query: str, params: Optional[Dict[str, Any]] = None) -> Any:
-        """Execute query and return single value."""
+    def execute_scalar(self, query: str, params: Optional[Dict] = None) -> Any:
+        """Execute query and return single value"""
         results = self.execute_query(query, params)
         if results and len(results) > 0:
             return list(results[0].values())[0]
         return None
     
     def _is_read_only_query(self, query: str) -> bool:
-        """Verify query is read-only."""
+        """Verify query is read-only"""
         query_upper = query.strip().upper()
         
         # Blocked keywords
@@ -150,7 +144,7 @@ class DBClient:
         return True
     
     def _extract_table_name(self, query: str) -> str:
-        """Extract table name from query for audit logging."""
+        """Extract table name from query for audit logging"""
         try:
             query_upper = query.upper()
             if 'FROM' in query_upper:
@@ -162,8 +156,8 @@ class DBClient:
             pass
         return "unknown"
     
-    def close(self) -> None:
-        """Close database connection."""
+    def close(self):
+        """Close database connection"""
         if self.engine:
             self.engine.dispose()
             logger.info("Database connection closed")
@@ -172,7 +166,6 @@ class DBClient:
             audit_logger.log_action("db_disconnect", {
                 "database": self.config.name
             })
-            self.engine = None
 
 
 __all__ = ['DBClient']

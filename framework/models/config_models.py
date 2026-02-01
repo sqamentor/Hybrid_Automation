@@ -1,7 +1,8 @@
-"""Pydantic V2 Configuration Models.
+"""
+Pydantic V2 Configuration Models
 
-Type-safe, validated configuration models for the entire framework. All configs use Pydantic V2 for
-runtime validation and serialization.
+Type-safe, validated configuration models for the entire framework.
+All configs use Pydantic V2 for runtime validation and serialization.
 """
 
 from __future__ import annotations
@@ -22,7 +23,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class BrowserEngine(str, Enum):
-    """Supported browser engines."""
+    """Supported browser engines"""
     CHROMIUM = "chromium"
     FIREFOX = "firefox"
     WEBKIT = "webkit"
@@ -31,7 +32,7 @@ class BrowserEngine(str, Enum):
 
 
 class TestEnvironment(str, Enum):
-    """Test environment types."""
+    """Test environment types"""
     DEV = "dev"
     QA = "qa"
     STAGING = "staging"
@@ -41,7 +42,7 @@ class TestEnvironment(str, Enum):
 
 
 class EngineType(str, Enum):
-    """Automation engine types."""
+    """Automation engine types"""
     PLAYWRIGHT = "playwright"
     SELENIUM = "selenium"
     HYBRID = "hybrid"
@@ -50,7 +51,7 @@ class EngineType(str, Enum):
 
 
 class BrowserConfig(BaseModel):
-    """Browser configuration with validation."""
+    """Browser configuration with validation"""
     
     model_config = ConfigDict(
         frozen=True,
@@ -134,7 +135,7 @@ class BrowserConfig(BaseModel):
     @field_validator("timeout")
     @classmethod
     def validate_timeout(cls, v: int) -> int:
-        """Ensure timeout is reasonable."""
+        """Ensure timeout is reasonable"""
         if v < 1000:
             raise ValueError("Timeout must be at least 1000ms")
         return v
@@ -142,14 +143,14 @@ class BrowserConfig(BaseModel):
     @field_validator("viewport_width")
     @classmethod
     def validate_viewport_width(cls, v: int) -> int:
-        """Ensure viewport width is reasonable."""
+        """Ensure viewport width is reasonable"""
         if v < 320:
             raise ValueError("Viewport width must be at least 320")
         return v
 
 
 class DatabaseConfig(BaseModel):
-    """Database configuration with validation."""
+    """Database configuration with validation"""
     
     model_config = ConfigDict(
         frozen=False,
@@ -171,12 +172,12 @@ class DatabaseConfig(BaseModel):
     
     @property
     def connection_string(self) -> str:
-        """Generate connection string."""
+        """Generate connection string"""
         return f"{self.driver}://{self.username}:{self.password}@{self.host}:{self.port}/{self.database}"
 
 
 class APIConfig(BaseModel):
-    """API configuration with validation."""
+    """API configuration with validation"""
     
     model_config = ConfigDict(
         frozen=False,
@@ -194,19 +195,19 @@ class APIConfig(BaseModel):
     
     @property
     def retry_count(self) -> int:
-        """Alias for retry_attempts for backward compatibility."""
+        """Alias for retry_attempts for backward compatibility"""
         return self.retry_attempts
     
     @field_validator("base_url")
     @classmethod
     def validate_base_url(cls, v: Union[HttpUrl, str]) -> str:
-        """Ensure base_url is properly formatted."""
+        """Ensure base_url is properly formatted"""
         url_str = str(v)
         return url_str.rstrip("/")
 
 
 class EnvironmentConfig(BaseModel):
-    """Environment-specific configuration."""
+    """Environment-specific configuration"""
     
     model_config = ConfigDict(
         frozen=False,
@@ -222,7 +223,7 @@ class EnvironmentConfig(BaseModel):
 
 
 class ProjectConfig(BaseModel):
-    """Project-specific configuration."""
+    """Project-specific configuration"""
     
     model_config = ConfigDict(
         frozen=False,
@@ -265,7 +266,7 @@ class ProjectConfig(BaseModel):
 
 
 class EngineDecisionMatrix(BaseModel):
-    """Engine selection decision matrix with intelligent recommendations."""
+    """Engine selection decision matrix with intelligent recommendations"""
     
     model_config = ConfigDict(
         frozen=False,
@@ -306,15 +307,16 @@ class EngineDecisionMatrix(BaseModel):
     )
     
     def select_engine(self) -> EngineType:
-        """Select appropriate engine based on test characteristics.
-
+        """
+        Select appropriate engine based on test characteristics.
+        
         Decision logic:
         - SPA + Modern: PLAYWRIGHT (best for modern apps)
         - Legacy UI: SELENIUM (better compatibility)
         - Mobile: PLAYWRIGHT (has mobile support)
         - Simple tests: PLAYWRIGHT (faster)
         - Complex tests: PLAYWRIGHT (more stable)
-
+        
         Returns:
             Recommended EngineType
         """
@@ -339,7 +341,7 @@ class EngineDecisionMatrix(BaseModel):
 
 
 class FrameworkConfig(BaseSettings):
-    """Global framework configuration with environment variable support."""
+    """Global framework configuration with environment variable support"""
     
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -418,14 +420,14 @@ class FrameworkConfig(BaseSettings):
     
     @model_validator(mode="after")
     def create_directories(self) -> FrameworkConfig:
-        """Ensure all required directories exist."""
+        """Ensure all required directories exist"""
         for dir_path in [self.log_dir, self.report_dir, self.screenshot_dir, self.video_dir]:
             dir_path.mkdir(parents=True, exist_ok=True)
         return self
 
 
 class GlobalSettings(BaseModel):
-    """Global settings aggregating all configurations."""
+    """Global settings aggregating all configurations"""
     
     model_config = ConfigDict(
         frozen=False,
@@ -434,19 +436,17 @@ class GlobalSettings(BaseModel):
     )
     
     framework: FrameworkConfig = Field(default_factory=FrameworkConfig)
-    browser: Optional[BrowserConfig] = Field(default=None, description="Default browser configuration")
-    api: Optional[APIConfig] = Field(default=None, description="Default API configuration")
     database: Optional[DatabaseConfig] = Field(default=None, description="Default database configuration")
     api_url: Optional[str] = Field(default=None, description="Default API URL")
     projects: Dict[str, ProjectConfig] = Field(default_factory=dict)
     engine_matrix: EngineDecisionMatrix = Field(default_factory=EngineDecisionMatrix)
     
     def get_project(self, name: str) -> Optional[ProjectConfig]:
-        """Get project configuration by name."""
+        """Get project configuration by name"""
         return self.projects.get(name)
     
     def get_environment(self, project_name: str, env_name: Optional[str] = None) -> Optional[EnvironmentConfig]:
-        """Get environment configuration for a project."""
+        """Get environment configuration for a project"""
         project = self.get_project(project_name)
         if not project:
             return None

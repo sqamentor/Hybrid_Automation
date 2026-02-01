@@ -32,10 +32,10 @@ from utils.fake_data_generator import generate_bookslot_payload
 @pytest.mark.human_like
 @pytest.mark.recorded
 def test_bookslot_complete(page: Page, multi_project_config, human_behavior) -> None:
-    """Smart bookslot test with automatic context-aware delays.
-
+    """Smart bookslot test with automatic context-aware delays
+    
     ✨ NO MANUAL DELAYS NEEDED - All delays are auto-applied based on context!
-
+    
     Auto-Applied Delays:
         • Before click: 0.3-0.7s (thinking)
         • After click: 0.2-0.4s (confirmation)
@@ -44,7 +44,7 @@ def test_bookslot_complete(page: Page, multi_project_config, human_behavior) -> 
         • After typing: 0.2-0.5s (review)
         • Page navigation: 0.5-1.0s (observation)
         • Button clicks: 0.4-0.9s (consideration)
-
+    
     Run Options:
         Fast Mode:    pytest recorded_tests/bookslot/test_bookslot_bookslots_complete_REFACTORED.py -v
         Human Mode:   pytest recorded_tests/bookslot/test_bookslot_bookslots_complete_REFACTORED.py --enable-human-behavior -v
@@ -61,24 +61,24 @@ def test_bookslot_complete(page: Page, multi_project_config, human_behavior) -> 
     # =========================================================================
     
     class SmartActions:
-        """Intelligent wrappers that auto-apply delays based on context."""
+        """Intelligent wrappers that auto-apply delays based on context"""
         
         @staticmethod
         def _delay(min_sec: float, max_sec: float):
-            """Internal delay method."""
+            """Internal delay method"""
             if enable_human:
                 time.sleep(random.uniform(min_sec, max_sec))
         
         @staticmethod
         def click(element, desc: str = ""):
-            """Smart click with auto delays."""
+            """Smart click with auto delays"""
             SmartActions._delay(0.3, 0.7)  # Think before click
             element.click()
             SmartActions._delay(0.2, 0.4)  # Confirm click
         
         @staticmethod
         def type_text(element, text: str, field_type: str = "text"):
-            """Smart typing with context-aware speed."""
+            """Smart typing with context-aware speed"""
             SmartActions._delay(0.3, 0.6)  # Prepare to type
             
             if enable_human:
@@ -101,21 +101,21 @@ def test_bookslot_complete(page: Page, multi_project_config, human_behavior) -> 
         
         @staticmethod
         def button_click(element, desc: str = ""):
-            """Button click with extra thinking."""
+            """Button click with extra thinking"""
             SmartActions._delay(0.4, 0.9)  # Consider button
             element.click()
             SmartActions._delay(0.3, 0.6)  # Confirm action
         
         @staticmethod
         def navigate(url: str):
-            """Navigate with page observation."""
+            """Navigate with page observation"""
             SmartActions._delay(0.4, 0.8)  # Decision to navigate
             page.goto(url)
             SmartActions._delay(0.5, 1.0)  # Observe page
         
         @staticmethod
         def select_option(dropdown, option):
-            """Dropdown selection with delays."""
+            """Dropdown selection with delays"""
             SmartActions._delay(0.3, 0.6)  # Open dropdown
             dropdown.click()
             SmartActions._delay(0.2, 0.4)  # Review options
@@ -124,7 +124,7 @@ def test_bookslot_complete(page: Page, multi_project_config, human_behavior) -> 
         
         @staticmethod
         def wait_autocomplete(pattern: str, timeout: int = 6000):
-            """Smart autocomplete with timeout."""
+            """Smart autocomplete with timeout"""
             try:
                 element = page.locator(pattern).first
                 element.wait_for(state="visible", timeout=timeout)

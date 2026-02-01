@@ -34,7 +34,7 @@ from tests.bookslot.helpers.navigation_helper import BookslotNavigator
 @pytest.mark.modern_spa
 @pytest.mark.bookslot
 class TestInsurancePage:
-    """Test suite for Insurance page functionality."""
+    """Test suite for Insurance page functionality"""
 
     @allure.story("Page Load")
     @allure.title("Verify Insurance page loads successfully")

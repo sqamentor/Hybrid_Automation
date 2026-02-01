@@ -1,4 +1,5 @@
-"""Framework Configuration Package.
+"""
+Framework Configuration Package
 
 Modern configuration management with async support and Pydantic validation.
 """

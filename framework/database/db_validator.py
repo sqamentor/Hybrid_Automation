@@ -13,7 +13,7 @@ logger = get_logger(__name__)
 
 
 class DBValidator:
-    """Database validation and assertion engine."""
+    """Database validation and assertion engine"""
     
     def __init__(self, db_client: DBClient):
         self.db_client = db_client
@@ -24,13 +24,12 @@ class DBValidator:
         conditions: Dict[str, Any],
         schema: str = "dbo"
     ) -> bool:
-        """Verify that a row exists matching conditions."""
+        """Verify that a row exists matching conditions"""
         where_clause = " AND ".join([f"{k} = :{k}" for k in conditions.keys()])
         query = f"SELECT COUNT(*) as cnt FROM {schema}.{table} WHERE {where_clause}"
         
         count = self.db_client.execute_scalar(query, conditions)
-        numeric_count = int(count) if count is not None else 0
-        exists = numeric_count > 0
+        exists = count > 0
         
         logger.info(f"Row exists in {table}: {exists}")
         return exists
@@ -42,15 +41,14 @@ class DBValidator:
         conditions: Optional[Dict[str, Any]] = None,
         schema: str = "dbo"
     ) -> bool:
-        """Verify row count in table."""
+        """Verify row count in table"""
         query = f"SELECT COUNT(*) as cnt FROM {schema}.{table}"
         
         if conditions:
             where_clause = " AND ".join([f"{k} = :{k}" for k in conditions.keys()])
             query += f" WHERE {where_clause}"
         
-        actual_count_raw = self.db_client.execute_scalar(query, conditions or {})
-        actual_count = int(actual_count_raw) if actual_count_raw is not None else 0
+        actual_count = self.db_client.execute_scalar(query, conditions or {})
         
         logger.info(f"Row count in {table}: expected={expected_count}, actual={actual_count}")
         return actual_count == expected_count
@@ -63,16 +61,16 @@ class DBValidator:
         conditions: Dict[str, Any],
         schema: str = "dbo"
     ) -> bool:
-        """Verify specific column value."""
+        """Verify specific column value"""
         where_clause = " AND ".join([f"{k} = :{k}" for k in conditions.keys()])
         query = f"SELECT {column} FROM {schema}.{table} WHERE {where_clause}"
         
         actual_value = self.db_client.execute_scalar(query, conditions)
         
         logger.info(f"{column} value: expected={expected_value}, actual={actual_value}")
-        return bool(actual_value == expected_value)
+        return actual_value == expected_value
     
-    def assert_row_exists(self, table: str, conditions: Dict[str, Any], schema: str = "dbo") -> None:
+    def assert_row_exists(self, table: str, conditions: Dict[str, Any], schema: str = "dbo"):
         """Assert row exists (raises AssertionError if not)"""
         assert self.verify_row_exists(table, conditions, schema), \
             f"Expected row not found in {schema}.{table} with conditions: {conditions}"
@@ -84,7 +82,7 @@ class DBValidator:
         expected_value: Any,
         conditions: Dict[str, Any],
         schema: str = "dbo"
-    ) -> None:
+    ):
         """Assert column value (raises AssertionError if mismatch)"""
         assert self.verify_column_value(table, column, expected_value, conditions, schema), \
             f"Column {column} value mismatch in {schema}.{table}"

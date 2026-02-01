@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 class SessionType(Enum):
-    """Types of sessions that can be transferred."""
+    """Types of sessions that can be transferred"""
     COOKIES = "cookies"
     LOCAL_STORAGE = "local_storage"
     SESSION_STORAGE = "session_storage"
@@ -29,7 +29,7 @@ class SessionType(Enum):
 
 @dataclass
 class SessionData:
-    """Container for cross-engine session data."""
+    """Container for cross-engine session data"""
     cookies: List[Dict[str, Any]]
     local_storage: Dict[str, str]
     session_storage: Dict[str, str]
@@ -40,30 +40,31 @@ class SessionData:
     auth_type: Optional[str] = None  # 'SSO', 'MFA', 'BASIC', 'OAUTH'
     
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary."""
+        """Convert to dictionary"""
         return asdict(self)
     
     def to_json(self) -> str:
-        """Convert to JSON string."""
+        """Convert to JSON string"""
         return json.dumps(self.to_dict())
     
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'SessionData':
-        """Create from dictionary."""
+        """Create from dictionary"""
         return cls(**data)
 
 
 @dataclass
 class CacheEntry:
-    """Cache entry for session data."""
+    """Cache entry for session data"""
     session_data: SessionData
     timestamp: float
     hit_count: int = 0
 
 
 class SessionManager:
-    """Cross-engine session manager.
-
+    """
+    Cross-engine session manager
+    
     Responsibilities:
     - Extract session from Selenium WebDriver
     - Inject session into Playwright Page
@@ -80,15 +81,16 @@ class SessionManager:
     # SELENIUM: EXTRACT SESSION
     # ========================================================================
     
-    def extract_session_from_selenium(self, driver: Any) -> SessionData:
-        """Extract session data from Selenium WebDriver.
-
+    def extract_session_from_selenium(self, driver) -> SessionData:
+        """
+        Extract session data from Selenium WebDriver
+        
         Args:
             driver: Selenium WebDriver instance
-
+        
         Returns:
             SessionData object containing all session information
-
+        
         Raises:
             ValueError: If extraction fails
         """
@@ -147,8 +149,8 @@ class SessionManager:
             raise ValueError(f"Session extraction failed: {e}")
     
     @staticmethod
-    def _extract_storage_from_selenium(driver: Any, storage_type: str) -> Dict[str, str]:
-        """Extract localStorage or sessionStorage from Selenium."""
+    def _extract_storage_from_selenium(driver, storage_type: str) -> Dict[str, str]:
+        """Extract localStorage or sessionStorage from Selenium"""
         try:
             script = f"""
                 return Object.keys({storage_type})
@@ -163,8 +165,8 @@ class SessionManager:
             return {}
     
     @staticmethod
-    def _extract_tokens_from_selenium(driver: Any) -> Dict[str, str]:
-        """Extract auth tokens from various locations."""
+    def _extract_tokens_from_selenium(driver) -> Dict[str, str]:
+        """Extract auth tokens from various locations"""
         tokens = {}
         
         # Common token locations
@@ -194,15 +196,15 @@ class SessionManager:
         return tokens
     
     @staticmethod
-    def _extract_headers_from_selenium(driver: Any) -> Dict[str, str]:
-        """Extract custom headers if tracked by the app."""
+    def _extract_headers_from_selenium(driver) -> Dict[str, str]:
+        """Extract custom headers if tracked by the app"""
         # This would depend on your specific app
         # Often headers are set in Authorization cookies
         return {}
     
     @staticmethod
     def _detect_auth_type(cookies: List[Dict], tokens: Dict, storage: Dict) -> Optional[str]:
-        """Detect authentication type from extracted data."""
+        """Detect authentication type from extracted data"""
         # Check for OAuth
         if any('oauth' in str(k).lower() or 'oauth' in str(v).lower() for k, v in tokens.items()):
             return 'OAUTH'
@@ -224,7 +226,7 @@ class SessionManager:
     
     @staticmethod
     def _extract_user_id(tokens: Dict, session_storage: Dict, local_storage: Dict) -> Optional[str]:
-        """Extract user ID from session data."""
+        """Extract user ID from session data"""
         # Try tokens first
         for key in ['user_id', 'userId', 'sub', 'user']:
             if key in tokens:
@@ -242,13 +244,14 @@ class SessionManager:
     # PLAYWRIGHT: INJECT SESSION
     # ========================================================================
     
-    async def inject_session_to_playwright(self, page: Any, session_data: SessionData) -> bool:
-        """Inject session data into Playwright Page.
-
+    async def inject_session_to_playwright(self, page, session_data: SessionData) -> bool:
+        """
+        Inject session data into Playwright Page
+        
         Args:
             page: Playwright Page instance
             session_data: SessionData object to inject
-
+        
         Returns:
             True if injection successful, False otherwise
         """
@@ -297,13 +300,14 @@ class SessionManager:
             self.logger.error(f"❌ Failed to inject session into Playwright: {e}")
             return False
     
-    def inject_session_to_playwright_sync(self, page: Any, session_data: SessionData) -> bool:
-        """Inject session data into Playwright Page (Sync version)
-
+    def inject_session_to_playwright_sync(self, page, session_data: SessionData) -> bool:
+        """
+        Inject session data into Playwright Page (Sync version)
+        
         Args:
             page: Playwright Page instance (sync)
             session_data: SessionData object to inject
-
+        
         Returns:
             True if injection successful, False otherwise
         """
@@ -345,49 +349,10 @@ class SessionManager:
         except Exception as e:
             self.logger.error(f"❌ Failed to inject session into Playwright: {e}")
             return False
-
-    def inject_session_to_selenium(self, driver: Any, session_data: SessionData) -> bool:
-        """Inject session data into a Selenium WebDriver instance."""
-        self.logger.info("Injecting session into Selenium...")
-
-        try:
-            driver.delete_all_cookies()
-
-            for cookie in session_data.cookies:
-                sanitized = self._sanitize_cookie(cookie)
-                if sanitized:
-                    driver.add_cookie(sanitized)
-
-            driver.refresh()
-
-            if session_data.local_storage:
-                js_code = self._generate_storage_injection_code(
-                    'localStorage',
-                    session_data.local_storage
-                )
-                driver.execute_script(js_code)
-
-            if session_data.session_storage:
-                js_code = self._generate_storage_injection_code(
-                    'sessionStorage',
-                    session_data.session_storage
-                )
-                driver.execute_script(js_code)
-
-            if session_data.tokens:
-                js_code = self._generate_token_injection_code(session_data.tokens)
-                driver.execute_script(js_code)
-
-            self.logger.info("✅ Session injected into Selenium successfully")
-            return True
-
-        except Exception as exc:
-            self.logger.error(f"❌ Failed to inject session into Selenium: {exc}")
-            return False
     
     @staticmethod
     def _generate_storage_injection_code(storage_type: str, data: Dict[str, str]) -> str:
-        """Generate JavaScript code to inject storage data."""
+        """Generate JavaScript code to inject storage data"""
         items_json = json.dumps(data)
         return f"""
         (function() {{
@@ -400,7 +365,7 @@ class SessionManager:
     
     @staticmethod
     def _generate_token_injection_code(tokens: Dict[str, str]) -> str:
-        """Generate JavaScript code to inject tokens."""
+        """Generate JavaScript code to inject tokens"""
         tokens_json = json.dumps(tokens)
         return f"""
         (function() {{
@@ -423,13 +388,14 @@ class SessionManager:
     # VALIDATION
     # ========================================================================
     
-    async def validate_session_continuity(self, page: Any, expected_user_id: Optional[str] = None) -> bool:
-        """Validate that session persisted successfully.
-
+    async def validate_session_continuity(self, page, expected_user_id: Optional[str] = None) -> bool:
+        """
+        Validate that session persisted successfully
+        
         Args:
             page: Playwright Page instance
             expected_user_id: Expected user ID (optional)
-
+        
         Returns:
             True if session valid, False otherwise
         """
@@ -471,13 +437,14 @@ class SessionManager:
             self.logger.error(f"❌ Validation failed: {e}")
             return False
     
-    def validate_session_continuity_sync(self, page: Any, expected_user_id: Optional[str] = None) -> bool:
-        """Validate that session persisted successfully (Sync version)
-
+    def validate_session_continuity_sync(self, page, expected_user_id: Optional[str] = None) -> bool:
+        """
+        Validate that session persisted successfully (Sync version)
+        
         Args:
             page: Playwright Page instance (sync)
             expected_user_id: Expected user ID (optional)
-
+        
         Returns:
             True if session valid, False otherwise
         """
@@ -526,20 +493,21 @@ class SessionManager:
     async def transfer_session(
         self,
         from_engine_type: str,  # 'selenium' or 'playwright'
-        from_driver: Any,
+        from_driver,
         to_engine_type: str,
-        to_page: Any,
+        to_page,
         validate: bool = True
     ) -> Optional[SessionData]:
-        """Transfer session from one engine to another.
-
+        """
+        Transfer session from one engine to another
+        
         Args:
             from_engine_type: Source engine ('selenium' or 'playwright')
             from_driver: Source driver instance
             to_engine_type: Target engine ('selenium' or 'playwright')
             to_page: Target page instance
             validate: Whether to validate after transfer
-
+        
         Returns:
             SessionData if successful, None otherwise
         """
@@ -582,20 +550,21 @@ class SessionManager:
     def transfer_session_sync(
         self,
         from_engine_type: str,  # 'selenium' or 'playwright'
-        from_driver: Any,
+        from_driver,
         to_engine_type: str,
-        to_page: Any,
+        to_page,
         validate: bool = True
     ) -> Optional[SessionData]:
-        """Transfer session from one engine to another (Sync version)
-
+        """
+        Transfer session from one engine to another (Sync version)
+        
         Args:
             from_engine_type: Source engine ('selenium' or 'playwright')
             from_driver: Source driver instance
             to_engine_type: Target engine ('selenium' or 'playwright')
             to_page: Target page instance
             validate: Whether to validate after transfer
-
+        
         Returns:
             SessionData if successful, None otherwise
         """
@@ -640,21 +609,15 @@ class SessionManager:
     # ========================================================================
     
     def cache_session(self, session_id: str, session_data: SessionData) -> None:
-        """Cache session data for later use."""
+        """Cache session data for later use"""
         self._session_cache[session_id] = CacheEntry(
             session_data=session_data,
             timestamp=datetime.now().timestamp()
         )
         self.logger.info(f"✅ Session cached: {session_id}")
-
-    @staticmethod
-    def _sanitize_cookie(cookie: Dict[str, Any]) -> Dict[str, Any]:
-        """Remove unsupported cookie fields for Selenium."""
-        allowed_keys = {'name', 'value', 'path', 'domain', 'secure', 'expiry'}
-        return {k: v for k, v in cookie.items() if k in allowed_keys and v is not None}
     
     def get_cached_session(self, session_id: str) -> Optional[SessionData]:
-        """Retrieve cached session data."""
+        """Retrieve cached session data"""
         entry = self._session_cache.get(session_id)
         if entry:
             entry.hit_count += 1
@@ -663,6 +626,6 @@ class SessionManager:
         return None
     
     def clear_cache(self) -> None:
-        """Clear all cached sessions."""
+        """Clear all cached sessions"""
         self._session_cache.clear()
         self.logger.info("✅ Session cache cleared")

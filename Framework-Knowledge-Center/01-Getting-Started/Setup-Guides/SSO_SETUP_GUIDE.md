@@ -75,7 +75,7 @@ The framework will:
 
 ```python
 def test_login_to_portal(auth_service, selenium_driver, config):
-    """Test login to Center for Vein portal."""
+    """Test login to Center for Vein portal"""
     
     # Get SSO config from environments.yaml
     sso_config = config['sso']

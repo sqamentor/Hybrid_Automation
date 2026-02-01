@@ -5,7 +5,7 @@ This module provides the factory for creating UI engine instances
 and implements the Playwright → Selenium fallback strategy.
 """
 
-from typing import Any, Callable, Dict, Optional, Tuple, Union
+from typing import Any, Optional
 
 from config.settings import is_ai_enabled, settings
 from framework.core.ai_engine_selector import AIEngineSelector
@@ -18,11 +18,11 @@ logger = get_logger(__name__)
 
 
 class UIFactory:
-    """Factory for creating UI engine instances."""
+    """Factory for creating UI engine instances"""
     
     def __init__(self):
         self.engine_selector = EngineSelector()
-        self.ai_selector: Optional[AIEngineSelector] = None
+        self.ai_selector = None
         
         if is_ai_enabled():
             self.ai_selector = AIEngineSelector()
@@ -32,14 +32,15 @@ class UIFactory:
         test_metadata: dict,
         browser_type: str = "chromium",
         headless: bool = True
-    ) -> Tuple[Union[PlaywrightEngine, SeleniumEngine], EngineDecision]:
-        """Create UI engine based on test metadata.
-
+    ) -> tuple[Any, EngineDecision]:
+        """
+        Create UI engine based on test metadata
+        
         Args:
             test_metadata: Test characteristics
             browser_type: Browser to use (chromium, chrome, firefox)
             headless: Run in headless mode
-
+        
         Returns:
             Tuple of (engine_instance, decision)
         """
@@ -57,43 +58,44 @@ class UIFactory:
         
         # Create engine instance
         if decision.engine == "playwright":
-            engine: Union[PlaywrightEngine, SeleniumEngine] = self._create_playwright(browser_type, headless)
+            engine = self._create_playwright(browser_type, headless)
         else:
             engine = self._create_selenium(browser_type, headless)
         
         return engine, decision
     
     def _create_playwright(self, browser_type: str = "chromium", headless: bool = True) -> PlaywrightEngine:
-        """Create Playwright engine instance."""
+        """Create Playwright engine instance"""
         engine = PlaywrightEngine(headless=headless)
         engine.start(browser_type=browser_type)
         return engine
     
     def _create_selenium(self, browser_type: str = "chrome", headless: bool = True) -> SeleniumEngine:
-        """Create Selenium engine instance."""
+        """Create Selenium engine instance"""
         engine = SeleniumEngine(headless=headless)
         engine.start(browser_type=browser_type)
         return engine
     
     def execute_with_fallback(
         self,
-        test_func: Callable[[Any], None],
+        test_func,
         test_metadata: dict,
         browser_type: str = "chromium",
         headless: bool = True
-    ) -> Dict[str, Any]:
-        """Execute test with automatic fallback from Playwright to Selenium.
-
+    ) -> dict:
+        """
+        Execute test with automatic fallback from Playwright to Selenium
+        
         Args:
             test_func: Test function to execute
             test_metadata: Test metadata
             browser_type: Browser type
             headless: Headless mode
-
+        
         Returns:
             Execution result with engine and status
         """
-        result: Dict[str, Any] = {
+        result = {
             "attempts": [],
             "final_status": "unknown",
             "fallback_triggered": False
@@ -181,11 +183,12 @@ class UIFactory:
         return result
     
     def _classify_error(self, exception: Exception) -> str:
-        """Classify exception to determine if fallback should be triggered.
-
+        """
+        Classify exception to determine if fallback should be triggered
+        
         Args:
             exception: Exception that occurred
-
+        
         Returns:
             Error type classification
         """

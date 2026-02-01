@@ -46,7 +46,7 @@ This audit strictly validates adherence to:
 ```python
 # FOUND IN: bookslots_webscheduler_page3.py
 def is_scheduler_loaded(self, timeout: int = 15000) -> bool:
-    """Check if scheduler calendar is loaded."""
+    """Check if scheduler calendar is loaded"""
     try:
         # Wait for either calendar or time slots
         self.page.wait_for_function(

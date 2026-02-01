@@ -1,4 +1,5 @@
-"""Microservices Package.
+"""
+Microservices Package
 
 Modern microservices architecture for test automation framework.
 """

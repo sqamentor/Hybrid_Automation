@@ -1,4 +1,5 @@
-"""Comprehensive tests for framework.models.config_models.
+"""
+Comprehensive tests for framework.models.config_models
 
 Tests Pydantic V2 validation, field validators, model validators,
 enums, and all configuration models.
@@ -30,10 +31,10 @@ from framework.models.config_models import (
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestBrowserConfig:
-    """Test BrowserConfig Pydantic model."""
+    """Test BrowserConfig Pydantic model"""
 
     def test_valid_browser_config(self):
-        """Test creating valid BrowserConfig."""
+        """Test creating valid BrowserConfig"""
         config = BrowserConfig(
             engine=BrowserEngine.CHROMIUM,
             headless=True,
@@ -48,7 +49,7 @@ class TestBrowserConfig:
         assert config.viewport_height == 1080
 
     def test_browser_config_defaults(self):
-        """Test BrowserConfig default values."""
+        """Test BrowserConfig default values"""
         config = BrowserConfig(engine=BrowserEngine.CHROMIUM)
         assert config.headless is False
         assert config.timeout == 30000
@@ -81,7 +82,7 @@ class TestBrowserConfig:
             config.headless = True
 
     def test_browser_config_all_engines(self):
-        """Test all supported browser engines."""
+        """Test all supported browser engines"""
         engines = [
             BrowserEngine.CHROMIUM,
             BrowserEngine.FIREFOX,
@@ -97,10 +98,10 @@ class TestBrowserConfig:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestDatabaseConfig:
-    """Test DatabaseConfig Pydantic model."""
+    """Test DatabaseConfig Pydantic model"""
 
     def test_valid_database_config(self):
-        """Test creating valid DatabaseConfig."""
+        """Test creating valid DatabaseConfig"""
         config = DatabaseConfig(
             host="localhost",
             port=5432,
@@ -114,7 +115,7 @@ class TestDatabaseConfig:
         assert config.database == "testdb"
 
     def test_database_config_connection_string_property(self):
-        """Test connection_string computed property."""
+        """Test connection_string computed property"""
         config = DatabaseConfig(
             host="localhost",
             port=5432,
@@ -127,7 +128,7 @@ class TestDatabaseConfig:
         assert config.connection_string == expected
 
     def test_database_config_pool_settings(self):
-        """Test pool configuration."""
+        """Test pool configuration"""
         config = DatabaseConfig(
             host="localhost",
             port=5432,
@@ -142,7 +143,7 @@ class TestDatabaseConfig:
         assert config.max_overflow == 10
 
     def test_database_config_defaults(self):
-        """Test DatabaseConfig default values."""
+        """Test DatabaseConfig default values"""
         config = DatabaseConfig(
             host="localhost",
             port=5432,
@@ -160,10 +161,10 @@ class TestDatabaseConfig:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestAPIConfig:
-    """Test APIConfig Pydantic model."""
+    """Test APIConfig Pydantic model"""
 
     def test_valid_api_config(self):
-        """Test creating valid APIConfig."""
+        """Test creating valid APIConfig"""
         config = APIConfig(
             base_url="https://api.example.com",
             timeout=30,
@@ -174,7 +175,7 @@ class TestAPIConfig:
         assert config.retry_count == 3
 
     def test_api_config_url_validation(self):
-        """Test URL validation with HttpUrl."""
+        """Test URL validation with HttpUrl"""
         # Pydantic V2 is more lenient with URLs, so this might not raise
         # Testing with clearly invalid URL
         try:
@@ -186,7 +187,7 @@ class TestAPIConfig:
             pass
 
     def test_api_config_defaults(self):
-        """Test APIConfig default values."""
+        """Test APIConfig default values"""
         config = APIConfig(base_url="https://api.example.com")
         assert config.timeout == 30
         assert config.retry_count == 3
@@ -197,10 +198,10 @@ class TestAPIConfig:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestEnvironmentConfig:
-    """Test EnvironmentConfig Pydantic model."""
+    """Test EnvironmentConfig Pydantic model"""
 
     def test_valid_environment_config(self):
-        """Test creating valid EnvironmentConfig."""
+        """Test creating valid EnvironmentConfig"""
         config = EnvironmentConfig(
             name="staging",
             environment=TestEnvironment.STAGING,
@@ -210,7 +211,7 @@ class TestEnvironmentConfig:
         assert config.environment == TestEnvironment.STAGING
 
     def test_environment_config_all_environments(self):
-        """Test all TestEnvironment enum values."""
+        """Test all TestEnvironment enum values"""
         environments = [
             TestEnvironment.DEV,
             TestEnvironment.QA,
@@ -230,10 +231,10 @@ class TestEnvironmentConfig:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestProjectConfig:
-    """Test ProjectConfig Pydantic model."""
+    """Test ProjectConfig Pydantic model"""
 
     def test_valid_project_config(self):
-        """Test creating valid ProjectConfig."""
+        """Test creating valid ProjectConfig"""
         config = ProjectConfig(
             name="TestProject",
             description="Test project description",
@@ -245,7 +246,7 @@ class TestProjectConfig:
         assert config.default_environment == TestEnvironment.DEV
 
     def test_project_config_model_validator(self):
-        """Test model_validator handles missing default environment gracefully."""
+        """Test model_validator handles missing default environment gracefully"""
         # When default_environment not in environments and environments is empty,
         # should keep the default without raising error (graceful degradation)
         config = ProjectConfig(
@@ -271,7 +272,7 @@ class TestProjectConfig:
         assert config_with_envs.default_environment == TestEnvironment.STAGING
 
     def test_project_config_defaults(self):
-        """Test ProjectConfig default values."""
+        """Test ProjectConfig default values"""
         config = ProjectConfig(
             name="TestProject",
             default_environment=TestEnvironment.DEV,
@@ -284,10 +285,10 @@ class TestProjectConfig:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestEngineDecisionMatrix:
-    """Test EngineDecisionMatrix Pydantic model."""
+    """Test EngineDecisionMatrix Pydantic model"""
 
     def test_valid_engine_decision_matrix(self):
-        """Test creating valid EngineDecisionMatrix."""
+        """Test creating valid EngineDecisionMatrix"""
         matrix = EngineDecisionMatrix(
             is_spa=True,
             requires_javascript=True,
@@ -298,7 +299,7 @@ class TestEngineDecisionMatrix:
         assert matrix.test_complexity == "high"
 
     def test_select_engine_method_spa(self):
-        """Test select_engine returns PLAYWRIGHT for SPA."""
+        """Test select_engine returns PLAYWRIGHT for SPA"""
         matrix = EngineDecisionMatrix(
             is_spa=True,
             requires_javascript=True,
@@ -307,7 +308,7 @@ class TestEngineDecisionMatrix:
         assert matrix.select_engine() == EngineType.PLAYWRIGHT
 
     def test_select_engine_method_legacy(self):
-        """Test select_engine returns SELENIUM for legacy."""
+        """Test select_engine returns SELENIUM for legacy"""
         matrix = EngineDecisionMatrix(
             is_spa=False,
             requires_javascript=False,
@@ -316,7 +317,7 @@ class TestEngineDecisionMatrix:
         assert matrix.select_engine() == EngineType.SELENIUM
 
     def test_select_engine_method_simple(self):
-        """Test select_engine for simple test cases."""
+        """Test select_engine for simple test cases"""
         matrix = EngineDecisionMatrix(
             is_spa=False,
             requires_javascript=False,
@@ -327,7 +328,7 @@ class TestEngineDecisionMatrix:
         assert result in [EngineType.PLAYWRIGHT, EngineType.SELENIUM]
 
     def test_engine_decision_matrix_defaults(self):
-        """Test EngineDecisionMatrix default values."""
+        """Test EngineDecisionMatrix default values"""
         matrix = EngineDecisionMatrix()
         assert matrix.is_spa is False
         assert matrix.requires_javascript is True
@@ -339,10 +340,10 @@ class TestEngineDecisionMatrix:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestFrameworkConfig:
-    """Test FrameworkConfig with pydantic-settings."""
+    """Test FrameworkConfig with pydantic-settings"""
 
     def test_framework_config_from_env(self, monkeypatch):
-        """Test loading FrameworkConfig from environment variables."""
+        """Test loading FrameworkConfig from environment variables"""
         monkeypatch.setenv("PARALLEL_EXECUTION", "true")
         monkeypatch.setenv("MAX_WORKERS", "8")
         monkeypatch.setenv("ENABLE_REPORTING", "true")
@@ -355,7 +356,7 @@ class TestFrameworkConfig:
         assert config.log_level == "DEBUG"
 
     def test_framework_config_defaults(self):
-        """Test FrameworkConfig default values."""
+        """Test FrameworkConfig default values"""
         config = FrameworkConfig()
         assert config.parallel_execution is False
         assert config.max_workers == 4
@@ -368,10 +369,10 @@ class TestFrameworkConfig:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestGlobalSettings:
-    """Test GlobalSettings aggregator model."""
+    """Test GlobalSettings aggregator model"""
 
     def test_global_settings_creation(self):
-        """Test creating GlobalSettings with all sub-configs."""
+        """Test creating GlobalSettings with all sub-configs"""
         db_config = DatabaseConfig(
             host="localhost",
             port=5432,
@@ -391,7 +392,7 @@ class TestGlobalSettings:
         assert isinstance(settings.framework, FrameworkConfig)
 
     def test_global_settings_partial(self):
-        """Test creating GlobalSettings with only required configs."""
+        """Test creating GlobalSettings with only required configs"""
         settings = GlobalSettings(api_url="https://api.test.com")
 
         assert settings.api_url == "https://api.test.com"
@@ -402,10 +403,10 @@ class TestGlobalSettings:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestEnums:
-    """Test all enum classes."""
+    """Test all enum classes"""
 
     def test_browser_engine_enum(self):
-        """Test BrowserEngine enum values."""
+        """Test BrowserEngine enum values"""
         assert BrowserEngine.CHROMIUM == "chromium"
         assert BrowserEngine.FIREFOX == "firefox"
         assert BrowserEngine.WEBKIT == "webkit"
@@ -413,7 +414,7 @@ class TestEnums:
         assert BrowserEngine.EDGE == "edge"
 
     def test_test_environment_enum(self):
-        """Test TestEnvironment enum values."""
+        """Test TestEnvironment enum values"""
         assert TestEnvironment.DEV == "dev"
         assert TestEnvironment.QA == "qa"
         assert TestEnvironment.STAGING == "staging"
@@ -421,7 +422,7 @@ class TestEnums:
         assert TestEnvironment.LOCAL == "local"
 
     def test_engine_type_enum(self):
-        """Test EngineType enum values."""
+        """Test EngineType enum values"""
         assert EngineType.PLAYWRIGHT == "playwright"
         assert EngineType.SELENIUM == "selenium"
         assert EngineType.APPIUM == "appium"
@@ -430,10 +431,10 @@ class TestEnums:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestModelIntegration:
-    """Integration tests for model interactions."""
+    """Integration tests for model interactions"""
 
     def test_complete_configuration_flow(self):
-        """Test complete configuration loading flow."""
+        """Test complete configuration loading flow"""
         # Create all configs
         browser = BrowserConfig(
             engine=BrowserEngine.CHROMIUM,
@@ -484,7 +485,7 @@ class TestModelIntegration:
         assert settings.framework.parallel_execution is True
 
     def test_engine_selection_logic(self):
-        """Test engine selection with EngineDecisionMatrix."""
+        """Test engine selection with EngineDecisionMatrix"""
         # Test SPA selection
         spa_matrix = EngineDecisionMatrix(
             is_spa=True,

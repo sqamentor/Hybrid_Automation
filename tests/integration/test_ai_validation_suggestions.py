@@ -16,10 +16,12 @@ from framework.intelligence import AIValidationSuggester, suggest_and_validate
 @pytest.mark.api_validation
 @pytest.mark.modern_spa
 class TestAIDrivenValidation:
-    """Test AI-driven API → DB validation suggestions."""
+    """Test AI-driven API → DB validation suggestions"""
     
     def test_ai_suggests_order_validations(self, api_client, db_client):
-        """AI analyzes order creation API and suggests DB validations."""
+        """
+        AI analyzes order creation API and suggests DB validations
+        """
         # Step 1: Make API call
         order_request = {
             "customer_id": "CUST123",
@@ -69,7 +71,9 @@ class TestAIDrivenValidation:
                 print(f"✓ {suggestion.reason}: PASSED")
     
     def test_ai_validation_with_auto_execute(self, api_client, db_client):
-        """Use convenience function to suggest and auto-execute validations."""
+        """
+        Use convenience function to suggest and auto-execute validations
+        """
         # Make API call
         payment_request = {
             "order_id": "ORD12345",
@@ -107,7 +111,9 @@ class TestAIDrivenValidation:
         print(f"Report:\n{results['report']}")
     
     def test_ai_learns_from_mapping(self, api_client, db_client):
-        """Test that AI uses existing API → DB mappings to improve suggestions."""
+        """
+        Test that AI uses existing API → DB mappings to improve suggestions
+        """
         suggester = AIValidationSuggester()
         
         # This endpoint has a mapping in api_db_mapping.yaml
@@ -145,10 +151,12 @@ class TestAIDrivenValidation:
 @pytest.mark.module("users")
 @pytest.mark.modern_spa
 class TestUserRegistrationValidation:
-    """Test AI-driven validation for user registration."""
+    """Test AI-driven validation for user registration"""
     
     def test_user_registration_validations(self, api_client, db_client):
-        """AI suggests comprehensive validations for user registration."""
+        """
+        AI suggests comprehensive validations for user registration
+        """
         user_request = {
             "email": "newuser@example.com",
             "username": "newuser123",
@@ -197,7 +205,9 @@ class TestUserRegistrationValidation:
 
 @pytest.mark.smoke
 def test_ai_fallback_when_disabled(api_client):
-    """Test that framework provides fallback suggestions when AI is disabled."""
+    """
+    Test that framework provides fallback suggestions when AI is disabled
+    """
     # Temporarily disable AI by not setting API key
     import os
     original_key = os.environ.get('OPENAI_API_KEY')
@@ -232,7 +242,9 @@ def test_ai_fallback_when_disabled(api_client):
 
 @pytest.mark.performance
 def test_validation_suggestion_performance(api_client):
-    """Test performance of AI validation suggestions."""
+    """
+    Test performance of AI validation suggestions
+    """
     import time
     
     suggester = AIValidationSuggester()

@@ -1,4 +1,5 @@
-"""Human Behavior Simulation Module.
+"""
+Human Behavior Simulation Module
 
 Production-ready human-like interaction simulation for automation testing.
 Mimics natural human behavior including typing delays, mouse movements,
@@ -24,9 +25,9 @@ import random
 import time
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING, Union, cast
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-import yaml  # type: ignore[import-untyped]
+import yaml
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -39,19 +40,11 @@ try:
 except ImportError:
     ALLURE_AVAILABLE = False
 
-if TYPE_CHECKING:
+try:
     from playwright.sync_api import ElementHandle, Page
     PLAYWRIGHT_AVAILABLE = True
-else:
-    try:
-        from playwright.sync_api import ElementHandle, Page
-        PLAYWRIGHT_AVAILABLE = True
-    except ImportError:
-        PLAYWRIGHT_AVAILABLE = False
-        ElementHandle = Any  # type: ignore[assignment,misc]
-        Page = Any  # type: ignore[assignment,misc]
-
-InteractiveElement = Union[WebElement, 'ElementHandle']
+except ImportError:
+    PLAYWRIGHT_AVAILABLE = False
 
 
 # Module logger
@@ -59,10 +52,10 @@ logger = logging.getLogger(__name__)
 
 
 class HumanBehaviorConfig:
-    """Configuration manager for human behavior simulation."""
+    """Configuration manager for human behavior simulation"""
     
     _instance = None
-    _config: Dict[str, Any] = {}
+    _config: Optional[Dict[str, Any]] = None
     _env: Optional[str] = None
     
     def __new__(cls):
@@ -71,11 +64,11 @@ class HumanBehaviorConfig:
         return cls._instance
     
     def __init__(self):
-        if not self._config:
+        if self._config is None:
             self.reload_config()
     
-    def reload_config(self, env: Optional[str] = None) -> None:
-        """Load configuration from YAML file."""
+    def reload_config(self, env: Optional[str] = None):
+        """Load configuration from YAML file"""
         config_path = Path(__file__).parent.parent.parent.parent / "config" / "human_behavior.yaml"
         
         if not config_path.exists():
@@ -85,10 +78,7 @@ class HumanBehaviorConfig:
         
         try:
             with open(config_path, 'r', encoding='utf-8') as f:
-                data = yaml.safe_load(f) or {}
-                if not isinstance(data, dict):
-                    raise ValueError("Human behavior config must be a mapping")
-                self._config = cast(Dict[str, Any], data)
+                self._config = yaml.safe_load(f)
             
             # Set environment
             self._env = env or os.getenv('TEST_ENV', 'staging')
@@ -106,19 +96,19 @@ class HumanBehaviorConfig:
             logger.error(f"Failed to load config: {e}. Using defaults.")
             self._config = self._get_default_config()
     
-    def _apply_preset(self, intensity: str) -> None:
-        """Apply performance preset."""
-        presets = cast(Dict[str, Any], self._config.get('presets', {}))
-        preset = cast(Dict[str, Any], presets.get(intensity, {}))
+    def _apply_preset(self, intensity: str):
+        """Apply performance preset"""
+        presets = self._config.get('presets', {})
+        preset = presets.get(intensity, {})
         
         if preset:
             for category, settings in preset.items():
-                if isinstance(self._config.get(category), dict) and isinstance(settings, dict):
+                if category in self._config:
                     self._config[category].update(settings)
             logger.debug(f"Applied preset: {intensity}")
     
     def _get_default_config(self) -> Dict[str, Any]:
-        """Get default configuration."""
+        """Get default configuration"""
         return {
             'enabled': True,
             'typing': {
@@ -161,26 +151,27 @@ class HumanBehaviorConfig:
         }
     
     def get(self, key: str, default: Any = None) -> Any:
-        """Get configuration value."""
+        """Get configuration value"""
         keys = key.split('.')
-        value: Any = self._config
-
+        value = self._config
+        
         for k in keys:
-            if not isinstance(value, dict):
+            if isinstance(value, dict):
+                value = value.get(k)
+                if value is None:
+                    return default
+            else:
                 return default
-            if k not in value:
-                return default
-            value = value[k]
-
-        return default if value is None else value
+        
+        return value if value is not None else default
     
     def is_enabled(self) -> bool:
-        """Check if human behavior simulation is enabled."""
-        return bool(self.get('enabled', True))
+        """Check if human behavior simulation is enabled"""
+        return self.get('enabled', True)
     
     def is_category_enabled(self, category: str) -> bool:
-        """Check if specific category is enabled."""
-        return bool(self.get(f'{category}.enabled', True))
+        """Check if specific category is enabled"""
+        return self.get(f'{category}.enabled', True)
 
 
 # Global config instance
@@ -188,13 +179,14 @@ _config = HumanBehaviorConfig()
 
 
 def get_behavior_config() -> HumanBehaviorConfig:
-    """Get global behavior configuration instance."""
+    """Get global behavior configuration instance"""
     return _config
 
 
 class HumanBehaviorSimulator:
-    """Main simulator class for human-like behavior.
-
+    """
+    Main simulator class for human-like behavior
+    
     Supports both Selenium WebDriver and Playwright
     """
     
@@ -204,8 +196,9 @@ class HumanBehaviorSimulator:
         config: Optional[HumanBehaviorConfig] = None,
         enabled: Optional[bool] = None
     ):
-        """Initialize Human Behavior Simulator.
-
+        """
+        Initialize Human Behavior Simulator
+        
         Args:
             driver: Selenium WebDriver or Playwright Page
             config: Configuration instance (uses global if None)
@@ -219,7 +212,7 @@ class HumanBehaviorSimulator:
         logger.debug(f"Initialized HumanBehaviorSimulator (engine={self.engine_type}, enabled={self._enabled})")
     
     def _detect_engine(self) -> str:
-        """Detect automation engine type."""
+        """Detect automation engine type"""
         if PLAYWRIGHT_AVAILABLE and isinstance(self.driver, Page):
             return 'playwright'
         return 'selenium'
@@ -230,13 +223,14 @@ class HumanBehaviorSimulator:
         text: str,
         clear_first: bool = True
     ) -> bool:
-        """Type text with human-like delays.
-
+        """
+        Type text with human-like delays
+        
         Args:
             element: Element to type into (WebElement, ElementHandle, or locator string)
             text: Text to type
             clear_first: Clear element before typing
-
+            
         Returns:
             bool: Success status
         """
@@ -245,27 +239,27 @@ class HumanBehaviorSimulator:
         
         try:
             typing_config = self.config.get('typing', {})
-            target_element = self._resolve_element(element)
-            selenium_element: Optional[WebElement] = None
-            playwright_element: Optional['ElementHandle'] = None
-
-            if self.engine_type == 'playwright':
-                playwright_element = cast('ElementHandle', target_element)
-                playwright_element.click()
-                if clear_first:
-                    playwright_element.fill('')
-            else:
-                selenium_element = cast(WebElement, target_element)
-                selenium_element.click()
-                if clear_first:
-                    selenium_element.clear()
-                time.sleep(random.uniform(0.1, 0.3))
+            
+            # Resolve element
+            if isinstance(element, str):
+                element = self._find_element(element)
             
             # Pre-typing pause (thinking time)
             self._pause(
                 typing_config.get('thinking_pause_min', 0.2),
                 typing_config.get('thinking_pause_max', 0.6)
             )
+            
+            # Click and clear
+            if self.engine_type == 'playwright':
+                element.click()
+                if clear_first:
+                    element.fill('')
+            else:
+                element.click()
+                if clear_first:
+                    element.clear()
+                time.sleep(random.uniform(0.1, 0.3))
             
             # Type character by character
             min_delay = typing_config.get('min_delay', 0.08)
@@ -276,12 +270,10 @@ class HumanBehaviorSimulator:
             
             for i, char in enumerate(text):
                 # Type character
-                if playwright_element is not None:
-                    playwright_element.type(char)
-                elif selenium_element is not None:
-                    selenium_element.send_keys(char)
+                if self.engine_type == 'playwright':
+                    element.type(char)
                 else:
-                    raise RuntimeError('No element resolved for typing')
+                    element.send_keys(char)
                 
                 # Random delay
                 time.sleep(random.uniform(min_delay, max_delay))
@@ -306,12 +298,13 @@ class HumanBehaviorSimulator:
         element: Union[WebElement, 'ElementHandle', str],
         with_hover: bool = True
     ) -> bool:
-        """Click element with human-like mouse movement.
-
+        """
+        Click element with human-like mouse movement
+        
         Args:
             element: Element to click
             with_hover: Hover before clicking
-
+            
         Returns:
             bool: Success status
         """
@@ -320,16 +313,19 @@ class HumanBehaviorSimulator:
         
         try:
             mouse_config = self.config.get('mouse', {})
-            target_element = self._resolve_element(element)
+            
+            # Resolve element
+            if isinstance(element, str):
+                element = self._find_element(element)
             
             # Scroll into view
-            self._scroll_to_element(target_element)
+            self._scroll_to_element(element)
             
             # Hover before clicking
             if with_hover and random.random() < mouse_config.get('hover_probability', 0.25):
                 hover_min = mouse_config.get('hover_duration_min', 0.3)
                 hover_max = mouse_config.get('hover_duration_max', 1.2)
-                self._hover_element(target_element, duration=(hover_min, hover_max))
+                self._hover_element(element, duration=(hover_min, hover_max))
             
             # Pre-click pause
             self._pause(
@@ -339,11 +335,10 @@ class HumanBehaviorSimulator:
             
             # Perform click based on engine
             if self.engine_type == 'playwright':
-                handle = cast('ElementHandle', target_element)
-                handle.click()
+                element.click()
             else:
-                selenium_element = cast(WebElement, target_element)
-                self._selenium_human_click(selenium_element, mouse_config)
+                # Selenium: Human-like mouse movement
+                self._selenium_human_click(element, mouse_config)
             
             # Post-click pause
             self._pause(
@@ -364,13 +359,14 @@ class HumanBehaviorSimulator:
         distance: Optional[int] = None,
         smooth: bool = True
     ) -> bool:
-        """Scroll page with human-like behavior.
-
+        """
+        Scroll page with human-like behavior
+        
         Args:
             direction: 'down', 'up', 'bottom', 'top'
             distance: Specific distance to scroll (pixels)
             smooth: Use smooth scrolling
-
+            
         Returns:
             bool: Success status
         """
@@ -403,11 +399,12 @@ class HumanBehaviorSimulator:
             return self._fallback_scroll(direction, distance)
     
     def random_mouse_movements(self, steps: int = 10) -> bool:
-        """Perform random mouse movements over page elements.
-
+        """
+        Perform random mouse movements over page elements
+        
         Args:
             steps: Number of random movements
-
+            
         Returns:
             bool: Success status
         """
@@ -426,15 +423,14 @@ class HumanBehaviorSimulator:
                 logger.warning("No visible elements found for mouse movement")
                 return True
             
-            driver = cast(WebDriver, self.driver)
-            actions = ActionChains(driver)
+            actions = ActionChains(self.driver)
             
             for i in range(min(steps, len(visible_elements))):
                 element = random.choice(visible_elements)
                 
                 try:
                     # Scroll into view
-                    driver.execute_script(
+                    self.driver.execute_script(
                         "arguments[0].scrollIntoView({block: 'center', behavior: 'smooth'});",
                         element
                     )
@@ -476,11 +472,12 @@ class HumanBehaviorSimulator:
             return False
     
     def random_page_interactions(self, max_interactions: int = 3) -> bool:
-        """Perform random interactions with page elements.
-
+        """
+        Perform random interactions with page elements
+        
         Args:
             max_interactions: Maximum number of interactions
-
+            
         Returns:
             bool: Success status
         """
@@ -506,10 +503,10 @@ class HumanBehaviorSimulator:
                         pass
             
             # Random dropdown interactions
-            if self.engine_type == 'selenium' and random.random() < interaction_config.get('dropdown_probability', 0.15):
+            if random.random() < interaction_config.get('dropdown_probability', 0.15):
                 dropdowns = self._find_elements("select")
                 if dropdowns:
-                    dropdown = cast(WebElement, random.choice(dropdowns))
+                    dropdown = random.choice(dropdowns)
                     try:
                         if self._is_element_visible(dropdown):
                             options = dropdown.find_elements(By.TAG_NAME, "option")
@@ -528,10 +525,8 @@ class HumanBehaviorSimulator:
                     link = random.choice(links)
                     try:
                         if self._is_element_visible(link) and self.engine_type == 'selenium':
-                            driver = cast(WebDriver, self.driver)
-                            actions = ActionChains(driver)
-                            web_element = cast(WebElement, link)
-                            actions.move_to_element(web_element).perform()
+                            actions = ActionChains(self.driver)
+                            actions.move_to_element(link).perform()
                             self._log_action("Random link hover")
                             interactions_performed += 1
                             self._pause(0.5, 1.0)
@@ -545,11 +540,12 @@ class HumanBehaviorSimulator:
             return False
     
     def simulate_idle(self, duration: Optional[Tuple[float, float]] = None) -> bool:
-        """Simulate idle/thinking time.
-
+        """
+        Simulate idle/thinking time
+        
         Args:
             duration: Tuple of (min, max) seconds
-
+            
         Returns:
             bool: Success status
         """
@@ -569,11 +565,10 @@ class HumanBehaviorSimulator:
     
     # ==================== Helper Methods ====================
     
-    def _selenium_human_click(self, element: WebElement, config: Dict[str, Any]) -> None:
-        """Perform human-like click with mouse movement (Selenium)."""
+    def _selenium_human_click(self, element: WebElement, config: Dict):
+        """Perform human-like click with mouse movement (Selenium)"""
         try:
-            driver = cast(WebDriver, self.driver)
-            actions = ActionChains(driver)
+            actions = ActionChains(self.driver)
             elem_rect = element.rect
             
             # Calculate element center
@@ -612,14 +607,12 @@ class HumanBehaviorSimulator:
             logger.warning(f"Human mouse movement failed, using normal click: {e}")
             element.click()
     
-    def _scroll_to_bottom(self, config: Dict[str, Any]) -> None:
-        """Scroll to bottom with human-like behavior."""
+    def _scroll_to_bottom(self, config: Dict):
+        """Scroll to bottom with human-like behavior"""
         if self.engine_type == 'playwright':
-            page = cast(Page, self.driver)
-            scroll_height = page.evaluate("document.body.scrollHeight")
+            scroll_height = self.driver.evaluate("document.body.scrollHeight")
         else:
-            driver = cast(WebDriver, self.driver)
-            scroll_height = driver.execute_script("return document.body.scrollHeight")
+            scroll_height = self.driver.execute_script("return document.body.scrollHeight")
         
         current_scroll = 0
         
@@ -631,11 +624,9 @@ class HumanBehaviorSimulator:
             current_scroll = min(current_scroll + increment, scroll_height)
             
             if self.engine_type == 'playwright':
-                page = cast(Page, self.driver)
-                page.evaluate(f"window.scrollTo(0, {current_scroll})")
+                self.driver.evaluate(f"window.scrollTo(0, {current_scroll})")
             else:
-                driver = cast(WebDriver, self.driver)
-                driver.execute_script(f"window.scrollTo(0, {current_scroll});")
+                self.driver.execute_script(f"window.scrollTo(0, {current_scroll});")
             
             self._pause(
                 config.get('scroll_pause_min', 0.4),
@@ -658,48 +649,40 @@ class HumanBehaviorSimulator:
             current_scroll -= correction
             
             if self.engine_type == 'playwright':
-                page = cast(Page, self.driver)
-                page.evaluate(f"window.scrollTo(0, {current_scroll})")
+                self.driver.evaluate(f"window.scrollTo(0, {current_scroll})")
             else:
-                driver = cast(WebDriver, self.driver)
-                driver.execute_script(f"window.scrollTo(0, {current_scroll});")
+                self.driver.execute_script(f"window.scrollTo(0, {current_scroll});")
             
             self._pause(0.3, 0.8)
     
-    def _scroll_to_top(self) -> None:
-        """Scroll to top."""
+    def _scroll_to_top(self):
+        """Scroll to top"""
         if self.engine_type == 'playwright':
-            page = cast(Page, self.driver)
-            page.evaluate("window.scrollTo(0, 0)")
+            self.driver.evaluate("window.scrollTo(0, 0)")
         else:
-            driver = cast(WebDriver, self.driver)
-            driver.execute_script("window.scrollTo(0, 0);")
+            self.driver.execute_script("window.scrollTo(0, 0);")
         
         self._pause(0.3, 0.6)
     
-    def _execute_scroll(self, distance: int, config: Dict[str, Any]) -> None:
-        """Execute scroll by distance."""
+    def _execute_scroll(self, distance: int, config: Dict):
+        """Execute scroll by distance"""
         if self.engine_type == 'playwright':
-            page = cast(Page, self.driver)
-            page.evaluate(f"window.scrollBy(0, {distance})")
+            self.driver.evaluate(f"window.scrollBy(0, {distance})")
         else:
-            driver = cast(WebDriver, self.driver)
-            driver.execute_script(f"window.scrollBy(0, {distance});")
+            self.driver.execute_script(f"window.scrollBy(0, {distance});")
         
         self._pause(
             config.get('scroll_pause_min', 0.4),
             config.get('scroll_pause_max', 1.3)
         )
     
-    def _scroll_to_element(self, element: InteractiveElement) -> None:
-        """Scroll element into view."""
+    def _scroll_to_element(self, element):
+        """Scroll element into view"""
         try:
             if self.engine_type == 'playwright':
-                handle = cast('ElementHandle', element)
-                handle.scroll_into_view_if_needed()
+                element.scroll_into_view_if_needed()
             else:
-                driver = cast(WebDriver, self.driver)
-                driver.execute_script(
+                self.driver.execute_script(
                     "arguments[0].scrollIntoView({block: 'center', behavior: 'smooth'});",
                     element
                 )
@@ -707,66 +690,49 @@ class HumanBehaviorSimulator:
         except:
             pass
     
-    def _hover_element(self, element: InteractiveElement, duration: Tuple[float, float] = (0.3, 1.0)) -> None:
-        """Hover over element."""
+    def _hover_element(self, element, duration: Tuple[float, float] = (0.3, 1.0)):
+        """Hover over element"""
         try:
             if self.engine_type == 'playwright':
-                handle = cast('ElementHandle', element)
-                handle.hover()
+                element.hover()
             else:
-                driver = cast(WebDriver, self.driver)
-                actions = ActionChains(driver)
-                web_element = cast(WebElement, element)
-                actions.move_to_element(web_element).perform()
+                actions = ActionChains(self.driver)
+                actions.move_to_element(element).perform()
             
             self._pause(duration[0], duration[1])
         except:
             pass
     
-    def _resolve_element(self, target: Union[InteractiveElement, str]) -> InteractiveElement:
-        """Resolve locator strings to concrete elements."""
-        if isinstance(target, str):
-            return self._find_element(target)
-        return target
-
-    def _find_element(self, locator: str) -> InteractiveElement:
-        """Find element by locator."""
+    def _find_element(self, locator: str):
+        """Find element by locator"""
         if self.engine_type == 'playwright':
-            page = cast(Page, self.driver)
-            handle = page.query_selector(locator)
-            if handle is None:
-                raise ValueError(f"Locator not found: {locator}")
-            return handle
-        driver = cast(WebDriver, self.driver)
-        return driver.find_element(By.CSS_SELECTOR, locator)
+            return self.driver.locator(locator).first
+        else:
+            return self.driver.find_element(By.CSS_SELECTOR, locator)
     
-    def _find_elements(self, locator: str) -> List[InteractiveElement]:
-        """Find elements by locator."""
+    def _find_elements(self, locator: str) -> List:
+        """Find elements by locator"""
         try:
             if self.engine_type == 'playwright':
-                page = cast(Page, self.driver)
-                handles = page.query_selector_all(locator)
-                return cast(List[InteractiveElement], handles)
-            driver = cast(WebDriver, self.driver)
-            selenium_elements = driver.find_elements(By.CSS_SELECTOR, locator)
-            return cast(List[InteractiveElement], selenium_elements)
-        except Exception:
+                return self.driver.locator(locator).all()
+            else:
+                return self.driver.find_elements(By.CSS_SELECTOR, locator)
+        except:
             return []
     
-    def _get_visible_elements(self) -> List[WebElement]:
-        """Get visible interactive elements."""
+    def _get_visible_elements(self) -> List:
+        """Get visible interactive elements"""
         if self.engine_type != 'selenium':
             return []
         
-        selectors = cast(List[str], self.config.get('mouse_movement.hover_elements', [
+        selectors = self.config.get('mouse_movement.hover_elements', [
             "input", "button", "label", "select", "textarea", "a"
-        ]))
+        ])
         
         css_selector = ', '.join(selectors)
-        driver = cast(WebDriver, self.driver)
-        elements = driver.find_elements(By.CSS_SELECTOR, css_selector)
+        elements = self.driver.find_elements(By.CSS_SELECTOR, css_selector)
         
-        visible: List[WebElement] = []
+        visible = []
         for el in elements:
             try:
                 if el.is_displayed() and el.size['width'] > 10 and el.size['height'] > 10:
@@ -776,24 +742,22 @@ class HumanBehaviorSimulator:
         
         return visible
     
-    def _is_element_visible(self, element: Union[WebElement, 'ElementHandle']) -> bool:
-        """Check if element is visible."""
+    def _is_element_visible(self, element) -> bool:
+        """Check if element is visible"""
         try:
             if self.engine_type == 'playwright':
-                handle = cast('ElementHandle', element)
-                return bool(handle.is_visible())
+                return element.is_visible()
             else:
-                web_element = cast(WebElement, element)
-                return bool(web_element.is_displayed())
+                return element.is_displayed()
         except:
             return False
     
-    def _pause(self, min_duration: float, max_duration: float) -> None:
-        """Random pause."""
+    def _pause(self, min_duration: float, max_duration: float):
+        """Random pause"""
         time.sleep(random.uniform(min_duration, max_duration))
     
-    def _log_action(self, message: str, attach_to_allure: bool = False) -> None:
-        """Log action."""
+    def _log_action(self, message: str, attach_to_allure: bool = False):
+        """Log action"""
         if self.config.get('debug.log_actions', True):
             logger.info(f"[Human Behavior] {message}")
         
@@ -809,74 +773,60 @@ class HumanBehaviorSimulator:
     
     # ==================== Fallback Methods ====================
     
-    def _fallback_type(
-        self,
-        element: Union[WebElement, 'ElementHandle', str],
-        text: str,
-        clear_first: bool = True
-    ) -> bool:
-        """Fallback to normal typing."""
+    def _fallback_type(self, element, text: str, clear_first: bool = True) -> bool:
+        """Fallback to normal typing"""
         try:
             if isinstance(element, str):
                 element = self._find_element(element)
             
             if self.engine_type == 'playwright':
-                handle = cast('ElementHandle', element)
                 if clear_first:
-                    handle.fill('')
-                handle.type(text)
+                    element.fill('')
+                element.type(text)
             else:
-                web_element = cast(WebElement, element)
                 if clear_first:
-                    web_element.clear()
-                web_element.send_keys(text)
+                    element.clear()
+                element.send_keys(text)
             
             return True
         except Exception as e:
             logger.error(f"Fallback typing failed: {e}")
             return False
     
-    def _fallback_click(self, element: Union[WebElement, 'ElementHandle', str]) -> bool:
-        """Fallback to normal click."""
+    def _fallback_click(self, element) -> bool:
+        """Fallback to normal click"""
         try:
             if isinstance(element, str):
                 element = self._find_element(element)
             
-            clickable = cast(Any, element)
-            clickable.click()
+            element.click()
             return True
         except Exception as e:
             logger.error(f"Fallback click failed: {e}")
             return False
     
     def _fallback_scroll(self, direction: str, distance: Optional[int]) -> bool:
-        """Fallback to normal scroll."""
+        """Fallback to normal scroll"""
         try:
             if direction == 'bottom':
                 if self.engine_type == 'playwright':
-                    page = cast(Page, self.driver)
-                    page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+                    self.driver.evaluate("window.scrollTo(0, document.body.scrollHeight)")
                 else:
-                    driver = cast(WebDriver, self.driver)
-                    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                    self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             elif direction == 'top':
                 if self.engine_type == 'playwright':
-                    page = cast(Page, self.driver)
-                    page.evaluate("window.scrollTo(0, 0)")
+                    self.driver.evaluate("window.scrollTo(0, 0)")
                 else:
-                    driver = cast(WebDriver, self.driver)
-                    driver.execute_script("window.scrollTo(0, 0);")
+                    self.driver.execute_script("window.scrollTo(0, 0);")
             else:
                 dist = distance or 300
                 if direction == 'up':
                     dist = -dist
                 
                 if self.engine_type == 'playwright':
-                    page = cast(Page, self.driver)
-                    page.evaluate(f"window.scrollBy(0, {dist})")
+                    self.driver.evaluate(f"window.scrollBy(0, {dist})")
                 else:
-                    driver = cast(WebDriver, self.driver)
-                    driver.execute_script(f"window.scrollBy(0, {dist});")
+                    self.driver.execute_script(f"window.scrollBy(0, {dist});")
             
             return True
         except Exception as e:
@@ -906,27 +856,18 @@ def human_type(
     Returns:
         bool: Success status
     """
-    if isinstance(element, str):
-        if not driver:
-            logger.error("Driver instance required when element is provided as locator string")
-            return False
+    if driver and isinstance(element, str):
         simulator = HumanBehaviorSimulator(driver)
         return simulator.type_text(element, text)
     
-    typed_element: Union[WebElement, 'ElementHandle'] = element
-    element_any = cast(Any, typed_element)
-    
     # Direct typing
     try:
-        if hasattr(element_any, 'click'):
-            element_any.click()
+        if hasattr(element, 'click'):
+            element.click()
             time.sleep(random.uniform(0.2, 0.5))
         
         for char in text:
-            if hasattr(element_any, 'send_keys'):
-                element_any.send_keys(char)
-            else:
-                element_any.type(char)
+            element.send_keys(char) if hasattr(element, 'send_keys') else element.type(char)
             time.sleep(random.uniform(min_delay, max_delay))
             
             if random.random() < 0.1:

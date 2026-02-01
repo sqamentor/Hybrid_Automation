@@ -42,7 +42,9 @@ from tests.comprehensive_report_enhancements import comprehensive_collector
 
 @pytest.mark.modern_spa
 class TestComprehensiveFrameworkFeatures:
-    """Comprehensive test class demonstrating ALL framework capabilities."""
+    """
+    Comprehensive test class demonstrating ALL framework capabilities
+    """
     
     def test_01_performance_metrics(self, request):
         """

@@ -6,9 +6,9 @@ query validation, and response assertions.
 """
 
 import json
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Dict, List, Optional
 
-import requests  # type: ignore[import-untyped]
+import requests
 
 from utils.logger import get_logger
 
@@ -16,11 +16,12 @@ logger = get_logger(__name__)
 
 
 class GraphQLClient:
-    """GraphQL API testing client."""
+    """GraphQL API testing client"""
     
-    def __init__(self, endpoint: str, headers: Optional[Dict[str, str]] = None) -> None:
-        """Initialize GraphQL client.
-
+    def __init__(self, endpoint: str, headers: Optional[Dict] = None):
+        """
+        Initialize GraphQL client
+        
         Args:
             endpoint: GraphQL endpoint URL
             headers: Optional HTTP headers (e.g., authorization)
@@ -28,19 +29,20 @@ class GraphQLClient:
         self.endpoint = endpoint
         self.headers = headers or {}
         self.headers.setdefault('Content-Type', 'application/json')
-        self.schema: Optional[Dict[str, Any]] = None
+        self.schema: Optional[Dict] = None
     
-    def query(self, query: str, variables: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """Execute GraphQL query.
-
+    def query(self, query: str, variables: Optional[Dict] = None) -> Dict[str, Any]:
+        """
+        Execute GraphQL query
+        
         Args:
             query: GraphQL query string
             variables: Optional query variables
-
+        
         Returns:
             Response data
         """
-        payload: Dict[str, Any] = {
+        payload = {
             'query': query,
             'variables': variables or {}
         }
@@ -54,31 +56,32 @@ class GraphQLClient:
         )
         
         response.raise_for_status()
-        result = cast(Dict[str, Any], response.json())
+        result = response.json()
         
         # Check for GraphQL errors
         if 'errors' in result:
             logger.error(f"GraphQL errors: {result['errors']}")
             raise GraphQLError(result['errors'])
         
-        data = cast(Dict[str, Any], result.get('data', {}))
-        return data
+        return result.get('data', {})
     
-    def mutate(self, mutation: str, variables: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """Execute GraphQL mutation.
-
+    def mutate(self, mutation: str, variables: Optional[Dict] = None) -> Dict[str, Any]:
+        """
+        Execute GraphQL mutation
+        
         Args:
             mutation: GraphQL mutation string
             variables: Optional mutation variables
-
+        
         Returns:
             Mutation result
         """
         return self.query(mutation, variables)
     
-    def introspect_schema(self) -> Dict[str, Any]:
-        """Introspect GraphQL schema.
-
+    def introspect_schema(self) -> Dict:
+        """
+        Introspect GraphQL schema
+        
         Returns:
             Schema definition
         """
@@ -165,16 +168,13 @@ class GraphQLClient:
         return self.schema
     
     def get_queries(self) -> List[str]:
-        """Get available queries from schema."""
+        """Get available queries from schema"""
         if not self.schema:
             self.introspect_schema()
-        if not self.schema:
-            raise RuntimeError("Schema introspection failed")
         
-        schema_root = self.schema['__schema']
         query_type = next(
-            (t for t in schema_root['types']
-             if t['name'] == schema_root['queryType']['name']),
+            (t for t in self.schema['__schema']['types'] 
+             if t['name'] == self.schema['__schema']['queryType']['name']),
             None
         )
         
@@ -184,19 +184,16 @@ class GraphQLClient:
         return []
     
     def get_mutations(self) -> List[str]:
-        """Get available mutations from schema."""
+        """Get available mutations from schema"""
         if not self.schema:
             self.introspect_schema()
-        if not self.schema:
-            raise RuntimeError("Schema introspection failed")
         
-        schema_root = self.schema['__schema']
-        mutation_type_name = schema_root.get('mutationType', {}).get('name')
+        mutation_type_name = self.schema['__schema'].get('mutationType', {}).get('name')
         if not mutation_type_name:
             return []
         
         mutation_type = next(
-            (t for t in schema_root['types']
+            (t for t in self.schema['__schema']['types'] 
              if t['name'] == mutation_type_name),
             None
         )
@@ -207,11 +204,12 @@ class GraphQLClient:
         return []
     
     def validate_query(self, query: str) -> bool:
-        """Validate GraphQL query syntax.
-
+        """
+        Validate GraphQL query syntax
+        
         Args:
             query: Query string
-
+        
         Returns:
             True if valid
         """
@@ -221,14 +219,14 @@ class GraphQLClient:
                 raise ValueError("Unbalanced braces")
             
             # Try to execute query (will fail fast if invalid)
-            payload: Dict[str, Any] = {'query': query}
+            payload = {'query': query}
             response = requests.post(
                 self.endpoint,
                 json=payload,
                 headers=self.headers
             )
             
-            result = cast(Dict[str, Any], response.json())
+            result = response.json()
             
             # Check for syntax errors
             if 'errors' in result:
@@ -244,9 +242,10 @@ class GraphQLClient:
             logger.error(f"Query validation error: {e}")
             return False
     
-    def assert_response_has_field(self, response: Dict[str, Any], field_path: str) -> None:
-        """Assert response contains field at path.
-
+    def assert_response_has_field(self, response: Dict, field_path: str):
+        """
+        Assert response contains field at path
+        
         Args:
             response: GraphQL response
             field_path: Dot-separated field path (e.g., 'user.email')
@@ -261,14 +260,10 @@ class GraphQLClient:
         
         logger.info(f"✓ Field '{field_path}' found in response")
     
-    def assert_field_type(
-        self,
-        response: Dict[str, Any],
-        field_path: str,
-        expected_type: type
-    ) -> None:
-        """Assert field has expected type.
-
+    def assert_field_type(self, response: Dict, field_path: str, expected_type: type):
+        """
+        Assert field has expected type
+        
         Args:
             response: GraphQL response
             field_path: Dot-separated field path
@@ -289,8 +284,8 @@ class GraphQLClient:
         
         logger.info(f"✓ Field '{field_path}' has correct type: {expected_type.__name__}")
     
-    def assert_no_errors(self, response: Dict[str, Any]) -> None:
-        """Assert GraphQL response has no errors."""
+    def assert_no_errors(self, response: Dict):
+        """Assert GraphQL response has no errors"""
         if 'errors' in response:
             raise AssertionError(f"GraphQL errors found: {response['errors']}")
         
@@ -298,20 +293,21 @@ class GraphQLClient:
 
 
 class GraphQLError(Exception):
-    """GraphQL error exception."""
+    """GraphQL error exception"""
     
-    def __init__(self, errors: List[Dict[str, Any]]):
+    def __init__(self, errors: List[Dict]):
         self.errors = errors
         messages = [e.get('message', 'Unknown error') for e in errors]
         super().__init__(f"GraphQL errors: {', '.join(messages)}")
 
 
 class GraphQLQueryBuilder:
-    """Fluent GraphQL query builder."""
+    """Fluent GraphQL query builder"""
     
-    def __init__(self, operation: str = "query") -> None:
-        """Initialize query builder.
-
+    def __init__(self, operation: str = "query"):
+        """
+        Initialize query builder
+        
         Args:
             operation: 'query' or 'mutation'
         """
@@ -321,13 +317,14 @@ class GraphQLQueryBuilder:
         self.fields: List[str] = []
     
     def with_name(self, name: str) -> 'GraphQLQueryBuilder':
-        """Set operation name."""
+        """Set operation name"""
         self.name = name
         return self
     
     def with_variable(self, name: str, var_type: str) -> 'GraphQLQueryBuilder':
-        """Add variable definition.
-
+        """
+        Add variable definition
+        
         Args:
             name: Variable name (without $)
             var_type: Variable type (e.g., 'String!', 'Int')
@@ -336,8 +333,9 @@ class GraphQLQueryBuilder:
         return self
     
     def select(self, *fields: str) -> 'GraphQLQueryBuilder':
-        """Select fields.
-
+        """
+        Select fields
+        
         Args:
             fields: Field names or nested selections
         """
@@ -345,7 +343,7 @@ class GraphQLQueryBuilder:
         return self
     
     def build(self) -> str:
-        """Build GraphQL query string."""
+        """Build GraphQL query string"""
         # Operation line
         query_parts = [self.operation]
         
@@ -373,13 +371,14 @@ class GraphQLQueryBuilder:
 # ========================================================================
 
 def build_query(name: str, fields: List[str], variables: Optional[Dict[str, str]] = None) -> str:
-    """Build a simple GraphQL query.
-
+    """
+    Build a simple GraphQL query
+    
     Args:
         name: Query name
         fields: List of fields to select
         variables: Optional variable definitions
-
+    
     Returns:
         GraphQL query string
     """
@@ -395,13 +394,14 @@ def build_query(name: str, fields: List[str], variables: Optional[Dict[str, str]
 
 
 def build_mutation(name: str, fields: List[str], variables: Optional[Dict[str, str]] = None) -> str:
-    """Build a simple GraphQL mutation.
-
+    """
+    Build a simple GraphQL mutation
+    
     Args:
         name: Mutation name
         fields: List of fields to return
         variables: Optional variable definitions
-
+    
     Returns:
         GraphQL mutation string
     """

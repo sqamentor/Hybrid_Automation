@@ -1,5 +1,5 @@
-"""Standalone verification script that tests never fail due to AI unavailability.
-
+"""
+Standalone verification script that tests never fail due to AI unavailability.
 Run this to verify the framework works without any AI providers.
 """
 import os
@@ -147,7 +147,7 @@ def test_real_world_scenario():
 
 
 def main():
-    """Run all verification tests."""
+    """Run all verification tests"""
     print("=" * 70)
     print("AI RESILIENCE VERIFICATION")
     print("=" * 70)

@@ -17,7 +17,9 @@ from framework.core.utils.human_actions import HumanBehaviorSimulator
 
 @pytest.mark.human_like
 def test_form_filling_human_like():
-    """Fill a complex form with human-like behavior."""
+    """
+    Fill a complex form with human-like behavior
+    """
     driver = webdriver.Chrome()
     driver.maximize_window()
     
@@ -85,7 +87,9 @@ def test_form_filling_human_like():
 
 @pytest.mark.human_like
 def test_multi_step_form_realistic():
-    """Multi-step form with very realistic human behavior."""
+    """
+    Multi-step form with very realistic human behavior
+    """
     driver = webdriver.Chrome()
     driver.maximize_window()
     driver.get("https://www.selenium.dev/selenium/web/web-form.html")
@@ -144,7 +148,9 @@ def test_multi_step_form_realistic():
 
 
 def test_comparison_with_without_human_behavior():
-    """Side-by-side comparison of execution time."""
+    """
+    Side-by-side comparison of execution time
+    """
     import time
     
     # Without human behavior

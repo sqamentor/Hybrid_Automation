@@ -7,12 +7,11 @@ Supports: OpenAI (ChatGPT), Anthropic (Claude), Azure OpenAI, Google Gemini,
 Configuration determines which AI provider to use for different features.
 """
 
-import importlib
 import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, cast
+from typing import Any, Dict, List, Optional
 
 from utils.logger import get_logger
 
@@ -28,17 +27,9 @@ except ImportError:
 logger = get_logger(__name__)
 
 
-def _load_requests_module() -> Any:
-    """Dynamically import requests to avoid mypy stub dependency."""
-    try:
-        return importlib.import_module("requests")
-    except ModuleNotFoundError as exc:
-        raise RuntimeError("requests library not installed. Run: pip install requests") from exc
-
-
 @dataclass
 class AIProviderConfig:
-    """Configuration for an AI provider."""
+    """Configuration for an AI provider"""
     name: str
     provider_type: str  # 'openai', 'anthropic', 'azure', 'gemini', 'ollama', 'custom'
     api_key: Optional[str] = None
@@ -52,16 +43,16 @@ class AIProviderConfig:
 
 
 class BaseAIProvider(ABC):
-    """Base class for AI providers."""
+    """Base class for AI providers"""
     
     def __init__(self, config: AIProviderConfig):
         self.config = config
-        self.client: Optional[Any] = None
+        self.client = None
         self._initialize()
     
     @abstractmethod
     def _initialize(self):
-        """Initialize the AI client."""
+        """Initialize the AI client"""
         pass
     
     @abstractmethod
@@ -69,27 +60,27 @@ class BaseAIProvider(ABC):
         self,
         prompt: str,
         system_prompt: Optional[str] = None,
-        **kwargs: Any
+        **kwargs
     ) -> str:
-        """Generate text completion."""
+        """Generate text completion"""
         pass
     
     @abstractmethod
     def generate_chat_completion(
         self,
         messages: List[Dict[str, str]],
-        **kwargs: Any
+        **kwargs
     ) -> str:
-        """Generate chat completion."""
+        """Generate chat completion"""
         pass
     
     @abstractmethod
     def is_available(self) -> bool:
-        """Check if provider is available."""
+        """Check if provider is available"""
         pass
     
     def get_provider_name(self) -> str:
-        """Get provider name."""
+        """Get provider name"""
         return self.config.name
 
 
@@ -97,7 +88,7 @@ class OpenAIProvider(BaseAIProvider):
     """OpenAI Provider (ChatGPT: GPT-3.5, GPT-4, GPT-4o)"""
     
     def _initialize(self):
-        """Initialize OpenAI client."""
+        """Initialize OpenAI client"""
         try:
             from openai import OpenAI
             
@@ -126,16 +117,16 @@ class OpenAIProvider(BaseAIProvider):
             self.config.enabled = False
     
     def is_available(self) -> bool:
-        """Check if OpenAI is available."""
+        """Check if OpenAI is available"""
         return self.config.enabled and self.client is not None
     
     def generate_completion(
         self,
         prompt: str,
         system_prompt: Optional[str] = None,
-        **kwargs: Any
+        **kwargs
     ) -> str:
-        """Generate completion using OpenAI with timeout and retry."""
+        """Generate completion using OpenAI with timeout and retry"""
         if not self.is_available():
             raise RuntimeError(f"OpenAI provider '{self.config.name}' is not available")
         
@@ -152,20 +143,17 @@ class OpenAIProvider(BaseAIProvider):
     def generate_chat_completion(
         self,
         messages: List[Dict[str, str]],
-        **kwargs: Any
+        **kwargs
     ) -> str:
-        """Generate chat completion using OpenAI with timeout protection."""
+        """Generate chat completion using OpenAI with timeout protection"""
         if not self.is_available():
             raise RuntimeError(f"OpenAI provider '{self.config.name}' is not available")
         
         try:
             # Set timeout (default 30 seconds)
             timeout = kwargs.pop('timeout', 30)
-            client = self.client
-            if client is None:
-                raise RuntimeError("OpenAI client is not initialized")
             
-            response = client.chat.completions.create(
+            response = self.client.chat.completions.create(
                 model=kwargs.get('model', self.config.model),
                 messages=messages,
                 temperature=kwargs.get('temperature', self.config.temperature),
@@ -173,14 +161,10 @@ class OpenAIProvider(BaseAIProvider):
                 timeout=timeout  # Add timeout to prevent hanging
             )
             
-            choices: Sequence[Any] = getattr(response, 'choices', [])
-            if not choices:
+            if not response.choices or not response.choices[0].message.content:
                 raise ValueError("Empty response from OpenAI")
-            content = choices[0].message.content
-            if not isinstance(content, str):
-                raise ValueError("OpenAI response missing text content")
             
-            return content
+            return response.choices[0].message.content
         
         except TimeoutError as e:
             logger.error(f"OpenAI request timed out: {e}")
@@ -194,7 +178,7 @@ class AnthropicProvider(BaseAIProvider):
     """Anthropic Provider (Claude: Claude-3 Opus, Sonnet, Haiku)"""
     
     def _initialize(self):
-        """Initialize Anthropic client."""
+        """Initialize Anthropic client"""
         try:
             from anthropic import Anthropic
             
@@ -220,16 +204,16 @@ class AnthropicProvider(BaseAIProvider):
             self.config.enabled = False
     
     def is_available(self) -> bool:
-        """Check if Anthropic is available."""
+        """Check if Anthropic is available"""
         return self.config.enabled and self.client is not None
     
     def generate_completion(
         self,
         prompt: str,
         system_prompt: Optional[str] = None,
-        **kwargs: Any
+        **kwargs
     ) -> str:
-        """Generate completion using Anthropic with timeout protection."""
+        """Generate completion using Anthropic with timeout protection"""
         if not self.is_available():
             raise RuntimeError(f"Anthropic provider '{self.config.name}' is not available")
         
@@ -237,11 +221,7 @@ class AnthropicProvider(BaseAIProvider):
             # Anthropic has built-in timeout support
             timeout = kwargs.pop('timeout', 30)
             
-            client = self.client
-            if client is None:
-                raise RuntimeError("Anthropic client is not initialized")
-
-            response = client.messages.create(
+            response = self.client.messages.create(
                 model=kwargs.get('model', self.config.model),
                 max_tokens=kwargs.get('max_tokens', self.config.max_tokens),
                 temperature=kwargs.get('temperature', self.config.temperature),
@@ -252,14 +232,10 @@ class AnthropicProvider(BaseAIProvider):
                 timeout=timeout
             )
             
-            content_blocks: Sequence[Any] = getattr(response, 'content', [])
-            if not content_blocks:
+            if not response.content or not response.content[0].text:
                 raise ValueError("Empty response from Anthropic")
             
-            text_content = content_blocks[0].text
-            if not isinstance(text_content, str):
-                raise ValueError("Anthropic response missing text content")
-            return text_content
+            return response.content[0].text
         
         except TimeoutError as e:
             logger.error(f"Anthropic request timed out: {e}")
@@ -271,9 +247,9 @@ class AnthropicProvider(BaseAIProvider):
     def generate_chat_completion(
         self,
         messages: List[Dict[str, str]],
-        **kwargs: Any
+        **kwargs
     ) -> str:
-        """Generate chat completion using Anthropic."""
+        """Generate chat completion using Anthropic"""
         if not self.is_available():
             raise RuntimeError(f"Anthropic provider '{self.config.name}' is not available")
         
@@ -291,11 +267,7 @@ class AnthropicProvider(BaseAIProvider):
                 })
         
         try:
-            client = self.client
-            if client is None:
-                raise RuntimeError("Anthropic client is not initialized")
-
-            response = client.messages.create(
+            response = self.client.messages.create(
                 model=kwargs.get('model', self.config.model),
                 max_tokens=kwargs.get('max_tokens', self.config.max_tokens),
                 temperature=kwargs.get('temperature', self.config.temperature),
@@ -303,13 +275,7 @@ class AnthropicProvider(BaseAIProvider):
                 messages=anthropic_messages
             )
             
-            content_blocks: Sequence[Any] = getattr(response, 'content', [])
-            if not content_blocks:
-                raise ValueError("Empty response from Anthropic")
-            text_content = content_blocks[0].text
-            if not isinstance(text_content, str):
-                raise ValueError("Anthropic response missing text content")
-            return text_content
+            return response.content[0].text
         
         except Exception as e:
             logger.error(f"Anthropic chat completion failed: {e}")
@@ -317,10 +283,10 @@ class AnthropicProvider(BaseAIProvider):
 
 
 class AzureOpenAIProvider(BaseAIProvider):
-    """Azure OpenAI Provider."""
+    """Azure OpenAI Provider"""
     
     def _initialize(self):
-        """Initialize Azure OpenAI client."""
+        """Initialize Azure OpenAI client"""
         try:
             from openai import AzureOpenAI
             
@@ -352,16 +318,16 @@ class AzureOpenAIProvider(BaseAIProvider):
             self.config.enabled = False
     
     def is_available(self) -> bool:
-        """Check if Azure OpenAI is available."""
+        """Check if Azure OpenAI is available"""
         return self.config.enabled and self.client is not None
     
     def generate_completion(
         self,
         prompt: str,
         system_prompt: Optional[str] = None,
-        **kwargs: Any
+        **kwargs
     ) -> str:
-        """Generate completion using Azure OpenAI."""
+        """Generate completion using Azure OpenAI"""
         messages = []
         if system_prompt:
             messages.append({"role": "system", "content": system_prompt})
@@ -372,31 +338,21 @@ class AzureOpenAIProvider(BaseAIProvider):
     def generate_chat_completion(
         self,
         messages: List[Dict[str, str]],
-        **kwargs: Any
+        **kwargs
     ) -> str:
-        """Generate chat completion using Azure OpenAI."""
+        """Generate chat completion using Azure OpenAI"""
         if not self.is_available():
             raise RuntimeError(f"Azure OpenAI provider '{self.config.name}' is not available")
         
         try:
-            client = self.client
-            if client is None:
-                raise RuntimeError("Azure OpenAI client is not initialized")
-
-            response = client.chat.completions.create(
+            response = self.client.chat.completions.create(
                 model=self.config.model,  # Deployment name
                 messages=messages,
                 temperature=kwargs.get('temperature', self.config.temperature),
                 max_tokens=kwargs.get('max_tokens', self.config.max_tokens)
             )
             
-            choices: Sequence[Any] = getattr(response, 'choices', [])
-            if not choices:
-                raise ValueError("Empty response from Azure OpenAI")
-            content = choices[0].message.content
-            if not isinstance(content, str):
-                raise ValueError("Azure OpenAI response missing text content")
-            return content
+            return response.choices[0].message.content
         
         except Exception as e:
             logger.error(f"Azure OpenAI completion failed: {e}")
@@ -407,9 +363,9 @@ class OllamaProvider(BaseAIProvider):
     """Ollama Provider (Local LLMs: Llama, Mistral, CodeLlama, etc.)"""
     
     def _initialize(self):
-        """Initialize Ollama client."""
+        """Initialize Ollama client"""
         try:
-            requests = _load_requests_module()
+            import requests
 
             # Default Ollama endpoint
             self.api_base = self.config.api_base or os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')
@@ -439,20 +395,20 @@ class OllamaProvider(BaseAIProvider):
             self.config.enabled = False
     
     def is_available(self) -> bool:
-        """Check if Ollama is available."""
+        """Check if Ollama is available"""
         return self.config.enabled and self.client is not None
     
     def generate_completion(
         self,
         prompt: str,
         system_prompt: Optional[str] = None,
-        **kwargs: Any
+        **kwargs
     ) -> str:
-        """Generate completion using Ollama."""
+        """Generate completion using Ollama"""
         if not self.is_available():
             raise RuntimeError(f"Ollama provider '{self.config.name}' is not available")
         
-        requests = _load_requests_module()
+        import requests
         
         full_prompt = prompt
         if system_prompt:
@@ -473,11 +429,7 @@ class OllamaProvider(BaseAIProvider):
             )
             
             if response.status_code == 200:
-                data = cast(Dict[str, Any], response.json())
-                result = data.get("response", "")
-                if not isinstance(result, str):
-                    raise ValueError("Ollama response missing 'response' key")
-                return result
+                return response.json()["response"]
             else:
                 raise RuntimeError(f"Ollama request failed: {response.text}")
         
@@ -488,13 +440,13 @@ class OllamaProvider(BaseAIProvider):
     def generate_chat_completion(
         self,
         messages: List[Dict[str, str]],
-        **kwargs: Any
+        **kwargs
     ) -> str:
-        """Generate chat completion using Ollama."""
+        """Generate chat completion using Ollama"""
         if not self.is_available():
             raise RuntimeError(f"Ollama provider '{self.config.name}' is not available")
         
-        requests = _load_requests_module()
+        import requests
         
         try:
             response = requests.post(
@@ -511,14 +463,7 @@ class OllamaProvider(BaseAIProvider):
             )
             
             if response.status_code == 200:
-                data = cast(Dict[str, Any], response.json())
-                message = data.get("message", {})
-                if not isinstance(message, dict):
-                    raise ValueError("Ollama chat response missing 'message'")
-                content = message.get("content", "")
-                if not isinstance(content, str):
-                    raise ValueError("Ollama chat response missing 'content'")
-                return content
+                return response.json()["message"]["content"]
             else:
                 raise RuntimeError(f"Ollama chat request failed: {response.text}")
         
@@ -528,9 +473,9 @@ class OllamaProvider(BaseAIProvider):
 
 
 class AIProviderFactory:
-    """Factory for creating and managing AI providers."""
+    """Factory for creating and managing AI providers"""
     
-    _instance: Optional['AIProviderFactory'] = None
+    _instance = None
     _providers: Dict[str, BaseAIProvider] = {}
     _default_provider: Optional[str] = None
     
@@ -541,7 +486,7 @@ class AIProviderFactory:
         return cls._instance
     
     def _load_providers(self):
-        """Load AI providers from configuration."""
+        """Load AI providers from configuration"""
         from config.settings import settings
 
         # Get AI configuration
@@ -562,7 +507,7 @@ class AIProviderFactory:
         logger.info(f"Available providers: {list(self._providers.keys())}")
     
     def _get_default_config(self) -> Dict[str, Any]:
-        """Get default AI provider configuration."""
+        """Get default AI provider configuration"""
         return {
             'default': 'openai',
             'providers': {
@@ -592,8 +537,8 @@ class AIProviderFactory:
             }
         }
     
-    def _register_provider(self, name: str, config: Dict[str, Any]) -> None:
-        """Register a new AI provider."""
+    def _register_provider(self, name: str, config: Dict[str, Any]):
+        """Register a new AI provider"""
         try:
             provider_config = AIProviderConfig(
                 name=name,
@@ -623,7 +568,7 @@ class AIProviderFactory:
             logger.error(f"Failed to register provider '{name}': {e}")
     
     def _get_provider_class(self, provider_type: str) -> Optional[type]:
-        """Get provider class by type."""
+        """Get provider class by type"""
         provider_map = {
             'openai': OpenAIProvider,
             'anthropic': AnthropicProvider,
@@ -633,23 +578,21 @@ class AIProviderFactory:
         return provider_map.get(provider_type)
     
     def get_provider(self, provider_name: Optional[str] = None) -> Optional[BaseAIProvider]:
-        """Get AI provider by name with graceful fallback.
-
+        """
+        Get AI provider by name with graceful fallback
+        
         NEVER RAISES EXCEPTION - Returns None if no provider available
-
+        
         Args:
             provider_name: Provider name (e.g., 'openai', 'claude', 'azure')
                           If None, returns default provider
-
+        
         Returns:
             AI provider instance or None if none available
         """
         # Use default if not specified
         if provider_name is None:
             provider_name = self._default_provider
-        if provider_name is None:
-            logger.warning("No default AI provider configured")
-            return None
         
         # Get provider
         provider = self._providers.get(provider_name)
@@ -676,14 +619,14 @@ class AIProviderFactory:
         return None
     
     def get_available_providers(self) -> List[str]:
-        """Get list of available provider names."""
+        """Get list of available provider names"""
         return [
             name for name, provider in self._providers.items()
             if provider.is_available()
         ]
     
-    def set_default_provider(self, provider_name: str) -> None:
-        """Set default AI provider."""
+    def set_default_provider(self, provider_name: str):
+        """Set default AI provider"""
         if provider_name in self._providers:
             self._default_provider = provider_name
             logger.info(f"Default provider changed to: {provider_name}")
@@ -696,20 +639,21 @@ ai_factory = AIProviderFactory()
 
 
 def get_ai_provider(provider_name: Optional[str] = None) -> Optional[BaseAIProvider]:
-    """Convenience function to get AI provider.
-
+    """
+    Convenience function to get AI provider
+    
     NEVER FAILS: Returns None if no provider available
-
+    
     Usage:
         # Use default provider
         provider = get_ai_provider()
         if provider:
             response = provider.generate_completion(...)
-
+        
         # Use specific provider
         provider = get_ai_provider('claude')
         provider = get_ai_provider('openai')
-
+        
     Returns:
         AI provider instance or None if unavailable
     """

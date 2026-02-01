@@ -26,7 +26,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 # ============================================================================
 
 class Colors:
-    """ANSI color codes for beautiful output."""
+    """ANSI color codes for beautiful output"""
     HEADER = '\033[95m'
     BLUE = '\033[94m'
     CYAN = '\033[96m'
@@ -39,7 +39,7 @@ class Colors:
 
 
 def print_header():
-    """Print beautiful header."""
+    """Print beautiful header"""
     print("\n" + "="*80)
     print("🚀  INTELLIGENT TEST EXECUTION SYSTEM")
     print("    Interactive Test Runner - All Options at Your Fingertips")
@@ -47,14 +47,14 @@ def print_header():
 
 
 def print_section(title: str):
-    """Print section header."""
+    """Print section header"""
     print(f"\n{Colors.CYAN}{Colors.BOLD}{'='*80}{Colors.ENDC}")
     print(f"{Colors.CYAN}{Colors.BOLD}{title}{Colors.ENDC}")
     print(f"{Colors.CYAN}{Colors.BOLD}{'='*80}{Colors.ENDC}\n")
 
 
 def print_option(number: str, text: str, highlight: bool = False):
-    """Print menu option."""
+    """Print menu option"""
     if highlight:
         print(f"{Colors.GREEN}{Colors.BOLD}  {number}. {text}{Colors.ENDC}")
     else:
@@ -62,27 +62,27 @@ def print_option(number: str, text: str, highlight: bool = False):
 
 
 def print_success(message: str):
-    """Print success message."""
+    """Print success message"""
     print(f"{Colors.GREEN}✓ {message}{Colors.ENDC}")
 
 
 def print_error(message: str):
-    """Print error message."""
+    """Print error message"""
     print(f"{Colors.RED}✗ {message}{Colors.ENDC}")
 
 
 def print_info(message: str):
-    """Print info message."""
+    """Print info message"""
     print(f"{Colors.BLUE}ℹ {message}{Colors.ENDC}")
 
 
 def print_warning(message: str):
-    """Print warning message."""
+    """Print warning message"""
     print(f"{Colors.YELLOW}⚠ {message}{Colors.ENDC}")
 
 
 def print_command(command: str):
-    """Print command to be executed."""
+    """Print command to be executed"""
     print(f"\n{Colors.BOLD}📝 Command to Execute:{Colors.ENDC}")
     print(f"{Colors.CYAN}{'─'*80}{Colors.ENDC}")
     print(f"{Colors.GREEN}{command}{Colors.ENDC}")
@@ -94,7 +94,7 @@ def print_command(command: str):
 # ============================================================================
 
 class TestDiscovery:
-    """Discover available tests in the project."""
+    """Discover available tests in the project"""
     
     def __init__(self, root_dir: Path):
         self.root_dir = root_dir
@@ -102,7 +102,7 @@ class TestDiscovery:
         self.recorded_tests_dir = root_dir / "recorded_tests"
         
     def discover_all_tests(self) -> Dict[str, List[Path]]:
-        """Discover all test files."""
+        """Discover all test files"""
         test_files = {
             'Integration Tests': [],
             'Recorded Tests - Bookslot': [],
@@ -141,7 +141,7 @@ class TestDiscovery:
         return {k: v for k, v in test_files.items() if v}
     
     def get_test_categories(self) -> List[str]:
-        """Get list of test categories."""
+        """Get list of test categories"""
         tests = self.discover_all_tests()
         return list(tests.keys())
 
@@ -151,7 +151,7 @@ class TestDiscovery:
 # ============================================================================
 
 class CommandBuilder:
-    """Build pytest command with options."""
+    """Build pytest command with options"""
     
     def __init__(self):
         self.base_command = "python -m pytest"
@@ -159,57 +159,57 @@ class CommandBuilder:
         self.options = []
         
     def set_test_path(self, path: str):
-        """Set test file or directory path."""
+        """Set test file or directory path"""
         self.test_path = path
         return self
     
     def add_option(self, option: str):
-        """Add pytest option."""
+        """Add pytest option"""
         if option and option not in self.options:
             self.options.append(option)
         return self
     
     def add_verbose(self):
-        """Add verbose output."""
+        """Add verbose output"""
         return self.add_option("-v")
     
     def add_show_output(self):
-        """Add show output option."""
+        """Add show output option"""
         return self.add_option("-s")
     
     def add_stop_on_failure(self):
-        """Add stop on first failure."""
+        """Add stop on first failure"""
         return self.add_option("-x")
     
     def add_headed_mode(self):
-        """Add headed browser mode."""
+        """Add headed browser mode"""
         return self.add_option("--headed")
     
     def add_slow_motion(self, milliseconds: int = 1000):
-        """Add slow motion."""
+        """Add slow motion"""
         return self.add_option(f"--slowmo={milliseconds}")
     
     def add_browser(self, browser: str):
-        """Add browser selection."""
+        """Add browser selection"""
         if browser in ['chromium', 'chrome', 'firefox', 'webkit', 'safari']:
             return self.add_option(f"--browser={browser}")
         return self
     
     def add_html_report(self, filename: str = "report.html"):
-        """Add HTML report generation."""
+        """Add HTML report generation"""
         self.add_option(f"--html={filename}")
         return self.add_option("--self-contained-html")
     
     def add_markers(self, markers: str):
-        """Add marker filtering."""
+        """Add marker filtering"""
         return self.add_option(f"-m '{markers}'")
     
     def add_keyword(self, keyword: str):
-        """Add keyword filtering."""
+        """Add keyword filtering"""
         return self.add_option(f"-k '{keyword}'")
     
     def add_parallel(self, workers: int = 4):
-        """Add parallel execution."""
+        """Add parallel execution"""
         return self.add_option(f"-n {workers}")
     
     def add_environment(self, env: str):
@@ -219,7 +219,7 @@ class CommandBuilder:
         return self
     
     def add_human_behavior(self, enabled: bool = True):
-        """Add human behavior simulation."""
+        """Add human behavior simulation"""
         if enabled:
             return self.add_option("--enable-human-behavior")
         else:
@@ -227,13 +227,13 @@ class CommandBuilder:
         return self
     
     def add_human_behavior_intensity(self, intensity: str = 'normal'):
-        """Add human behavior intensity level."""
+        """Add human behavior intensity level"""
         if intensity in ['minimal', 'normal', 'high']:
             return self.add_option(f"--human-behavior-intensity {intensity}")
         return self
     
     def build(self) -> str:
-        """Build final command."""
+        """Build final command"""
         parts = [self.base_command]
         if self.test_path:
             parts.append(self.test_path)
@@ -246,7 +246,7 @@ class CommandBuilder:
 # ============================================================================
 
 class InteractiveTestRunner:
-    """Interactive test runner with guided options."""
+    """Interactive test runner with guided options"""
     
     def __init__(self):
         self.root_dir = Path.cwd()
@@ -255,7 +255,7 @@ class InteractiveTestRunner:
         self._load_project_urls()
     
     def _load_project_urls(self):
-        """Load project URLs from projects.yaml for dynamic display."""
+        """Load project URLs from projects.yaml for dynamic display"""
         try:
             config_path = Path(__file__).parent / "config" / "projects.yaml"
             if config_path.exists():
@@ -274,7 +274,7 @@ class InteractiveTestRunner:
             self.production_url = 'error loading config'
         
     def run(self):
-        """Run interactive test runner."""
+        """Run interactive test runner"""
         print_header()
         
         while True:
@@ -301,7 +301,7 @@ class InteractiveTestRunner:
             input("\n\nPress Enter to continue...")
     
     def show_main_menu(self) -> str:
-        """Show main menu."""
+        """Show main menu"""
         print_section("🎯 MAIN MENU - Choose Your Test Execution Mode")
         
         print_option("1", "Quick Run - Run tests with recommended settings", highlight=True)
@@ -315,7 +315,7 @@ class InteractiveTestRunner:
         return input(f"\n{Colors.BOLD}Enter your choice: {Colors.ENDC}").strip().lower()
     
     def quick_run_mode(self):
-        """Quick run with recommended settings."""
+        """Quick run with recommended settings"""
         print_section("⚡ QUICK RUN MODE")
         
         # Select test category
@@ -405,7 +405,7 @@ class InteractiveTestRunner:
             print_error("Invalid selection!")
     
     def custom_run_mode(self):
-        """Custom run with all options."""
+        """Custom run with all options"""
         print_section("🛠️ CUSTOM RUN MODE - Build Your Command")
         
         # Step 1: Select test
@@ -531,7 +531,7 @@ class InteractiveTestRunner:
             print_error(f"Invalid selection: {e}")
     
     def scenario_based_mode(self):
-        """Pre-configured scenarios."""
+        """Pre-configured scenarios"""
         print_section("🎬 SCENARIO-BASED MODE")
         
         print("Choose a common scenario:\n")
@@ -652,7 +652,7 @@ class InteractiveTestRunner:
             print_error("Invalid scenario!")
     
     def show_all_tests(self):
-        """Show all available tests."""
+        """Show all available tests"""
         print_section("📋 ALL AVAILABLE TESTS")
         
         tests = self.discovery.discover_all_tests()
@@ -672,7 +672,7 @@ class InteractiveTestRunner:
         print(f"\n{Colors.BOLD}Total: {total} test files{Colors.ENDC}")
     
     def show_help(self):
-        """Show help and documentation."""
+        """Show help and documentation"""
         print_section("📚 HELP & DOCUMENTATION")
         
         help_text = """
@@ -731,7 +731,7 @@ PLAYWRIGHT SPECIFIC:
         print("  • Generate reports for documentation and sharing")
     
     def show_examples(self):
-        """Show command examples."""
+        """Show command examples"""
         print_section("💡 COMMAND EXAMPLES")
         
         examples = [
@@ -771,7 +771,7 @@ PLAYWRIGHT SPECIFIC:
             print(f"{Colors.CYAN}   {cmd}{Colors.ENDC}")
     
     def yes_no(self, question: str, default: bool = False) -> bool:
-        """Ask yes/no question."""
+        """Ask yes/no question"""
         default_str = "Y/n" if default else "y/N"
         response = input(f"{Colors.BOLD}{question} [{default_str}]: {Colors.ENDC}").strip().lower()
         
@@ -780,7 +780,7 @@ PLAYWRIGHT SPECIFIC:
         return response in ['y', 'yes']
     
     def execute_command(self):
-        """Execute the built command."""
+        """Execute the built command"""
         command = self.builder.build()
         
         print_command(command)
@@ -814,7 +814,7 @@ PLAYWRIGHT SPECIFIC:
 # ============================================================================
 
 def main():
-    """Main entry point."""
+    """Main entry point"""
     try:
         runner = InteractiveTestRunner()
         runner.run()

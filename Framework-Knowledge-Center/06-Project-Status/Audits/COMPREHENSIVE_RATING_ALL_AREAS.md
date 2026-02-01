@@ -64,7 +64,7 @@ match descriptor.lifetime:
 ```python
 # config_models.py - 347 lines
 class BrowserConfig(BaseModel):
-    """Browser configuration with Pydantic V2 validation."""
+    """Browser configuration with Pydantic V2 validation"""
     model_config = ConfigDict(
         frozen=True,
         use_enum_values=True,
@@ -105,7 +105,7 @@ class BrowserConfig(BaseModel):
 ```python
 # async_smart_actions.py lines 103-111 - Async with Pattern Matching
 async def click(self, locator: str, description: str = "element") -> None:
-    """Async click with human behavior simulation."""
+    """Async click with human behavior simulation"""
     await self._human_delay("before_click")
     
     element = self.page.locator(locator)
@@ -146,7 +146,7 @@ async def click(self, locator: str, description: str = "element") -> None:
 ```python
 # di_container.py
 class DIContainer:
-    """Dependency Injection container with Python 3.12+ pattern matching."""
+    """Dependency Injection container with Python 3.12+ pattern matching"""
     
     def register(
         self,
@@ -154,10 +154,10 @@ class DIContainer:
         implementation: Type[T] | Callable[[], T],
         lifetime: Lifetime = Lifetime.TRANSIENT
     ) -> None:
-        """Register service with lifetime management."""
+        """Register service with lifetime management"""
         
     def resolve(self, interface: Type[T]) -> T:
-        """Resolve service using pattern matching."""
+        """Resolve service using pattern matching"""
         match descriptor.lifetime:
             case Lifetime.SINGLETON:
                 return self._resolve_singleton(descriptor)
@@ -191,7 +191,7 @@ class DIContainer:
 # protocols/automation_protocols.py
 @runtime_checkable
 class AutomationEngine(Protocol):
-    """Protocol for automation engine implementations."""
+    """Protocol for automation engine implementations"""
     
     browser_type: str
     headless: bool
@@ -227,22 +227,22 @@ class AutomationEngine(Protocol):
 ```python
 # microservices/base.py
 class BaseService(ABC):
-    """Base class for all microservices."""
+    """Base class for all microservices"""
     
     async def start(self) -> None:
-        """Start the service."""
+        """Start the service"""
         
     async def stop(self) -> None:
-        """Stop the service gracefully."""
+        """Stop the service gracefully"""
         
     async def health_check(self) -> HealthCheck:
-        """Check service health."""
+        """Check service health"""
 
 class MessageBus:
-    """Event-driven message bus for inter-service communication."""
+    """Event-driven message bus for inter-service communication"""
     
     async def publish(self, topic: str, message: Dict[str, Any]) -> None:
-        """Publish message to topic."""
+        """Publish message to topic"""
 ```
 
 #### Architecture:
@@ -278,16 +278,16 @@ class MessageBus:
 ```python
 # plugins/plugin_system.py
 class PluginManager:
-    """Manage plugins with dynamic loading and hook execution."""
+    """Manage plugins with dynamic loading and hook execution"""
     
     def discover_plugins(self, plugin_dir: Path) -> List[PluginMetadata]:
-        """Dynamically discover plugins from directory."""
+        """Dynamically discover plugins from directory"""
         
     def load_plugin(self, plugin_path: Path) -> BasePlugin:
-        """Load plugin using importlib."""
+        """Load plugin using importlib"""
         
     def execute_hook(self, hook_name: str, *args, **kwargs) -> List[Any]:
-        """Execute all registered hooks in priority order."""
+        """Execute all registered hooks in priority order"""
 ```
 
 #### Features:
@@ -396,10 +396,10 @@ class ServiceDescriptor(Generic[T]):
 ```python
 # config/async_config_manager.py
 class AsyncConfigManager:
-    """Async configuration manager with parallel loading."""
+    """Async configuration manager with parallel loading"""
     
     async def load_all_configs(self) -> GlobalSettings:
-        """Load all configurations in parallel."""
+        """Load all configurations in parallel"""
         browser_config, api_config, db_config = await asyncio.gather(
             self._load_browser_config(),
             self._load_api_config(),
@@ -435,7 +435,7 @@ def execute_with_fallback(
     primary_engine: str = "playwright",
     fallback_engine: str = "selenium"
 ) -> Any:
-    """Execute operation with automatic fallback on failure."""
+    """Execute operation with automatic fallback on failure"""
     try:
         return operation()
     except Exception as e:
@@ -554,8 +554,9 @@ API docs:          0 (missing)
 ```python
 # config_models.py
 class BrowserConfig(BaseModel):
-    """Browser configuration with Pydantic V2 validation.
-
+    """
+    Browser configuration with Pydantic V2 validation.
+    
     This model provides type-safe browser configuration with
     runtime validation. All fields are validated before use.
     
@@ -592,7 +593,7 @@ class BrowserConfig(BaseModel):
 ```python
 # playwright_engine.py lines 392-541
 class ContextPool:
-    """Browser context pool for performance optimization."""
+    """Browser context pool for performance optimization"""
     
     def __init__(self, browser: Browser, pool_size: int = 5):
         self.pool = Queue(maxsize=pool_size)
@@ -629,16 +630,16 @@ class ContextPool:
 # protocols/config_protocols.py
 @runtime_checkable
 class SecretProvider(Protocol):
-    """Protocol for secure secret management."""
+    """Protocol for secure secret management"""
     
     def get_secret(self, key: str) -> Optional[str]:
-        """Retrieve secret by key."""
+        """Retrieve secret by key"""
     
     def set_secret(self, key: str, value: str) -> None:
-        """Store secret securely."""
+        """Store secret securely"""
     
     def delete_secret(self, key: str) -> None:
-        """Delete secret."""
+        """Delete secret"""
 ```
 
 #### Improvement Possibilities:
@@ -719,13 +720,13 @@ SOLID: 100% (Protocol-based design)
 ```python
 # microservices/base.py
 class ServiceRegistry:
-    """Service discovery for distributed architecture."""
+    """Service discovery for distributed architecture"""
     
     def register_service(self, service_info: ServiceInfo) -> None:
-        """Register service for discovery."""
+        """Register service for discovery"""
     
     def discover_services(self, service_type: str) -> List[ServiceInfo]:
-        """Find all services of a type."""
+        """Find all services of a type"""
 ```
 
 #### Improvement Possibilities:

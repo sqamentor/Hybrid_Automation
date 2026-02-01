@@ -1,5 +1,8 @@
-"""Recording Workflow Orchestrator Manages the complete recording → refactoring → page object → API
-integration workflow WITH PROJECT-AWARE ORGANIZATION AND ENVIRONMENT DETECTION."""
+"""
+Recording Workflow Orchestrator
+Manages the complete recording → refactoring → page object → API integration workflow
+WITH PROJECT-AWARE ORGANIZATION AND ENVIRONMENT DETECTION
+"""
 
 import time
 from pathlib import Path
@@ -33,8 +36,9 @@ class RecordingWorkflow:
         ai_provider: Optional[str] = None,
         project_manager: Optional[ProjectManager] = None
     ):
-        """Initialize Recording Workflow.
-
+        """
+        Initialize Recording Workflow
+        
         Args:
             recordings_dir: Base directory for recorded scripts
             pages_dir: Base directory for page objects
@@ -68,8 +72,9 @@ class RecordingWorkflow:
         manual_project: Optional[str] = None,
         environment: Optional[str] = None
     ) -> Dict[str, Any]:
-        """Quick complete workflow with PROJECT AWARENESS.
-
+        """
+        Quick complete workflow with PROJECT AWARENESS
+        
         Args:
             url: Starting URL
             test_name: Name for the test (or feature description)
@@ -79,7 +84,7 @@ class RecordingWorkflow:
             mobile: Use mobile device
             manual_project: Manual project override (auto-detect if None)
             environment: Manual environment override (auto-detect if None)
-
+        
         Returns:
             Dict with workflow results including project info
         """
@@ -245,8 +250,9 @@ class RecordingWorkflow:
         save_auth: bool = False,
         refactor_improvements: Optional[List[str]] = None
     ) -> Dict[str, Any]:
-        """Full workflow with all customization options.
-
+        """
+        Full workflow with all customization options
+        
         Args:
             url: Starting URL
             test_name: Test name
@@ -254,16 +260,15 @@ class RecordingWorkflow:
             device: Device to emulate
             save_auth: Save authentication state
             refactor_improvements: List of improvements to apply
-
+        
         Returns:
             Dict with workflow results
         """
         logger.info(f"Starting full workflow for: {test_name}")
         
-        steps: Dict[str, Any] = {}
-        workflow_results: Dict[str, Any] = {
+        workflow_results = {
             "test_name": test_name,
-            "steps": steps,
+            "steps": {},
             "status": "in_progress",
             "start_time": time.time()
         }
@@ -283,7 +288,7 @@ class RecordingWorkflow:
                 device=device
             )
         
-        steps["recording"] = recording_result
+        workflow_results["steps"]["recording"] = recording_result
         
         if recording_result.get("status") != "success":
             workflow_results["status"] = "failed_at_recording"
@@ -298,7 +303,7 @@ class RecordingWorkflow:
         print("="*80)
         
         preview = self.refactorer.preview_improvements(recorded_file)
-        steps["analysis"] = preview
+        workflow_results["steps"]["analysis"] = preview
         
         if preview.get("suggestions"):
             print("\nSuggested improvements:")
@@ -314,7 +319,7 @@ class RecordingWorkflow:
             recorded_file,
             improvements=refactor_improvements
         )
-        steps["refactoring"] = refactor_result
+        workflow_results["steps"]["refactoring"] = refactor_result
         
         if refactor_result.get("status") == "success":
             recorded_file = refactor_result["refactored_file"]
@@ -326,7 +331,7 @@ class RecordingWorkflow:
         print("="*80)
         
         page_result = self.page_generator.generate_from_script(recorded_file)
-        steps["page_object"] = page_result
+        workflow_results["steps"]["page_object"] = page_result
         
         if page_result.get("status") == "success":
             print(f"✓ Page Object: {page_result['page_class']}")
@@ -343,7 +348,7 @@ class RecordingWorkflow:
             page_result.get("page_file", ""),
             page_result.get("page_class", "")
         )
-        steps["integration"] = integration_guide
+        workflow_results["steps"]["integration"] = integration_guide
         print(integration_guide["instructions"])
         
         workflow_results["status"] = "success"
@@ -361,7 +366,7 @@ class RecordingWorkflow:
         page_file: str,
         page_class: str
     ) -> Dict[str, str]:
-        """Generate API/DB integration guide."""
+        """Generate API/DB integration guide"""
         
         instructions = f"""
 API/DB Integration Steps:
@@ -425,8 +430,8 @@ API/DB Integration Steps:
             "page_class": page_class
         }
     
-    def _print_workflow_summary(self, results: Dict[str, Any]) -> None:
-        """Print workflow summary."""
+    def _print_workflow_summary(self, results: Dict[str, Any]):
+        """Print workflow summary"""
         print("\n" + "="*80)
         print("WORKFLOW SUMMARY")
         print("="*80)
@@ -452,11 +457,11 @@ API/DB Integration Steps:
         print("="*80 + "\n")
     
     def list_recordings(self) -> List[Dict[str, Any]]:
-        """List all recorded tests."""
+        """List all recorded tests"""
         return self.codegen.list_recordings()
     
     def list_page_objects(self) -> List[Dict[str, Any]]:
-        """List all generated page objects."""
+        """List all generated page objects"""
         return self.page_generator.list_page_objects()
 
 
@@ -466,13 +471,14 @@ def quick_record_and_generate(
     test_name: str,
     mobile: bool = False
 ) -> Dict[str, Any]:
-    """Quick function to record and generate complete test setup.
-
+    """
+    Quick function to record and generate complete test setup
+    
     Args:
         url: Starting URL
         test_name: Test name
         mobile: Use mobile device
-
+    
     Returns:
         Workflow results
     """

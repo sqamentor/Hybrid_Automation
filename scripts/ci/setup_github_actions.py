@@ -13,7 +13,7 @@ from pathlib import Path
 
 
 def check_workflow_file():
-    """Check if workflow file exists."""
+    """Check if workflow file exists"""
     workflow_path = Path(".github/workflows/architecture-audit.yml")
     
     if workflow_path.exists():
@@ -37,7 +37,7 @@ def check_github_token():
 
 
 def print_setup_instructions():
-    """Print setup instructions."""
+    """Print setup instructions"""
     print("\n" + "="*70)
     print("GITHUB ACTIONS SETUP INSTRUCTIONS")
     print("="*70)
@@ -90,7 +90,7 @@ def print_setup_instructions():
 
 
 def main():
-    """Main setup helper."""
+    """Main setup helper"""
     print("\n" + "="*70)
     print("GOVERNANCE SYSTEM - GITHUB ACTIONS SETUP HELPER")
     print("="*70)

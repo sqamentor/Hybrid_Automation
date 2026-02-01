@@ -1,5 +1,6 @@
-"""Root-level pytest configuration This conftest.py registers command-line options for all tests in
-the project.
+"""
+Root-level pytest configuration
+This conftest.py registers command-line options for all tests in the project
 
 Author: Lokendra Singh
 Email: qa.lokendra@gmail.com
@@ -20,7 +21,7 @@ pytest_plugins = ['scripts.governance.pytest_arch_audit_plugin']
 
 
 def pytest_addoption(parser):
-    """Add custom command line options available to all tests."""
+    """Add custom command line options available to all tests"""
     
     # Project selection
     parser.addoption(
@@ -126,11 +127,12 @@ def env(request):
 
 @pytest.fixture(scope="session")
 def browser_config(request):
-    """Browser configuration fixture.
-
+    """
+    Browser configuration fixture
+    
     Returns:
         dict: Browser configuration with 'name' and 'headless' keys
-
+    
     Usage:
         def test_example(browser_config):
             print(f"Browser: {browser_config['name']}")
@@ -199,22 +201,23 @@ def multi_project_config(env):
 
 @pytest.fixture(scope="function")
 def human_behavior(request):
-    """Human Behavior Simulator fixture.
-
+    """
+    Human Behavior Simulator fixture
+    
     Provides human-like interaction simulation for tests.
     Automatically integrates with 'browser' or 'page' fixtures.
-
+    
     Configuration:
         - Controlled via config/human_behavior.yaml
         - Command line: --enable-human-behavior / --disable-human-behavior
         - Intensity: --human-behavior-intensity [minimal|normal|high]
-
+    
     Usage:
         def test_with_human_behavior(human_behavior):
             human_behavior.type_text(element, "Hello World")
             human_behavior.click_element(button)
             human_behavior.scroll_page('bottom')
-
+    
     Or use pytest marker:
         @pytest.mark.human_like
         def test_example(browser):
@@ -285,8 +288,9 @@ def human_behavior(request):
 
 @pytest.fixture(scope="function", autouse=True)
 def auto_human_behavior_marker(request):
-    """Auto-apply human behavior to tests marked with @pytest.mark.human_like.
-
+    """
+    Auto-apply human behavior to tests marked with @pytest.mark.human_like
+    
     This fixture runs automatically for all tests and checks for the marker.
     """
     if request.node.get_closest_marker('human_like'):
@@ -299,8 +303,9 @@ def auto_human_behavior_marker(request):
 
 @pytest.fixture(scope="function")
 def fake_bookslot_data():
-    """Generate a fresh fake bookslot payload for each test.
-
+    """
+    Generate a fresh fake bookslot payload for each test.
+    
     Usage:
         def test_bookslot(fake_bookslot_data):
             first_name = fake_bookslot_data['first_name']
@@ -311,8 +316,9 @@ def fake_bookslot_data():
 
 @pytest.fixture(scope="function")
 def fake_bookslot_batch():
-    """Generate a batch of 5 fake bookslot payloads for each test.
-
+    """
+    Generate a batch of 5 fake bookslot payloads for each test.
+    
     Usage:
         def test_multiple_bookslots(fake_bookslot_batch):
             for data in fake_bookslot_batch:
@@ -324,8 +330,9 @@ def fake_bookslot_batch():
 
 @pytest.fixture(scope="session")
 def bookslot_data_file():
-    """Load bookslot data from pre-generated file (session-scoped).
-
+    """
+    Load bookslot data from pre-generated file (session-scoped).
+    
     Usage:
         def test_with_file_data(bookslot_data_file):
             for data in bookslot_data_file:
@@ -346,10 +353,11 @@ def bookslot_data_file():
 
 @pytest.fixture(scope="function")
 def smart_actions(page, human_behavior):
-    """Provides SmartActions instance with automatic context-aware delays.
-
+    """
+    Provides SmartActions instance with automatic context-aware delays.
+    
     This eliminates manual delay calls throughout test code!
-
+    
     Usage:
         def test_bookslot(smart_actions, fake_bookslot_data, page):
             smart_actions.type_text(page.locator("#name"), fake_bookslot_data['first_name'], "First Name")
@@ -367,18 +375,19 @@ def smart_actions(page, human_behavior):
 
 @pytest.fixture(scope="session")
 def browser_context_args(browser_context_args):
-    """🎯 GLOBAL BROWSER CONTEXT CONFIGURATION.
-
+    """
+    🎯 GLOBAL BROWSER CONTEXT CONFIGURATION
+    
     Override pytest-playwright's default browser context to use maximized window.
-
+    
     Why viewport=None?
     - Default: pytest-playwright uses 1280x720 fixed viewport
     - With None: Browser uses actual window size (responsive testing)
     - Best for: Modern responsive apps, real-world scenarios
-
+    
     Scope: session (configured once, reused across all tests)
     Applies to: All tests using 'page', 'context' fixtures from pytest-playwright
-
+    
     Can be overridden per test:
         @pytest.fixture
         def browser_context_args():
@@ -393,22 +402,23 @@ def browser_context_args(browser_context_args):
 
 @pytest.fixture(scope="session")
 def browser_type_launch_args(browser_type_launch_args):
-    """🚀 GLOBAL BROWSER LAUNCH CONFIGURATION.
-
+    """
+    🚀 GLOBAL BROWSER LAUNCH CONFIGURATION
+    
     Override browser launch arguments for optimal testing experience.
-
+    
     Why --start-maximized?
     - Ensures browser opens in full-screen mode
     - Better visibility during test execution
     - Matches real user experience
-
+    
     Cross-browser notes:
     - Chromium/Chrome: --start-maximized works perfectly
     - Firefox: Uses viewport=None from browser_context_args
     - WebKit: Uses viewport=None from browser_context_args
-
+    
     Scope: session (configured once, reused across all tests)
-
+    
     Can be extended per test:
         @pytest.fixture
         def browser_type_launch_args():
@@ -423,8 +433,8 @@ def browser_type_launch_args(browser_type_launch_args):
 
 
 def pytest_collection_modifyitems(config, items):
-    """Mark sync Playwright tests to skip asyncio auto-wrapping.
-
+    """
+    Mark sync Playwright tests to skip asyncio auto-wrapping.
     This prevents the error: "Using Playwright Sync API inside asyncio loop"
     """
     for item in items:

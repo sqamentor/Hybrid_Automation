@@ -1,8 +1,8 @@
-"""Minimal Playwright sync test to isolate the issue."""
+"""Minimal Playwright sync test to isolate the issue"""
 import pytest
 
 def test_sync_playwright():
-    """Test Playwright sync API in pytest."""
+    """Test Playwright sync API in pytest"""
     from playwright.sync_api import sync_playwright
     
     playwright = sync_playwright().start()

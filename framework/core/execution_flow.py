@@ -1,4 +1,5 @@
-"""Execution Flow Orchestrator.
+"""
+Execution Flow Orchestrator
 
 This module orchestrates the complete UI → API → DB execution flow.
 """
@@ -23,7 +24,7 @@ logger = get_logger(__name__)
 
 @dataclass
 class ExecutionContext:
-    """Context for a single test execution."""
+    """Context for a single test execution"""
     test_name: str
     engine: str
     start_time: datetime = field(default_factory=datetime.now)
@@ -43,14 +44,14 @@ class ExecutionContext:
 
 
 class ExecutionFlow:
-    """Orchestrates UI → API → DB execution flow."""
+    """Orchestrates UI → API → DB execution flow"""
     
     def __init__(self):
         self.current_context: Optional[ExecutionContext] = None
         self.contexts: List[ExecutionContext] = []
     
     def start_execution(self, test_name: str, engine: str) -> ExecutionContext:
-        """Start new test execution."""
+        """Start new test execution"""
         context = ExecutionContext(test_name=test_name, engine=engine)
         self.current_context = context
         self.contexts.append(context)
@@ -58,8 +59,8 @@ class ExecutionFlow:
         logger.info(f"Started execution: {test_name} using {engine}")
         return context
     
-    def record_ui_action(self, action: str, details: Dict[str, Any]) -> None:
-        """Record UI action."""
+    def record_ui_action(self, action: str, details: Dict[str, Any]):
+        """Record UI action"""
         if self.current_context:
             self.current_context.ui_actions.append({
                 "timestamp": datetime.now().isoformat(),
@@ -68,7 +69,7 @@ class ExecutionFlow:
             })
             logger.debug(f"UI Action: {action}")
     
-    def record_api_call(self, method: str, url: str, request: Dict[str, Any], response: Dict[str, Any]) -> None:
+    def record_api_call(self, method: str, url: str, request: Dict, response: Dict):
         """Record API call (only if API validation enabled)"""
         if not should_run_api_validation():
             logger.debug("API validation disabled - skipping API call recording")
@@ -84,7 +85,7 @@ class ExecutionFlow:
             })
             logger.debug(f"API Call: {method} {url}")
     
-    def record_db_validation(self, query: str, result: Any, assertion: str) -> None:
+    def record_db_validation(self, query: str, result: Any, assertion: str):
         """Record database validation (only if DB validation enabled)"""
         if not should_run_db_validation():
             logger.debug("Database validation disabled - skipping DB validation recording")
@@ -99,14 +100,14 @@ class ExecutionFlow:
             })
             logger.debug(f"DB Validation: {assertion}")
     
-    def add_evidence(self, evidence_type: str, file_path: str) -> None:
-        """Add evidence file."""
+    def add_evidence(self, evidence_type: str, file_path: str):
+        """Add evidence file"""
         if self.current_context:
             self.current_context.evidence[evidence_type].append(file_path)
             logger.debug(f"Evidence added: {evidence_type} -> {file_path}")
     
-    def complete_execution(self, status: str, error: Optional[str] = None) -> None:
-        """Complete test execution."""
+    def complete_execution(self, status: str, error: Optional[str] = None):
+        """Complete test execution"""
         if self.current_context:
             self.current_context.end_time = datetime.now()
             self.current_context.status = status
@@ -116,7 +117,7 @@ class ExecutionFlow:
             logger.info(f"Completed execution: {self.current_context.test_name} - {status} ({duration:.2f}s)")
     
     def get_correlation_keys(self) -> Dict[str, Any]:
-        """Extract correlation keys from API calls."""
+        """Extract correlation keys from API calls"""
         if not self.current_context:
             return {}
         
@@ -140,7 +141,7 @@ class ExecutionFlow:
         return keys
     
     def generate_report(self) -> Dict[str, Any]:
-        """Generate execution report."""
+        """Generate execution report"""
         if not self.current_context:
             return {}
         

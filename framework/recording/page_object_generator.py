@@ -1,5 +1,7 @@
-"""Page Object Generator Automatically generates Page Object Model classes from recorded Playwright
-scripts."""
+"""
+Page Object Generator
+Automatically generates Page Object Model classes from recorded Playwright scripts
+"""
 
 import ast
 import re
@@ -10,12 +12,15 @@ from loguru import logger
 
 
 class PageObjectGenerator:
-    """Generates Page Object Model classes from recorded Playwright scripts Extracts locators,
-    actions, and creates reusable page classes."""
+    """
+    Generates Page Object Model classes from recorded Playwright scripts
+    Extracts locators, actions, and creates reusable page classes
+    """
     
     def __init__(self, output_dir: str = "pages"):
-        """Initialize Page Object Generator.
-
+        """
+        Initialize Page Object Generator
+        
         Args:
             output_dir: Directory to save generated page objects
         """
@@ -30,14 +35,15 @@ class PageObjectGenerator:
         extract_locators: bool = True,
         extract_actions: bool = True
     ) -> Dict[str, Any]:
-        """Generate Page Object from recorded script.
-
+        """
+        Generate Page Object from recorded script
+        
         Args:
             script_path: Path to recorded/refactored script
             page_name: Name for the page object class
             extract_locators: Extract locators as properties
             extract_actions: Extract actions as methods
-
+        
         Returns:
             Dict with generation metadata
         """
@@ -97,7 +103,7 @@ class PageObjectGenerator:
         }
     
     def _extract_locators(self, code: str) -> List[Dict[str, str]]:
-        """Extract locators from script."""
+        """Extract locators from script"""
         locators = []
         
         # Patterns to match Playwright locators
@@ -135,7 +141,7 @@ class PageObjectGenerator:
         return locators
     
     def _extract_actions(self, code: str) -> List[Dict[str, Any]]:
-        """Extract actions from script."""
+        """Extract actions from script"""
         actions = []
         
         # Common Playwright actions
@@ -158,7 +164,7 @@ class PageObjectGenerator:
         return actions
     
     def _extract_url(self, code: str) -> Optional[str]:
-        """Extract URL from goto statement."""
+        """Extract URL from goto statement"""
         match = re.search(r'page\.goto\([\'"]([^\'"]+)[\'"]\)', code)
         if match:
             return match.group(1)
@@ -171,7 +177,7 @@ class PageObjectGenerator:
         actions: List[Dict[str, Any]],
         url: Optional[str]
     ) -> str:
-        """Generate Page Object class code."""
+        """Generate Page Object class code"""
         
         # Build class code
         code_parts = []
@@ -271,7 +277,7 @@ class PageObjectGenerator:
         return '\n'.join(code_parts)
     
     def _generate_property_name(self, selector: str, locator_type: str) -> str:
-        """Generate a valid Python property name from selector."""
+        """Generate a valid Python property name from selector"""
         # Remove special characters
         name = re.sub(r'[^\w\s-]', '', selector)
         # Replace spaces and hyphens with underscores
@@ -288,13 +294,13 @@ class PageObjectGenerator:
         return name
     
     def _to_snake_case(self, name: str) -> str:
-        """Convert PascalCase to snake_case."""
+        """Convert PascalCase to snake_case"""
         # Insert underscore before uppercase letters
         s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
         return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
     
     def _generate_usage_example(self, class_name: str, module_name: str) -> str:
-        """Generate usage example."""
+        """Generate usage example"""
         return f"""# Usage Example:
 
 from pages.{module_name} import {class_name}
@@ -313,7 +319,7 @@ def test_using_{module_name}(page):
 """
     
     def list_page_objects(self) -> List[Dict[str, Any]]:
-        """List all generated page objects."""
+        """List all generated page objects"""
         page_objects = []
         
         for py_file in self.output_dir.glob("*.py"):

@@ -1,4 +1,6 @@
-"""Enhanced Integration Example Demonstrates using all new framework capabilities in a single test.
+"""
+Enhanced Integration Example
+Demonstrates using all new framework capabilities in a single test
 
 This example shows:
 1. Selenium Grid support for remote execution
@@ -18,7 +20,7 @@ from models.appointment import Appointment
 @pytest.mark.enhanced_features
 @pytest.mark.modern_spa
 class TestEnhancedIntegration:
-    """Integration tests using all enhanced framework features."""
+    """Integration tests using all enhanced framework features"""
     
     def test_complete_flow_with_all_enhancements(
         self, 
@@ -173,8 +175,10 @@ class TestEnhancedIntegration:
     
     
     def test_request_modification_feature(self, api_interceptor):
-        """Test request modification capabilities Demonstrates modifying headers and body before
-        sending."""
+        """
+        Test request modification capabilities
+        Demonstrates modifying headers and body before sending
+        """
         
         # Create request modifier
         from framework.api.api_interceptor import RequestModifier
@@ -207,7 +211,10 @@ class TestEnhancedIntegration:
     
     
     def test_response_mocking_feature(self, api_interceptor):
-        """Test response mocking capabilities Demonstrates mocking API responses for testing."""
+        """
+        Test response mocking capabilities
+        Demonstrates mocking API responses for testing
+        """
         
         # Create response modifier
         from framework.api.api_interceptor import ResponseModifier
@@ -245,7 +252,10 @@ class TestEnhancedIntegration:
     
     
     def test_validation_pattern_caching(self, ai_validator):
-        """Test validation pattern caching performance Demonstrates cache hit/miss behavior."""
+        """
+        Test validation pattern caching performance
+        Demonstrates cache hit/miss behavior
+        """
         
         # Clear cache to start fresh
         ai_validator.cache.clear()
@@ -280,7 +290,10 @@ class TestEnhancedIntegration:
     
     
     def test_confidence_scoring(self, ai_validator):
-        """Test confidence scoring algorithm Demonstrates how confidence scores are calculated."""
+        """
+        Test confidence scoring algorithm
+        Demonstrates how confidence scores are calculated
+        """
         
         # Test with comprehensive request data (should get high confidence)
         high_confidence_suggestions = ai_validator.suggest_validations(

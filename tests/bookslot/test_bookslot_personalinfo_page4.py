@@ -34,7 +34,7 @@ from tests.bookslot.helpers.navigation_helper import BookslotNavigator
 @pytest.mark.modern_spa
 @pytest.mark.bookslot
 class TestPersonalInfoPage:
-    """Test suite for Personal Info page functionality."""
+    """Test suite for Personal Info page functionality"""
 
     @allure.story("Page Load")
     @allure.title("Verify Personal Info page loads successfully")

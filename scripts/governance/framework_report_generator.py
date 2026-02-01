@@ -17,8 +17,9 @@ from framework_audit_engine import AuditResult, Violation, Category, Severity
 
 
 def generate_markdown_report(result: AuditResult, output_path: Path) -> None:
-    """Generate comprehensive markdown audit report.
-
+    """
+    Generate comprehensive markdown audit report
+    
     Args:
         result: AuditResult object from audit run
         output_path: Path where markdown file should be saved

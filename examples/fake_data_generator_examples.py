@@ -25,7 +25,7 @@ from utils.fake_data_generator import (
 # Example 1: Generate a single payload dynamically during test execution
 # ============================================================================
 def example_single_payload():
-    """Generate a single bookslot payload on-the-fly."""
+    """Generate a single bookslot payload on-the-fly"""
     print("\n=== Example 1: Single Payload ===")
     
     # Generate fresh data for each test run
@@ -46,7 +46,7 @@ def example_single_payload():
 # Example 2: Generate and save multiple payloads to files
 # ============================================================================
 def example_batch_generation():
-    """Generate multiple payloads and save to JSON/YAML files."""
+    """Generate multiple payloads and save to JSON/YAML files"""
     print("\n=== Example 2: Batch Generation ===")
     
     # Generate 10 bookslot records
@@ -62,7 +62,7 @@ def example_batch_generation():
 # Example 3: Load pre-generated data from file
 # ============================================================================
 def example_load_from_file():
-    """Load previously generated data from JSON file."""
+    """Load previously generated data from JSON file"""
     print("\n=== Example 3: Load from File ===")
     
     try:
@@ -82,7 +82,7 @@ def example_load_from_file():
 # Example 4: Generate payload with custom options
 # ============================================================================
 def example_custom_options():
-    """Generate payload with custom configuration."""
+    """Generate payload with custom configuration"""
     print("\n=== Example 4: Custom Options ===")
     
     # Generate with dynamic ZIP code from Maryland
@@ -102,45 +102,46 @@ def example_custom_options():
 # Example 5: Integration with Pytest Test
 # ============================================================================
 def example_pytest_usage():
-    """Example of how to use in pytest tests.
-
+    """
+    Example of how to use in pytest tests
+    
     In your actual test file:
-
+    
     import pytest
     from utils.fake_data_generator import generate_bookslot_payload
-
+    
     @pytest.fixture
     def bookslot_data():
         '''Generate fresh fake data for each test'''
         return generate_bookslot_payload()
-
+    
     def test_bookslot_form_submission(bookslot_data, page):
         '''Test bookslot form with fake data'''
         # Navigate to bookslot page
         page.goto("https://yourapp.com/bookslot")
-
+        
         # Fill form with fake data
         page.fill("#first_name", bookslot_data["first_name"])
         page.fill("#last_name", bookslot_data["last_name"])
         page.fill("#email", bookslot_data["email"])
         page.fill("#phone", bookslot_data["phone_number"])
         page.fill("#dob", bookslot_data["dob"])
-
+        
         # Fill insurance fields
         page.fill("#member_name", bookslot_data["MemberName"])
         page.fill("#id_number", bookslot_data["idNumber"])
         page.select_option("#payer_name", bookslot_data["PayerName"])
-
+        
         # Submit and verify
         page.click("#submit_button")
         assert page.is_visible(".success_message")
-
+    
     def test_multiple_bookslots(page):
         '''Test multiple bookslot submissions'''
         # Load batch data
         from utils.fake_data_generator import load_bookslot_data
         data_list = load_bookslot_data("bookslot_data.json")
-
+        
         for data in data_list[:3]:  # Test first 3 records
             # Use data in your test
             page.fill("#email", data["email"])
@@ -154,7 +155,7 @@ def example_pytest_usage():
 # Example 6: Data-Driven Testing with Multiple Scenarios
 # ============================================================================
 def example_data_driven_testing():
-    """Generate data for different test scenarios."""
+    """Generate data for different test scenarios"""
     print("\n=== Example 6: Data-Driven Testing ===")
     
     scenarios = {

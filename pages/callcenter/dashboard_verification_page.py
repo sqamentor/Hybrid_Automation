@@ -1,4 +1,5 @@
-"""CallCenter Dashboard Verification Page Object.
+"""
+CallCenter Dashboard Verification Page Object
 
 This Page Object provides methods for verifying authenticated access
 to the CallCenter dashboard during cross-engine workflows.
@@ -11,11 +12,12 @@ from playwright.sync_api import Page
 
 
 class CallCenterDashboardVerificationPage:
-    """Page Object for CallCenter dashboard verification in workflows."""
+    """Page Object for CallCenter dashboard verification in workflows"""
     
     def __init__(self, page: Page):
-        """Initialize CallCenter dashboard verification page.
-
+        """
+        Initialize CallCenter dashboard verification page
+        
         Args:
             page: Playwright page instance (from ui_engine fixture)
         """
@@ -26,11 +28,12 @@ class CallCenterDashboardVerificationPage:
         self.user_menu_selector = "[data-testid='user-menu'], .user-profile, #user-menu"
     
     def navigate_to(self, url: str) -> 'CallCenterDashboardVerificationPage':
-        """Navigate to CallCenter URL.
-
+        """
+        Navigate to CallCenter URL
+        
         Args:
             url: CallCenter application URL
-
+            
         Returns:
             Self for method chaining
         """
@@ -39,16 +42,18 @@ class CallCenterDashboardVerificationPage:
         return self
     
     def get_current_url(self) -> str:
-        """Get current page URL.
-
+        """
+        Get current page URL
+        
         Returns:
             Current URL as string
         """
         return self.page.url
     
     def is_authenticated(self) -> bool:
-        """Check if user is authenticated (not redirected to login)
-
+        """
+        Check if user is authenticated (not redirected to login)
+        
         Returns:
             True if authenticated, False if redirected to login
         """
@@ -56,8 +61,9 @@ class CallCenterDashboardVerificationPage:
         return 'login' not in current_url.lower()
     
     def has_user_menu(self) -> bool:
-        """Check if user menu is visible (authentication indicator)
-
+        """
+        Check if user menu is visible (authentication indicator)
+        
         Returns:
             True if user menu found, False otherwise
         """
@@ -68,20 +74,22 @@ class CallCenterDashboardVerificationPage:
             return False
     
     def get_page_title(self) -> str:
-        """Get current page title.
-
+        """
+        Get current page title
+        
         Returns:
             Page title as string
         """
         return self.page.title()
     
     def verify_authenticated_access(self) -> bool:
-        """Verify authenticated access to CallCenter dashboard.
-
+        """
+        Verify authenticated access to CallCenter dashboard
+        
         Checks:
         - Not redirected to login page
         - User menu is visible
-
+        
         Returns:
             True if all checks pass, False otherwise
         """
@@ -96,8 +104,9 @@ class CallCenterDashboardVerificationPage:
             return False
     
     def get_verification_details(self) -> dict:
-        """Get comprehensive verification details.
-
+        """
+        Get comprehensive verification details
+        
         Returns:
             Dict with verification status, URL, title, and indicators
         """

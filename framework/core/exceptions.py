@@ -4,32 +4,26 @@ Custom Exceptions - Framework-Specific Exception Classes
 Provides structured exception handling with actionable error messages.
 """
 
-from typing import Any, Dict, Optional
-
 
 class AutomationFrameworkException(Exception):
-    """Base exception for all framework errors."""
+    """Base exception for all framework errors"""
     
-    def __init__(
-        self,
-        message: str,
-        details: Optional[Dict[str, Any]] = None,
-        hint: Optional[str] = None,
-    ) -> None:
-        """Initialize exception.
-
+    def __init__(self, message: str, details: dict = None, hint: str = None):
+        """
+        Initialize exception
+        
         Args:
             message: Error message
             details: Additional error details
             hint: Hint for resolution
         """
         self.message = message
-        self.details: Dict[str, Any] = details or {}
+        self.details = details or {}
         self.hint = hint
         super().__init__(self._format_message())
     
     def _format_message(self) -> str:
-        """Format error message with details and hint."""
+        """Format error message with details and hint"""
         msg = self.message
         
         if self.details:
@@ -46,12 +40,12 @@ class AutomationFrameworkException(Exception):
 # ========================================================================
 
 class EngineException(AutomationFrameworkException):
-    """Base exception for UI engine errors."""
+    """Base exception for UI engine errors"""
     pass
 
 
 class EngineStartupException(EngineException):
-    """Engine failed to start."""
+    """Engine failed to start"""
     
     def __init__(self, engine_type: str, reason: str):
         super().__init__(
@@ -62,7 +56,7 @@ class EngineStartupException(EngineException):
 
 
 class EngineFailureException(EngineException):
-    """Engine encountered fatal error during execution."""
+    """Engine encountered fatal error during execution"""
     
     def __init__(self, engine_type: str, action: str, reason: str):
         super().__init__(
@@ -73,7 +67,7 @@ class EngineFailureException(EngineException):
 
 
 class BrowserCrashException(EngineException):
-    """Browser process crashed."""
+    """Browser process crashed"""
     
     def __init__(self, engine_type: str):
         super().__init__(
@@ -84,7 +78,7 @@ class BrowserCrashException(EngineException):
 
 
 class NavigationTimeoutException(EngineException):
-    """Page navigation timed out."""
+    """Page navigation timed out"""
     
     def __init__(self, url: str, timeout: int):
         super().__init__(
@@ -95,9 +89,9 @@ class NavigationTimeoutException(EngineException):
 
 
 class ElementNotFoundException(EngineException):
-    """Element not found on page."""
+    """Element not found on page"""
     
-    def __init__(self, locator: str, timeout: Optional[int] = None):
+    def __init__(self, locator: str, timeout: int = None):
         msg = f"Element not found: {locator}"
         if timeout:
             msg += f" (waited {timeout}s)"
@@ -110,7 +104,7 @@ class ElementNotFoundException(EngineException):
 
 
 class ContextCorruptionException(EngineException):
-    """Browser context corrupted."""
+    """Browser context corrupted"""
     
     def __init__(self, engine_type: str):
         super().__init__(
@@ -125,20 +119,14 @@ class ContextCorruptionException(EngineException):
 # ========================================================================
 
 class APIException(AutomationFrameworkException):
-    """Base exception for API errors."""
+    """Base exception for API errors"""
     pass
 
 
 class APIRequestException(APIException):
-    """API request failed."""
+    """API request failed"""
     
-    def __init__(
-        self,
-        method: str,
-        endpoint: str,
-        status_code: Optional[int] = None,
-        reason: Optional[str] = None,
-    ) -> None:
+    def __init__(self, method: str, endpoint: str, status_code: int = None, reason: str = None):
         super().__init__(
             message=f"API request failed: {method} {endpoint}",
             details={
@@ -152,9 +140,9 @@ class APIRequestException(APIException):
 
 
 class APIValidationException(APIException):
-    """API response validation failed."""
+    """API response validation failed"""
     
-    def __init__(self, endpoint: str, validation_type: str, expected: Any, actual: Any) -> None:
+    def __init__(self, endpoint: str, validation_type: str, expected, actual):
         super().__init__(
             message=f"API validation failed for {endpoint}",
             details={
@@ -168,7 +156,7 @@ class APIValidationException(APIException):
 
 
 class APITimeoutException(APIException):
-    """API request timed out."""
+    """API request timed out"""
     
     def __init__(self, endpoint: str, timeout: int):
         super().__init__(
@@ -183,12 +171,12 @@ class APITimeoutException(APIException):
 # ========================================================================
 
 class DatabaseException(AutomationFrameworkException):
-    """Base exception for database errors."""
+    """Base exception for database errors"""
     pass
 
 
 class DatabaseConnectionException(DatabaseException):
-    """Failed to connect to database."""
+    """Failed to connect to database"""
     
     def __init__(self, db_name: str, reason: str):
         super().__init__(
@@ -199,7 +187,7 @@ class DatabaseConnectionException(DatabaseException):
 
 
 class DatabaseQueryException(DatabaseException):
-    """Database query execution failed."""
+    """Database query execution failed"""
     
     def __init__(self, query: str, reason: str):
         super().__init__(
@@ -210,15 +198,9 @@ class DatabaseQueryException(DatabaseException):
 
 
 class DatabaseValidationException(DatabaseException):
-    """Database validation assertion failed."""
+    """Database validation assertion failed"""
     
-    def __init__(
-        self,
-        validation_type: str,
-        expected: Any,
-        actual: Any,
-        query: Optional[str] = None,
-    ) -> None:
+    def __init__(self, validation_type: str, expected, actual, query: str = None):
         super().__init__(
             message=f"Database validation failed: {validation_type}",
             details={
@@ -232,7 +214,7 @@ class DatabaseValidationException(DatabaseException):
 
 
 class ReadOnlyViolationException(DatabaseException):
-    """Attempted write operation on read-only connection."""
+    """Attempted write operation on read-only connection"""
     
     def __init__(self, query: str):
         super().__init__(
@@ -247,12 +229,12 @@ class ReadOnlyViolationException(DatabaseException):
 # ========================================================================
 
 class ConfigurationException(AutomationFrameworkException):
-    """Base exception for configuration errors."""
+    """Base exception for configuration errors"""
     pass
 
 
 class MissingConfigurationException(ConfigurationException):
-    """Required configuration is missing."""
+    """Required configuration is missing"""
     
     def __init__(self, config_key: str):
         super().__init__(
@@ -263,9 +245,9 @@ class MissingConfigurationException(ConfigurationException):
 
 
 class InvalidConfigurationException(ConfigurationException):
-    """Configuration value is invalid."""
+    """Configuration value is invalid"""
     
-    def __init__(self, config_key: str, value: Any, reason: str):
+    def __init__(self, config_key: str, value, reason: str):
         super().__init__(
             message=f"Invalid configuration: {config_key}",
             details={'config_key': config_key, 'value': value, 'reason': reason},
@@ -278,12 +260,12 @@ class InvalidConfigurationException(ConfigurationException):
 # ========================================================================
 
 class AIException(AutomationFrameworkException):
-    """Base exception for AI-related errors."""
+    """Base exception for AI-related errors"""
     pass
 
 
 class AIServiceUnavailableException(AIException):
-    """AI service is not available."""
+    """AI service is not available"""
     
     def __init__(self, service: str, reason: str):
         super().__init__(
@@ -294,7 +276,7 @@ class AIServiceUnavailableException(AIException):
 
 
 class AIValidationException(AIException):
-    """AI validation suggestion failed."""
+    """AI validation suggestion failed"""
     
     def __init__(self, reason: str):
         super().__init__(
@@ -309,7 +291,7 @@ class AIValidationException(AIException):
 # ========================================================================
 
 class TestDataException(AutomationFrameworkException):
-    """Test data generation or validation failed."""
+    """Test data generation or validation failed"""
     
     def __init__(self, data_type: str, reason: str):
         super().__init__(
@@ -320,7 +302,7 @@ class TestDataException(AutomationFrameworkException):
 
 
 class CorrelationException(AutomationFrameworkException):
-    """Failed to correlate data between layers."""
+    """Failed to correlate data between layers"""
     
     def __init__(self, layer_from: str, layer_to: str, key: str):
         super().__init__(

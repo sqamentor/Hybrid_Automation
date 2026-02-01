@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 class AuthMethod(Enum):
-    """Authentication methods supported."""
+    """Authentication methods supported"""
     SSO = "sso"  # Okta, Azure AD, etc.
     MFA = "mfa"  # Multi-factor authentication
     BASIC = "basic"  # Username/password
@@ -28,8 +28,9 @@ class AuthMethod(Enum):
 
 
 class AuthenticationService:
-    """Unified authentication service.
-
+    """
+    Unified authentication service
+    
     Handles:
     - SSO authentication (Okta, Azure AD, Google, etc.)
     - MFA flows
@@ -44,14 +45,6 @@ class AuthenticationService:
         self.logger = logger
         self._current_session: Optional[SessionData] = None
         self._current_user: Optional[Dict[str, Any]] = None
-
-    @staticmethod
-    def _require_value(data: Dict[str, str], key: str, context: str) -> str:
-        """Return required dictionary value or raise informative error."""
-        value = data.get(key)
-        if value is None or value == "":
-            raise ValueError(f"Missing required {context}: '{key}'")
-        return value
     
     # ========================================================================
     # SSO AUTHENTICATION
@@ -59,13 +52,14 @@ class AuthenticationService:
     
     def authenticate_sso(
         self,
-        engine: Any,
+        engine,
         sso_config: Dict[str, str],
         credentials: Dict[str, str],
         timeout: int = 60
     ) -> Optional[SessionData]:
-        """Authenticate using SSO (Okta, Azure AD, Google, etc.)
-
+        """
+        Authenticate using SSO (Okta, Azure AD, Google, etc.)
+        
         Args:
             engine: Selenium WebDriver instance
             sso_config: {
@@ -79,7 +73,7 @@ class AuthenticationService:
                 'mfa_token': '...' (optional)
             }
             timeout: Max wait time for auth completion
-
+        
         Returns:
             SessionData if successful
         """
@@ -104,12 +98,12 @@ class AuthenticationService:
     
     def _authenticate_okta(
         self,
-        driver: Any,
+        driver,
         sso_config: Dict[str, str],
         credentials: Dict[str, str],
         timeout: int
     ) -> Optional[SessionData]:
-        """Authenticate with Okta SSO."""
+        """Authenticate with Okta SSO"""
         self.logger.info("Authenticating with Okta...")
         
         try:
@@ -117,10 +111,10 @@ class AuthenticationService:
             from selenium.webdriver.support import expected_conditions as EC
             from selenium.webdriver.support.ui import WebDriverWait
             
-            okta_domain = self._require_value(sso_config, 'okta_domain', 'Okta configuration')
+            okta_domain = sso_config.get('okta_domain')
             app_id = sso_config.get('app_id', '')
-            username = self._require_value(credentials, 'username', 'credentials')
-            password = self._require_value(credentials, 'password', 'credentials')
+            username = credentials.get('username')
+            password = credentials.get('password')
             
             # Navigate to Okta
             if app_id:
@@ -194,12 +188,12 @@ class AuthenticationService:
     
     def _authenticate_azure_ad(
         self,
-        driver: Any,
+        driver,
         sso_config: Dict[str, str],
         credentials: Dict[str, str],
         timeout: int
     ) -> Optional[SessionData]:
-        """Authenticate with Azure AD."""
+        """Authenticate with Azure AD"""
         self.logger.info("Authenticating with Azure AD...")
         
         try:
@@ -210,8 +204,8 @@ class AuthenticationService:
             azure_domain = sso_config.get('azure_domain', 'https://login.microsoftonline.com')
             tenant_id = sso_config.get('tenant_id', 'common')
             client_id = sso_config.get('client_id', '')
-            username = self._require_value(credentials, 'username', 'credentials')
-            password = self._require_value(credentials, 'password', 'credentials')
+            username = credentials.get('username')
+            password = credentials.get('password')
             
             # Navigate to Azure AD
             login_url = f"{azure_domain}/{tenant_id}/oauth2/v2.0/authorize?client_id={client_id}"
@@ -279,12 +273,12 @@ class AuthenticationService:
     
     def _authenticate_google(
         self,
-        driver: Any,
+        driver,
         sso_config: Dict[str, str],
         credentials: Dict[str, str],
         timeout: int
     ) -> Optional[SessionData]:
-        """Authenticate with Google."""
+        """Authenticate with Google"""
         self.logger.info("Authenticating with Google...")
         
         try:
@@ -292,8 +286,8 @@ class AuthenticationService:
             from selenium.webdriver.support import expected_conditions as EC
             from selenium.webdriver.support.ui import WebDriverWait
             
-            username = self._require_value(credentials, 'username', 'credentials')
-            password = self._require_value(credentials, 'password', 'credentials')
+            username = credentials.get('username')
+            password = credentials.get('password')
             
             # Navigate to Google Sign-In
             login_url = "https://accounts.google.com/signin"
@@ -351,21 +345,22 @@ class AuthenticationService:
     
     def authenticate_basic(
         self,
-        engine: Any,
+        engine,
         username: str,
         password: str,
         login_url: str,
         timeout: int = 30
     ) -> Optional[SessionData]:
-        """Basic username/password authentication.
-
+        """
+        Basic username/password authentication
+        
         Args:
             engine: Selenium WebDriver or Playwright Page
             username: Username
             password: Password
             login_url: Login page URL
             timeout: Wait timeout
-
+        
         Returns:
             SessionData if successful
         """
@@ -384,13 +379,13 @@ class AuthenticationService:
     
     def _authenticate_basic_selenium(
         self,
-        driver: Any,
+        driver,
         username: str,
         password: str,
         login_url: str,
         timeout: int
     ) -> Optional[SessionData]:
-        """Basic auth using Selenium."""
+        """Basic auth using Selenium"""
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support import expected_conditions as EC
         from selenium.webdriver.support.ui import WebDriverWait
@@ -456,7 +451,7 @@ class AuthenticationService:
     
     def _authenticate_basic_playwright(
         self,
-        page: Any,
+        page,
         username: str,
         password: str,
         login_url: str,
@@ -472,19 +467,20 @@ class AuthenticationService:
     
     async def switch_engine_with_session(
         self,
-        from_engine: Any,
-        to_engine_page: Any,
+        from_engine,
+        to_engine_page,
         from_type: str = 'selenium',
         to_type: str = 'playwright'
     ) -> bool:
-        """Switch from one engine to another while preserving session.
-
+        """
+        Switch from one engine to another while preserving session
+        
         Args:
             from_engine: Source engine instance
             to_engine_page: Target Playwright page
             from_type: Source engine type
             to_type: Target engine type
-
+        
         Returns:
             True if successful
         """
@@ -513,19 +509,20 @@ class AuthenticationService:
     
     def switch_engine_with_session_sync(
         self,
-        from_engine: Any,
-        to_engine_page: Any,
+        from_engine,
+        to_engine_page,
         from_type: str = 'selenium',
         to_type: str = 'playwright'
     ) -> bool:
-        """Switch from one engine to another while preserving session (Sync version)
-
+        """
+        Switch from one engine to another while preserving session (Sync version)
+        
         Args:
             from_engine: Source engine instance
             to_engine_page: Target Playwright page
             from_type: Source engine type
             to_type: Target engine type
-
+        
         Returns:
             True if successful
         """
@@ -557,19 +554,19 @@ class AuthenticationService:
     # ========================================================================
     
     def get_current_session(self) -> Optional[SessionData]:
-        """Get current session data."""
+        """Get current session data"""
         return self._current_session
     
     def get_current_user(self) -> Optional[Dict[str, Any]]:
-        """Get current user information."""
+        """Get current user information"""
         return self._current_user
     
     def is_authenticated(self) -> bool:
-        """Check if currently authenticated."""
+        """Check if currently authenticated"""
         return self._current_session is not None and self._current_user is not None
     
     def clear_session(self) -> None:
-        """Clear current session."""
+        """Clear current session"""
         self._current_session = None
         self._current_user = None
         self.logger.info("✅ Session cleared")

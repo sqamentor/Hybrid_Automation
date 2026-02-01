@@ -1,4 +1,5 @@
-"""Authentication Service Package.
+"""
+Authentication Service Package
 
 Unified authentication interface for SSO, MFA, OAuth, and Basic authentication
 across Selenium and Playwright engines.

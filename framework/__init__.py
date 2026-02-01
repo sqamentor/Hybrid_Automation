@@ -1,4 +1,4 @@
-"""Framework Core Module.
+"""Framework Core Module
 
 Enterprise-Grade Hybrid Automation Framework
 
@@ -17,7 +17,7 @@ Website: www.sqamentor.com
 Assisted by: AI Claude (Anthropic)
 """
 
-from typing import Any, List
+from typing import List
 
 __version__ = "1.0.0"
 __author__ = "Lokendra Singh"
@@ -46,7 +46,7 @@ __all__: List[str] = [
 ]
 
 # Lazy imports for better performance
-def __getattr__(name: str) -> Any:
+def __getattr__(name: str):
     """Lazy import for better startup performance."""
     
     if name == "SmartActions":

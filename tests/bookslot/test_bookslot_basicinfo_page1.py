@@ -33,7 +33,7 @@ from tests.bookslot.helpers.navigation_helper import BookslotNavigator
 @pytest.mark.modern_spa
 @pytest.mark.bookslot
 class TestBasicInfoPage:
-    """Test suite for Basic Info page functionality."""
+    """Test suite for Basic Info page functionality"""
 
     @allure.story("Page Load")
     @allure.title("Verify Basic Info page loads successfully")

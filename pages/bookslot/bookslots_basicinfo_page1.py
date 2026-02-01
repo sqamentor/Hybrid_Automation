@@ -27,8 +27,9 @@ from playwright.sync_api import Page
 
 
 class BookslotBasicInfoPage:
-    """Page Object for Bookslot Basic Info Page.
-
+    """
+    Page Object for Bookslot Basic Info Page
+    
     What a user can do on this page:
     - Navigate to the page
     - Select language (English/Spanish)
@@ -39,8 +40,9 @@ class BookslotBasicInfoPage:
     """
 
     def __init__(self, page: Page, base_url: str):
-        """Initialize page object.
-
+        """
+        Initialize page object
+        
         Args:
             page: Playwright Page instance
             base_url: Base URL from multi_project_config
@@ -57,47 +59,47 @@ class BookslotBasicInfoPage:
     
     @property
     def heading_collect_info(self):
-        """'We need to collect some' heading."""
+        """'We need to collect some' heading"""
         return self.page.get_by_role("heading", name="We need to collect some")
     
     @property
     def heading_required_fields(self):
-        """'Fields marked with * are' heading."""
+        """'Fields marked with * are' heading"""
         return self.page.get_by_role("heading", name="Fields marked with * are")
     
     @property
     def button_english(self):
-        """English language button."""
+        """English language button"""
         return self.page.get_by_role("button", name="English")
     
     @property
     def button_spanish(self):
-        """Spanish language button."""
+        """Spanish language button"""
         return self.page.get_by_role("button", name="Español")
     
     @property
     def textbox_first_name(self):
-        """First Name input field."""
+        """First Name input field"""
         return self.page.get_by_role("textbox", name="First Name *")
     
     @property
     def textbox_last_name(self):
-        """Last Name input field."""
+        """Last Name input field"""
         return self.page.get_by_role("textbox", name="Last Name *")
     
     @property
     def textbox_email(self):
-        """Email input field."""
+        """Email input field"""
         return self.page.get_by_role("textbox", name="E-mail *")
     
     @property
     def textbox_phone(self):
-        """Phone number input field."""
+        """Phone number input field"""
         return self.page.locator("#CellPhone").get_by_role("textbox")
     
     @property
     def textbox_zip(self):
-        """Zip code input field."""
+        """Zip code input field"""
         return self.page.locator("#ZipCode")
     
     @property
@@ -107,22 +109,22 @@ class BookslotBasicInfoPage:
     
     @property
     def button_send_code(self):
-        """Send Me The Code button."""
+        """Send Me The Code button"""
         return self.page.get_by_role("button", name="Send Me The Code")
     
     @property
     def textbox_otp(self):
-        """OTP verification code input."""
+        """OTP verification code input"""
         return self.page.locator("#otp, input[type='text'][name*='otp'], input[placeholder*='code'], input[placeholder*='OTP']").first
     
     @property
     def button_verify_code(self):
-        """Verify Code button."""
+        """Verify Code button"""
         return self.page.get_by_role("button", name="Verify Code")
     
     @property
     def button_next(self):
-        """Next button to proceed."""
+        """Next button to proceed"""
         return self.page.get_by_role("button", name="Next")
 
     # ===================================================================
@@ -130,13 +132,13 @@ class BookslotBasicInfoPage:
     # ===================================================================
     
     def navigate(self):
-        """Navigate to the basic info page."""
+        """Navigate to the basic info page"""
         url = f"{self.base_url}{self.path}"
         self.page.goto(url, wait_until="networkidle")
         return self
     
     def wait_for_page_load(self):
-        """Wait for page to fully load."""
+        """Wait for page to fully load"""
         self.page.wait_for_load_state("networkidle")
         return self
 
@@ -145,68 +147,68 @@ class BookslotBasicInfoPage:
     # ===================================================================
     
     def select_language_english(self):
-        """Select English language."""
+        """Select English language"""
         self.button_english.click()
         return self
     
     def select_language_spanish(self):
-        """Select Spanish language."""
+        """Select Spanish language"""
         self.button_spanish.click()
         return self
     
     def fill_first_name(self, first_name: str):
-        """Fill first name field."""
+        """Fill first name field"""
         self.textbox_first_name.click()
         self.textbox_first_name.fill(first_name)
         return self
     
     def fill_last_name(self, last_name: str):
-        """Fill last name field."""
+        """Fill last name field"""
         self.textbox_last_name.click()
         self.textbox_last_name.fill(last_name)
         return self
     
     def fill_email(self, email: str):
-        """Fill email field."""
+        """Fill email field"""
         self.textbox_email.click()
         self.textbox_email.fill(email)
         return self
     
     def fill_phone(self, phone: str):
-        """Fill phone number field."""
+        """Fill phone number field"""
         self.textbox_phone.click()
         self.textbox_phone.fill(phone)
         return self
     
     def fill_zip(self, zip_code: str):
-        """Fill zip code field."""
+        """Fill zip code field"""
         self.textbox_zip.click()
         self.textbox_zip.fill(zip_code)
         return self
     
     def select_contact_preference(self):
-        """Click contact preference options."""
+        """Click contact preference options"""
         self.contact_preference.click()
         return self
     
     def submit_for_otp(self):
-        """Submit form to receive OTP code."""
+        """Submit form to receive OTP code"""
         self.button_send_code.click()
         return self
     
     def fill_otp(self, otp_code: str):
-        """Fill OTP verification code."""
+        """Fill OTP verification code"""
         self.textbox_otp.click()
         self.textbox_otp.fill(otp_code)
         return self
     
     def verify_otp(self):
-        """Click verify code button."""
+        """Click verify code button"""
         self.button_verify_code.click()
         return self
     
     def proceed_to_next(self):
-        """Click Next button."""
+        """Click Next button"""
         self.button_next.click()
         return self
 
@@ -215,42 +217,42 @@ class BookslotBasicInfoPage:
     # ===================================================================
     
     def is_page_loaded(self) -> bool:
-        """Check if page is loaded by verifying key element."""
+        """Check if page is loaded by verifying key element"""
         try:
             return self.textbox_first_name.is_visible()
         except:
             return False
     
     def is_first_name_visible(self) -> bool:
-        """Check if first name field is visible."""
+        """Check if first name field is visible"""
         try:
             return self.textbox_first_name.is_visible()
         except:
             return False
     
     def is_last_name_visible(self) -> bool:
-        """Check if last name field is visible."""
+        """Check if last name field is visible"""
         try:
             return self.textbox_last_name.is_visible()
         except:
             return False
     
     def is_email_visible(self) -> bool:
-        """Check if email field is visible."""
+        """Check if email field is visible"""
         try:
             return self.textbox_email.is_visible()
         except:
             return False
     
     def is_phone_visible(self) -> bool:
-        """Check if phone field is visible."""
+        """Check if phone field is visible"""
         try:
             return self.textbox_phone.is_visible()
         except:
             return False
     
     def is_next_button_visible(self) -> bool:
-        """Check if Next button is visible."""
+        """Check if Next button is visible"""
         try:
             return self.button_next.is_visible()
         except:

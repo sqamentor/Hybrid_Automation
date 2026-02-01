@@ -1,4 +1,4 @@
-"""Visual regression testing module."""
+"""Visual regression testing module"""
 
 from framework.visual.visual_regression import VisualRegression
 

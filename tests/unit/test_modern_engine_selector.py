@@ -1,4 +1,5 @@
-"""Comprehensive tests for framework.core.modern_engine_selector.
+"""
+Comprehensive tests for framework.core.modern_engine_selector
 
 Tests pattern matching engine selection, decision matrix,
 caching, and UI framework detection.
@@ -23,7 +24,7 @@ from framework.protocols.config_protocols import ConfigProvider
 
 @pytest.fixture
 def mock_config_provider():
-    """Create mock ConfigProvider."""
+    """Create mock ConfigProvider"""
     provider = Mock(spec=ConfigProvider)
     provider.get_browser_config = Mock(return_value=Mock(engine="chromium"))
     return provider
@@ -32,10 +33,10 @@ def mock_config_provider():
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestUIFrameworkEnum:
-    """Test UIFramework enum."""
+    """Test UIFramework enum"""
 
     def test_ui_framework_values(self):
-        """Test UIFramework enum values."""
+        """Test UIFramework enum values"""
         assert UIFramework.REACT.value == "react"
         assert UIFramework.VUE.value == "vue"
         assert UIFramework.ANGULAR.value == "angular"
@@ -44,7 +45,7 @@ class TestUIFrameworkEnum:
         assert UIFramework.UNKNOWN.value == "unknown"
 
     def test_ui_framework_members(self):
-        """Test all UIFramework enum members."""
+        """Test all UIFramework enum members"""
         frameworks = list(UIFramework)
         assert len(frameworks) == 7  # UNKNOWN, REACT, ANGULAR, VUE, JSP, LEGACY, MODERN_SPA
         assert UIFramework.REACT in frameworks
@@ -53,16 +54,16 @@ class TestUIFrameworkEnum:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestTestComplexityEnum:
-    """Test TestComplexity enum."""
+    """Test TestComplexity enum"""
 
     def test_complexity_values(self):
-        """Test TestComplexity enum values."""
+        """Test TestComplexity enum values"""
         assert TestComplexity.LOW.value == "low"
         assert TestComplexity.MEDIUM.value == "medium"
         assert TestComplexity.HIGH.value == "high"
 
     def test_complexity_ordering(self):
-        """Test complexity levels can be compared."""
+        """Test complexity levels can be compared"""
         assert TestComplexity.LOW != TestComplexity.HIGH
         assert TestComplexity.MEDIUM != TestComplexity.LOW
 
@@ -70,10 +71,10 @@ class TestTestComplexityEnum:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestTestMetadata:
-    """Test TestMetadata dataclass."""
+    """Test TestMetadata dataclass"""
 
     def test_create_test_metadata(self):
-        """Test creating TestMetadata."""
+        """Test creating TestMetadata"""
         metadata = TestMetadata(
             test_name="test_login",
             ui_framework=UIFramework.REACT,
@@ -86,7 +87,7 @@ class TestTestMetadata:
         assert metadata.is_spa is True
 
     def test_test_metadata_defaults(self):
-        """Test TestMetadata default values."""
+        """Test TestMetadata default values"""
         metadata = TestMetadata(test_name="test_basic")
         assert metadata.ui_framework is None  # Default is None
         assert metadata.is_spa is False
@@ -99,15 +100,15 @@ class TestTestMetadata:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestModernEngineSelectorInit:
-    """Test ModernEngineSelector initialization."""
+    """Test ModernEngineSelector initialization"""
 
     def test_create_selector(self, mock_config_provider):
-        """Test creating ModernEngineSelector."""
+        """Test creating ModernEngineSelector"""
         selector = ModernEngineSelector(mock_config_provider)
         assert selector.config_provider == mock_config_provider
 
     def test_selector_without_config(self):
-        """Test selector can work without config provider."""
+        """Test selector can work without config provider"""
         selector = ModernEngineSelector()
         assert selector.config_provider is None
 
@@ -115,10 +116,10 @@ class TestModernEngineSelectorInit:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestModernEngineSelectorPatternMatching:
-    """Test pattern matching in select_engine."""
+    """Test pattern matching in select_engine"""
 
     def test_select_engine_react_high_complexity(self, mock_config_provider):
-        """Test React + High Complexity → Playwright."""
+        """Test React + High Complexity → Playwright"""
         selector = ModernEngineSelector(mock_config_provider)
 
         metadata = TestMetadata(
@@ -131,7 +132,7 @@ class TestModernEngineSelectorPatternMatching:
         assert engine.engine == EngineType.PLAYWRIGHT
 
     def test_select_engine_vue_high_complexity(self, mock_config_provider):
-        """Test Vue + High Complexity → Playwright."""
+        """Test Vue + High Complexity → Playwright"""
         selector = ModernEngineSelector(mock_config_provider)
 
         metadata = TestMetadata(
@@ -144,7 +145,7 @@ class TestModernEngineSelectorPatternMatching:
         assert engine.engine == EngineType.PLAYWRIGHT
 
     def test_select_engine_angular_high_complexity(self, mock_config_provider):
-        """Test Angular + High Complexity → Playwright."""
+        """Test Angular + High Complexity → Playwright"""
         selector = ModernEngineSelector(mock_config_provider)
 
         metadata = TestMetadata(
@@ -157,7 +158,7 @@ class TestModernEngineSelectorPatternMatching:
         assert engine.engine == EngineType.PLAYWRIGHT
 
     def test_select_engine_jsp_legacy(self, mock_config_provider):
-        """Test JSP/Legacy → Selenium."""
+        """Test JSP/Legacy → Selenium"""
         selector = ModernEngineSelector(mock_config_provider)
 
         metadata = TestMetadata(
@@ -170,7 +171,7 @@ class TestModernEngineSelectorPatternMatching:
         assert engine.engine == EngineType.SELENIUM
 
     def test_select_engine_legacy_any_complexity(self, mock_config_provider):
-        """Test Legacy UI always uses Selenium."""
+        """Test Legacy UI always uses Selenium"""
         selector = ModernEngineSelector(mock_config_provider)
 
         for complexity in [
@@ -203,7 +204,7 @@ class TestModernEngineSelectorPatternMatching:
         assert engine.engine == EngineType.PLAYWRIGHT
 
     def test_select_engine_spa_always_playwright(self, mock_config_provider):
-        """Test SPA applications prefer Playwright."""
+        """Test SPA applications prefer Playwright"""
         selector = ModernEngineSelector(mock_config_provider)
 
         metadata = TestMetadata(
@@ -219,10 +220,10 @@ class TestModernEngineSelectorPatternMatching:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestModernEngineSelectorCaching:
-    """Test caching functionality with @lru_cache."""
+    """Test caching functionality with @lru_cache"""
 
     def test_select_engine_cached(self, mock_config_provider):
-        """Test select_engine uses caching."""
+        """Test select_engine uses caching"""
         selector = ModernEngineSelector(mock_config_provider)
 
         metadata = TestMetadata(
@@ -240,7 +241,7 @@ class TestModernEngineSelectorCaching:
         assert engine1.engine == EngineType.PLAYWRIGHT
 
     def test_cache_different_metadata(self, mock_config_provider):
-        """Test cache stores different metadata separately."""
+        """Test cache stores different metadata separately"""
         selector = ModernEngineSelector(mock_config_provider)
 
         metadata1 = TestMetadata(
@@ -266,10 +267,10 @@ class TestModernEngineSelectorCaching:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestModernEngineSelectorAdvanced:
-    """Test advanced engine selection scenarios."""
+    """Test advanced engine selection scenarios"""
 
     def test_mobile_testing_preference(self, mock_config_provider):
-        """Test mobile testing requirements."""
+        """Test mobile testing requirements"""
         selector = ModernEngineSelector(mock_config_provider)
 
         metadata = TestMetadata(
@@ -283,7 +284,7 @@ class TestModernEngineSelectorAdvanced:
         assert engine.engine in [EngineType.PLAYWRIGHT, EngineType.APPIUM]
 
     def test_javascript_required(self, mock_config_provider):
-        """Test JavaScript requirement influences selection."""
+        """Test JavaScript requirement influences selection"""
         selector = ModernEngineSelector(mock_config_provider)
 
         metadata = TestMetadata(
@@ -298,7 +299,7 @@ class TestModernEngineSelectorAdvanced:
         assert engine.engine == EngineType.PLAYWRIGHT
 
     def test_no_javascript_simple_test(self, mock_config_provider):
-        """Test simple tests without JS can use either engine."""
+        """Test simple tests without JS can use either engine"""
         selector = ModernEngineSelector(mock_config_provider)
 
         metadata = TestMetadata(
@@ -315,7 +316,7 @@ class TestModernEngineSelectorAdvanced:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestModernEngineSelectorRealWorldScenarios:
-    """Test real-world testing scenarios."""
+    """Test real-world testing scenarios"""
 
     def test_react_dashboard_complex(self, mock_config_provider):
         """Test React dashboard (complex SPA)"""
@@ -333,7 +334,7 @@ class TestModernEngineSelectorRealWorldScenarios:
         assert engine.engine == EngineType.PLAYWRIGHT
 
     def test_legacy_jsp_application(self, mock_config_provider):
-        """Test legacy JSP application."""
+        """Test legacy JSP application"""
         selector = ModernEngineSelector(mock_config_provider)
 
         metadata = TestMetadata(
@@ -348,7 +349,7 @@ class TestModernEngineSelectorRealWorldScenarios:
         assert engine.engine == EngineType.SELENIUM
 
     def test_simple_landing_page(self, mock_config_provider):
-        """Test simple landing page."""
+        """Test simple landing page"""
         selector = ModernEngineSelector(mock_config_provider)
 
         metadata = TestMetadata(
@@ -363,7 +364,7 @@ class TestModernEngineSelectorRealWorldScenarios:
         assert engine.engine == EngineType.PLAYWRIGHT
 
     def test_vue_ecommerce_app(self, mock_config_provider):
-        """Test Vue.js e-commerce application."""
+        """Test Vue.js e-commerce application"""
         selector = ModernEngineSelector(mock_config_provider)
 
         metadata = TestMetadata(
@@ -378,7 +379,7 @@ class TestModernEngineSelectorRealWorldScenarios:
         assert engine.engine == EngineType.PLAYWRIGHT
 
     def test_angular_enterprise_app(self, mock_config_provider):
-        """Test Angular enterprise application."""
+        """Test Angular enterprise application"""
         selector = ModernEngineSelector(mock_config_provider)
 
         metadata = TestMetadata(
@@ -396,10 +397,10 @@ class TestModernEngineSelectorRealWorldScenarios:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestModernEngineSelectorEdgeCases:
-    """Test edge cases and error handling."""
+    """Test edge cases and error handling"""
 
     def test_unknown_framework_defaults(self, mock_config_provider):
-        """Test unknown framework uses intelligent default."""
+        """Test unknown framework uses intelligent default"""
         selector = ModernEngineSelector(mock_config_provider)
 
         metadata = TestMetadata(
@@ -416,7 +417,7 @@ class TestModernEngineSelectorEdgeCases:
         ]
 
     def test_conflicting_metadata(self, mock_config_provider):
-        """Test handling conflicting metadata."""
+        """Test handling conflicting metadata"""
         selector = ModernEngineSelector(mock_config_provider)
 
         # SPA + Legacy (conflicting)
@@ -435,10 +436,10 @@ class TestModernEngineSelectorEdgeCases:
 @pytest.mark.modern_spa
 @pytest.mark.unit
 class TestModernEngineSelectorIntegration:
-    """Integration tests with full workflow."""
+    """Integration tests with full workflow"""
 
     def test_select_engine_for_multiple_tests(self, mock_config_provider):
-        """Test selecting engines for multiple test scenarios."""
+        """Test selecting engines for multiple test scenarios"""
         selector = ModernEngineSelector(mock_config_provider)
 
         test_scenarios = [
@@ -473,7 +474,7 @@ class TestModernEngineSelectorIntegration:
             assert engine.engine == expected_engine
 
     def test_caching_performance(self, mock_config_provider):
-        """Test caching improves performance."""
+        """Test caching improves performance"""
         selector = ModernEngineSelector(mock_config_provider)
 
         metadata = TestMetadata(

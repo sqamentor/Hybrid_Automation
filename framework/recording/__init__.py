@@ -1,5 +1,7 @@
-"""Recording Strategy Module Implements Playwright Codegen → AI Refactoring → Page Object generation
-workflow."""
+"""
+Recording Strategy Module
+Implements Playwright Codegen → AI Refactoring → Page Object generation workflow
+"""
 
 from .ai_refactorer import AIScriptRefactorer
 from .codegen_wrapper import PlaywrightCodegen

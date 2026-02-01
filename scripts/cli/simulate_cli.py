@@ -1,5 +1,7 @@
-"""Simulate the EXACT user interaction with run_tests_cli.py This shows step-by-step what happens
-when user selects production."""
+"""
+Simulate the EXACT user interaction with run_tests_cli.py
+This shows step-by-step what happens when user selects production
+"""
 
 print("="*80)
 print("SIMULATING INTERACTIVE CLI EXECUTION")

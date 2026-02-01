@@ -183,7 +183,7 @@ def test_booking(page, multi_project_config, human_behavior):
 @pytest.mark.bookslot
 @pytest.mark.human_like
 def test_complete_booking_workflow(page, multi_project_config, human_behavior):
-    """Complete appointment booking with human-like behavior."""
+    """Complete appointment booking with human-like behavior"""
     
     base_url = multi_project_config['bookslot']['ui_url']
     enable_human = human_behavior is not None

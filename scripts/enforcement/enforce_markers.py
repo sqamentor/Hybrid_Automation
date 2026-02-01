@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Engine Marker Enforcement Tool.
+"""
+Engine Marker Enforcement Tool
 
 Detects test files missing @pytest.mark.modern_spa or @pytest.mark.legacy_ui markers.
 This ensures the framework can automatically route tests to the correct engine.
@@ -34,11 +35,12 @@ REQUIRED_MARKERS = ['modern_spa', 'legacy_ui', 'playwright', 'selenium']
 
 
 def check_test_file(file_path: Path) -> List[Dict]:
-    """Check if test file has required engine markers.
-
+    """
+    Check if test file has required engine markers
+    
     Args:
         file_path: Path to test file
-
+        
     Returns:
         List of violations found
     """
@@ -86,7 +88,7 @@ def check_test_file(file_path: Path) -> List[Dict]:
 
 
 def main():
-    """Main execution."""
+    """Main execution"""
     test_dir = Path('tests')
     all_violations = []
     files_checked = 0

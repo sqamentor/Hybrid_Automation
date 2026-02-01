@@ -14,7 +14,7 @@ Enhanced Features:
 import json
 import re
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 from utils.logger import get_logger
 
@@ -22,16 +22,16 @@ logger = get_logger(__name__)
 
 
 class WebSocketMessage:
-    """Represents a captured WebSocket message."""
+    """Represents a captured WebSocket message"""
     
-    def __init__(self, direction: str, data: Any, timestamp: Optional[datetime] = None) -> None:
+    def __init__(self, direction: str, data: Any, timestamp: datetime = None):
         self.direction = direction  # 'sent' or 'received'
         self.data = data
         self.timestamp = timestamp or datetime.now()
         self.parsed_data = self._parse_data(data)
     
     def _parse_data(self, data: Any) -> Any:
-        """Try to parse message data as JSON."""
+        """Try to parse message data as JSON"""
         if isinstance(data, str):
             try:
                 return json.loads(data)
@@ -40,7 +40,7 @@ class WebSocketMessage:
         return data
     
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary."""
+        """Convert to dictionary"""
         return {
             'direction': self.direction,
             'data': self.data,
@@ -51,43 +51,38 @@ class WebSocketMessage:
 
 
 class RequestModifier:
-    """Handles request modification based on patterns."""
+    """Handles request modification based on patterns"""
     
     def __init__(self):
         self.modifications: List[Dict[str, Any]] = []
     
-    def add_header_modification(self, pattern: str, headers: Dict[str, str]) -> None:
-        """Add header modification rule."""
+    def add_header_modification(self, pattern: str, headers: Dict[str, str]):
+        """Add header modification rule"""
         self.modifications.append({
             'type': 'headers',
             'pattern': pattern,
             'headers': headers
         })
     
-    def add_body_modification(self, pattern: str, body_modifier: Callable[[Any], Any]) -> None:
-        """Add body modification rule."""
+    def add_body_modification(self, pattern: str, body_modifier: Callable):
+        """Add body modification rule"""
         self.modifications.append({
             'type': 'body',
             'pattern': pattern,
             'modifier': body_modifier
         })
     
-    def add_url_modification(self, pattern: str, url_modifier: Callable[[str], str]) -> None:
-        """Add URL modification rule."""
+    def add_url_modification(self, pattern: str, url_modifier: Callable):
+        """Add URL modification rule"""
         self.modifications.append({
             'type': 'url',
             'pattern': pattern,
             'modifier': url_modifier
         })
     
-    def apply_modifications(
-        self,
-        url: str,
-        headers: Optional[Dict[str, str]],
-        post_data: Optional[str]
-    ) -> Tuple[str, Dict[str, str], Optional[str]]:
-        """Apply all matching modifications."""
-        modified_headers: Dict[str, str] = headers.copy() if headers else {}
+    def apply_modifications(self, url: str, headers: Dict, post_data: Optional[str]) -> tuple:
+        """Apply all matching modifications"""
+        modified_headers = headers.copy() if headers else {}
         modified_url = url
         modified_body = post_data
         
@@ -106,20 +101,14 @@ class RequestModifier:
 
 
 class ResponseModifier:
-    """Handles response modification and mocking."""
+    """Handles response modification and mocking"""
     
     def __init__(self):
         self.mocks: List[Dict[str, Any]] = []
         self.modifications: List[Dict[str, Any]] = []
     
-    def add_mock_response(
-        self,
-        pattern: str,
-        status: int,
-        body: Any,
-        headers: Optional[Dict[str, str]] = None
-    ) -> None:
-        """Add mock response for matching URLs."""
+    def add_mock_response(self, pattern: str, status: int, body: Any, headers: Optional[Dict] = None):
+        """Add mock response for matching URLs"""
         self.mocks.append({
             'pattern': pattern,
             'status': status,
@@ -127,22 +116,22 @@ class ResponseModifier:
             'headers': headers or {'Content-Type': 'application/json'}
         })
     
-    def add_response_modification(self, pattern: str, body_modifier: Callable[[Any], Any]) -> None:
-        """Add response body modification rule."""
+    def add_response_modification(self, pattern: str, body_modifier: Callable):
+        """Add response body modification rule"""
         self.modifications.append({
             'pattern': pattern,
             'modifier': body_modifier
         })
     
     def get_mock_response(self, url: str) -> Optional[Dict[str, Any]]:
-        """Get mock response if pattern matches."""
+        """Get mock response if pattern matches"""
         for mock in self.mocks:
             if re.search(mock['pattern'], url):
                 return mock
         return None
     
     def apply_modifications(self, url: str, response_body: Any) -> Any:
-        """Apply response modifications."""
+        """Apply response modifications"""
         modified_body = response_body
         
         for mod in self.modifications:
@@ -153,8 +142,9 @@ class ResponseModifier:
 
 
 class APIInterceptor:
-    """Enhanced API Interceptor with WebSocket support and request/response modification.
-
+    """
+    Enhanced API Interceptor with WebSocket support and request/response modification
+    
     Features:
     - HTTP request/response interception
     - WebSocket message capture
@@ -163,9 +153,10 @@ class APIInterceptor:
     - Pattern-based filtering
     """
     
-    def __init__(self, ui_engine: Any) -> None:
-        """Initialize API interceptor.
-
+    def __init__(self, ui_engine):
+        """
+        Initialize API interceptor
+        
         Args:
             ui_engine: PlaywrightEngine or SeleniumEngine instance
         """
@@ -174,7 +165,7 @@ class APIInterceptor:
         self.captured_responses: List[Dict[str, Any]] = []
         self.captured_websockets: List[Dict[str, Any]] = []
         self.websocket_messages: List[WebSocketMessage] = []
-        self.filters: List[Callable[[str], bool]] = []
+        self.filters: List[Callable] = []
         self.enabled = True
         
         # Modification handlers
@@ -187,7 +178,7 @@ class APIInterceptor:
         self._setup_interception()
     
     def _setup_interception(self):
-        """Setup interception based on engine type."""
+        """Setup interception based on engine type"""
         engine_type = type(self.ui_engine).__name__
         
         if engine_type == 'PlaywrightEngine':
@@ -198,12 +189,12 @@ class APIInterceptor:
             logger.warning(f"Unknown engine type: {engine_type}. Interception not configured.")
     
     def _setup_playwright_interception(self):
-        """Setup Playwright network interception with WebSocket support."""
+        """Setup Playwright network interception with WebSocket support"""
         try:
             page = self.ui_engine.get_page()
             
             def handle_request(route, request):
-                """Handle outgoing request with modification support."""
+                """Handle outgoing request with modification support"""
                 if not self.enabled:
                     route.continue_()
                     return
@@ -256,7 +247,7 @@ class APIInterceptor:
                     route.continue_()
             
             def handle_response(response):
-                """Handle incoming response with modification support."""
+                """Handle incoming response with modification support"""
                 if not self.enabled:
                     return
                 
@@ -295,7 +286,7 @@ class APIInterceptor:
                     logger.error(f"Error capturing response: {e}")
             
             def handle_websocket(ws):
-                """Handle WebSocket connection."""
+                """Handle WebSocket connection"""
                 try:
                     ws_data = {
                         'url': ws.url,
@@ -378,7 +369,7 @@ class APIInterceptor:
             logger.error(f"Failed to setup Selenium interception: {e}")
     
     def _setup_chrome_devtools(self):
-        """Setup Chrome DevTools Protocol for network interception."""
+        """Setup Chrome DevTools Protocol for network interception"""
         try:
             driver = self.ui_engine.get_driver()
             
@@ -392,17 +383,43 @@ class APIInterceptor:
         except Exception as e:
             logger.error(f"Chrome DevTools setup failed: {e}")
     
+    def add_filter(self, filter_func: Callable[[str], bool]):
+        """
+        Add URL filter for selective capture
+        
+        Args:
+            filter_func: Function that takes URL string and returns True to capture
+        
+        Example:
+            interceptor.add_filter(lambda url: '/api/' in url)
+        """
+        self.filters.append(filter_func)
+    
+    def filter_by_pattern(self, pattern: str):
+        """
+        Add simple pattern filter
+        
+        Args:
+            pattern: String pattern to match in URL
+        """
+        self.add_filter(lambda url: pattern in url)
+    
+    def filter_api_only(self):
+        """Capture only API calls (URLs containing /api/)"""
+        self.filter_by_pattern('/api/')
+    
     # ========================================================================
     # REQUEST/RESPONSE MODIFICATION METHODS
     # ========================================================================
     
-    def modify_request_headers(self, url_pattern: str, headers: Dict[str, str]) -> None:
-        """Modify request headers for matching URLs.
-
+    def modify_request_headers(self, url_pattern: str, headers: Dict[str, str]):
+        """
+        Modify request headers for matching URLs
+        
         Args:
             url_pattern: Regex pattern to match URLs
             headers: Dictionary of headers to add/modify
-
+        
         Example:
             interceptor.modify_request_headers(
                 r'/api/.*',
@@ -412,26 +429,28 @@ class APIInterceptor:
         self.request_modifier.add_header_modification(url_pattern, headers)
         logger.info(f"Added request header modification for pattern: {url_pattern}")
     
-    def modify_request_url(self, url_pattern: str, url_modifier: Callable[[str], str]) -> None:
-        """Modify request URL for matching patterns.
-
+    def modify_request_url(self, url_pattern: str, url_modifier: Callable[[str], str]):
+        """
+        Modify request URL for matching patterns
+        
         Args:
             url_pattern: Regex pattern to match URLs
             url_modifier: Function that takes URL and returns modified URL
-
+        
         Example:
             interceptor.modify_request_url(r'/api/v1/', lambda url: url.replace('/v1/', '/v2/'))
         """
         self.request_modifier.add_url_modification(url_pattern, url_modifier)
         logger.info(f"Added request URL modification for pattern: {url_pattern}")
     
-    def modify_request_body(self, url_pattern: str, body_modifier: Callable[[Any], Any]) -> None:
-        """Modify request body for matching URLs.
-
+    def modify_request_body(self, url_pattern: str, body_modifier: Callable[[Any], Any]):
+        """
+        Modify request body for matching URLs
+        
         Args:
             url_pattern: Regex pattern to match URLs
             body_modifier: Function that takes body (dict/str) and returns modified body
-
+        
         Example:
             def add_field(body):
                 if isinstance(body, dict):
@@ -442,21 +461,16 @@ class APIInterceptor:
         self.request_modifier.add_body_modification(url_pattern, body_modifier)
         logger.info(f"Added request body modification for pattern: {url_pattern}")
     
-    def mock_response(
-        self,
-        url_pattern: str,
-        status: int = 200,
-        body: Any = None,
-        headers: Optional[Dict[str, str]] = None
-    ) -> None:
-        """Mock response for matching URLs.
-
+    def mock_response(self, url_pattern: str, status: int = 200, body: Any = None, headers: Optional[Dict] = None):
+        """
+        Mock response for matching URLs
+        
         Args:
             url_pattern: Regex pattern to match URLs
             status: HTTP status code
             body: Response body (dict will be JSON-encoded)
             headers: Response headers
-
+        
         Example:
             interceptor.mock_response(
                 r'/api/users/\d+',
@@ -468,13 +482,14 @@ class APIInterceptor:
         self.response_modifier.add_mock_response(url_pattern, status, body or {}, headers)
         logger.info(f"Added mock response for pattern: {url_pattern}")
     
-    def modify_response_body(self, url_pattern: str, body_modifier: Callable[[Any], Any]) -> None:
-        """Modify response body for matching URLs.
-
+    def modify_response_body(self, url_pattern: str, body_modifier: Callable[[Any], Any]):
+        """
+        Modify response body for matching URLs
+        
         Args:
             url_pattern: Regex pattern to match URLs
             body_modifier: Function that takes body and returns modified body
-
+        
         Example:
             def mask_email(body):
                 if isinstance(body, dict) and 'email' in body:
@@ -490,7 +505,7 @@ class APIInterceptor:
     # ========================================================================
     
     def get_websocket_connections(self) -> List[Dict[str, Any]]:
-        """Get all captured WebSocket connections."""
+        """Get all captured WebSocket connections"""
         return self.captured_websockets.copy()
     
     def get_websocket_messages(
@@ -498,12 +513,13 @@ class APIInterceptor:
         direction: Optional[str] = None,
         url_pattern: Optional[str] = None
     ) -> List[Dict[str, Any]]:
-        """Get WebSocket messages with optional filtering.
-
+        """
+        Get WebSocket messages with optional filtering
+        
         Args:
             direction: Filter by 'sent' or 'received'
             url_pattern: Filter by WebSocket URL pattern
-
+        
         Returns:
             List of WebSocket message dictionaries
         """
@@ -524,15 +540,15 @@ class APIInterceptor:
         return messages
     
     def get_websocket_sent_messages(self) -> List[Dict[str, Any]]:
-        """Get all sent WebSocket messages."""
+        """Get all sent WebSocket messages"""
         return self.get_websocket_messages(direction='sent')
     
     def get_websocket_received_messages(self) -> List[Dict[str, Any]]:
-        """Get all received WebSocket messages."""
+        """Get all received WebSocket messages"""
         return self.get_websocket_messages(direction='received')
     
     def get_websocket_message_count(self) -> Dict[str, int]:
-        """Get count of WebSocket messages by direction."""
+        """Get count of WebSocket messages by direction"""
         return {
             'total': len(self.websocket_messages),
             'sent': len(self.get_websocket_sent_messages()),
@@ -542,18 +558,19 @@ class APIInterceptor:
     
     def wait_for_websocket_message(
         self,
-        predicate: Callable[[Dict[str, Any]], bool],
+        predicate: Callable[[Dict], bool],
         timeout: float = 10.0
     ) -> Optional[Dict[str, Any]]:
-        """Wait for WebSocket message matching predicate.
-
+        """
+        Wait for WebSocket message matching predicate
+        
         Args:
             predicate: Function that returns True for matching message
             timeout: Timeout in seconds
-
+        
         Returns:
             Matching message dict or None if timeout
-
+        
         Example:
             msg = interceptor.wait_for_websocket_message(
                 lambda m: m['direction'] == 'received' and 'order_id' in str(m['data']),
@@ -577,7 +594,7 @@ class APIInterceptor:
     # ========================================================================
     
     def _should_capture(self, url: str) -> bool:
-        """Check if URL should be captured based on filters."""
+        """Check if URL should be captured based on filters"""
         # If no filters, capture all
         if not self.filters:
             return True
@@ -585,38 +602,38 @@ class APIInterceptor:
         # Check all filters
         return any(filter_func(url) for filter_func in self.filters)
     
-    def add_filter(self, filter_func: Callable[[str], bool]) -> None:
-        """Add URL filter for selective capture.
-
+    def add_filter(self, filter_func: Callable[[str], bool]):
+        """
+        Add URL filter for selective capture
+        
         Args:
             filter_func: Function that takes URL string and returns True to capture
-
+        
         Example:
             interceptor.add_filter(lambda url: '/api/' in url)
         """
         self.filters.append(filter_func)
     
-    def filter_by_pattern(self, pattern: str) -> None:
-        """Add simple pattern filter.
-
+    def filter_by_pattern(self, pattern: str):
+        """
+        Add simple pattern filter
+        
         Args:
             pattern: String pattern to match in URL
         """
         self.add_filter(lambda url: pattern in url)
     
-    def filter_api_only(self) -> None:
+    def filter_api_only(self):
         """Capture only API calls (URLs containing /api/)"""
         self.filter_by_pattern('/api/')
     
-    def get_captured_requests(
-        self,
-        filter_func: Optional[Callable[[Dict[str, Any]], bool]] = None
-    ) -> List[Dict[str, Any]]:
-        """Get captured requests.
-
+    def get_captured_requests(self, filter_func: Optional[Callable] = None) -> List[Dict]:
+        """
+        Get captured requests
+        
         Args:
             filter_func: Optional filter function
-
+        
         Returns:
             List of captured request dictionaries
         """
@@ -624,15 +641,13 @@ class APIInterceptor:
             return [r for r in self.captured_requests if filter_func(r)]
         return self.captured_requests.copy()
     
-    def get_captured_responses(
-        self,
-        filter_func: Optional[Callable[[Dict[str, Any]], bool]] = None
-    ) -> List[Dict[str, Any]]:
-        """Get captured responses.
-
+    def get_captured_responses(self, filter_func: Optional[Callable] = None) -> List[Dict]:
+        """
+        Get captured responses
+        
         Args:
             filter_func: Optional filter function
-
+        
         Returns:
             List of captured response dictionaries
         """
@@ -640,26 +655,27 @@ class APIInterceptor:
             return [r for r in self.captured_responses if filter_func(r)]
         return self.captured_responses.copy()
     
-    def get_requests_by_method(self, method: str) -> List[Dict[str, Any]]:
-        """Get requests by HTTP method."""
+    def get_requests_by_method(self, method: str) -> List[Dict]:
+        """Get requests by HTTP method"""
         return self.get_captured_requests(lambda r: r['method'].upper() == method.upper())
     
-    def get_requests_by_url_pattern(self, pattern: str) -> List[Dict[str, Any]]:
-        """Get requests matching URL pattern."""
+    def get_requests_by_url_pattern(self, pattern: str) -> List[Dict]:
+        """Get requests matching URL pattern"""
         return self.get_captured_requests(lambda r: pattern in r['url'])
     
-    def get_response_by_url(self, url: str) -> Optional[Dict[str, Any]]:
-        """Get first response matching exact URL."""
+    def get_response_by_url(self, url: str) -> Optional[Dict]:
+        """Get first response matching exact URL"""
         responses = self.get_captured_responses(lambda r: r['url'] == url)
         return responses[0] if responses else None
     
-    def find_api_calls(self) -> List[Dict[str, Any]]:
+    def find_api_calls(self) -> List[Dict]:
         """Find all API calls (URLs containing /api/)"""
         return self.get_captured_requests(lambda r: '/api/' in r['url'])
     
     def get_correlation_data(self) -> Dict[str, Any]:
-        """Extract correlation data from captured API calls.
-
+        """
+        Extract correlation data from captured API calls
+        
         Returns:
             Dictionary with correlation keys (order_id, transaction_id, etc.)
         """
@@ -684,23 +700,23 @@ class APIInterceptor:
         return correlation_data
     
     def clear(self):
-        """Clear all captured data."""
+        """Clear all captured data"""
         self.captured_requests.clear()
         self.captured_responses.clear()
         logger.info("Cleared all captured API data")
     
     def enable(self):
-        """Enable interception."""
+        """Enable interception"""
         self.enabled = True
         logger.info("API interception enabled")
     
     def disable(self):
-        """Disable interception."""
+        """Disable interception"""
         self.enabled = False
         logger.info("API interception disabled")
     
     def get_summary(self) -> Dict[str, Any]:
-        """Get summary of captured data."""
+        """Get summary of captured data"""
         return {
             'total_requests': len(self.captured_requests),
             'total_responses': len(self.captured_responses),
@@ -722,38 +738,38 @@ class APIInterceptor:
         }
     
     def _get_method_summary(self) -> Dict[str, int]:
-        """Get count by HTTP method."""
-        methods: Dict[str, int] = {}
+        """Get count by HTTP method"""
+        methods = {}
         for request in self.captured_requests:
             method = request['method']
             methods[method] = methods.get(method, 0) + 1
         return methods
     
     def _get_status_summary(self) -> Dict[int, int]:
-        """Get count by status code."""
-        statuses: Dict[int, int] = {}
+        """Get count by status code"""
+        statuses = {}
         for response in self.captured_responses:
             status = response['status']
             statuses[status] = statuses.get(status, 0) + 1
         return statuses
     
-    def export_to_har(self, filename: str) -> None:
-        """Export captured data to HAR (HTTP Archive) format.
-
+    def export_to_har(self, filename: str):
+        """
+        Export captured data to HAR (HTTP Archive) format
+        
         Args:
             filename: Output filename
         """
         import json
         
-        entries: List[Dict[str, Any]] = []
-        har_data: Dict[str, Any] = {
+        har_data = {
             'log': {
                 'version': '1.2',
                 'creator': {
                     'name': 'Automation Framework API Interceptor',
                     'version': '1.0'
                 },
-                'entries': entries
+                'entries': []
             }
         }
         
@@ -783,7 +799,7 @@ class APIInterceptor:
                     'content': {'text': str(response.get('body', ''))}
                 }
             
-            entries.append(entry)
+            har_data['log']['entries'].append(entry)
         
         with open(filename, 'w') as f:
             json.dump(har_data, f, indent=2)

@@ -41,7 +41,7 @@ import asyncio
 from playwright.async_api import async_playwright
 
 async def example_async_test():
-    """Example async test using AsyncSmartActions."""
+    """Example async test using AsyncSmartActions"""
     from framework.core.async_smart_actions import AsyncSmartActions
     
     async with async_playwright() as p:
@@ -127,34 +127,34 @@ from framework.microservices import (
 )
 
 class TestExecutorService(BaseService):
-    """Example microservice."""
+    """Example microservice"""
     
     async def on_start(self):
-        """Service startup."""
+        """Service startup"""
         print(f"{self.name} v{self.version} starting...")
     
     async def on_stop(self):
-        """Service shutdown."""
+        """Service shutdown"""
         print(f"{self.name} stopping...")
     
     def get_endpoints(self):
-        """Service endpoints."""
+        """Service endpoints"""
         return ["/execute", "/status", "/health"]
     
     def get_metadata(self):
-        """Service metadata."""
+        """Service metadata"""
         return {
             "type": "test-executor",
             "max_concurrent": 10
         }
     
     def get_tags(self):
-        """Service tags."""
+        """Service tags"""
         return ["test", "executor", "core"]
 
 
 async def example_microservice():
-    """Example microservice usage."""
+    """Example microservice usage"""
     # Create service
     service = TestExecutorService(
         name="test-executor",
@@ -193,7 +193,7 @@ from framework.plugins import (
 )
 
 class CustomReportPlugin(BasePlugin):
-    """Example custom plugin."""
+    """Example custom plugin"""
     
     @property
     def metadata(self):
@@ -206,7 +206,7 @@ class CustomReportPlugin(BasePlugin):
         )
     
     def on_enable(self):
-        """Plugin enabled."""
+        """Plugin enabled"""
         # Register hooks
         self.register_hook(
             "post_test",
@@ -217,12 +217,12 @@ class CustomReportPlugin(BasePlugin):
         print(f"Plugin {self.metadata.name} enabled!")
     
     def generate_report(self, test_result):
-        """Custom report generation."""
+        """Custom report generation"""
         print(f"Generating custom report for: {test_result}")
 
 
 def example_plugin_usage():
-    """Example plugin system usage."""
+    """Example plugin system usage"""
     # Get plugin manager
     manager = get_plugin_manager()
     
@@ -244,7 +244,7 @@ def example_plugin_usage():
 # ============================================================================
 
 async def example_async_config():
-    """Example async configuration."""
+    """Example async configuration"""
     from framework.config import get_config_manager
     
     # Get async config manager
@@ -265,7 +265,7 @@ async def example_async_config():
 # ============================================================================
 
 async def complete_example():
-    """Complete example using all modern features."""
+    """Complete example using all modern features"""
     
     # 1. Setup DI Container
     container = DIContainer()

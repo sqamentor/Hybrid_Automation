@@ -6,7 +6,7 @@ Integrates with axe-core for comprehensive a11y checks.
 """
 
 from enum import Enum
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Dict, List, Optional
 
 from utils.logger import get_logger
 
@@ -14,14 +14,14 @@ logger = get_logger(__name__)
 
 
 class WCAGLevel(Enum):
-    """WCAG compliance levels."""
+    """WCAG compliance levels"""
     A = "wcag2a"
     AA = "wcag2aa"
     AAA = "wcag2aaa"
 
 
 class ImpactLevel(Enum):
-    """Accessibility issue impact levels."""
+    """Accessibility issue impact levels"""
     CRITICAL = "critical"
     SERIOUS = "serious"
     MODERATE = "moderate"
@@ -29,11 +29,12 @@ class ImpactLevel(Enum):
 
 
 class AccessibilityTester:
-    """Automated accessibility testing."""
+    """Automated accessibility testing"""
     
-    def __init__(self, ui_engine: Any, wcag_level: WCAGLevel = WCAGLevel.AA):
-        """Initialize accessibility tester.
-
+    def __init__(self, ui_engine, wcag_level: WCAGLevel = WCAGLevel.AA):
+        """
+        Initialize accessibility tester
+        
         Args:
             ui_engine: PlaywrightEngine or SeleniumEngine instance
             wcag_level: WCAG compliance level to test against
@@ -41,15 +42,16 @@ class AccessibilityTester:
         self.ui_engine = ui_engine
         self.wcag_level = wcag_level
         self.engine_type = type(ui_engine).__name__
-        self.violations: List[Dict[str, Any]] = []
-        self.passes: List[Dict[str, Any]] = []
+        self.violations: List[Dict] = []
+        self.passes: List[Dict] = []
     
-    def analyze_page(self, options: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """Analyze current page for accessibility issues.
-
+    def analyze_page(self, options: Optional[Dict] = None) -> Dict[str, Any]:
+        """
+        Analyze current page for accessibility issues
+        
         Args:
             options: Optional axe-core options
-
+        
         Returns:
             Analysis results with violations and passes
         """
@@ -60,8 +62,8 @@ class AccessibilityTester:
         else:
             raise ValueError(f"Unsupported engine type: {self.engine_type}")
     
-    def _analyze_with_playwright(self, options: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """Analyze page using Playwright and axe-core."""
+    def _analyze_with_playwright(self, options: Optional[Dict] = None) -> Dict:
+        """Analyze page using Playwright and axe-core"""
         page = self.ui_engine.get_page()
         
         # Inject axe-core library
@@ -69,14 +71,14 @@ class AccessibilityTester:
         page.evaluate(axe_script)
         
         # Configure axe options
-        axe_options: Dict[str, Any] = dict(options or {})
+        axe_options = options or {}
         axe_options.setdefault('runOnly', {
             'type': 'tag',
             'values': [self.wcag_level.value, 'best-practice']
         })
         
         # Run axe analysis
-        results = cast(Dict[str, Any], page.evaluate(f"() => axe.run({axe_options})"))
+        results = page.evaluate(f"() => axe.run({axe_options})")
         
         # Store results
         self.violations = results.get('violations', [])
@@ -87,8 +89,8 @@ class AccessibilityTester:
         
         return results
     
-    def _analyze_with_selenium(self, options: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """Analyze page using Selenium and axe-core."""
+    def _analyze_with_selenium(self, options: Optional[Dict] = None) -> Dict:
+        """Analyze page using Selenium and axe-core"""
         driver = self.ui_engine.get_driver()
         
         # Inject axe-core library
@@ -96,7 +98,7 @@ class AccessibilityTester:
         driver.execute_script(axe_script)
         
         # Configure axe options
-        axe_options: Dict[str, Any] = dict(options or {})
+        axe_options = options or {}
         axe_options.setdefault('runOnly', {
             'type': 'tag',
             'values': [self.wcag_level.value, 'best-practice']
@@ -104,7 +106,7 @@ class AccessibilityTester:
         
         # Run axe analysis
         import json
-        results = cast(Dict[str, Any], driver.execute_script(f"return axe.run({json.dumps(axe_options)})"))
+        results = driver.execute_script(f"return axe.run({json.dumps(axe_options)})")
         
         # Store results
         self.violations = results.get('violations', [])
@@ -136,8 +138,8 @@ class AccessibilityTester:
         }})();
         """
     
-    def _log_summary(self, results: Dict[str, Any]) -> None:
-        """Log summary of accessibility analysis."""
+    def _log_summary(self, results: Dict):
+        """Log summary of accessibility analysis"""
         violations = results.get('violations', [])
         passes = results.get('passes', [])
         
@@ -150,12 +152,13 @@ class AccessibilityTester:
                 impact = violation.get('impact', 'unknown').upper()
                 logger.warning(f"  [{impact}] {violation.get('id')}: {violation.get('description')}")
     
-    def get_violations(self, min_impact: Optional[ImpactLevel] = None) -> List[Dict[str, Any]]:
-        """Get accessibility violations.
-
+    def get_violations(self, min_impact: Optional[ImpactLevel] = None) -> List[Dict]:
+        """
+        Get accessibility violations
+        
         Args:
             min_impact: Minimum impact level to filter (optional)
-
+        
         Returns:
             List of violations
         """
@@ -176,16 +179,17 @@ class AccessibilityTester:
             if impact_order.get(v.get('impact', 'minor'), 0) >= min_level
         ]
     
-    def get_critical_violations(self) -> List[Dict[str, Any]]:
-        """Get critical accessibility violations."""
+    def get_critical_violations(self) -> List[Dict]:
+        """Get critical accessibility violations"""
         return self.get_violations(ImpactLevel.CRITICAL)
     
-    def assert_no_violations(self, min_impact: Optional[ImpactLevel] = None) -> None:
-        """Assert that page has no accessibility violations.
-
+    def assert_no_violations(self, min_impact: Optional[ImpactLevel] = None):
+        """
+        Assert that page has no accessibility violations
+        
         Args:
             min_impact: Minimum impact level to check
-
+        
         Raises:
             AssertionError: If violations found
         """
@@ -198,13 +202,14 @@ class AccessibilityTester:
             
             raise AssertionError(error_msg)
     
-    def assert_no_critical_violations(self) -> None:
-        """Assert no critical violations."""
+    def assert_no_critical_violations(self):
+        """Assert no critical violations"""
         self.assert_no_violations(ImpactLevel.CRITICAL)
     
     def check_keyboard_navigation(self) -> bool:
-        """Check if page is keyboard navigable.
-
+        """
+        Check if page is keyboard navigable
+        
         Returns:
             True if page is fully keyboard accessible
         """
@@ -213,7 +218,7 @@ class AccessibilityTester:
         
         if page:
             # Get all focusable elements
-            focusable = cast(List[Dict[str, Any]], page.evaluate("""
+            focusable = page.evaluate("""
                 () => {
                     const elements = Array.from(document.querySelectorAll('a, button, input, select, textarea, [tabindex]'));
                     return elements.map(el => ({
@@ -222,7 +227,7 @@ class AccessibilityTester:
                         visible: el.offsetParent !== null
                     }));
                 }
-            """))
+            """)
             
             # Check if focusable elements exist
             visible_focusable = [e for e in focusable if e['visible']]
@@ -233,8 +238,9 @@ class AccessibilityTester:
         return True  # Default to True for Selenium (requires manual check)
     
     def check_color_contrast(self) -> Dict[str, Any]:
-        """Check color contrast ratios.
-
+        """
+        Check color contrast ratios
+        
         Returns:
             Contrast check results
         """
@@ -250,8 +256,9 @@ class AccessibilityTester:
         }
     
     def check_alt_text(self) -> Dict[str, Any]:
-        """Check if all images have alt text.
-
+        """
+        Check if all images have alt text
+        
         Returns:
             Alt text check results
         """
@@ -266,8 +273,9 @@ class AccessibilityTester:
         }
     
     def check_aria_labels(self) -> Dict[str, Any]:
-        """Check ARIA labels.
-
+        """
+        Check ARIA labels
+        
         Returns:
             ARIA label check results
         """
@@ -281,9 +289,10 @@ class AccessibilityTester:
             'violations': aria_violations
         }
     
-    def generate_report(self, output_path: str = "reports/accessibility_report.html") -> str:
-        """Generate HTML accessibility report.
-
+    def generate_report(self, output_path: str = "reports/accessibility_report.html"):
+        """
+        Generate HTML accessibility report
+        
         Args:
             output_path: Output file path
         """

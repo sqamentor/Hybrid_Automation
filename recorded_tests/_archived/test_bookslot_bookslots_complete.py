@@ -11,8 +11,8 @@ from utils.fake_data_generator import generate_bookslot_payload
 @pytest.mark.human_like
 @pytest.mark.recorded
 def test_example(page: Page, multi_project_config, human_behavior) -> None:
-    """Recorded test with SMART context-aware human behavior automation.
-
+    """Recorded test with SMART context-aware human behavior automation
+    
     Auto-Applied Delays (No manual delay calls needed):
         ✅ Before click: 0.3-0.7s (thinking time)
         ✅ After click: 0.2-0.4s (action confirmation)
@@ -21,7 +21,7 @@ def test_example(page: Page, multi_project_config, human_behavior) -> None:
         ✅ Before navigation: 0.4-0.8s (decision)
         ✅ After page load: 0.5-1.0s (page observation)
         ✅ Before button click: 0.4-0.8s (considering action)
-
+    
     Run Options:
         Fast Mode:    pytest recorded_tests/bookslot/test_bookslot_bookslots_complete.py -v
         Human Mode:   pytest recorded_tests/bookslot/test_bookslot_bookslots_complete.py --enable-human-behavior -v
@@ -45,11 +45,11 @@ def test_example(page: Page, multi_project_config, human_behavior) -> None:
     # =========================================================================
     
     class SmartActions:
-        """Intelligent action wrappers with automatic context-aware delays."""
+        """Intelligent action wrappers with automatic context-aware delays"""
         
         @staticmethod
         def delay(min_sec: float, max_sec: float, context: str = ""):
-            """Auto delay with context logging."""
+            """Auto delay with context logging"""
             if enable_human:
                 delay_time = random.uniform(min_sec, max_sec)
                 time.sleep(delay_time)
@@ -58,14 +58,14 @@ def test_example(page: Page, multi_project_config, human_behavior) -> None:
         
         @staticmethod
         def smart_click(element, description: str = ""):
-            """Click with automatic before/after delays."""
+            """Click with automatic before/after delays"""
             SmartActions.delay(0.3, 0.7, f"Thinking before click: {description}")
             element.click()
             SmartActions.delay(0.2, 0.4, f"Confirming click: {description}")
         
         @staticmethod
         def smart_type(element, text: str, field_name: str = ""):
-            """Type with automatic before/after delays and context-aware speed."""
+            """Type with automatic before/after delays and context-aware speed"""
             SmartActions.delay(0.3, 0.6, f"Preparing to type: {field_name}")
             
             if enable_human:
@@ -91,28 +91,28 @@ def test_example(page: Page, multi_project_config, human_behavior) -> None:
         
         @staticmethod
         def smart_button_click(element, button_name: str = ""):
-            """Button click with extra thinking time."""
+            """Button click with extra thinking time"""
             SmartActions.delay(0.4, 0.9, f"Considering button: {button_name}")
             element.click()
             SmartActions.delay(0.3, 0.6, f"Clicked button: {button_name}")
         
         @staticmethod
         def smart_goto(url: str, page_name: str = ""):
-            """Navigate with automatic page load delay."""
+            """Navigate with automatic page load delay"""
             SmartActions.delay(0.4, 0.8, f"Navigating to: {page_name}")
             page.goto(url)
             SmartActions.delay(0.5, 1.0, f"Observing page: {page_name}")
         
         @staticmethod
         def smart_select(element, value: str, field_name: str = ""):
-            """Select dropdown with automatic delays."""
+            """Select dropdown with automatic delays"""
             SmartActions.delay(0.3, 0.6, f"Opening dropdown: {field_name}")
             element.click()
             SmartActions.delay(0.2, 0.4, "Reviewing options")
         
         @staticmethod
         def smart_wait_and_click_autocomplete(locator_pattern: str, description: str = "", timeout: int = 6000):
-            """Smart autocomplete handling with timeout."""
+            """Smart autocomplete handling with timeout"""
             try:
                 element = page.locator(locator_pattern).first
                 element.wait_for(state="visible", timeout=timeout)

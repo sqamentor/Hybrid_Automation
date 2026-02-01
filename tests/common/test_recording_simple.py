@@ -10,7 +10,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 def test_imports():
-    """Test all recording module imports work."""
+    """Test all recording module imports work"""
     print("Testing imports...")
     
     try:
@@ -29,7 +29,7 @@ def test_imports():
 
 
 def test_instantiation():
-    """Test that classes can be instantiated."""
+    """Test that classes can be instantiated"""
     print("\nTesting class instantiation...")
     
     try:
@@ -69,7 +69,7 @@ def test_instantiation():
 
 
 def test_directories():
-    """Test that required directories can be created."""
+    """Test that required directories can be created"""
     print("\nTesting directory creation...")
     
     try:
@@ -90,7 +90,7 @@ def test_directories():
 
 
 def test_ai_integration():
-    """Test AI provider integration."""
+    """Test AI provider integration"""
     print("\nTesting AI provider integration...")
     
     try:
@@ -111,7 +111,7 @@ def test_ai_integration():
 
 
 def test_list_operations():
-    """Test list operations work."""
+    """Test list operations work"""
     print("\nTesting list operations...")
     
     try:
@@ -136,7 +136,7 @@ def test_list_operations():
 
 
 def main():
-    """Run all tests."""
+    """Run all tests"""
     print("="*60)
     print("RECORDING MODULE - SIMPLE FUNCTIONALITY TEST")
     print("="*60)

@@ -1,7 +1,8 @@
-"""Dependency Installation Verification Script.
+"""
+Dependency Installation Verification Script
 
-This script verifies that all required dependencies are installed correctly. Run this after
-installing requirements.txt to ensure the framework is ready.
+This script verifies that all required dependencies are installed correctly.
+Run this after installing requirements.txt to ensure the framework is ready.
 """
 
 import sys
@@ -9,7 +10,7 @@ from pathlib import Path
 
 
 def check_python_version():
-    """Check Python version."""
+    """Check Python version"""
     print("=" * 80)
     print("CHECKING PYTHON VERSION")
     print("=" * 80)
@@ -26,7 +27,7 @@ def check_python_version():
 
 
 def check_core_packages():
-    """Check core framework packages."""
+    """Check core framework packages"""
     print("\n" + "=" * 80)
     print("CHECKING CORE PACKAGES")
     print("=" * 80)
@@ -59,7 +60,7 @@ def check_core_packages():
 
 
 def check_database_drivers():
-    """Check database driver packages."""
+    """Check database driver packages"""
     print("\n" + "=" * 80)
     print("CHECKING DATABASE DRIVERS")
     print("=" * 80)
@@ -85,7 +86,7 @@ def check_database_drivers():
 
 
 def check_playwright_browsers():
-    """Check if Playwright browsers are installed."""
+    """Check if Playwright browsers are installed"""
     print("\n" + "=" * 80)
     print("CHECKING PLAYWRIGHT BROWSERS")
     print("=" * 80)
@@ -126,7 +127,7 @@ def check_playwright_browsers():
 
 
 def check_optional_packages():
-    """Check optional packages."""
+    """Check optional packages"""
     print("\n" + "=" * 80)
     print("CHECKING OPTIONAL PACKAGES")
     print("=" * 80)
@@ -147,7 +148,7 @@ def check_optional_packages():
 
 
 def check_framework_structure():
-    """Check if framework directories exist."""
+    """Check if framework directories exist"""
     print("\n" + "=" * 80)
     print("CHECKING FRAMEWORK STRUCTURE")
     print("=" * 80)
@@ -178,7 +179,7 @@ def check_framework_structure():
 
 
 def check_configuration_files():
-    """Check if configuration files exist."""
+    """Check if configuration files exist"""
     print("\n" + "=" * 80)
     print("CHECKING CONFIGURATION FILES")
     print("=" * 80)
@@ -206,7 +207,7 @@ def check_configuration_files():
 
 
 def main():
-    """Run all verification checks."""
+    """Run all verification checks"""
     print("\n")
     print("╔" + "=" * 78 + "╗")
     print("║" + " " * 15 + "AUTOMATION FRAMEWORK VERIFICATION" + " " * 30 + "║")

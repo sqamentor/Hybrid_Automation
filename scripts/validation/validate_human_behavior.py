@@ -1,4 +1,5 @@
-"""Validation Script for Human Behavior Implementation.
+"""
+Validation Script for Human Behavior Implementation
 
 This script validates that the human behavior simulation module
 has been properly integrated into the framework.
@@ -13,14 +14,14 @@ from pathlib import Path
 
 
 def print_header(title):
-    """Print formatted header."""
+    """Print formatted header"""
     print("\n" + "="*70)
     print(f"  {title}")
     print("="*70)
 
 
 def print_status(check_name, passed, message=""):
-    """Print check status."""
+    """Print check status"""
     status = "✅ PASS" if passed else "❌ FAIL"
     print(f"{status} - {check_name}")
     if message:
@@ -28,7 +29,7 @@ def print_status(check_name, passed, message=""):
 
 
 def validate_files():
-    """Validate all required files exist."""
+    """Validate all required files exist"""
     print_header("FILE VALIDATION")
     
     required_files = [
@@ -54,7 +55,7 @@ def validate_files():
 
 
 def validate_imports():
-    """Validate module imports."""
+    """Validate module imports"""
     print_header("IMPORT VALIDATION")
     
     checks = []
@@ -102,7 +103,7 @@ def validate_imports():
 
 
 def validate_configuration():
-    """Validate configuration loading."""
+    """Validate configuration loading"""
     print_header("CONFIGURATION VALIDATION")
     
     checks = []
@@ -145,7 +146,7 @@ def validate_configuration():
 
 
 def validate_conftest():
-    """Validate conftest.py integration."""
+    """Validate conftest.py integration"""
     print_header("CONFTEST.PY VALIDATION")
     
     checks = []
@@ -185,7 +186,7 @@ def validate_conftest():
 
 
 def validate_pytest_ini():
-    """Validate pytest.ini markers."""
+    """Validate pytest.ini markers"""
     print_header("PYTEST.INI VALIDATION")
     
     checks = []
@@ -211,7 +212,7 @@ def validate_pytest_ini():
 
 
 def validate_base_page():
-    """Validate BasePage integration."""
+    """Validate BasePage integration"""
     print_header("BASE PAGE VALIDATION")
     
     checks = []
@@ -246,7 +247,7 @@ def validate_base_page():
 
 
 def validate_examples():
-    """Validate examples are runnable."""
+    """Validate examples are runnable"""
     print_header("EXAMPLES VALIDATION")
     
     examples_dir = Path("examples/human_behavior")
@@ -284,7 +285,7 @@ def validate_examples():
 
 
 def validate_documentation():
-    """Validate documentation exists and is comprehensive."""
+    """Validate documentation exists and is comprehensive"""
     print_header("DOCUMENTATION VALIDATION")
     
     checks = []
@@ -323,7 +324,7 @@ def validate_documentation():
 
 
 def main():
-    """Main validation function."""
+    """Main validation function"""
     print("\n" + "="*70)
     print("  HUMAN BEHAVIOR SIMULATION - VALIDATION SCRIPT")
     print("  Author: Lokendra Singh (qa.lokendra@gmail.com)")

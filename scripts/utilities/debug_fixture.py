@@ -1,9 +1,9 @@
-"""Debug script to test the fixture loading."""
+"""Debug script to test the fixture loading"""
 from pathlib import Path
 import yaml
 
 def test_fixture_logic(env):
-    """Simulate the exact fixture logic."""
+    """Simulate the exact fixture logic"""
     print(f"\n{'='*80}")
     print(f"TESTING FIXTURE WITH ENV: {env}")
     print(f"{'='*80}\n")

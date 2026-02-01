@@ -6,13 +6,11 @@ and event handling for real-time applications.
 """
 
 import asyncio
-import inspect
 import json
 import threading
 import time
 from datetime import datetime
-from types import TracebackType
-from typing import Any, Awaitable, Callable, Dict, List, Optional, TYPE_CHECKING, Type, cast
+from typing import Any, Callable, Dict, List, Optional
 
 from utils.logger import get_logger
 
@@ -20,27 +18,20 @@ logger = get_logger(__name__)
 
 try:
     import websockets
+    from websockets.client import WebSocketClientProtocol
     WEBSOCKETS_AVAILABLE = True
 except ImportError:
     WEBSOCKETS_AVAILABLE = False
     logger.warning("websockets library not installed. Run: pip install websockets")
 
-if TYPE_CHECKING:
-    from websockets.legacy.client import WebSocketClientProtocol  # pragma: no cover
-else:
-    WebSocketClientProtocol = Any  # type: ignore[misc]
-
-EventHandler = Callable[[Any], Awaitable[Any] | Any]
-MessageRecord = Dict[str, Any]
-MessageFilter = Callable[[MessageRecord], bool]
-
 
 class WebSocketTester:
-    """WebSocket testing client."""
+    """WebSocket testing client"""
     
     def __init__(self, url: str, headers: Optional[Dict] = None):
-        """Initialize WebSocket tester.
-
+        """
+        Initialize WebSocket tester
+        
         Args:
             url: WebSocket URL (ws:// or wss://)
             headers: Optional headers
@@ -51,21 +42,20 @@ class WebSocketTester:
         self.url = url
         self.headers = headers or {}
         self.connection: Optional[WebSocketClientProtocol] = None
-        self.received_messages: List[MessageRecord] = []
-        self.event_handlers: Dict[str, List[EventHandler]] = {}
+        self.received_messages: List[Dict] = []
+        self.event_handlers: Dict[str, List[Callable]] = {}
         self.is_connected = False
-        self._listener_task: Optional[asyncio.Task[None]] = None
-        self._loop: Optional[asyncio.AbstractEventLoop] = None
-        self._thread: Optional[threading.Thread] = None
+        self._listener_task = None
+        self._loop = None
+        self._thread = None
     
-    async def connect(self) -> None:
-        """Establish WebSocket connection."""
+    async def connect(self):
+        """Establish WebSocket connection"""
         try:
-            connection = await websockets.connect(
+            self.connection = await websockets.connect(
                 self.url,
                 extra_headers=self.headers
             )
-            self.connection = cast(WebSocketClientProtocol, connection)
             self.is_connected = True
             logger.info(f"WebSocket connected: {self.url}")
             
@@ -76,21 +66,21 @@ class WebSocketTester:
             logger.error(f"WebSocket connection failed: {e}")
             raise
     
-    async def disconnect(self) -> None:
-        """Close WebSocket connection."""
+    async def disconnect(self):
+        """Close WebSocket connection"""
         if self.connection:
             await self.connection.close()
-            self.connection = None
             self.is_connected = False
             logger.info("WebSocket disconnected")
     
-    async def send_message(self, message: Any) -> None:
-        """Send message to WebSocket server.
-
+    async def send_message(self, message: Any):
+        """
+        Send message to WebSocket server
+        
         Args:
             message: Message to send (dict will be JSON-encoded)
         """
-        if not self.is_connected or self.connection is None:
+        if not self.is_connected:
             raise RuntimeError("WebSocket not connected")
         
         # Convert dict to JSON
@@ -100,14 +90,10 @@ class WebSocketTester:
         await self.connection.send(message)
         logger.debug(f"Sent message: {message}")
     
-    async def _listen(self) -> None:
-        """Listen for incoming messages."""
+    async def _listen(self):
+        """Listen for incoming messages"""
         try:
-            connection = self.connection
-            if connection is None:
-                return
-
-            async for message in connection:
+            async for message in self.connection:
                 timestamp = datetime.now().isoformat()
                 
                 # Try to parse as JSON
@@ -123,12 +109,7 @@ class WebSocketTester:
                 }
                 
                 self.received_messages.append(message_obj)
-                safe_message = (
-                    message.decode('utf-8', errors='replace')
-                    if isinstance(message, (bytes, bytearray))
-                    else str(message)
-                )
-                logger.debug(f"Received message: {safe_message}")
+                logger.debug(f"Received message: {message}")
                 
                 # Trigger event handlers
                 await self._trigger_handlers(data)
@@ -139,8 +120,8 @@ class WebSocketTester:
         except Exception as e:
             logger.error(f"WebSocket listener error: {e}")
     
-    async def _trigger_handlers(self, data: Any) -> None:
-        """Trigger registered event handlers."""
+    async def _trigger_handlers(self, data: Any):
+        """Trigger registered event handlers"""
         # Check for event type in data
         event_type = None
         if isinstance(data, dict):
@@ -149,25 +130,29 @@ class WebSocketTester:
         # Trigger specific handlers
         if event_type and event_type in self.event_handlers:
             for handler in self.event_handlers[event_type]:
-                await self._invoke_handler(handler, data)
+                try:
+                    if asyncio.iscoroutinefunction(handler):
+                        await handler(data)
+                    else:
+                        handler(data)
+                except Exception as e:
+                    logger.error(f"Error in event handler: {e}")
         
         # Trigger wildcard handlers
         if '*' in self.event_handlers:
             for handler in self.event_handlers['*']:
-                await self._invoke_handler(handler, data)
-
-    async def _invoke_handler(self, handler: EventHandler, data: Any) -> None:
-        """Call handler and await if necessary."""
-        try:
-            result = handler(data)
-            if inspect.isawaitable(result):
-                await result
-        except Exception as exc:  # pragma: no cover - handler failures logged
-            logger.error(f"Error in event handler: {exc}")
+                try:
+                    if asyncio.iscoroutinefunction(handler):
+                        await handler(data)
+                    else:
+                        handler(data)
+                except Exception as e:
+                    logger.error(f"Error in wildcard handler: {e}")
     
-    def on(self, event_type: str, handler: EventHandler) -> None:
-        """Register event handler.
-
+    def on(self, event_type: str, handler: Callable):
+        """
+        Register event handler
+        
         Args:
             event_type: Event type to listen for (use '*' for all events)
             handler: Callback function
@@ -178,12 +163,13 @@ class WebSocketTester:
         self.event_handlers[event_type].append(handler)
         logger.debug(f"Registered handler for event: {event_type}")
     
-    def get_messages(self, filter_func: Optional[MessageFilter] = None) -> List[MessageRecord]:
-        """Get received messages.
-
+    def get_messages(self, filter_func: Optional[Callable] = None) -> List[Dict]:
+        """
+        Get received messages
+        
         Args:
             filter_func: Optional filter function
-
+        
         Returns:
             List of messages
         """
@@ -191,23 +177,21 @@ class WebSocketTester:
             return [m for m in self.received_messages if filter_func(m)]
         return self.received_messages.copy()
     
-    def get_messages_by_type(self, event_type: str) -> List[MessageRecord]:
-        """Get messages of specific type."""
+    def get_messages_by_type(self, event_type: str) -> List[Dict]:
+        """Get messages of specific type"""
         return self.get_messages(
             lambda m: isinstance(m['data'], dict) and m['data'].get('type') == event_type
         )
     
-    def wait_for_message(
-        self,
-        timeout: float = 10,
-        condition: Optional[MessageFilter] = None
-    ) -> Optional[MessageRecord]:
-        """Wait for message matching condition.
-
+    def wait_for_message(self, timeout: float = 10, 
+                         condition: Optional[Callable] = None) -> Optional[Dict]:
+        """
+        Wait for message matching condition
+        
         Args:
             timeout: Maximum wait time in seconds
             condition: Optional condition function
-
+        
         Returns:
             Matching message or None if timeout
         """
@@ -223,13 +207,14 @@ class WebSocketTester:
         logger.warning(f"Timeout waiting for message (waited {timeout}s)")
         return None
     
-    def assert_message_received(self, condition: MessageFilter, timeout: float = 10) -> None:
-        """Assert message matching condition is received.
-
+    def assert_message_received(self, condition: Callable, timeout: float = 10):
+        """
+        Assert message matching condition is received
+        
         Args:
             condition: Condition function
             timeout: Maximum wait time
-
+        
         Raises:
             AssertionError: If message not received
         """
@@ -240,25 +225,26 @@ class WebSocketTester:
         
         logger.info("✓ Expected message received")
     
-    def assert_message_type_received(self, event_type: str, timeout: float = 10) -> None:
-        """Assert message of specific type is received.
-
+    def assert_message_type_received(self, event_type: str, timeout: float = 10):
+        """
+        Assert message of specific type is received
+        
         Args:
             event_type: Expected event type
             timeout: Maximum wait time
         """
-        def condition(msg: MessageRecord) -> bool:
+        def condition(msg):
             return isinstance(msg['data'], dict) and msg['data'].get('type') == event_type
         
         self.assert_message_received(condition, timeout)
     
-    def clear_messages(self) -> None:
-        """Clear received messages."""
+    def clear_messages(self):
+        """Clear received messages"""
         self.received_messages.clear()
         logger.debug("Cleared received messages")
     
     def get_connection_state(self) -> Dict[str, Any]:
-        """Get connection state information."""
+        """Get connection state information"""
         return {
             'connected': self.is_connected,
             'url': self.url,
@@ -268,27 +254,27 @@ class WebSocketTester:
 
 
 class SyncWebSocketTester:
-    """Synchronous wrapper for WebSocketTester."""
+    """Synchronous wrapper for WebSocketTester"""
     
-    def __init__(self, url: str, headers: Optional[Dict[str, Any]] = None):
-        """Initialize synchronous WebSocket tester.
-
+    def __init__(self, url: str, headers: Optional[Dict] = None):
+        """
+        Initialize synchronous WebSocket tester
+        
         Args:
             url: WebSocket URL
             headers: Optional headers
         """
         self.tester = WebSocketTester(url, headers)
-        self.loop: Optional[asyncio.AbstractEventLoop] = None
-        self.thread: Optional[threading.Thread] = None
+        self.loop = None
+        self.thread = None
     
-    def connect(self) -> None:
+    def connect(self):
         """Connect (synchronous)"""
         def run_loop():
-            loop = asyncio.new_event_loop()
-            self.loop = loop
-            asyncio.set_event_loop(loop)
-            loop.run_until_complete(self.tester.connect())
-            loop.run_forever()
+            self.loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(self.loop)
+            self.loop.run_until_complete(self.tester.connect())
+            self.loop.run_forever()
         
         self.thread = threading.Thread(target=run_loop, daemon=True)
         self.thread.start()
@@ -302,14 +288,13 @@ class SyncWebSocketTester:
         if not self.tester.is_connected:
             raise TimeoutError("WebSocket connection timeout")
     
-    def disconnect(self) -> None:
+    def disconnect(self):
         """Disconnect (synchronous)"""
-        loop = self.loop
-        if loop:
-            asyncio.run_coroutine_threadsafe(self.tester.disconnect(), loop)
-            loop.call_soon_threadsafe(loop.stop)
+        if self.loop:
+            asyncio.run_coroutine_threadsafe(self.tester.disconnect(), self.loop)
+            self.loop.call_soon_threadsafe(self.loop.stop)
     
-    def send_message(self, message: Any) -> None:
+    def send_message(self, message: Any):
         """Send message (synchronous)"""
         if not self.loop:
             raise RuntimeError("Not connected")
@@ -320,46 +305,38 @@ class SyncWebSocketTester:
         )
         future.result(timeout=5)
     
-    def on(self, event_type: str, handler: EventHandler) -> None:
-        """Register event handler."""
+    def on(self, event_type: str, handler: Callable):
+        """Register event handler"""
         self.tester.on(event_type, handler)
     
-    def get_messages(self, filter_func: Optional[MessageFilter] = None) -> List[MessageRecord]:
-        """Get received messages."""
+    def get_messages(self, filter_func: Optional[Callable] = None) -> List[Dict]:
+        """Get received messages"""
         return self.tester.get_messages(filter_func)
     
-    def wait_for_message(
-        self,
-        timeout: float = 10,
-        condition: Optional[MessageFilter] = None
-    ) -> Optional[MessageRecord]:
-        """Wait for message."""
+    def wait_for_message(self, timeout: float = 10, 
+                         condition: Optional[Callable] = None) -> Optional[Dict]:
+        """Wait for message"""
         return self.tester.wait_for_message(timeout, condition)
     
-    def assert_message_received(self, condition: MessageFilter, timeout: float = 10) -> None:
-        """Assert message received."""
+    def assert_message_received(self, condition: Callable, timeout: float = 10):
+        """Assert message received"""
         self.tester.assert_message_received(condition, timeout)
     
-    def assert_message_type_received(self, event_type: str, timeout: float = 10) -> None:
-        """Assert message type received."""
+    def assert_message_type_received(self, event_type: str, timeout: float = 10):
+        """Assert message type received"""
         self.tester.assert_message_type_received(event_type, timeout)
     
-    def clear_messages(self) -> None:
-        """Clear messages."""
+    def clear_messages(self):
+        """Clear messages"""
         self.tester.clear_messages()
     
-    def __enter__(self) -> "SyncWebSocketTester":
-        """Context manager entry."""
+    def __enter__(self):
+        """Context manager entry"""
         self.connect()
         return self
     
-    def __exit__(
-        self,
-        exc_type: Optional[Type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType]
-    ) -> None:
-        """Context manager exit."""
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Context manager exit"""
         self.disconnect()
 
 
