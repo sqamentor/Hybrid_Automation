@@ -41,6 +41,7 @@ from pytest_html import extras
 # REPORT METADATA COLLECTION
 # ========================================================================
 
+@pytest.mark.legacy_ui
 class TestReportCollector:
     """
     Collects comprehensive test execution metadata

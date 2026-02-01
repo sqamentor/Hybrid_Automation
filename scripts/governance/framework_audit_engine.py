@@ -597,7 +597,13 @@ class StructuralValidator:
         # Page Objects must be in /pages
         if analyzer.tree:
             for node in ast.walk(analyzer.tree):
+                # Check for classes ending with 'Page' but exclude test classes (starting with 'Test')
                 if isinstance(node, ast.ClassDef) and node.name.endswith('Page'):
+                    # Skip test classes - they can have "Page" in the name
+                    if node.name.startswith('Test'):
+                        continue
+                    
+                    # Page Objects must be in /pages directory
                     if 'pages/' not in path_str:
                         violations.append(Violation(
                             category=Category.STRUCTURAL,
