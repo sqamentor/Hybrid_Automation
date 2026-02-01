@@ -1,9 +1,7 @@
 # ========================================================================
 # CORE DEPENDENCIES
 # ========================================================================
-
-# Python version requirement
-python-requires>=3.11
+# Note: Python version requirement (>=3.11) is specified in pyproject.toml
 
 # Test Framework
 pytest>=7.4.0
