@@ -81,7 +81,6 @@ opentelemetry-instrumentation-asyncpg>=0.42b0  # AsyncPG instrumentation (option
 structlog>=23.2.0  # Structured logging for JSON logs
 
 # Visual Regression Testing
-playwright-pytest>=0.4.4  # Playwright pytest plugin with visual comparison
 pixelmatch>=0.3.0  # Pixel-level image comparison (optional)
 
 # Security Testing (requires OWASP ZAP installed separately)
