@@ -18,8 +18,8 @@ import yaml
 import os
 from datetime import datetime
 
-# Add framework to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root to path (go up two levels from scripts/cli/)
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from framework.recording import RecordingWorkflow, PlaywrightCodegen, AIScriptRefactorer, PageObjectGenerator
 from framework.core.project_manager import ProjectManager, get_project_manager

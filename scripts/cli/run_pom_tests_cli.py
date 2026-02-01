@@ -38,8 +38,8 @@ if sys.platform == 'win32':
         # If reconfigure fails, we'll fall back to ASCII characters
         pass
 
-# Add framework to path
-sys.path.insert(0, str(Path(__file__).parent))
+# Add project root to path (go up two levels from scripts/cli/)
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 
 # ============================================================================
@@ -653,7 +653,7 @@ class InteractivePOMRunner:
     """Interactive POM test runner"""
     
     def __init__(self):
-        self.root_dir = Path(__file__).parent
+        self.root_dir = Path(__file__).parent.parent.parent  # Project root (up from scripts/cli/)
         self.config_loader = ConfigLoader(self.root_dir)
         self.test_discovery = POMTestDiscovery(self.root_dir)
         self.validator = PreFlightValidator(self.root_dir)
