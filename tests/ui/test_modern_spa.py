@@ -8,6 +8,7 @@ Framework will automatically select Playwright based on markers.
 import pytest
 
 
+@pytest.mark.playwright
 @pytest.mark.smoke
 @pytest.mark.module("dashboard")
 @pytest.mark.modern_spa
@@ -48,6 +49,7 @@ class TestModernDashboard:
         assert "total_orders" in data
 
 
+@pytest.mark.playwright
 @pytest.mark.regression
 @pytest.mark.module("catalog")
 @pytest.mark.modern_spa
@@ -77,6 +79,7 @@ class TestProductCatalog:
         assert ui_engine.is_visible("#add-to-cart-mobile")
 
 
+@pytest.mark.playwright
 @pytest.mark.critical
 @pytest.mark.module("checkout")
 @pytest.mark.modern_spa

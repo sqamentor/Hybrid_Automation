@@ -25,8 +25,16 @@ import yaml
 from pathlib import Path
 from typing import Dict, List, Any
 
-# Initialize Faker
-fake = Faker()
+# ARCHITECTURAL FIX: Remove global mutable Faker instance
+# Initialize Faker per function call to avoid global mutable state
+# This was flagged in the architecture audit as HIGH-002
+
+def _get_faker() -> Faker:
+    """
+    Factory function to get Faker instance.
+    Replaces global mutable state with function-scoped instance.
+    """
+    return Faker()
 
 # Define paths
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -60,6 +68,7 @@ def generate_custom_email() -> str:
     Returns:
         str: Email address with mailinator.com or yopmail.com domain
     """
+    fake = _get_faker()  # Use factory instead of global
     username = fake.user_name()
     domain = random.choice(ALLOWED_EMAIL_DOMAINS)
     return f"{username}@{domain}"
@@ -72,6 +81,7 @@ def generate_bookslot_payload() -> Dict[str, Any]:
     Returns:
         dict: Complete bookslot payload with personal info and insurance details
     """
+    fake = _get_faker()  # Use factory instead of global
     return {
         # Personal Information
         "first_name": fake.first_name(),
@@ -111,6 +121,7 @@ def generate_bookslot_payload_with_options(
     payload = generate_bookslot_payload()
     
     if use_dynamic_zip:
+        fake = _get_faker()  # Use factory instead of global
         payload["zip"] = fake.zipcode_in_state(state)
     
     if use_all_contact_methods:

@@ -504,7 +504,5 @@ class TestAsyncSmartActionsIntegration:
         mock_page.goto.assert_called_once()
         assert mock_page.locator.call_count >= 3
 
-
-# Pytest configuration
-if __name__ == "__main__":
-    pytest.main([__file__, "-v", "--tb=short"])
+# ARCHITECTURAL FIX: Removed executable pattern - use pytest runner instead
+# Run: pytest tests/unit/test_async_smart_actions.py -v

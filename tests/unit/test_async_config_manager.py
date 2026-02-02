@@ -487,7 +487,5 @@ class TestAsyncConfigManagerIntegration:
             assert settings.database.host == "prod-db.example.com"
             assert settings.database.port == 5432
 
-
-# Pytest configuration
-if __name__ == "__main__":
-    pytest.main([__file__, "-v", "--tb=short"])
+# ARCHITECTURAL FIX: Removed executable pattern - use pytest runner instead
+# Run: pytest tests/unit/test_async_config_manager.py -v

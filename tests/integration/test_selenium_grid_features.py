@@ -43,7 +43,5 @@ def test_selenium_grid_execution():
 
     finally:
         engine.stop()
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v", "-s"])
+# ARCHITECTURAL FIX: Removed executable pattern - use pytest runner instead
+# Run: pytest tests/integration/test_selenium_grid_features.py -v -s

@@ -148,7 +148,5 @@ def test_comprehensive(report_log, report_api_call, report_db_query, report_asse
     report_log("=" * 60, "INFO")
 
     assert True
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v", "--html=reports/simple_demo_report.html", "--self-contained-html"])
+# ARCHITECTURAL FIX: Removed executable pattern - use pytest runner instead
+# Run: pytest tests/examples/test_simple_enhanced_reporting.py -v --html=reports/simple_demo_report.html --self-contained-html

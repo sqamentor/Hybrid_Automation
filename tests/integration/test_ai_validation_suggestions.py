@@ -11,6 +11,7 @@ from framework.database.db_client import DBClient
 from framework.intelligence import AIValidationSuggester, suggest_and_validate
 
 
+@pytest.mark.playwright
 @pytest.mark.integration
 @pytest.mark.module("orders")
 @pytest.mark.api_validation
@@ -146,6 +147,7 @@ class TestAIDrivenValidation:
         print(suggester.generate_validation_report(strategy))
 
 
+@pytest.mark.playwright
 @pytest.mark.integration
 @pytest.mark.module("users")
 @pytest.mark.modern_spa

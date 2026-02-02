@@ -5,8 +5,11 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Checked with mypy](https://img.shields.io/badge/mypy-checked-blue)](http://mypy-lang.org/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Architecture Audit](https://img.shields.io/badge/Architecture%20Audit-Refactored-green)](https://github.com/sqamentor/Hybrid_Automation/blob/main/FRAMEWORK_ARCHITECTURE_AUDIT_REPORT.md)
 
 **Next-generation, AI-powered, hybrid automation framework for comprehensive software testing with intelligent engine selection, multi-layer validation, and automatic architecture governance.**
+
+**📌 Status**: Active Development - Core framework production-ready, organizational refactoring completed (Feb 2026)
 
 ---
 
@@ -56,11 +59,17 @@
 
 ### 🏛️ **Architecture Governance**
 - ✅ **Automatic Architecture Audit** - AST-based static analysis engine
+- ✅ **Engine-Agnostic Page Objects** - BasePage abstraction supporting Playwright & Selenium
 - ✅ **Pre-commit Hooks** - Block commits that violate architecture rules
 - ✅ **CI/CD Integration** - 7 independent status checks with PR blocking
+- ✅ **Modern/Legacy Test Separation** - /tests/modern/ and /tests/legacy/ folders
+- ✅ **Pytest Markers** - All tests tagged with engine markers (@pytest.mark.playwright/@selenium)
 - ✅ **File Watcher** - Real-time audit on code changes
 - ✅ **Baseline Allow-List** - Managed technical debt with expiration tracking
 - ✅ **Fix Suggestions** - Actionable remediation guidance for violations
+- ✅ **Zero Global State** - Factory pattern for all shared resources
+
+**Latest Audit**: See [FRAMEWORK_ARCHITECTURE_AUDIT_REPORT.md](FRAMEWORK_ARCHITECTURE_AUDIT_REPORT.md) for complete compliance status
 
 ---
 
@@ -150,16 +159,20 @@ Automation/
 │   ├── performance/       # Performance metrics, Core Web Vitals
 │   └── observability/     # Logging, tracing, monitoring
 │
-├── pages/                 # Page Object Model (POM)
-│   ├── bookslot/         # BookSlot application pages
-│   ├── callcenter/       # CallCenter application pages
-│   └── patientintake/    # PatientIntake application pages
+├── pages/                 # Page Object Model (POM) - Engine-Agnostic
+│   ├── bookslot/         # BookSlot application pages (extends BasePage)
+│   ├── callcenter/       # CallCenter application pages (extends BasePage)
+│   └── patientintake/    # PatientIntake application pages (extends BasePage)
 │
-├── tests/                # Test suites
-│   ├── bookslot/        # BookSlot tests
-│   ├── callcenter/      # CallCenter tests
-│   ├── patientintake/   # PatientIntake tests
-│   └── common/          # Shared test utilities
+├── tests/                # Test suites (organized by engine)
+│   ├── modern/          # Playwright tests for modern SPAs
+│   │   ├── bookslot/    # BookSlot Playwright tests
+│   │   ├── callcenter/  # CallCenter Playwright tests
+│   │   └── patientintake/  # PatientIntake Playwright tests
+│   ├── legacy/          # Selenium tests for legacy UIs
+│   ├── workflows/       # Cross-engine E2E workflows
+│   ├── unit/            # Unit tests (no engine)
+│   └── integration/     # Integration tests
 │
 ├── config/              # Configuration files
 │   ├── engine_decision_matrix.yaml   # Engine selection rules

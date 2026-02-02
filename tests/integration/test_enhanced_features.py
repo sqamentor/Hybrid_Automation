@@ -16,6 +16,7 @@ import pytest
 from models.appointment import Appointment
 
 
+@pytest.mark.playwright
 @pytest.mark.integration
 @pytest.mark.enhanced_features
 @pytest.mark.modern_spa
@@ -314,7 +315,5 @@ class TestEnhancedIntegration:
         assert high_confidence_count > 0, "Expected at least one high-confidence validation"
 
         print("✅ Confidence scoring working correctly")
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v", "-s"])
+# ARCHITECTURAL FIX: Removed executable pattern - use pytest runner instead
+# Run: pytest tests/integration/test_enhanced_features.py -v -s

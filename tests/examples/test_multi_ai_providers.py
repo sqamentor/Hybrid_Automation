@@ -403,27 +403,9 @@ def test_environment_based_provider(request):
         print("Trying default...")
         suggester = AIValidationSuggester()
         print(f"Fallback to: {suggester.ai_provider.get_provider_name()}")
-
-
-if __name__ == "__main__":
-    print("""
-    Multi-AI Provider Examples
-    ==========================
-    
-    Run individual examples:
-    
-    1. Default provider:
-       pytest tests/examples/test_multi_ai_providers.py::test_default_ai_provider -v -s
-    
-    2. OpenAI (ChatGPT):
-       pytest tests/examples/test_multi_ai_providers.py::test_use_openai_provider -v -s
-    
-    3. Claude (Anthropic):
-       pytest tests/examples/test_multi_ai_providers.py::test_use_claude_provider -v -s
-    
-    4. Check available:
-       pytest tests/examples/test_multi_ai_providers.py::test_check_available_providers -v -s
-    
-    Run all examples:
-       pytest tests/examples/test_multi_ai_providers.py -v -s
-    """)
+# ARCHITECTURAL FIX: Removed executable pattern - use pytest runner instead
+# Run individual examples:
+# - Default: pytest tests/examples/test_multi_ai_providers.py::test_default_ai_provider -v -s
+# - OpenAI: pytest tests/examples/test_multi_ai_providers.py::test_use_openai_provider -v -s
+# - Claude: pytest tests/examples/test_multi_ai_providers.py::test_use_claude_provider -v -s
+# - All: pytest tests/examples/test_multi_ai_providers.py -v -s

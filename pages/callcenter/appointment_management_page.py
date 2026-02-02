@@ -3,15 +3,16 @@ CallCenter Appointment Management Page Object
 Handles appointment viewing and cancellation in CallCenter system
 """
 from typing import Optional, List
-from playwright.sync_api import Page, expect
+from framework.ui.base_page import BasePage
 from models.appointment import Appointment
 
 
-class CallCenterAppointmentManagementPage:
+class CallCenterAppointmentManagementPage(BasePage):
     """Page object for CallCenter Appointment Management"""
     
-    def __init__(self, page: Page, base_url: str):
-        self.page = page
+    def __init__(self, page, base_url: str):
+        super().__init__(page)
+        self.page = self.driver  # Compatibility alias
         self.base_url = base_url.rstrip('/')
     
     # URL

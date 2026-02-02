@@ -29,12 +29,11 @@ Run Commands:
 
 import allure
 import pytest
-from playwright.sync_api import Page
+# ARCHITECTURAL FIX: Removed direct Playwright import - use page fixture instead
 
 
 @allure.epic("Bookslot")
-@allure.feature("Complete Booking Flows")
-@pytest.mark.modern_spa
+@allure.feature("Complete Booking Flows")@pytest.mark.playwright@pytest.mark.modern_spa
 @pytest.mark.bookslot
 @pytest.mark.e2e
 class TestBookslotCompleteFlows:

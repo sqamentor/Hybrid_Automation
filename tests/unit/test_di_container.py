@@ -520,7 +520,5 @@ class TestDIContainerIntegration:
         conn_ids = [conn_id for _, conn_id in db_instances]
         assert len(set(conn_ids)) == 3  # All unique
 
-
-# Pytest configuration
-if __name__ == "__main__":
-    pytest.main([__file__, "-v", "--tb=short"])
+# ARCHITECTURAL FIX: Removed executable pattern - use pytest runner instead
+# Run: pytest tests/unit/test_di_container.py -v

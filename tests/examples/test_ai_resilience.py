@@ -435,42 +435,9 @@ def test_production_readiness_ai_failures():
     print("=" * 80)
 
     assert all(checks.values())
-
-
-if __name__ == "__main__":
-    print("""
-    ╔════════════════════════════════════════════════════════════════╗
-    ║  AI RESILIENCE TEST SUITE                                      ║
-    ║  Proves: Tests NEVER fail due to AI unavailability            ║
-    ╚════════════════════════════════════════════════════════════════╝
-    
-    Run all tests:
-        pytest tests/examples/test_ai_resilience.py -v -s
-    
-    Run specific test:
-        pytest tests/examples/test_ai_resilience.py::test_missing_api_keys_does_not_fail -v -s
-    
-    Run without any AI providers configured:
-        # Remove all API keys
-        unset OPENAI_API_KEY ANTHROPIC_API_KEY
-        
-        # Tests still pass!
-        pytest tests/examples/test_ai_resilience.py -v -s
-    
-    ═══════════════════════════════════════════════════════════════
-    
-    GUARANTEES:
-    ✓ Tests NEVER fail due to AI unavailability
-    ✓ Tests NEVER fail due to network issues
-    ✓ Tests NEVER fail due to invalid API keys
-    ✓ Tests NEVER fail due to AI timeouts
-    ✓ Tests NEVER fail due to rate limits
-    
-    FALLBACK STRATEGY:
-    ✓ AI unavailable → Rule-based suggestions
-    ✓ Test generation fails → Template code
-    ✓ Provider down → Try next priority provider
-    ✓ All providers down → Full fallback mode
-    
-    YOUR TESTS ARE BULLETPROOF! 🛡️
-    """)
+# ARCHITECTURAL FIX: Removed executable pattern - use pytest runner instead
+# ════════════════════════════════════════════════════════════════
+# AI RESILIENCE TEST SUITE - Tests NEVER fail due to AI unavailability
+# ════════════════════════════════════════════════════════════════
+# Run all: pytest tests/examples/test_ai_resilience.py -v -s
+# Specific: pytest tests/examples/test_ai_resilience.py::test_missing_api_keys_does_not_fail -v -s

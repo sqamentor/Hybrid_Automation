@@ -8,20 +8,21 @@ Author: Principal QA Architect
 Date: January 31, 2026
 """
 
-from playwright.sync_api import Page
+from framework.ui.base_page import BasePage
 
 
-class PatientIntakeVerificationPage:
+class PatientIntakeVerificationPage(BasePage):
     """Page Object for PatientIntake verification in workflows"""
     
-    def __init__(self, page: Page):
+    def __init__(self, page):
         """
         Initialize PatientIntake verification page
         
         Args:
-            page: Playwright page instance (from ui_engine fixture)
+            page: Playwright Page or Selenium WebDriver instance
         """
-        self.page = page
+        super().__init__(page)
+        self.page = self.driver  # Compatibility alias
         self.base_url = None
         
         # Selectors

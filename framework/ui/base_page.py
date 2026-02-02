@@ -4,6 +4,9 @@ Base Page Object
 Abstract base class for all page objects.
 Provides common methods and structure for both Playwright and Selenium.
 Includes optional human behavior simulation for realistic interactions.
+
+ARCHITECTURAL FIX: Enhanced to support true engine-agnostic Page Objects
+while maintaining backward compatibility with existing Playwright-specific code.
 """
 
 from abc import ABC, abstractmethod
@@ -19,10 +22,43 @@ class BasePage(ABC):
         self.driver = driver_or_page
         self._human_simulator = None
         self._human_enabled = enable_human_behavior
+        
+        # Engine detection for hybrid support
+        self.engine_type = self._detect_engine()
 
         # Initialize human behavior simulator if enabled
         if self._should_enable_human_behavior():
             self._init_human_behavior()
+    
+    def _detect_engine(self) -> str:
+        """
+        Detect which automation engine is being used.
+        
+        Returns:
+            'playwright' if Playwright Page object
+            'selenium' if Selenium WebDriver instance
+        """
+        driver_class = type(self.driver).__name__
+        
+        # Playwright detection
+        if 'Page' in driver_class or hasattr(self.driver, 'goto'):
+            return 'playwright'
+        # Selenium detection
+        elif hasattr(self.driver, 'get') and hasattr(self.driver, 'find_element'):
+            return 'selenium'
+        else:
+            # Default to playwright for backward compatibility
+            return 'playwright'
+    
+    @property
+    def page(self):
+        """
+        Compatibility property for existing code using .page attribute.
+        
+        Returns:
+            The underlying driver (Playwright Page or Selenium WebDriver)
+        """
+        return self.driver
 
     def _should_enable_human_behavior(self) -> bool:
         """Determine if human behavior should be enabled"""

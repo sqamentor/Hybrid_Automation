@@ -42,6 +42,7 @@ from pages.bookslot.bookslots_scheduler_page import BookslotSchedulerPage
 
 @allure.epic("Bookslot")
 @allure.feature("Form Validations")
+@pytest.mark.playwright
 @pytest.mark.modern_spa
 @pytest.mark.bookslot
 @pytest.mark.validation
@@ -197,6 +198,7 @@ class TestBasicInfoValidations:
 
 @allure.epic("Bookslot")
 @allure.feature("Form Validations")
+@pytest.mark.playwright
 @pytest.mark.modern_spa
 @pytest.mark.bookslot
 @pytest.mark.validation
@@ -324,6 +326,7 @@ class TestPersonalInfoValidations:
 
 @allure.epic("Bookslot")
 @allure.feature("Form Validations")
+@pytest.mark.playwright
 @pytest.mark.modern_spa
 @pytest.mark.bookslot
 @pytest.mark.validation

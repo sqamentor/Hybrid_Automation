@@ -24,6 +24,7 @@ from models import Appointment, TestContext
 logger = logging.getLogger(__name__)
 
 
+@pytest.mark.playwright
 @pytest.mark.modern_spa
 @pytest.mark.integration
 class TestThreeSystemWorkflow:
@@ -294,6 +295,7 @@ class TestThreeSystemWorkflow:
         logger.info("✅ Multi-appointment workflow with partial cancellation verified")
 
 
+@pytest.mark.playwright
 @pytest.mark.smoke
 @pytest.mark.modern_spa
 class TestThreeSystemSmoke:

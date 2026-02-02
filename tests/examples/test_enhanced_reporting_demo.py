@@ -302,7 +302,5 @@ def test_skipped_example():
 def test_expected_failure_example():
     """This test is expected to fail"""
     assert False, "This is an expected failure"
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v", "--html=reports/demo_report.html", "--self-contained-html"])
+# ARCHITECTURAL FIX: Removed executable pattern - use pytest runner instead
+# Run: pytest tests/examples/test_enhanced_reporting_demo.py -v --html=reports/demo_report.html --self-contained-html

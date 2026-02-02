@@ -23,11 +23,11 @@ Does NOT contain:
 ❌ Complete test flows
 """
 
-from playwright.sync_api import Page, Locator
+from framework.ui.base_page import BasePage
 from framework.core.smart_actions import SmartActions
 
 
-class BookslotWebSchedulerPage:
+class BookslotWebSchedulerPage(BasePage):
     """
     Page Object for Bookslot Web Scheduler
 
@@ -39,15 +39,16 @@ class BookslotWebSchedulerPage:
     - Proceed to next page
     """
 
-    def __init__(self, page: Page, base_url: str):
+    def __init__(self, page, base_url: str):
         """
         Initialize page object
 
         Args:
-            page: Playwright Page instance
+            page: Playwright Page or Selenium WebDriver instance
             base_url: Base URL from multi_project_config
         """
-        self.page = page
+        super().__init__(page)
+        self.page = self.driver  # Compatibility alias
         self.actions = SmartActions(page)
         if not base_url:
             raise ValueError("base_url is required from multi_project_config")

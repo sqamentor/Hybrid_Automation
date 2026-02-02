@@ -137,49 +137,5 @@ def test_list_operations():
         print(f"✗ List operations failed: {e}")
         return False
 
-
-def main():
-    """Run all tests"""
-    print("=" * 60)
-    print("RECORDING MODULE - SIMPLE FUNCTIONALITY TEST")
-    print("=" * 60)
-
-    tests = [
-        test_imports,
-        test_instantiation,
-        test_directories,
-        test_ai_integration,
-        test_list_operations,
-    ]
-
-    results = []
-    for test_func in tests:
-        result = test_func()
-        results.append(result)
-
-    print("\n" + "=" * 60)
-    print("TEST SUMMARY")
-    print("=" * 60)
-
-    passed = sum(results)
-    total = len(results)
-
-    print(f"Passed: {passed}/{total}")
-
-    if passed == total:
-        print("\n✓ ALL TESTS PASSED!")
-        print("\nRecording strategy is ready to use!")
-        print("\nNext steps:")
-        print(
-            "  1. Try: python record_cli.py workflow --url https://example.com --name demo --quick"
-        )
-        print("  2. Or run: python examples/recording_demo.py")
-        print("  3. See: RECORDING_GUIDE.md for full documentation")
-        return 0
-    else:
-        print(f"\n✗ {total - passed} TEST(S) FAILED")
-        return 1
-
-
-if __name__ == "__main__":
-    sys.exit(main())
+# ARCHITECTURAL FIX: Removed executable pattern and main() function
+# Use pytest runner instead: pytest tests/common/test_recording_simple.py -v

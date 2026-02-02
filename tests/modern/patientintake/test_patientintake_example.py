@@ -13,7 +13,9 @@ Author: Lokendra Singh
 import pytest
 
 
+@pytest.mark.playwright
 @pytest.mark.modern_spa
+@pytest.mark.patientintake
 class TestPatientIntake:
     """Test class for PatientIntake functionality"""
 

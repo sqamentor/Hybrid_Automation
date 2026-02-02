@@ -18,6 +18,7 @@ from models import Appointment, TestContext
 logger = logging.getLogger(__name__)
 
 
+@pytest.mark.playwright
 @pytest.mark.modern_spa
 @pytest.mark.integration
 @pytest.mark.ai_enhanced
@@ -211,6 +212,7 @@ class TestAIEnhancedWorkflow:
                 raise
 
 
+@pytest.mark.playwright
 @pytest.mark.modern_spa
 class TestAIEngineSelection:
     """Demonstrate AI-powered engine selection"""
@@ -253,6 +255,7 @@ class TestAIEngineSelection:
         logger.info("✅ AI engine selection working correctly")
 
 
+@pytest.mark.playwright
 @pytest.mark.modern_spa
 class TestAIValidationSuggester:
     """Demonstrate AI validation suggestions"""

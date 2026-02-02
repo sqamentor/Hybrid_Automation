@@ -492,7 +492,5 @@ class TestModernEngineSelectorIntegration:
         # Should be very fast due to caching
         assert duration_cached < 0.1  # 100 calls in < 100ms
 
-
-# Pytest configuration
-if __name__ == "__main__":
-    pytest.main([__file__, "-v", "--tb=short"])
+# ARCHITECTURAL FIX: Removed executable pattern - use pytest runner instead
+# Run: pytest tests/unit/test_modern_engine_selector.py -v

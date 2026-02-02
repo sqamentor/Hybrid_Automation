@@ -14,6 +14,7 @@ from framework.core.execution_flow import execution_flow
 from framework.database.db_validator import DBValidator
 
 
+@pytest.mark.playwright
 @pytest.mark.integration
 @pytest.mark.module("checkout")
 @pytest.mark.modern_spa

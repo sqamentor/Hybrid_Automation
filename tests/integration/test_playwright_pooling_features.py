@@ -48,7 +48,5 @@ def test_playwright_context_pooling():
     finally:
         for engine in engines:
             engine.stop()
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v", "-s"])
+# ARCHITECTURAL FIX: Removed executable pattern - use pytest runner instead
+# Run: pytest tests/integration/test_playwright_pooling_features.py -v -s

@@ -876,14 +876,5 @@ def test_14_feature_coverage_matrix(request, feature, status):
     )
 
     assert "✅" in status, f"{feature} validated"
-
-
-if __name__ == "__main__":
-    pytest.main(
-        [
-            __file__,
-            "-v",
-            "--html=reports/comprehensive_all_features_report.html",
-            "--self-contained-html",
-        ]
-    )
+# ARCHITECTURAL FIX: Removed executable pattern - use pytest runner instead
+# Run: pytest tests/examples/test_comprehensive_all_features.py -v --html=reports/comprehensive_all_features_report.html --self-contained-html

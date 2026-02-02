@@ -30,6 +30,7 @@ from tests.bookslot.helpers.navigation_helper import BookslotNavigator
 
 @allure.epic("Bookslot")
 @allure.feature("Event Type Page")
+@pytest.mark.playwright
 @pytest.mark.modern_spa
 @pytest.mark.bookslot
 class TestEventTypePage:

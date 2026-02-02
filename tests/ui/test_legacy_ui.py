@@ -8,6 +8,7 @@ Framework will automatically select Selenium based on markers.
 import pytest
 
 
+@pytest.mark.selenium
 @pytest.mark.regression
 @pytest.mark.module("admin")
 @pytest.mark.legacy_ui
@@ -43,6 +44,7 @@ class TestAdminPanel:
         pass
 
 
+@pytest.mark.selenium
 @pytest.mark.regression
 @pytest.mark.module("backoffice")
 @pytest.mark.legacy_ui
@@ -70,6 +72,7 @@ class TestBackofficeOperations:
         assert ui_engine.is_visible("#download-link")
 
 
+@pytest.mark.selenium
 @pytest.mark.critical
 @pytest.mark.module("payment")
 @pytest.mark.auth_type("MFA")

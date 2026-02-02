@@ -18,14 +18,16 @@ Website: www.sqamentor.com
 
 import re
 import pytest
-from playwright.sync_api import Page
+# ARCHITECTURAL FIX: Removed direct Playwright import - use page fixture instead
 
 
+@pytest.mark.playwright
+@pytest.mark.modern_spa
 @pytest.mark.bookslot
 @pytest.mark.e2e
 @pytest.mark.human_like
 @pytest.mark.recorded
-def test_bookslot_complete_flow(page: Page, multi_project_config, smart_actions, fake_bookslot_data) -> None:
+def test_bookslot_complete_flow(page, multi_project_config, smart_actions, fake_bookslot_data) -> None:
     """
     Complete bookslot test flow with smart automation
     

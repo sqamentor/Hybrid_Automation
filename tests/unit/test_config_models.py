@@ -502,7 +502,5 @@ class TestModelIntegration:
         )
         assert legacy_matrix.select_engine() == EngineType.SELENIUM
 
-
-# Pytest configuration
-if __name__ == "__main__":
-    pytest.main([__file__, "-v", "--tb=short"])
+# ARCHITECTURAL FIX: Removed executable pattern - use pytest runner instead
+# Run: pytest tests/unit/test_config_models.py -v

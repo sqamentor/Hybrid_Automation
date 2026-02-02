@@ -28,6 +28,7 @@ from tests.bookslot.helpers.navigation_helper import BookslotNavigator
 
 @allure.epic("Bookslot")
 @allure.feature("Referral Page")
+@pytest.mark.playwright
 @pytest.mark.modern_spa
 @pytest.mark.bookslot
 class TestReferralPage:

@@ -257,8 +257,5 @@ def test_recording_module_exports():
 
     for export in expected_exports:
         assert hasattr(recording, export), f"Missing export: {export}"
-
-
-if __name__ == "__main__":
-    # Run tests
-    pytest.main([__file__, "-v", "--tb=short"])
+# ARCHITECTURAL FIX: Removed executable pattern - use pytest runner instead
+# Run: pytest tests/common/test_recording_module.py -v

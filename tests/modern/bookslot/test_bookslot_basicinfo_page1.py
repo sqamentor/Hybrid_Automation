@@ -116,6 +116,7 @@ def save_screenshot(page, test_name: str, description: str = ""):
 
 @allure.epic("Bookslot")
 @allure.feature("Basic Info Page")
+@pytest.mark.playwright
 @pytest.mark.modern_spa
 @pytest.mark.bookslot
 class TestBasicInfoPage:

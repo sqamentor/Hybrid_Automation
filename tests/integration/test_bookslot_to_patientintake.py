@@ -10,6 +10,7 @@ import pytest
 from models import Appointment
 
 
+@pytest.mark.playwright
 @pytest.mark.modern_spa
 class TestBookslotToPatientIntake:
     """Test suite for Bookslot → PatientIntake integration"""
@@ -166,6 +167,7 @@ class TestBookslotToPatientIntake:
             ), f"Location mismatch: expected {appointment.location}, got {ui_details['location']}"
 
 
+@pytest.mark.playwright
 @pytest.mark.integration
 @pytest.mark.multi_project
 @pytest.mark.modern_spa
