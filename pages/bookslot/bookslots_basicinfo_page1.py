@@ -114,8 +114,10 @@ class BookslotBasicInfoPage:
     
     @property
     def textbox_otp(self):
-        """OTP verification code input"""
-        return self.page.locator("#otp, input[type='text'][name*='otp'], input[placeholder*='code'], input[placeholder*='OTP']").first
+        """OTP verification code input (handles PrimeNG p-inputmask)"""
+        # Try PrimeNG component first, then fallback to regular input
+        otp_component = self.page.locator("#otp input, p-inputmask#otp input, input[type='text'][name*='otp'], input[placeholder*='code'], input[placeholder*='OTP']").first
+        return otp_component
     
     @property
     def button_verify_code(self):
@@ -197,9 +199,14 @@ class BookslotBasicInfoPage:
         return self
     
     def fill_otp(self, otp_code: str):
-        """Fill OTP verification code"""
-        self.textbox_otp.click()
-        self.textbox_otp.fill(otp_code)
+        """Fill OTP verification code (handles PrimeNG p-inputmask)"""
+        # For PrimeNG p-inputmask, we need to type instead of fill
+        try:
+            self.textbox_otp.click()
+            self.textbox_otp.type(otp_code, delay=100)
+        except Exception:
+            # Fallback: try filling directly
+            self.textbox_otp.fill(otp_code)
         return self
     
     def verify_otp(self):
