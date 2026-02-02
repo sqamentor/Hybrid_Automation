@@ -8,9 +8,4 @@ from .codegen_wrapper import PlaywrightCodegen
 from .page_object_generator import PageObjectGenerator
 from .recording_workflow import RecordingWorkflow, quick_record_and_generate
 
-__all__ = [
-    'PlaywrightCodegen',
-    'AIScriptRefactorer', 
-    'PageObjectGenerator',
-    'RecordingWorkflow'
-]
+__all__ = ["PlaywrightCodegen", "AIScriptRefactorer", "PageObjectGenerator", "RecordingWorkflow"]

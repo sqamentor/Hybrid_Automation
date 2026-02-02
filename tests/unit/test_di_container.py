@@ -27,8 +27,7 @@ from framework.di_container import (
 class ILogger(Protocol):
     """Test logger interface"""
 
-    def log(self, message: str) -> None:
-        ...
+    def log(self, message: str) -> None: ...
 
 
 @pytest.mark.modern_spa
@@ -48,8 +47,7 @@ class ConsoleLogger:
 class IDatabase(Protocol):
     """Test database interface"""
 
-    def connect(self) -> str:
-        ...
+    def connect(self) -> str: ...
 
 
 @pytest.mark.modern_spa
@@ -69,8 +67,7 @@ class PostgresDatabase:
 class IRepository(Protocol):
     """Test repository interface"""
 
-    def save(self, data: str) -> None:
-        ...
+    def save(self, data: str) -> None: ...
 
 
 @pytest.mark.modern_spa
@@ -264,12 +261,9 @@ class TestDIContainerDependencies:
         """Test resolving nested dependencies"""
 
         class IService(Protocol):
-            def execute(self) -> str:
-                ...
+            def execute(self) -> str: ...
 
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class MyService:
+        class MyService:
             def __init__(self, repo: IRepository):
                 self.repo = repo
 
@@ -412,9 +406,7 @@ class TestDIContainerErrors:
         container = DIContainer()
         container.register(ILogger, ConsoleLogger, Lifetime.SINGLETON)
 
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class FileLogger:
+        class FileLogger:
             def log(self, message: str) -> None:
                 pass
 
@@ -436,9 +428,7 @@ class TestDIContainerAdvanced:
 
         init_count = 0
 
-        @pytest.mark.modern_spa
-@pytest.mark.unit
-class LazyService:
+        class LazyService:
             def __init__(self):
                 nonlocal init_count
                 init_count += 1

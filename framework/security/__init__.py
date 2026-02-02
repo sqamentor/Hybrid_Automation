@@ -2,4 +2,4 @@
 
 from framework.security.security_tester import ManualSecurityChecks, SecurityTester
 
-__all__ = ['SecurityTester', 'ManualSecurityChecks']
+__all__ = ["SecurityTester", "ManualSecurityChecks"]

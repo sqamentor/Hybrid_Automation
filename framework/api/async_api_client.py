@@ -296,7 +296,9 @@ class AsyncAPIClient:
         **kwargs,
     ) -> APIResponse:
         """Make GET request"""
-        return await self.request(HTTPMethod.GET, endpoint, params=params, headers=headers, **kwargs)
+        return await self.request(
+            HTTPMethod.GET, endpoint, params=params, headers=headers, **kwargs
+        )
 
     async def post(
         self,
@@ -346,9 +348,7 @@ class AsyncAPIClient:
         """Make DELETE request"""
         return await self.request(HTTPMethod.DELETE, endpoint, headers=headers, **kwargs)
 
-    async def parallel_requests(
-        self, requests: List[Dict[str, Any]]
-    ) -> List[APIResponse]:
+    async def parallel_requests(self, requests: List[Dict[str, Any]]) -> List[APIResponse]:
         """
         Execute multiple requests in parallel.
 
@@ -378,9 +378,7 @@ class AsyncAPIClient:
 
     def get_metrics(self) -> Dict[str, Any]:
         """Get client metrics"""
-        avg_duration = (
-            self.total_duration / self.request_count if self.request_count > 0 else 0
-        )
+        avg_duration = self.total_duration / self.request_count if self.request_count > 0 else 0
 
         return {
             "request_count": self.request_count,
@@ -442,9 +440,7 @@ async def example_usage():
         print(f"Body: {response.body}")
 
         # Parallel requests
-        requests = [
-            {"method": HTTPMethod.GET, "endpoint": f"/posts/{i}"} for i in range(1, 6)
-        ]
+        requests = [{"method": HTTPMethod.GET, "endpoint": f"/posts/{i}"} for i in range(1, 6)]
 
         responses = await client.parallel_requests(requests)
         print(f"Completed {len(responses)} requests in parallel")

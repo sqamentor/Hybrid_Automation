@@ -81,9 +81,7 @@ class TestAsyncSmartActionsInit:
     @pytest.mark.asyncio
     async def test_enable_human_behavior(self, mock_page, test_context):
         """Test enabling human behavior"""
-        actions = AsyncSmartActions(
-            mock_page, test_context, enable_human=True
-        )
+        actions = AsyncSmartActions(mock_page, test_context, enable_human=True)
         assert actions.enable_human is True
 
 
@@ -105,9 +103,7 @@ class TestAsyncSmartActionsClick:
     @pytest.mark.asyncio
     async def test_click_with_human_delay(self, mock_page, test_context):
         """Test click with human behavior delay"""
-        actions = AsyncSmartActions(
-            mock_page, test_context, enable_human=True
-        )
+        actions = AsyncSmartActions(mock_page, test_context, enable_human=True)
 
         import time
 
@@ -172,9 +168,7 @@ class TestAsyncSmartActionsFill:
     @pytest.mark.asyncio
     async def test_fill_with_human_typing(self, mock_page, test_context):
         """Test fill with human-like typing delay"""
-        actions = AsyncSmartActions(
-            mock_page, test_context, enable_human=True
-        )
+        actions = AsyncSmartActions(mock_page, test_context, enable_human=True)
 
         import time
 
@@ -204,9 +198,7 @@ class TestAsyncSmartActionsSelect:
     @pytest.mark.asyncio
     async def test_select_with_delay(self, mock_page, test_context):
         """Test select with human delay"""
-        actions = AsyncSmartActions(
-            mock_page, test_context, enable_human=True
-        )
+        actions = AsyncSmartActions(mock_page, test_context, enable_human=True)
 
         await actions.select("select#country", "US")
 
@@ -232,9 +224,7 @@ class TestAsyncSmartActionsNavigate:
         """Test navigation with custom wait_until"""
         actions = AsyncSmartActions(mock_page, test_context)
 
-        await actions.navigate(
-            "https://example.com", wait_until="networkidle"
-        )
+        await actions.navigate("https://example.com", wait_until="networkidle")
 
         mock_page.goto.assert_called()
 
@@ -256,7 +246,7 @@ class TestAsyncSmartActionsWait:
         mock_page.wait_for_selector.assert_called_once_with(
             "div.loaded", timeout=5000, state="visible"
         )
-    
+
     @pytest.mark.asyncio
     async def test_wait_for_element_visible(self, mock_page, test_context):
         """Test waiting for element to be visible"""
@@ -363,9 +353,7 @@ class TestAsyncPageFactory:
 
         viewport = {"width": 1920, "height": 1080}
 
-        async with AsyncPageFactory(
-            mock_browser, viewport=viewport
-        ) as page:
+        async with AsyncPageFactory(mock_browser, viewport=viewport) as page:
             assert page == mock_page
 
         mock_browser.new_context.assert_called()
@@ -379,9 +367,7 @@ class TestAsyncSmartActionsHumanBehavior:
     @pytest.mark.asyncio
     async def test_human_delay_range(self, mock_page, test_context):
         """Test human delay is within expected range"""
-        actions = AsyncSmartActions(
-            mock_page, test_context, enable_human=True
-        )
+        actions = AsyncSmartActions(mock_page, test_context, enable_human=True)
 
         import time
 
@@ -401,9 +387,7 @@ class TestAsyncSmartActionsHumanBehavior:
     @pytest.mark.asyncio
     async def test_no_delay_when_disabled(self, mock_page, test_context):
         """Test no delay when human behavior disabled"""
-        actions = AsyncSmartActions(
-            mock_page, test_context, enable_human=False
-        )
+        actions = AsyncSmartActions(mock_page, test_context, enable_human=False)
 
         import time
 
@@ -449,23 +433,23 @@ class TestAsyncSmartActionsPerformance:
         # Create mock locators with delayed clicks
         mock_locator1 = AsyncMock()
         mock_locator2 = AsyncMock()
-        
+
         async def delayed_click1():
             await asyncio.sleep(0.1)
-        
+
         async def delayed_click2():
             await asyncio.sleep(0.1)
-        
+
         mock_locator1.click = delayed_click1
         mock_locator2.click = delayed_click2
-        
+
         # Mock locator() to return different locators for different selectors
         def get_locator(selector):
             if selector == "button#1":
                 return mock_locator1
             else:
                 return mock_locator2
-        
+
         mock_page.locator = get_locator
 
         import time

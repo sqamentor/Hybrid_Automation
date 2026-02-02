@@ -1,4 +1,5 @@
 """Test to isolate fixture issue"""
+
 import pytest
 
 

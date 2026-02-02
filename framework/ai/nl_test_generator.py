@@ -15,11 +15,11 @@ logger = get_logger(__name__)
 
 class NaturalLanguageTestGenerator:
     """Generate test code from natural language"""
-    
+
     def __init__(self, provider_name: Optional[str] = None):
         """
         Initialize NL test generator
-        
+
         Args:
             provider_name: AI provider to use ('openai', 'claude', 'azure', 'ollama')
                           If None, uses default from configuration
@@ -28,65 +28,73 @@ class NaturalLanguageTestGenerator:
         self.ai_provider = None
         self.enabled = False
         self._initialize_provider()
-    
+
     def _initialize_provider(self):
         """Initialize AI provider - never fails"""
         try:
             from framework.ai.ai_provider_factory import get_ai_provider
-            
+
             self.ai_provider = get_ai_provider(self.provider_name)
-            
+
             if self.ai_provider:
                 self.enabled = True
-                logger.info(f"NL Test Generator initialized with provider: {self.ai_provider.get_provider_name()}")
+                logger.info(
+                    f"NL Test Generator initialized with provider: {self.ai_provider.get_provider_name()}"
+                )
             else:
-                logger.warning("No AI provider available. Test generation will return template code.")
+                logger.warning(
+                    "No AI provider available. Test generation will return template code."
+                )
                 self.enabled = False
-        
+
         except Exception as e:
             logger.warning(f"Failed to initialize AI provider: {e}. Test generation disabled.")
             self.enabled = False
-    
+
     def generate_test(self, description: str, test_type: str = "ui") -> str:
         """
         Generate test code from description
-        
+
         NEVER FAILS: Returns template code if AI unavailable
-        
+
         Args:
             description: Natural language test description
             test_type: Test type ('ui', 'api', 'e2e')
-        
+
         Returns:
             Generated test code (AI-generated or template)
         """
         # Return template if AI not available
         if not self.enabled or not self.ai_provider:
-            logger.warning(f"AI helper not available for test generation. Skipping AI code generation, using template instead. Continuing to next step.")
+            logger.warning(
+                f"AI helper not available for test generation. Skipping AI code generation, using template instead. Continuing to next step."
+            )
             logger.info(f"Generating template for {test_type} test")
             return self._generate_template(description, test_type)
-        
+
         try:
             system_prompt = self._get_system_prompt(test_type)
-            
-            logger.info(f"Generating {test_type} test using {self.ai_provider.get_provider_name()}...")
-            
+
+            logger.info(
+                f"Generating {test_type} test using {self.ai_provider.get_provider_name()}..."
+            )
+
             # Try AI generation with timeout
             test_code = self.ai_provider.generate_completion(
                 prompt=description,
                 system_prompt=system_prompt,
                 temperature=0.3,
-                timeout=30  # 30 second timeout
+                timeout=30,  # 30 second timeout
             )
-            
+
             logger.info("✓ Test code generated successfully")
             return test_code
-        
+
         except Exception as e:
             # NEVER FAIL - Return template on any error
             logger.warning(f"Test generation failed ({e}). Returning template code.")
             return self._generate_template(description, test_type)
-    
+
     def _generate_template(self, description: str, test_type: str) -> str:
         """Generate basic template when AI unavailable"""
         if test_type == "ui":
@@ -148,7 +156,7 @@ def test_e2e_template(ui_engine, api_client, db_client):
     
     pytest.skip("Template - needs implementation")
 '''
-    
+
     def _get_system_prompt(self, test_type: str) -> str:
         """Get system prompt for test generation"""
         base_prompt = """You are an expert QA automation engineer. Generate pytest test code from natural language descriptions.
@@ -168,7 +176,7 @@ Generate complete, runnable test functions with:
 6. Comments for clarity
 
 Return ONLY the test code, no explanations."""
-        
+
         if test_type == "ui":
             return base_prompt + """
 
@@ -240,18 +248,19 @@ def test_order_flow(ui_engine, api_client, db_client, ai_validator):
         assert result, f"{validation['description']} failed"
 ```
 """
-        
+
         return base_prompt
-    
-    def generate_test_suite(self, feature_description: str, 
-                           test_count: int = 5) -> List[Dict[str, str]]:
+
+    def generate_test_suite(
+        self, feature_description: str, test_count: int = 5
+    ) -> List[Dict[str, str]]:
         """
         Generate multiple test cases for a feature
-        
+
         Args:
             feature_description: Feature description
             test_count: Number of tests to generate
-        
+
         Returns:
             List of test cases with code
         """
@@ -275,46 +284,47 @@ Return as JSON array with format:
   }}
 ]
 """
-        
+
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
                     {"role": "system", "content": self._get_system_prompt("ui")},
-                    {"role": "user", "content": prompt}
+                    {"role": "user", "content": prompt},
                 ],
-                temperature=0.5
+                temperature=0.5,
             )
-            
+
             import json
+
             tests = json.loads(response.choices[0].message.content)
             logger.info(f"Generated {len(tests)} test cases")
-            
+
             return tests
-        
+
         except Exception as e:
             logger.error(f"Test suite generation failed: {e}")
             raise
-    
+
     def save_generated_test(self, test_code: str, output_path: str):
         """
         Save generated test to file
-        
+
         Args:
             test_code: Generated test code
             output_path: Output file path
         """
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        
-        with open(output_path, 'w') as f:
+
+        with open(output_path, "w") as f:
             f.write(test_code)
-        
+
         logger.info(f"Test saved to: {output_path}")
 
 
 class TestScenarioLibrary:
     """Library of common test scenarios"""
-    
+
     SCENARIOS = {
         "login": "User navigates to login page, enters valid credentials, clicks login button, and sees dashboard",
         "registration": "User fills registration form with name, email, password, clicks sign up, and receives confirmation",
@@ -325,18 +335,18 @@ class TestScenarioLibrary:
         "filter_products": "User applies category and price filters, sees filtered product list",
         "pagination": "User navigates through paginated list using next/previous buttons",
         "sort_results": "User selects sort option, sees results reordered accordingly",
-        "file_upload": "User clicks upload button, selects file, sees upload progress, gets success confirmation"
+        "file_upload": "User clicks upload button, selects file, sees upload progress, gets success confirmation",
     }
-    
+
     @classmethod
     def get_scenario(cls, scenario_name: str) -> Optional[str]:
         """Get predefined scenario description"""
         return cls.SCENARIOS.get(scenario_name.lower())
-    
+
     @classmethod
     def list_scenarios(cls) -> List[str]:
         """List available scenarios"""
         return list(cls.SCENARIOS.keys())
 
 
-__all__ = ['NaturalLanguageTestGenerator', 'TestScenarioLibrary']
+__all__ = ["NaturalLanguageTestGenerator", "TestScenarioLibrary"]

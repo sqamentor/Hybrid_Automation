@@ -2,4 +2,4 @@
 
 from framework.ml.ml_test_optimizer import MLTestOptimizer
 
-__all__ = ['MLTestOptimizer']
+__all__ = ["MLTestOptimizer"]

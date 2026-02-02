@@ -4,7 +4,7 @@ Concrete Microservices Implementations
 This module provides production-ready microservices for test automation:
 - TestExecutionService: Orchestrates test execution
 - ReportingService: Aggregates and generates reports
-- ConfigurationService: Centralized configuration management  
+- ConfigurationService: Centralized configuration management
 - NotificationService: Sends alerts to Slack/Email/Teams
 
 Author: Lokendra Singh
@@ -27,6 +27,7 @@ from framework.microservices.base import (
 )
 
 # ==================== Test Execution Service ====================
+
 
 @dataclass
 class TestRun:
@@ -72,9 +73,7 @@ class TestExecutionService(BaseService):
             task = asyncio.create_task(self._test_executor(f"executor-{i}"))
             self._executor_tasks.append(task)
 
-        self.logger.info(
-            f"TestExecutionService started with {self.max_parallel} executors"
-        )
+        self.logger.info(f"TestExecutionService started with {self.max_parallel} executors")
 
     async def stop(self) -> None:
         """Stop the test execution service gracefully"""
@@ -92,9 +91,7 @@ class TestExecutionService(BaseService):
         """Execute tests from queue"""
         while self.status == "running":
             try:
-                test_name = await asyncio.wait_for(
-                    self.test_queue.get(), timeout=1.0
-                )
+                test_name = await asyncio.wait_for(self.test_queue.get(), timeout=1.0)
 
                 self.active_tests += 1
                 self.logger.info(f"[{executor_id}] Executing: {test_name}")
@@ -144,9 +141,7 @@ class TestExecutionService(BaseService):
 
             return result
 
-    async def submit_test_run(
-        self, run_id: str, test_names: List[str]
-    ) -> TestRun:
+    async def submit_test_run(self, run_id: str, test_names: List[str]) -> TestRun:
         """Submit a new test run"""
         test_run = TestRun(
             run_id=run_id,
@@ -225,9 +220,7 @@ class ReportingService(BaseService):
         self.test_results.append(message)
         self.logger.error(f"Test failed: {message.get('test_name')}")
 
-    async def generate_report(
-        self, format: str = "json"
-    ) -> Dict[str, Any]:
+    async def generate_report(self, format: str = "json") -> Dict[str, Any]:
         """Generate test report"""
         total_tests = len(self.test_results)
         passed = sum(1 for r in self.test_results if r.get("status") == "passed")
@@ -320,9 +313,7 @@ class ConfigurationService(BaseService):
         }
 
         # Publish configuration loaded event
-        await self.message_bus.publish(
-            "config.loaded", {"timestamp": datetime.now().isoformat()}
-        )
+        await self.message_bus.publish("config.loaded", {"timestamp": datetime.now().isoformat()})
 
     async def get_config(self, key: str) -> Optional[Dict[str, Any]]:
         """Get configuration by key"""
@@ -333,9 +324,7 @@ class ConfigurationService(BaseService):
         self.configurations[key] = value
 
         # Publish configuration change event
-        await self.message_bus.publish(
-            "config.changed", {"key": key, "value": value}
-        )
+        await self.message_bus.publish("config.changed", {"key": key, "value": value})
 
         self.logger.info(f"Configuration updated: {key}")
 
@@ -434,9 +423,7 @@ class NotificationService(BaseService):
         """Send notifications from queue"""
         while self.status == "running":
             try:
-                notification = await asyncio.wait_for(
-                    self.notification_queue.get(), timeout=1.0
-                )
+                notification = await asyncio.wait_for(self.notification_queue.get(), timeout=1.0)
 
                 await self._send_notification(notification)
 
@@ -506,9 +493,7 @@ class NotificationService(BaseService):
             status="healthy" if self.status == "running" else "unhealthy",
             timestamp=datetime.now(),
             details={
-                "enabled_channels": sum(
-                    1 for c in self.channels.values() if c.enabled
-                ),
+                "enabled_channels": sum(1 for c in self.channels.values() if c.enabled),
                 "queue_size": self.notification_queue.qsize(),
             },
         )

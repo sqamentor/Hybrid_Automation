@@ -329,9 +329,7 @@ class TestRetryPlugin(BasePlugin):
             return True
 
         else:
-            print(
-                f"[TestRetry] Test {test_name} failed after {self.max_retries} retries"
-            )
+            print(f"[TestRetry] Test {test_name} failed after {self.max_retries} retries")
             return False
 
     def get_flaky_tests(self) -> Dict[str, int]:
@@ -393,9 +391,7 @@ class CustomReportPlugin(BasePlugin):
         duration = kwargs.get("duration", 0)
         results = kwargs.get("results", [])
 
-        report_html = self._generate_html_report(
-            total, passed, failed, duration, results
-        )
+        report_html = self._generate_html_report(total, passed, failed, duration, results)
 
         # Save report
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

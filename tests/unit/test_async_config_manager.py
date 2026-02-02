@@ -135,9 +135,7 @@ class TestAsyncConfigManagerJSONLoading:
     @pytest.mark.asyncio
     async def test_load_json_config_success(self):
         """Test successfully loading JSON config"""
-        json_content = {
-            "api": {"base_url": "https://api.example.com", "timeout": 30}
-        }
+        json_content = {"api": {"base_url": "https://api.example.com", "timeout": 30}}
 
         with tempfile.TemporaryDirectory() as tmpdir:
             config_file = Path(tmpdir) / "test.json"
@@ -230,9 +228,7 @@ class TestAsyncConfigManagerParallelLoading:
             # Create multiple config files
             for i in range(3):
                 config = {"test": f"value{i}"}
-                (Path(tmpdir) / f"config{i}.json").write_text(
-                    json.dumps(config)
-                )
+                (Path(tmpdir) / f"config{i}.json").write_text(json.dumps(config))
 
             manager = AsyncConfigManager(config_dir=Path(tmpdir))
 

@@ -35,16 +35,101 @@
 # ════════════════════════════════════════════════════════════════════════════
 
 schema_version: "1.0"
-last_updated: "2026-02-01"
+last_updated: "2026-02-02"
 
 # ────────────────────────────────────────────────────────────────────────────
 # VIOLATION BASELINE
 # ────────────────────────────────────────────────────────────────────────────
 
-violations: []
-
-# Currently at 100% architectural compliance - no baseline entries needed!
-# Add entries here only when introducing new rules that affect existing code.
+violations:
+  # Inner helper classes in unit tests (not actual test classes)
+  - file: tests/unit/test_microservices_base.py
+    rule: engine/missing-marker
+    reason: Inner TestService class is a helper for testing BaseService, not a pytest test class
+    owner: qa-team
+    created: 2026-02-02
+    expires: 2026-04-30
+    line: 61
+  
+  - file: tests/unit/test_plugin_system.py
+    rule: engine/missing-marker
+    reason: Inner TestPlugin classes are helpers for testing plugin system, not pytest test classes
+    owner: qa-team
+    created: 2026-02-02
+    expires: 2026-04-30
+    line: 94
+  
+  - file: tests/unit/test_plugin_system.py
+    rule: engine/missing-marker
+    reason: Inner TestPlugin classes are helpers for testing plugin system, not pytest test classes
+    owner: qa-team
+    created: 2026-02-02
+    expires: 2026-04-30
+    line: 129
+  
+  - file: tests/unit/test_plugin_system.py
+    rule: engine/missing-marker
+    reason: Inner TestPlugin classes are helpers for testing plugin system, not pytest test classes
+    owner: qa-team
+    created: 2026-02-02
+    expires: 2026-04-30
+    line: 147
+  
+  - file: tests/unit/test_plugin_system.py
+    rule: engine/missing-marker
+    reason: Inner TestPlugin classes are helpers for testing plugin system, not pytest test classes
+    owner: qa-team
+    created: 2026-02-02
+    expires: 2026-04-30
+    line: 167
+  
+  - file: tests/unit/test_plugin_system.py
+    rule: engine/missing-marker
+    reason: Inner TestPlugin classes are helpers for testing plugin system, not pytest test classes
+    owner: qa-team
+    created: 2026-02-02
+    expires: 2026-04-30
+    line: 208
+  
+  - file: tests/unit/test_plugin_system.py
+    rule: engine/missing-marker
+    reason: Inner TestPlugin classes are helpers for testing plugin system, not pytest test classes
+    owner: qa-team
+    created: 2026-02-02
+    expires: 2026-04-30
+    line: 231
+  
+  - file: tests/unit/test_plugin_system.py
+    rule: engine/missing-marker
+    reason: Inner TestPlugin classes are helpers for testing plugin system, not pytest test classes
+    owner: qa-team
+    created: 2026-02-02
+    expires: 2026-04-30
+    line: 270
+  
+  - file: tests/unit/test_plugin_system.py
+    rule: engine/missing-marker
+    reason: Inner TestPlugin classes are helpers for testing plugin system, not pytest test classes
+    owner: qa-team
+    created: 2026-02-02
+    expires: 2026-04-30
+    line: 401
+  
+  - file: tests/unit/test_plugin_system.py
+    rule: engine/missing-marker
+    reason: Inner TestPlugin classes are helpers for testing plugin system, not pytest test classes
+    owner: qa-team
+    created: 2026-02-02
+    expires: 2026-04-30
+    line: 520
+  
+  # Direct locators in test_bookslot_complete_flows.py (legacy test pending refactor)
+  - file: tests/bookslot/test_bookslot_complete_flows.py
+    rule: pom/direct-locator-in-test
+    reason: Legacy complete flow test pending refactor to use Page Objects
+    owner: qa-team
+    created: 2026-02-02
+    expires: 2026-04-30
 
 # ════════════════════════════════════════════════════════════════════════════
 # BASELINE STATISTICS

@@ -12,8 +12,8 @@ from framework.intelligence.ai_validation_suggester import (
 )
 
 __all__ = [
-    'AIValidationSuggester',
-    'ValidationSuggestion',
-    'ValidationStrategy',
-    'suggest_and_validate'
+    "AIValidationSuggester",
+    "ValidationSuggestion",
+    "ValidationStrategy",
+    "suggest_and_validate",
 ]

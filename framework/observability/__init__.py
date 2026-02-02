@@ -19,5 +19,5 @@ __all__ = [
     "initialize_telemetry",
     "shutdown_telemetry",
     "trace_test_execution",
-    "trace_async_test_execution"
+    "trace_async_test_execution",
 ]

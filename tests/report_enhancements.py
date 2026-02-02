@@ -41,148 +41,167 @@ from pytest_html import extras
 # REPORT METADATA COLLECTION
 # ========================================================================
 
+
 @pytest.mark.legacy_ui
 class TestReportCollector:
     """
     Collects comprehensive test execution metadata
     """
-    
+
     def __init__(self):
         self.test_data = {}
         self.session_start = None
         self.session_end = None
-    
+
     def start_session(self):
         """Mark session start time"""
         self.session_start = datetime.now()
-    
+
     def end_session(self):
         """Mark session end time"""
         self.session_end = datetime.now()
-    
+
     def init_test(self, item: Item):
         """Initialize test data collection"""
         test_id = item.nodeid
         self.test_data[test_id] = {
-            'test_id': test_id,
-            'test_name': item.name,
-            'test_file': str(item.fspath),
-            'markers': [m.name for m in item.iter_markers()],
-            'parameters': {},
-            'screenshots': [],
-            'videos': [],
-            'traces': [],
-            'logs': [],
-            'api_calls': [],
-            'db_queries': [],
-            'assertions': [],
-            'start_time': None,
-            'end_time': None,
-            'duration': 0,
-            'status': 'unknown',
-            'error_message': None,
-            'error_traceback': None
+            "test_id": test_id,
+            "test_name": item.name,
+            "test_file": str(item.fspath),
+            "markers": [m.name for m in item.iter_markers()],
+            "parameters": {},
+            "screenshots": [],
+            "videos": [],
+            "traces": [],
+            "logs": [],
+            "api_calls": [],
+            "db_queries": [],
+            "assertions": [],
+            "start_time": None,
+            "end_time": None,
+            "duration": 0,
+            "status": "unknown",
+            "error_message": None,
+            "error_traceback": None,
         }
-        
+
         # Extract parameters from fixtures
-        if hasattr(item, 'callspec'):
-            self.test_data[test_id]['parameters'] = dict(item.callspec.params)
-    
+        if hasattr(item, "callspec"):
+            self.test_data[test_id]["parameters"] = dict(item.callspec.params)
+
     def start_test(self, item: Item):
         """Mark test start"""
         test_id = item.nodeid
         if test_id in self.test_data:
-            self.test_data[test_id]['start_time'] = datetime.now()
-    
+            self.test_data[test_id]["start_time"] = datetime.now()
+
     def end_test(self, item: Item, report: TestReport):
         """Mark test end and collect results"""
         test_id = item.nodeid
         if test_id in self.test_data:
-            self.test_data[test_id]['end_time'] = datetime.now()
-            self.test_data[test_id]['duration'] = report.duration
-            self.test_data[test_id]['status'] = report.outcome
-            
+            self.test_data[test_id]["end_time"] = datetime.now()
+            self.test_data[test_id]["duration"] = report.duration
+            self.test_data[test_id]["status"] = report.outcome
+
             if report.failed:
-                if hasattr(report, 'longrepr'):
-                    self.test_data[test_id]['error_message'] = str(report.longrepr)[:500]
-                    self.test_data[test_id]['error_traceback'] = str(report.longrepr)
-    
+                if hasattr(report, "longrepr"):
+                    self.test_data[test_id]["error_message"] = str(report.longrepr)[:500]
+                    self.test_data[test_id]["error_traceback"] = str(report.longrepr)
+
     def add_screenshot(self, test_id: str, screenshot_path: str, description: str = ""):
         """Add screenshot to test data"""
         if test_id in self.test_data:
-            self.test_data[test_id]['screenshots'].append({
-                'path': screenshot_path,
-                'description': description,
-                'timestamp': datetime.now().isoformat()
-            })
-    
+            self.test_data[test_id]["screenshots"].append(
+                {
+                    "path": screenshot_path,
+                    "description": description,
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
+
     def add_video(self, test_id: str, video_path: str):
         """Add video recording to test data"""
         if test_id in self.test_data:
-            self.test_data[test_id]['videos'].append({
-                'path': video_path,
-                'timestamp': datetime.now().isoformat()
-            })
-    
+            self.test_data[test_id]["videos"].append(
+                {"path": video_path, "timestamp": datetime.now().isoformat()}
+            )
+
     def add_trace(self, test_id: str, trace_path: str):
         """Add trace file to test data"""
         if test_id in self.test_data:
-            self.test_data[test_id]['traces'].append({
-                'path': trace_path,
-                'timestamp': datetime.now().isoformat()
-            })
-    
+            self.test_data[test_id]["traces"].append(
+                {"path": trace_path, "timestamp": datetime.now().isoformat()}
+            )
+
     def add_log(self, test_id: str, log_message: str, level: str = "INFO"):
         """Add log entry to test data"""
         if test_id in self.test_data:
-            self.test_data[test_id]['logs'].append({
-                'message': log_message,
-                'level': level,
-                'timestamp': datetime.now().isoformat()
-            })
-    
-    def add_api_call(self, test_id: str, method: str, url: str, status_code: int, 
-                     response_time: float, request_data: Dict = None, response_data: Dict = None):
+            self.test_data[test_id]["logs"].append(
+                {"message": log_message, "level": level, "timestamp": datetime.now().isoformat()}
+            )
+
+    def add_api_call(
+        self,
+        test_id: str,
+        method: str,
+        url: str,
+        status_code: int,
+        response_time: float,
+        request_data: Dict = None,
+        response_data: Dict = None,
+    ):
         """Add API call details to test data"""
         if test_id in self.test_data:
-            self.test_data[test_id]['api_calls'].append({
-                'method': method,
-                'url': url,
-                'status_code': status_code,
-                'response_time': response_time,
-                'request': request_data,
-                'response': response_data,
-                'timestamp': datetime.now().isoformat()
-            })
-    
-    def add_db_query(self, test_id: str, query: str, execution_time: float, 
-                     rows_affected: int = 0):
+            self.test_data[test_id]["api_calls"].append(
+                {
+                    "method": method,
+                    "url": url,
+                    "status_code": status_code,
+                    "response_time": response_time,
+                    "request": request_data,
+                    "response": response_data,
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
+
+    def add_db_query(self, test_id: str, query: str, execution_time: float, rows_affected: int = 0):
         """Add database query details to test data"""
         if test_id in self.test_data:
-            self.test_data[test_id]['db_queries'].append({
-                'query': query,
-                'execution_time': execution_time,
-                'rows_affected': rows_affected,
-                'timestamp': datetime.now().isoformat()
-            })
-    
-    def add_assertion(self, test_id: str, assertion_type: str, expected: Any, 
-                      actual: Any, passed: bool, message: str = ""):
+            self.test_data[test_id]["db_queries"].append(
+                {
+                    "query": query,
+                    "execution_time": execution_time,
+                    "rows_affected": rows_affected,
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
+
+    def add_assertion(
+        self,
+        test_id: str,
+        assertion_type: str,
+        expected: Any,
+        actual: Any,
+        passed: bool,
+        message: str = "",
+    ):
         """Add assertion details to test data"""
         if test_id in self.test_data:
-            self.test_data[test_id]['assertions'].append({
-                'type': assertion_type,
-                'expected': str(expected),
-                'actual': str(actual),
-                'passed': passed,
-                'message': message,
-                'timestamp': datetime.now().isoformat()
-            })
-    
+            self.test_data[test_id]["assertions"].append(
+                {
+                    "type": assertion_type,
+                    "expected": str(expected),
+                    "actual": str(actual),
+                    "passed": passed,
+                    "message": message,
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
+
     def get_test_data(self, test_id: str) -> Dict:
         """Get collected data for a test"""
         return self.test_data.get(test_id, {})
-    
+
     def get_all_test_data(self) -> Dict:
         """Get all collected test data"""
         return self.test_data
@@ -196,6 +215,7 @@ report_collector = TestReportCollector()
 # PYTEST-HTML HOOKS
 # ========================================================================
 
+
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
     """
@@ -203,123 +223,132 @@ def pytest_runtest_makereport(item, call):
     """
     outcome = yield
     report = outcome.get_result()
-    
+
     # Add extra HTML content to report
-    extra = getattr(report, 'extra', [])
-    
-    if report.when == 'call':
+    extra = getattr(report, "extra", [])
+
+    if report.when == "call":
         test_id = item.nodeid
         test_data = report_collector.get_test_data(test_id)
-        
+
         # For failed tests, add comprehensive details
         if report.failed and test_data:
             # Add error message
-            if test_data.get('error_message'):
-                extra.append(extras.html(f'''
+            if test_data.get("error_message"):
+                extra.append(extras.html(f"""
                     <div class="error-section">
                         <h4>❌ Error Message</h4>
                         <pre class="error-message">{test_data['error_message']}</pre>
                     </div>
-                '''))
-            
+                """))
+
             # Add screenshots
-            screenshots = test_data.get('screenshots', [])
+            screenshots = test_data.get("screenshots", [])
             if screenshots:
                 for screenshot in screenshots:
-                    if os.path.exists(screenshot['path']):
+                    if os.path.exists(screenshot["path"]):
                         try:
-                            with open(screenshot['path'], 'rb') as f:
-                                img_data = base64.b64encode(f.read()).decode('utf-8')
-                            extra.append(extras.html(f'''
+                            with open(screenshot["path"], "rb") as f:
+                                img_data = base64.b64encode(f.read()).decode("utf-8")
+                            extra.append(extras.html(f"""
                                 <div class="screenshot-item">
                                     <p>{screenshot.get('description', 'Screenshot')} ({screenshot.get('timestamp', '')})</p>
                                     <img src="data:image/png;base64,{img_data}" style="max-width: 100%; border: 1px solid #ccc;" />
                                 </div>
-                            '''))
+                            """))
                         except Exception as e:
                             extra.append(extras.text(f"Failed to load screenshot: {e}"))
-            
+
             # Add API calls
-            api_calls = test_data.get('api_calls', [])
+            api_calls = test_data.get("api_calls", [])
             if api_calls:
-                api_html = '<div class="api-section"><h4>🌐 API Calls</h4><table class="api-calls-table">'
-                api_html += '<thead><tr><th>Method</th><th>URL</th><th>Status</th><th>Time</th></tr></thead><tbody>'
+                api_html = (
+                    '<div class="api-section"><h4>🌐 API Calls</h4><table class="api-calls-table">'
+                )
+                api_html += "<thead><tr><th>Method</th><th>URL</th><th>Status</th><th>Time</th></tr></thead><tbody>"
                 for call in api_calls:
-                    api_html += f'''<tr>
+                    api_html += f"""<tr>
                         <td>{call['method']}</td>
                         <td>{call['url']}</td>
                         <td>{call['status_code']}</td>
                         <td>{call['response_time']:.2f}ms</td>
-                    </tr>'''
-                api_html += '</tbody></table></div>'
+                    </tr>"""
+                api_html += "</tbody></table></div>"
                 extra.append(extras.html(api_html))
-            
+
             # Add database queries
-            db_queries = test_data.get('db_queries', [])
+            db_queries = test_data.get("db_queries", [])
             if db_queries:
                 db_html = '<div class="db-section"><h4>🗄️ Database Queries</h4><table class="db-queries-table">'
-                db_html += '<thead><tr><th>Query</th><th>Time</th><th>Rows</th></tr></thead><tbody>'
+                db_html += "<thead><tr><th>Query</th><th>Time</th><th>Rows</th></tr></thead><tbody>"
                 for query in db_queries:
-                    query_text = query['query'][:100] + '...' if len(query['query']) > 100 else query['query']
-                    db_html += f'''<tr>
+                    query_text = (
+                        query["query"][:100] + "..."
+                        if len(query["query"]) > 100
+                        else query["query"]
+                    )
+                    db_html += f"""<tr>
                         <td>{query_text}</td>
                         <td>{query['execution_time']:.2f}ms</td>
                         <td>{query.get('rows_affected', 0)}</td>
-                    </tr>'''
-                db_html += '</tbody></table></div>'
+                    </tr>"""
+                db_html += "</tbody></table></div>"
                 extra.append(extras.html(db_html))
-            
+
             # Add assertions
-            assertions = test_data.get('assertions', [])
+            assertions = test_data.get("assertions", [])
             if assertions:
                 assert_html = '<div class="assertions-section"><h4>✅ Assertions</h4><table class="assertions-table">'
-                assert_html += '<thead><tr><th>Status</th><th>Type</th><th>Expected</th><th>Actual</th></tr></thead><tbody>'
+                assert_html += "<thead><tr><th>Status</th><th>Type</th><th>Expected</th><th>Actual</th></tr></thead><tbody>"
                 for assertion in assertions:
-                    status = '✅' if assertion['passed'] else '❌'
-                    assert_html += f'''<tr>
+                    status = "✅" if assertion["passed"] else "❌"
+                    assert_html += f"""<tr>
                         <td>{status}</td>
                         <td>{assertion['type']}</td>
                         <td>{assertion['expected']}</td>
                         <td>{assertion['actual']}</td>
-                    </tr>'''
-                assert_html += '</tbody></table></div>'
+                    </tr>"""
+                assert_html += "</tbody></table></div>"
                 extra.append(extras.html(assert_html))
-            
+
             # Add logs
-            logs = test_data.get('logs', [])
+            logs = test_data.get("logs", [])
             if logs:
-                logs_text = '\n'.join([f"[{log['timestamp']}] [{log['level']}] {log['message']}" for log in logs])
-                extra.append(extras.html(f'''
+                logs_text = "\n".join(
+                    [f"[{log['timestamp']}] [{log['level']}] {log['message']}" for log in logs]
+                )
+                extra.append(extras.html(f"""
                     <div class="logs-section">
                         <h4>📝 Complete Test Logs</h4>
                         <pre class="logs">{logs_text}</pre>
                     </div>
-                '''))
-        
+                """))
+
         # For passed tests, add minimal details
         elif report.passed and test_data:
-            screenshots = test_data.get('screenshots', [])
+            screenshots = test_data.get("screenshots", [])
             if screenshots:
                 for screenshot in screenshots:
-                    if os.path.exists(screenshot['path']):
+                    if os.path.exists(screenshot["path"]):
                         try:
-                            with open(screenshot['path'], 'rb') as f:
-                                img_data = base64.b64encode(f.read()).decode('utf-8')
-                            extra.append(extras.html(f'''
+                            with open(screenshot["path"], "rb") as f:
+                                img_data = base64.b64encode(f.read()).decode("utf-8")
+                            extra.append(extras.html(f"""
                                 <div class="screenshot-item">
                                     <p>{screenshot.get('description', 'Screenshot')}</p>
                                     <img src="data:image/png;base64,{img_data}" style="max-width: 100%; border: 1px solid #ccc;" />
                                 </div>
-                            '''))
+                            """))
                         except Exception as e:
                             pass
-        
+
         report.extra = extra
 
 
 # ========================================================================
 # PYTEST HTML CONFIGURATION
 # ========================================================================
+
 
 def pytest_html_report_title(report):
     """Customize report title"""
@@ -328,7 +357,7 @@ def pytest_html_report_title(report):
 
 def pytest_html_results_summary(prefix, summary, postfix):
     """Add custom summary"""
-    prefix.append(extras.html(f'''
+    prefix.append(extras.html(f"""
         <div style="background: #f0f8ff; padding: 15px; border-radius: 5px; margin: 20px 0;">
             <h3 style="margin-top: 0;">📊 Enhanced Test Report</h3>
             <p><strong>Generated:</strong> {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
@@ -337,18 +366,19 @@ def pytest_html_results_summary(prefix, summary, postfix):
             <p><strong>Website:</strong> www.sqamentor.com</p>
             <p><strong>Features:</strong> Screenshots, API/DB Logging, Assertions, Step-by-Step Logs</p>
         </div>
-    '''))
+    """))
 
 
 # ========================================================================
 # CUSTOM CSS STYLING
 # ========================================================================
 
+
 def pytest_html_results_table_html(report, data):
     """Add custom CSS styles"""
-    if report.when == "call" and not hasattr(pytest_html_results_table_html, '_css_added'):
+    if report.when == "call" and not hasattr(pytest_html_results_table_html, "_css_added"):
         pytest_html_results_table_html._css_added = True
-        data.append(extras.html('''
+        data.append(extras.html("""
             <style>
                 /* Enhanced Report Styles */
                 .extra-details { margin: 20px 0; padding: 15px; background: #f9f9f9; border-radius: 5px; }
@@ -405,70 +435,71 @@ def pytest_html_results_table_html(report, data):
                     line-height: 1.5; 
                 }
             </style>
-        '''))
+        """))
 
 
 # ========================================================================
 # HTML HELPER FUNCTIONS
 # ========================================================================
 
+
 def create_screenshot_html(screenshot: Dict):
     """Create HTML for screenshot display"""
-    path = screenshot['path']
-    description = screenshot.get('description', '')
-    timestamp = screenshot.get('timestamp', '')
-    
+    path = screenshot["path"]
+    description = screenshot.get("description", "")
+    timestamp = screenshot.get("timestamp", "")
+
     # Read and encode image
     if os.path.exists(path):
-        with open(path, 'rb') as f:
-            img_data = base64.b64encode(f.read()).decode('utf-8')
-        
-        return f'''
+        with open(path, "rb") as f:
+            img_data = base64.b64encode(f.read()).decode("utf-8")
+
+        return f"""
         <div class="screenshot-item">
             <p>{description} ({timestamp})</p>
             <img src="data:image/png;base64,{img_data}" style="max-width: 100%; border: 1px solid #ccc;" />
         </div>
-        '''
+        """
     else:
         return f'<div class="screenshot-item"><p>Screenshot not found: {path}</p></div>'
 
 
 def create_video_html(video: Dict):
     """Create HTML for video display"""
-    path = video['path']
-    timestamp = video.get('timestamp', '')
-    
+    path = video["path"]
+    timestamp = video.get("timestamp", "")
+
     if os.path.exists(path):
-        return f'''
+        return f"""
         <div class="video-item">
             <p>Video recorded at {timestamp}</p>
             <video controls style="max-width: 100%;">
                 <source src="{path}" type="video/webm">
             </video>
         </div>
-        '''
+        """
     else:
         return f'<div class="video-item"><p>Video not found: {path}</p></div>'
 
 
 def create_trace_html(trace: Dict):
     """Create HTML for trace file link"""
-    path = trace['path']
-    timestamp = trace.get('timestamp', '')
-    
-    return f'''
+    path = trace["path"]
+    timestamp = trace.get("timestamp", "")
+
+    return f"""
     <div class="trace-item">
         <p>Trace file: {timestamp}</p>
         <a href="{path}" class="trace-link" download>Download Trace</a>
     </div>
-    '''
+    """
 
 
 def create_api_calls_table(api_calls: List[Dict]):
     """Create HTML table for API calls"""
     rows_html = ""
     for call in api_calls:
-        rows_html += f'''
+        rows_html += f"""
         <tr>
             <td>{call['method']}</td>
             <td>{call['url']}</td>
@@ -476,9 +507,9 @@ def create_api_calls_table(api_calls: List[Dict]):
             <td>{call['response_time']:.2f}ms</td>
             <td>{call['timestamp']}</td>
         </tr>
-        '''
-    
-    return f'''
+        """
+
+    return f"""
     <table class="api-calls-table">
         <thead>
             <tr>
@@ -493,24 +524,24 @@ def create_api_calls_table(api_calls: List[Dict]):
             {rows_html}
         </tbody>
     </table>
-    '''
+    """
 
 
 def create_db_queries_table(db_queries: List[Dict]):
     """Create HTML table for database queries"""
     rows_html = ""
     for query in db_queries:
-        query_text = query['query'][:100] + '...' if len(query['query']) > 100 else query['query']
-        rows_html += f'''
+        query_text = query["query"][:100] + "..." if len(query["query"]) > 100 else query["query"]
+        rows_html += f"""
         <tr>
             <td>{query_text}</td>
             <td>{query['execution_time']:.2f}ms</td>
             <td>{query.get('rows_affected', 0)}</td>
             <td>{query['timestamp']}</td>
         </tr>
-        '''
-    
-    return f'''
+        """
+
+    return f"""
     <table class="db-queries-table">
         <thead>
             <tr>
@@ -524,15 +555,15 @@ def create_db_queries_table(db_queries: List[Dict]):
             {rows_html}
         </tbody>
     </table>
-    '''
+    """
 
 
 def create_assertions_table(assertions: List[Dict]):
     """Create HTML table for assertions"""
     rows_html = ""
     for assertion in assertions:
-        status = '✅' if assertion['passed'] else '❌'
-        rows_html += f'''
+        status = "✅" if assertion["passed"] else "❌"
+        rows_html += f"""
         <tr>
             <td>{status}</td>
             <td>{assertion['type']}</td>
@@ -541,9 +572,9 @@ def create_assertions_table(assertions: List[Dict]):
             <td>{assertion.get('message', '')}</td>
             <td>{assertion['timestamp']}</td>
         </tr>
-        '''
-    
-    return f'''
+        """
+
+    return f"""
     <table class="assertions-table">
         <thead>
             <tr>
@@ -559,12 +590,13 @@ def create_assertions_table(assertions: List[Dict]):
             {rows_html}
         </tbody>
     </table>
-    '''
+    """
 
 
 # ========================================================================
 # CUSTOM CSS STYLES (OLD - KEPT FOR REFERENCE)
 # ========================================================================
+
 
 def pytest_html_report_css(css):
     """Add custom CSS styles to report (old hook, may not work in all versions)"""
@@ -575,7 +607,8 @@ def pytest_html_report_css(css):
 # FIXTURES
 # ========================================================================
 
-@pytest.fixture(scope='session', autouse=True)
+
+@pytest.fixture(scope="session", autouse=True)
 def report_session(request):
     """Session-level report collection"""
     report_collector.start_session()
@@ -587,13 +620,13 @@ def report_session(request):
 def report_test(request):
     """Test-level report collection"""
     item = request.node
-    
+
     # Initialize test data
     report_collector.init_test(item)
     report_collector.start_test(item)
-    
+
     yield
-    
+
     # Test end is handled in pytest_runtest_makereport hook
 
 
@@ -601,14 +634,15 @@ def report_test(request):
 # ENHANCED FIXTURES WITH REPORTING
 # ========================================================================
 
+
 @pytest.fixture
 def report_log(request):
     """Fixture to add logs to report"""
     test_id = request.node.nodeid
-    
+
     def log(message: str, level: str = "INFO"):
         report_collector.add_log(test_id, message, level)
-    
+
     return log
 
 
@@ -616,10 +650,10 @@ def report_log(request):
 def report_screenshot(request):
     """Fixture to add screenshots to report"""
     test_id = request.node.nodeid
-    
+
     def screenshot(path: str, description: str = ""):
         report_collector.add_screenshot(test_id, path, description)
-    
+
     return screenshot
 
 
@@ -627,12 +661,19 @@ def report_screenshot(request):
 def report_api_call(request):
     """Fixture to add API call details to report"""
     test_id = request.node.nodeid
-    
-    def api_call(method: str, url: str, status_code: int, response_time: float,
-                 request_data: Dict = None, response_data: Dict = None):
-        report_collector.add_api_call(test_id, method, url, status_code, 
-                                      response_time, request_data, response_data)
-    
+
+    def api_call(
+        method: str,
+        url: str,
+        status_code: int,
+        response_time: float,
+        request_data: Dict = None,
+        response_data: Dict = None,
+    ):
+        report_collector.add_api_call(
+            test_id, method, url, status_code, response_time, request_data, response_data
+        )
+
     return api_call
 
 
@@ -640,10 +681,10 @@ def report_api_call(request):
 def report_db_query(request):
     """Fixture to add database query details to report"""
     test_id = request.node.nodeid
-    
+
     def db_query(query: str, execution_time: float, rows_affected: int = 0):
         report_collector.add_db_query(test_id, query, execution_time, rows_affected)
-    
+
     return db_query
 
 
@@ -651,21 +692,19 @@ def report_db_query(request):
 def report_assertion(request):
     """Fixture to add assertion details to report"""
     test_id = request.node.nodeid
-    
-    def assertion(assertion_type: str, expected: Any, actual: Any, 
-                  passed: bool, message: str = ""):
-        report_collector.add_assertion(test_id, assertion_type, expected, 
-                                       actual, passed, message)
-    
+
+    def assertion(assertion_type: str, expected: Any, actual: Any, passed: bool, message: str = ""):
+        report_collector.add_assertion(test_id, assertion_type, expected, actual, passed, message)
+
     return assertion
 
 
 __all__ = [
-    'report_collector',
-    'TestReportCollector',
-    'report_log',
-    'report_screenshot',
-    'report_api_call',
-    'report_db_query',
-    'report_assertion'
+    "report_collector",
+    "TestReportCollector",
+    "report_log",
+    "report_screenshot",
+    "report_api_call",
+    "report_db_query",
+    "report_assertion",
 ]

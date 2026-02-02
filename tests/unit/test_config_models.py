@@ -239,7 +239,7 @@ class TestProjectConfig:
             name="TestProject",
             description="Test project description",
             default_environment=TestEnvironment.DEV,
-            environments={"dev": EnvironmentConfig(name=TestEnvironment.DEV)}
+            environments={"dev": EnvironmentConfig(name=TestEnvironment.DEV)},
         )
         assert config.name == "TestProject"
         assert config.description == "Test project description"
@@ -252,12 +252,12 @@ class TestProjectConfig:
         config = ProjectConfig(
             name="TestProject",
             default_environment=TestEnvironment.QA,
-            environments={}  # Empty environments
+            environments={},  # Empty environments
         )
         # Should still create the config successfully
         assert config.name == "TestProject"
         assert config.default_environment == TestEnvironment.QA
-        
+
         # When environments exist but default doesn't match,
         # should auto-adjust to first available environment
         config_with_envs = ProjectConfig(
@@ -265,8 +265,8 @@ class TestProjectConfig:
             default_environment=TestEnvironment.QA,  # QA not in environments
             environments={
                 "staging": EnvironmentConfig(name=TestEnvironment.STAGING),
-                "prod": EnvironmentConfig(name=TestEnvironment.PROD)
-            }
+                "prod": EnvironmentConfig(name=TestEnvironment.PROD),
+            },
         )
         # Should auto-adjust to first available (staging)
         assert config_with_envs.default_environment == TestEnvironment.STAGING
@@ -276,7 +276,7 @@ class TestProjectConfig:
         config = ProjectConfig(
             name="TestProject",
             default_environment=TestEnvironment.DEV,
-            environments={"dev": EnvironmentConfig(name=TestEnvironment.DEV)}
+            environments={"dev": EnvironmentConfig(name=TestEnvironment.DEV)},
         )
         assert config.description is None
         assert config.default_environment == TestEnvironment.DEV

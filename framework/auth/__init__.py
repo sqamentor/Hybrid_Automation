@@ -10,4 +10,4 @@ Date: January 31, 2026
 
 from .auth_service import AuthenticationService, AuthMethod
 
-__all__ = ['AuthenticationService', 'AuthMethod']
+__all__ = ["AuthenticationService", "AuthMethod"]

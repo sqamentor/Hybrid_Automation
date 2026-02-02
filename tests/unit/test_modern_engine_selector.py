@@ -188,9 +188,7 @@ class TestModernEngineSelectorPatternMatching:
             engine = selector.select_engine(metadata)
             assert engine.engine == EngineType.SELENIUM
 
-    def test_select_engine_low_complexity_any_framework(
-        self, mock_config_provider
-    ):
+    def test_select_engine_low_complexity_any_framework(self, mock_config_provider):
         """Test Low Complexity → Playwright (fastest)"""
         selector = ModernEngineSelector(mock_config_provider)
 

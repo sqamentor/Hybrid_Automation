@@ -30,52 +30,56 @@ __all__: List[str] = [
     # Version info
     "__version__",
     "__author__",
-    
     # Core
     "SmartActions",
     "UIFactory",
     "EngineSelector",
-    
     # Exceptions
     "AutomationFrameworkException",
     "EngineException",
     "ConfigurationException",
-    
     # Configuration
     "SettingsManager",
 ]
 
+
 # Lazy imports for better performance
 def __getattr__(name: str):
     """Lazy import for better startup performance."""
-    
+
     if name == "SmartActions":
         from framework.core.smart_actions import SmartActions
+
         return SmartActions
-    
+
     elif name == "UIFactory":
         from framework.ui.ui_factory import UIFactory
+
         return UIFactory
-    
+
     elif name == "EngineSelector":
         from framework.core.engine_selector import EngineSelector
+
         return EngineSelector
-    
+
     elif name == "AutomationFrameworkException":
         from framework.core.exceptions import AutomationFrameworkException
+
         return AutomationFrameworkException
-    
+
     elif name == "EngineException":
         from framework.core.exceptions import EngineException
+
         return EngineException
-    
+
     elif name == "ConfigurationException":
         from framework.core.exceptions import ConfigurationException
+
         return ConfigurationException
-    
+
     elif name == "SettingsManager":
         from config.settings import SettingsManager
-        return SettingsManager
-    
-    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
+        return SettingsManager
+
+    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
