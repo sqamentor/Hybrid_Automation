@@ -309,10 +309,20 @@ def bookslot_page(request, shared_browser, multi_project_config):
     """
     Bookslot page object fixture
     Creates a Playwright page for Bookslot application
+    WITH VIDEO RECORDING enabled
     """
+    from pathlib import Path
     from pages.bookslot import BookslotBasicInfoPage
 
-    context = shared_browser.new_context()
+    # Create videos directory if it doesn't exist
+    videos_dir = Path("videos")
+    videos_dir.mkdir(exist_ok=True)
+
+    # Create context with video recording enabled
+    context = shared_browser.new_context(
+        record_video_dir=str(videos_dir),
+        record_video_size={"width": 1920, "height": 1080}
+    )
     page = context.new_page()
 
     # Create page object
@@ -321,8 +331,29 @@ def bookslot_page(request, shared_browser, multi_project_config):
 
     yield bookslot_po
 
-    # Cleanup
+    # Save video path for later attachment
+    video_path = None
+    try:
+        video_path = page.video.path()
+    except Exception as e:
+        logger.warning(f"Could not get video path: {e}")
+
+    # Cleanup - close context to finish video recording
     context.close()
+
+    # Attach video to Allure report if path exists
+    if video_path:
+        try:
+            import allure
+            with open(video_path, "rb") as video_file:
+                allure.attach(
+                    video_file.read(),
+                    name=f"{request.node.name}_video",
+                    attachment_type=allure.attachment_type.WEBM
+                )
+            logger.info(f"Video recorded and attached: {video_path}")
+        except Exception as e:
+            logger.error(f"Failed to attach video to Allure: {e}")
 
 
 @pytest.fixture
@@ -330,10 +361,20 @@ def patientintake_page(request, shared_browser, multi_project_config):
     """
     PatientIntake page object fixture
     Creates a Playwright page for PatientIntake application
+    WITH VIDEO RECORDING enabled
     """
+    from pathlib import Path
     from pages.patientintake import PatientIntakeAppointmentListPage
 
-    context = shared_browser.new_context()
+    # Create videos directory if it doesn't exist
+    videos_dir = Path("videos")
+    videos_dir.mkdir(exist_ok=True)
+
+    # Create context with video recording enabled
+    context = shared_browser.new_context(
+        record_video_dir=str(videos_dir),
+        record_video_size={"width": 1920, "height": 1080}
+    )
     page = context.new_page()
 
     # Create page object
@@ -342,8 +383,29 @@ def patientintake_page(request, shared_browser, multi_project_config):
 
     yield patientintake_po
 
-    # Cleanup
+    # Save video path for later attachment
+    video_path = None
+    try:
+        video_path = page.video.path()
+    except Exception as e:
+        logger.warning(f"Could not get video path: {e}")
+
+    # Cleanup - close context to finish video recording
     context.close()
+
+    # Attach video to Allure report if path exists
+    if video_path:
+        try:
+            import allure
+            with open(video_path, "rb") as video_file:
+                allure.attach(
+                    video_file.read(),
+                    name=f"{request.node.name}_video",
+                    attachment_type=allure.attachment_type.WEBM
+                )
+            logger.info(f"Video recorded and attached: {video_path}")
+        except Exception as e:
+            logger.error(f"Failed to attach video to Allure: {e}")
 
 
 @pytest.fixture
@@ -382,7 +444,7 @@ def callcenter_page(request, browser_config, multi_project_config):
 def pytest_runtest_makereport(item, call):
     """
     Hook to capture test results, take screenshots on failure, and log to audit trail
-    Enhanced with comprehensive report collection
+    Enhanced with comprehensive report collection and video attachment
     """
     outcome = yield
     report = outcome.get_result()
@@ -394,6 +456,26 @@ def pytest_runtest_makereport(item, call):
 
         # Log test completion to audit trail
         test_name = item.nodeid
+
+        # Attach video from any page fixture that has it
+        video_attached = False
+        for fixture_name, fixture_value in item.funcargs.items():
+            if hasattr(fixture_value, "page") and hasattr(fixture_value.page, "video"):
+                try:
+                    video_path = fixture_value.page.video.path()
+                    if video_path and Path(video_path).exists():
+                        import allure
+                        with open(video_path, "rb") as video_file:
+                            allure.attach(
+                                video_file.read(),
+                                name=f"{item.name}_test_video",
+                                attachment_type=allure.attachment_type.WEBM
+                            )
+                        logger.info(f"Video attached to report: {video_path}")
+                        video_attached = True
+                        break
+                except Exception as e:
+                    logger.debug(f"Could not attach video from {fixture_name}: {e}")
 
         if report.passed:
             audit_logger.log_test_end(

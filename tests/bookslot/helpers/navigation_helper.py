@@ -22,11 +22,11 @@ Usage:
 """
 
 from pages.bookslot.bookslots_basicinfo_page1 import BookslotBasicInfoPage
-from pages.bookslot.bookslots_eventinfo_page2 import BookslotEventInfoPage
+from pages.bookslot.bookslot_eventtype_page2 import BookslotEventInfoPage
 from pages.bookslot.bookslots_insurance_page6 import BookslotInsurancePage
 from pages.bookslot.bookslots_personalInfo_page4 import BookslotPersonalInfoPage
 from pages.bookslot.bookslots_referral_page5 import BookslotReferralPage
-from pages.bookslot.bookslots_webscheduler_page3 import BookslotWebSchedulerPage
+from pages.bookslot.bookslot_scheduler_page3 import BookslotWebSchedulerPage
 
 
 class BookslotNavigator:

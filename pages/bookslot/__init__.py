@@ -12,8 +12,8 @@ Workflow: 6-step appointment booking process
 
 # Import all page objects
 from .bookslots_basicinfo_page1 import BookslotBasicInfoPage
-from .bookslots_eventinfo_page2 import BookslotEventInfoPage
-from .bookslots_webscheduler_page3 import BookslotWebSchedulerPage
+from .bookslot_eventtype_page2 import BookslotEventInfoPage
+from .bookslot_scheduler_page3 import BookslotWebSchedulerPage
 from .bookslots_personalInfo_page4 import BookslotPersonalInfoPage
 from .bookslots_referral_page5 import BookslotReferralPage
 from .bookslots_insurance_page6 import BookslotInsurancePage

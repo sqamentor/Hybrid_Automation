@@ -348,6 +348,50 @@ def bookslot_data_file():
 
 
 # ============================================================================
+# PLAYWRIGHT CONTEXT OVERRIDE - Enable Video Recording for ALL Tests
+# ============================================================================
+
+@pytest.fixture(scope="function")
+def context(browser, browser_context_args, request):
+    """
+    Override pytest-playwright's context fixture to enable video recording.
+    
+    This enables video recording for ALL tests using the 'page' fixture.
+    Videos are organized by project: videos/bookslot/, videos/patientintake/, etc.
+    """
+    from pathlib import Path
+    
+    # Determine project from test path or markers
+    test_path = str(request.fspath)
+    if "bookslot" in test_path.lower():
+        project = "bookslot"
+    elif "patientintake" in test_path.lower():
+        project = "patientintake"
+    elif "callcenter" in test_path.lower():
+        project = "callcenter"
+    else:
+        project = "other"
+    
+    # Create project-specific videos directory
+    videos_dir = Path("videos") / project
+    videos_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Add video recording to context args
+    context_args = {
+        **browser_context_args,
+        "record_video_dir": str(videos_dir),
+        "record_video_size": {"width": 1920, "height": 1080}
+    }
+    
+    # Create context with video recording
+    context = browser.new_context(**context_args)
+    yield context
+    
+    # Close context (finalizes video recording)
+    context.close()
+
+
+# ============================================================================
 # SMART ACTIONS FIXTURE
 # ============================================================================
 
@@ -448,3 +492,39 @@ def pytest_collection_modifyitems(config, items):
         if any(fixture in getattr(item, "fixturenames", []) for fixture in sync_playwright_fixtures):
             # Add no_asyncio marker to prevent pytest-asyncio from wrapping
             item.add_marker(pytest.mark.no_asyncio)
+
+
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    """
+    Hook to attach videos and screenshots to Allure reports.
+    Runs after each test completes.
+    """
+    outcome = yield
+    report = outcome.get_result()
+    
+    # Only process test execution phase (not setup/teardown)
+    if report.when == "call":
+        # Try to attach video from page fixture
+        if "page" in item.funcargs:
+            page = item.funcargs["page"]
+            try:
+                from pathlib import Path
+                import allure
+                
+                # Get video path from page
+                video_path = page.video.path()
+                if video_path and Path(video_path).exists():
+                    # Close page to finalize video
+                    page.context.close()
+                    
+                    # Attach video to Allure report
+                    with open(video_path, "rb") as video_file:
+                        allure.attach(
+                            video_file.read(),
+                            name=f"{item.name}_video",
+                            attachment_type=allure.attachment_type.WEBM
+                        )
+                    print(f"\n✅ Video recorded: {video_path}")
+            except Exception as e:
+                print(f"\n⚠️  Could not attach video: {e}")
