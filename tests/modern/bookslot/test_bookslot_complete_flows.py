@@ -29,11 +29,18 @@ Run Commands:
 
 import allure
 import pytest
-# ARCHITECTURAL FIX: Removed direct Playwright import - use page fixture instead
+import re
+from playwright.sync_api import Page
+
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 @allure.epic("Bookslot")
-@allure.feature("Complete Booking Flows")@pytest.mark.playwright@pytest.mark.modern_spa
+@allure.feature("Complete Booking Flows")
+@pytest.mark.playwright
+@pytest.mark.modern_spa
 @pytest.mark.bookslot
 @pytest.mark.e2e
 class TestBookslotCompleteFlows:
@@ -81,7 +88,7 @@ class TestBookslotCompleteFlows:
             act.button_click(page.get_by_role("button", name="Next"), "Next")
 
         with allure.step("Step 3: Select morning time slot"):
-            act.wait_for_scheduler(page)
+            act.wait_for_scheduler("Time Slot Scheduler")
             page.locator("button:has-text('AM')").first.click()
             act.button_click(page.get_by_role("button", name="Next"), "Next")
 
@@ -152,7 +159,7 @@ class TestBookslotCompleteFlows:
             act.button_click(page.get_by_role("button", name="New Patient"), "New Patient")
             act.button_click(page.get_by_role("button", name="Next"), "Next")
 
-            act.wait_for_scheduler(page)
+            act.wait_for_scheduler("Time Slot Scheduler")
             page.locator("button:has-text('PM')").first.click()
             act.button_click(page.get_by_role("button", name="Next"), "Next")
 
@@ -221,7 +228,7 @@ class TestBookslotCompleteFlows:
             act.button_click(page.get_by_role("button", name="New Patient"), "New Patient")
             act.button_click(page.get_by_role("button", name="Next"), "Next")
 
-            act.wait_for_scheduler(page)
+            act.wait_for_scheduler("Time Slot Scheduler")
             page.locator("button:has-text('AM')").first.click()
             act.button_click(page.get_by_role("button", name="Next"), "Next")
 
@@ -296,7 +303,7 @@ class TestBookslotCompleteFlows:
             act.button_click(page.get_by_role("button", name="New Patient"), "New Patient")
             act.button_click(page.get_by_role("button", name="Next"), "Next")
 
-            act.wait_for_scheduler(page)
+            act.wait_for_scheduler("Time Slot Scheduler")
             page.locator("button:has-text('AM')").first.click()
             act.button_click(page.get_by_role("button", name="Next"), "Next")
 
@@ -338,7 +345,7 @@ class TestBookslotCompleteFlows:
         act = smart_actions
         data = fake_bookslot_data
 
-        print(f"\n🎯 Testing with: {data['email']}\n")
+        logger.info(f"Testing with email: {data['email']}")
 
         with allure.step("Complete booking with human-like behavior"):
             # =====================================================================
@@ -389,9 +396,9 @@ class TestBookslotCompleteFlows:
             ).first
             if act.wait_and_click(otp_field, "OTP Field", timeout=30000):
                 act.type_text(otp_field, data["verification_code"], "OTP Code")
-                print("✓ OTP filled")
+                logger.info("OTP filled successfully")
             else:
-                print("⚠ OTP field not found")
+                logger.warning("OTP field not found - skipping OTP entry")
 
             # Verify OTP with processing wait
             act.button_click(
@@ -402,9 +409,9 @@ class TestBookslotCompleteFlows:
             try:
                 page.wait_for_selector(".loader, .spinner", state="hidden", timeout=30000)
             except TimeoutError:
-                print("⚠ Loader still visible after timeout - continuing")
-            except Exception as e:
-                print(f"⚠ Unexpected error waiting for loader: {e}")
+                logger.warning("Loader still visible after 30s timeout - continuing")
+            except Exception as exc:
+                logger.warning(f"Unexpected error waiting for loader: {exc}")
 
             # =====================================================================
             # EVENT TYPE SELECTION - Complete with all interactions
@@ -420,8 +427,8 @@ class TestBookslotCompleteFlows:
                     page.get_by_text("Request has been submitted"),
                     "Call back Request Submission Confirmation",
                 )
-            except:
-                print("⚠ Request callback not available - skipping")
+            except Exception as exc:
+                logger.warning(f"Request callback not available - skipping ({type(exc).__name__})")
 
             # PVN Event Selection with detailed interactions
             act.click(
@@ -457,16 +464,16 @@ class TestBookslotCompleteFlows:
                 if page.locator("text=/went wrong|error|try again/i").count() > 0:
                     raise Exception("Slot booking error detected - error message on page")
 
-                print("✓ Time slot selected")
+                logger.info("Time slot selected successfully")
 
             try:
                 act.smart_retry(select_time_slot, max_retries=3)
-            except Exception as e:
-                print(f"⚠ Slot booking error: {e} - Using last resort slot")
+            except Exception as exc:
+                logger.warning(f"Slot booking error after 3 retries: {exc} - attempting last-resort slot")
                 try:
                     act.click(page.get_by_role("button", name="06:00 AM"), "06:00 AM Slot")
                 except Exception as slot_error:
-                    print(f"❌ Slot selection failed: {slot_error} - continuing")
+                    logger.error(f"Last-resort slot selection failed: {slot_error} - continuing")
 
             # Slot confirmation interaction
             act.click(page.get_by_text("Request an Appointment This"), "Confirm Slot")
@@ -483,8 +490,8 @@ class TestBookslotCompleteFlows:
                     page.get_by_role("option", name="MALE", exact=True),
                     "Gender",
                 )
-            except:
-                print("⚠ Gender selection skipped - field may be optional")
+            except Exception as exc:
+                logger.warning(f"Gender selection skipped - field may be optional ({type(exc).__name__})")
 
             # Fill DOB
             act.type_text(
@@ -544,15 +551,13 @@ class TestBookslotCompleteFlows:
             act.navigate(f"{base_url}/success", "Success Page")
 
             # Redirect message interaction
-            import re
-
             try:
                 redirect_msg = page.locator("div").filter(
                     has_text=re.compile(r"^You will be redirected in \d+ seconds$")
                 )
                 act.click(redirect_msg, "Redirect Message")
-            except:
-                print("⚠ Redirect message not found - page may have already redirected")
+            except Exception as exc:
+                logger.warning(f"Redirect message not found - page may have already redirected ({type(exc).__name__})")
 
             # Verify success
             assert (
@@ -561,7 +566,7 @@ class TestBookslotCompleteFlows:
                 or "thank" in page.url.lower()
             )
 
-            print(f"\n✅ Test completed successfully with {data['email']}\n")
+            logger.info(f"Test completed successfully with email: {data['email']}")
 
             allure.attach(
                 page.screenshot(full_page=True),
@@ -615,7 +620,7 @@ class TestBookslotCompleteFlows:
             act.button_click(page.get_by_role("button", name="New Patient"), "New Patient")
             act.button_click(page.get_by_role("button", name="Next"), "Next")
 
-            act.wait_for_scheduler(page)
+            act.wait_for_scheduler("Time Slot Scheduler")
             page.locator("button:has-text('AM')").first.click()
             act.button_click(page.get_by_role("button", name="Next"), "Next")
 
@@ -695,5 +700,5 @@ class TestBookslotCompleteFlows:
             act.button_click(page.get_by_role("button", name="New Patient"), "New Patient")
             act.button_click(page.get_by_role("button", name="Next"), "Next")
 
-            act.wait_for_scheduler(page)
+            act.wait_for_scheduler("Time Slot Scheduler")
             assert page.url != f"{base_url}/basic-info"

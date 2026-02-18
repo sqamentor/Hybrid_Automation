@@ -23,7 +23,12 @@ Does NOT contain:
 ❌ Complete test flows
 """
 
+import logging
+
+from framework.observability import log_function
 from framework.ui.base_page import BasePage
+
+logger = logging.getLogger(__name__)
 
 
 class BookslotBasicInfoPage(BasePage):
@@ -134,12 +139,14 @@ class BookslotBasicInfoPage(BasePage):
     # NAVIGATION
     # ===================================================================
     
+    @log_function(log_args=True, log_result=False, log_timing=True)
     def navigate(self):
         """Navigate to the basic info page"""
         url = f"{self.base_url}{self.path}"
         self.page.goto(url, wait_until="networkidle")
         return self
     
+    @log_function(log_timing=True)
     def wait_for_page_load(self):
         """Wait for page to fully load"""
         self.page.wait_for_load_state("networkidle")
@@ -149,72 +156,85 @@ class BookslotBasicInfoPage(BasePage):
     # ACTIONS
     # ===================================================================
     
+    @log_function(log_timing=True)
     def select_language_english(self):
         """Select English language"""
         self.button_english.click()
         return self
     
+    @log_function(log_timing=True)
     def select_language_spanish(self):
         """Select Spanish language"""
         self.button_spanish.click()
         return self
     
+    @log_function(log_args=True, log_timing=True, mask_sensitive=True)
     def fill_first_name(self, first_name: str):
         """Fill first name field"""
         self.textbox_first_name.click()
         self.textbox_first_name.fill(first_name)
         return self
     
+    @log_function(log_args=True, log_timing=True, mask_sensitive=True)
     def fill_last_name(self, last_name: str):
         """Fill last name field"""
         self.textbox_last_name.click()
         self.textbox_last_name.fill(last_name)
         return self
     
+    @log_function(log_args=True, log_timing=True, mask_sensitive=True)
     def fill_email(self, email: str):
         """Fill email field"""
         self.textbox_email.click()
         self.textbox_email.fill(email)
         return self
     
+    @log_function(log_args=True, log_timing=True, mask_sensitive=True)
     def fill_phone(self, phone: str):
         """Fill phone number field"""
         self.textbox_phone.click()
         self.textbox_phone.fill(phone)
         return self
     
+    @log_function(log_args=True, log_timing=True)
     def fill_zip(self, zip_code: str):
         """Fill zip code field"""
         self.textbox_zip.click()
         self.textbox_zip.fill(zip_code)
         return self
     
+    @log_function(log_timing=True)
     def select_contact_preference(self):
         """Click contact preference options"""
         self.contact_preference.click()
         return self
     
+    @log_function(log_timing=True)
     def submit_for_otp(self):
         """Submit form to receive OTP code"""
         self.button_send_code.click()
         return self
     
+    @log_function(log_args=True, log_timing=True, mask_sensitive=True)
     def fill_otp(self, otp_code: str):
         """Fill OTP verification code (handles PrimeNG p-inputmask)"""
         # For PrimeNG p-inputmask, we need to type instead of fill
         try:
             self.textbox_otp.click()
             self.textbox_otp.type(otp_code, delay=100)
-        except Exception:
+        except Exception as e:
+            logger.warning(f"OTP type method failed, using fallback: {e}")
             # Fallback: try filling directly
             self.textbox_otp.fill(otp_code)
         return self
     
+    @log_function(log_timing=True)
     def verify_otp(self):
         """Click verify code button"""
         self.button_verify_code.click()
         return self
     
+    @log_function(log_timing=True)
     def proceed_to_next(self):
         """Click Next button"""
         self.button_next.click()
@@ -224,50 +244,64 @@ class BookslotBasicInfoPage(BasePage):
     # PAGE-LEVEL CHECKS
     # ===================================================================
     
+    @log_function(log_timing=True)
     def is_page_loaded(self) -> bool:
         """Check if page is loaded by verifying key element"""
         try:
             return self.textbox_first_name.is_visible()
-        except:
+        except Exception as e:
+            logger.error(f"Error checking if page is loaded: {e}")
             return False
     
+    @log_function(log_timing=True)
     def is_first_name_visible(self) -> bool:
         """Check if first name field is visible"""
         try:
             return self.textbox_first_name.is_visible()
-        except:
+        except Exception as e:
+            logger.error(f"Error checking first name visibility: {e}")
             return False
     
+    @log_function(log_timing=True)
     def is_last_name_visible(self) -> bool:
         """Check if last name field is visible"""
         try:
             return self.textbox_last_name.is_visible()
-        except:
+        except Exception as e:
+            logger.error(f"Error checking last name visibility: {e}")
             return False
     
+    @log_function(log_timing=True)
     def is_email_visible(self) -> bool:
         """Check if email field is visible"""
         try:
             return self.textbox_email.is_visible()
-        except:
+        except Exception as e:
+            logger.error(f"Error checking email visibility: {e}")
             return False
     
+    @log_function(log_timing=True)
     def is_phone_visible(self) -> bool:
         """Check if phone field is visible"""
         try:
             return self.textbox_phone.is_visible()
-        except:
+        except Exception as e:
+            logger.error(f"Error checking phone visibility: {e}")
             return False
     
+    @log_function(log_timing=True)
     def is_next_button_visible(self) -> bool:
         """Check if Next button is visible"""
         try:
             return self.button_next.is_visible()
-        except:
+        except Exception as e:
+            logger.error(f"Error checking next button visibility: {e}")
             return False    
+    @log_function(log_timing=True)
     def is_next_button_enabled(self) -> bool:
         """Check if next button is enabled (not disabled)"""
         try:
             return self.button_next.is_enabled()
-        except:
+        except Exception as e:
+            logger.error(f"Error checking next button enabled state: {e}")
             return False

@@ -15,6 +15,19 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 
+# Self-instrumentation for database module
+try:
+    from framework.observability.universal_logger import log_function, log_async_function
+except ImportError:
+    def log_function(*args, **kwargs):
+        def decorator(func):
+            return func
+        return decorator
+    def log_async_function(*args, **kwargs):
+        def decorator(func):
+            return func
+        return decorator
+
 try:
     import asyncpg
 
@@ -86,6 +99,7 @@ class AsyncDatabaseClient:
         ```
     """
 
+    @log_function(log_args=True)
     def __init__(self, config: DatabaseConfig):
         """
         Initialize async database client.
@@ -106,15 +120,18 @@ class AsyncDatabaseClient:
         if config.db_type == DatabaseType.MYSQL and not AIOMYSQL_AVAILABLE:
             raise ImportError("aiomysql not installed. Install with: pip install aiomysql")
 
+    @log_async_function()
     async def __aenter__(self):
         """Enter async context."""
         await self.connect()
         return self
 
+    @log_async_function()
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Exit async context."""
         await self.close()
 
+    @log_async_function(log_timing=True)
     async def connect(self) -> None:
         """
         Create database connection pool.
@@ -145,6 +162,7 @@ class AsyncDatabaseClient:
                 connect_timeout=self.config.timeout,
             )
 
+    @log_async_function(log_timing=True)
     async def close(self) -> None:
         """
         Close database connection pool.
@@ -158,6 +176,7 @@ class AsyncDatabaseClient:
                 self.pool.close()
                 await self.pool.wait_closed()
 
+    @log_async_function(log_args=True, log_result=True)
     async def fetch_one(
         self, query: str, *args, timeout: Optional[float] = None
     ) -> Optional[Dict[str, Any]]:
@@ -191,6 +210,7 @@ class AsyncDatabaseClient:
                     row = await cursor.fetchone()
                     return dict(row) if row else None
 
+    @log_async_function(log_args=True, log_result=True)
     async def fetch_all(
         self, query: str, *args, timeout: Optional[float] = None
     ) -> List[Dict[str, Any]]:
@@ -224,6 +244,7 @@ class AsyncDatabaseClient:
                     rows = await cursor.fetchall()
                     return [dict(row) for row in rows]
 
+    @log_async_function(log_args=True, log_result=True)
     async def execute(self, query: str, *args, timeout: Optional[float] = None) -> str:
         """
         Execute query without returning results.
@@ -256,6 +277,7 @@ class AsyncDatabaseClient:
                     await conn.commit()
                     return f"Rows affected: {cursor.rowcount}"
 
+    @log_async_function(log_args=True)
     async def execute_many(
         self, query: str, args_list: List[tuple], timeout: Optional[float] = None
     ) -> None:
@@ -289,6 +311,7 @@ class AsyncDatabaseClient:
                     await cursor.executemany(query, args_list)
                     await conn.commit()
 
+    @log_async_function(log_args=True)
     @asynccontextmanager
     async def transaction(self):
         """
@@ -317,10 +340,13 @@ class AsyncDatabaseClient:
                     try:
                         yield conn
                         await conn.commit()
-                    except Exception:
+                    except Exception as e:
+                        import logging
+                        logging.getLogger(__name__).error(f"Transaction failed, rolling back: {e}")
                         await conn.rollback()
                         raise
 
+    @log_async_function(log_args=True, log_result=True)
     async def fetch_value(
         self, query: str, *args, column: Union[str, int] = 0, timeout: Optional[float] = None
     ) -> Any:
@@ -351,6 +377,7 @@ class AsyncDatabaseClient:
         else:
             return row.get(column)
 
+    @log_async_function(log_result=True)
     async def health_check(self) -> bool:
         """
         Check database connection health.
@@ -369,7 +396,9 @@ class AsyncDatabaseClient:
         try:
             await self.fetch_value("SELECT 1")
             return True
-        except Exception:
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(f"Database health check failed: {e}")
             return False
 
 
@@ -396,6 +425,7 @@ class AsyncQueryExecutor:
         ```
     """
 
+    @log_function(log_args=True)
     def __init__(self, client: AsyncDatabaseClient):
         """
         Initialize query executor.
@@ -405,6 +435,7 @@ class AsyncQueryExecutor:
         """
         self.client = client
 
+    @log_async_function(log_args=True, log_result=True)
     async def execute(self, query_builder) -> List[Dict[str, Any]]:
         """
         Execute query builder and return results.
@@ -418,6 +449,7 @@ class AsyncQueryExecutor:
         query, params = query_builder.build()
         return await self.client.fetch_all(query, *params)
 
+    @log_async_function(log_args=True, log_result=True)
     async def execute_one(self, query_builder) -> Optional[Dict[str, Any]]:
         """
         Execute query builder and return single result.
@@ -431,6 +463,7 @@ class AsyncQueryExecutor:
         query, params = query_builder.build()
         return await self.client.fetch_one(query, *params)
 
+    @log_async_function(log_args=True, log_result=True)
     async def execute_count(self, query_builder) -> int:
         """
         Execute query builder and return count.
@@ -475,10 +508,12 @@ class ConnectionPoolManager:
         ```
     """
 
+    @log_function()
     def __init__(self):
         """Initialize connection pool manager."""
         self.clients: Dict[str, AsyncDatabaseClient] = {}
 
+    @log_async_function(log_args=True)
     async def add_pool(self, name: str, config: DatabaseConfig) -> None:
         """
         Add a database connection pool.
@@ -491,6 +526,7 @@ class ConnectionPoolManager:
         await client.connect()
         self.clients[name] = client
 
+    @log_function(log_args=True, log_result=True)
     def get_client(self, name: str) -> AsyncDatabaseClient:
         """
         Get database client by name.
@@ -509,6 +545,7 @@ class ConnectionPoolManager:
 
         return self.clients[name]
 
+    @log_async_function(log_timing=True)
     async def close_all(self) -> None:
         """Close all database connection pools."""
         for client in self.clients.values():
@@ -516,6 +553,7 @@ class ConnectionPoolManager:
 
         self.clients.clear()
 
+    @log_async_function(log_result=True)
     async def health_check_all(self) -> Dict[str, bool]:
         """
         Health check all database connections.

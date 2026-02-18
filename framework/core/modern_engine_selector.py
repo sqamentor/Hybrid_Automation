@@ -17,6 +17,7 @@ from typing import Any, Dict, List, Optional, Protocol
 
 from framework.models.config_models import EngineType
 from framework.protocols.config_protocols import ConfigProvider
+from framework.observability import log_function, log_async_function
 
 
 class TestComplexity(str, Enum):
@@ -254,6 +255,7 @@ class ModernEngineSelector:
             priority=50,
         )
 
+    @log_function(log_timing=True)
     def select_engine_from_dict(self, metadata_dict: Dict[str, Any]) -> EngineDecision:
         """
         Convenience method to select engine from dictionary.
@@ -294,6 +296,7 @@ class ModernEngineSelector:
 
         return self.select_engine(metadata)
 
+    @log_function(log_timing=True)
     def get_cache_stats(self) -> Dict[str, int]:
         """Get cache statistics"""
         hit_rate = 0.0
@@ -306,6 +309,7 @@ class ModernEngineSelector:
             "cache_info": self.select_engine.cache_info()._asdict(),
         }
 
+    @log_function(log_timing=True)
     def clear_cache(self) -> None:
         """Clear engine selection cache"""
         self.select_engine.cache_clear()

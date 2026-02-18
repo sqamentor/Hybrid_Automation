@@ -5,6 +5,7 @@ Handles appointment verification and search in PatientIntake system
 from typing import Optional, List
 from framework.ui.base_page import BasePage
 from models.appointment import Appointment
+from framework.observability import log_function, log_async_function
 
 
 class PatientIntakeAppointmentListPage(BasePage):
@@ -31,10 +32,12 @@ class PatientIntakeAppointmentListPage(BasePage):
         """All appointment rows in the table/list"""
         return self.page.locator("[data-testid='appointment-row']")
     
+    @log_function(log_timing=True)
     def appointment_by_name(self, full_name: str):
         """Get appointment row by patient name"""
         return self.page.locator(f"[data-testid='appointment-row']:has-text('{full_name}')")
     
+    @log_function(log_timing=True)
     def appointment_by_email(self, email: str):
         """Get appointment row by email"""
         return self.page.locator(f"[data-testid='appointment-row']:has-text('{email}')")
@@ -45,11 +48,13 @@ class PatientIntakeAppointmentListPage(BasePage):
         return self.page.get_by_text("No appointments found")
     
     # Actions
+    @log_function(log_timing=True)
     def navigate(self) -> 'PatientIntakeAppointmentListPage':
         """Navigate to appointments list page"""
         self.page.goto(self.url)
         return self
     
+    @log_function(log_timing=True)
     def search_by_name(self, first_name: str, last_name: str) -> 'PatientIntakeAppointmentListPage':
         """Search appointments by patient name"""
         full_name = f"{first_name} {last_name}"
@@ -57,18 +62,21 @@ class PatientIntakeAppointmentListPage(BasePage):
         # Playwright auto-waits for search results to load
         return self
     
+    @log_function(log_timing=True)
     def search_by_email(self, email: str) -> 'PatientIntakeAppointmentListPage':
         """Search appointments by email"""
         self.search_input.fill(email)
         # Playwright auto-waits for search results to load
         return self
     
+    @log_function(log_timing=True)
     def search_appointment(self, appointment: Appointment) -> 'PatientIntakeAppointmentListPage':
         """Search for appointment using Appointment object"""
         # Try searching by email first (more unique)
         self.search_by_email(appointment.email)
         return self
     
+    @log_function(log_timing=True)
     def get_appointment_details(self, email: str) -> dict:
         """
         Extract appointment details from the UI
@@ -93,24 +101,28 @@ class PatientIntakeAppointmentListPage(BasePage):
         
         return details
     
+    @log_function(log_timing=True)
     def click_appointment(self, email: str) -> 'PatientIntakeAppointmentListPage':
         """Click on appointment to view details"""
         self.appointment_by_email(email).click()
         return self
     
     # Assertions
+    @log_function(log_timing=True)
     def should_show_appointment(self, appointment: Appointment):
         """Verify appointment exists in the list"""
         row = self.appointment_by_email(appointment.email)
         expect(row).to_be_visible(timeout=10000)
         return self
     
+    @log_function(log_timing=True)
     def should_not_show_appointment(self, email: str):
         """Verify appointment does not exist"""
         row = self.appointment_by_email(email)
         expect(row).not_to_be_visible()
         return self
     
+    @log_function(log_timing=True)
     def verify_appointment_details(self, appointment: Appointment):
         """
         Verify all appointment details match
@@ -143,6 +155,7 @@ class PatientIntakeAppointmentListPage(BasePage):
         
         return self
     
+    @log_function(log_timing=True)
     def verify_patient_name(self, first_name: str, last_name: str):
         """Verify patient name appears in list"""
         full_name = f"{first_name} {last_name}"
@@ -150,6 +163,7 @@ class PatientIntakeAppointmentListPage(BasePage):
         expect(row).to_be_visible()
         return self
     
+    @log_function(log_timing=True)
     def should_be_visible(self):
         """Verify page is loaded"""
         expect(self.search_input).to_be_visible()
@@ -189,6 +203,7 @@ class PatientIntakeAppointmentDetailsPage:
         return self.page.locator("[data-testid='detail-status']")
     
     # Actions
+    @log_function(log_timing=True)
     def verify_all_details(self, appointment: Appointment):
         """Verify all appointment details on detail page"""
         expect(self.patient_name_field).to_have_text(appointment.get_full_name())

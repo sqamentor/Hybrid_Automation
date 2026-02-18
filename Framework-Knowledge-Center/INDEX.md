@@ -15,9 +15,11 @@ This comprehensive documentation covers every aspect of the framework, from gett
 | [📄 Page Object Model](#-page-object-model) | POM architecture, rules, best practices |
 | [🧪 Testing Features](#-testing-features) | UI, API, DB, Visual, Accessibility, Security |
 | [⚙️ Configuration](#️-configuration) | Environments, projects, settings |
+| [� Observability & Logging](#-observability--logging) | Enterprise logging, audit trails, SIEM integration |
 | [🔧 Advanced Features](#-advanced-features) | AI, intelligence, self-healing |
 | [🏛️ Governance](#️-governance) | Architecture audit, enforcement, CI/CD |
 | [📊 Reporting](#-reporting) | Allure, HTML, logging, traces |
+| [📹 Media Capture](#-media-capture) | Screenshots, video recording, evidence collection |
 | [🛠️ Utilities](#️-utilities) | Fake data, logger, helpers |
 | [📜 Rules & Standards](#-rules--standards) | Mandatory rules, anti-patterns, best practices |
 | [🎓 Tutorials](#-tutorials) | Step-by-step guides |
@@ -317,7 +319,81 @@ This comprehensive documentation covers every aspect of the framework, from gett
 
 ---
 
-## 🔧 Advanced Features
+## � Observability & Logging
+
+### Enterprise Logging System
+- **[Enterprise Logging Architecture](05-Observability-And-Logging/Enterprise-Logging-Architecture.md)**
+  - System architecture and design
+  - Core components overview
+  - Structured JSON logging with 25+ fields
+  - Distributed tracing with correlation IDs
+  - Async/non-blocking logging (QueueHandler)
+  - SIEM integration (ELK, Datadog, Splunk, Loki)
+  - SOC2/ISO27001 compliance features
+  - Security and audit logging
+
+- **[Enterprise Logging Integration Guide](05-Observability-And-Logging/Enterprise-Logging-Integration-Guide.md)**
+  - Step-by-step integration into existing code
+  - Migrating SmartActions to enterprise logger
+  - Page Object Model logging patterns
+  - Test suite integration examples
+  - API and DB logging strategies
+  - Best practices and patterns
+
+- **[Enterprise Logging Deployment Checklist](05-Observability-And-Logging/Enterprise-Logging-Deployment-Checklist.md)**
+  - Pre-deployment validation steps
+  - Environment-specific configuration
+  - SIEM setup and verification
+  - Performance testing guidelines
+  - Go-live checklist
+  - Post-deployment monitoring
+
+- **[Enterprise Logging Verification Report](05-Observability-And-Logging/Enterprise-Logging-Verification-Report.md)**
+  - Implementation verification results
+  - Feature completeness matrix
+  - Code quality assessment
+  - Integration testing results
+  - Known issues and resolutions
+
+- **[Enterprise Logging Final Summary](05-Observability-And-Logging/Enterprise-Logging-Final-Summary.md)**
+  - Executive overview
+  - Deployment status
+  - Quick start guide
+  - Troubleshooting tips
+
+- **[Enterprise Logging Comprehensive Audit](05-Observability-And-Logging/Enterprise-Logging-Comprehensive-Audit.md)** 🆕
+  - Complete requirements analysis (10 categories)
+  - Gap analysis and compliance scoring (76.6% baseline)
+  - Implementation priorities and roadmap
+  - 3-phase deployment strategy
+  - Detailed action items per category
+
+- **[Enterprise Logging Complete Implementation](05-Observability-And-Logging/Enterprise-Logging-Complete-Implementation.md)** 🆕
+  - Universal logging decorators guide
+  - @log_function, @log_async_function usage
+  - State transition and retry logging
+  - Sensitive data masking examples
+  - SIEM integration configurations
+  - 3-week migration guide with examples
+
+- **[Enterprise Logging Implementation Report](05-Observability-And-Logging/Enterprise-Logging-Implementation-Report.md)** 🆕
+  - Phase 1 completion status
+  - Compliance metrics (21.3% → 29.0%)
+  - 238 functions instrumented across 25 files
+  - Before/after code comparisons
+  - Usage examples and best practices
+  - Auto-instrumentation tools guide
+  - Phase 2 & 3 roadmap
+
+- **[Logging Enhancements](05-Observability-And-Logging/Logging-Enhancements.md)**
+  - Historical logging improvements
+  - Feature evolution
+  - Migration notes
+  - Backward compatibility
+
+---
+
+## �🔧 Advanced Features
 
 ### AI & Intelligence
 - **[AI Provider Factory](06-Advanced-Features/AI/AI-Provider-Factory.md)**
@@ -369,6 +445,20 @@ This comprehensive documentation covers every aspect of the framework, from gett
   - System architecture
   - Enforcement layers
   - Audit workflow
+
+- **[Framework Architecture Audit Report](07-Governance/Framework-Architecture-Audit-Report.md)**
+  - Complete framework audit results
+  - Architecture analysis
+  - Code quality metrics
+  - Compliance assessment
+  - Recommendations and action items
+
+- **[Pending Implementations And Fixes](07-Governance/Pending-Implementations-And-Fixes.md)**
+  - Outstanding technical debt
+  - Planned enhancements
+  - Known issues
+  - Implementation roadmap
+  - Priority tracking
 
 - **[Audit Rules](07-Governance/Audit-Rules.md)**
   - Complete rule catalog
@@ -467,7 +557,29 @@ This comprehensive documentation covers every aspect of the framework, from gett
 
 ---
 
-## 🛠️ Utilities
+## � Media Capture
+
+### Screenshots & Video Recording
+- **[Screenshot & Video Implementation](08-Media-Capture/Screenshot-Video-Implementation.md)**
+  - Complete implementation guide
+  - Playwright video recording setup
+  - Screenshot capture strategies
+  - Auto-capture on test failure
+  - Allure report integration
+  - Storage and retention policies
+  - Performance considerations
+
+- **[Video Naming Update Report](08-Media-Capture/Video-Naming-Update-Report.md)**
+  - Video filename format specification
+  - DDMMYYYY_HH_MM_SS naming convention
+  - Windows filesystem compatibility
+  - Collision handling logic
+  - Validation and testing procedures
+  - Migration guide
+
+---
+
+## �🛠️ Utilities
 
 ### Test Data & Helpers
 - **[Fake Data Generator](09-Utilities/Fake-Data-Generator.md)**
@@ -682,9 +794,9 @@ Interested in contributing? See:
 
 ---
 
-**Last Updated:** February 1, 2026  
+**Last Updated:** February 18, 2026  
 **Framework Version:** 1.0.0  
-**Documentation Version:** 1.0.0
+**Documentation Version:** 1.0.1
 
 ---
 

@@ -22,7 +22,13 @@ Does NOT contain:
 ❌ Complete test flows
 """
 
+import logging
+import re
+
 from framework.ui.base_page import BasePage
+from framework.observability import log_function, log_async_function
+
+logger = logging.getLogger(__name__)
 
 
 class BookslotSuccessPage(BasePage):
@@ -38,10 +44,6 @@ class BookslotSuccessPage(BasePage):
         """
         super().__init__(page)
         self.page = self.driver  # Compatibility alias
-            page: Playwright Page instance
-            base_url: Base URL from multi_project_config
-        """
-        self.page = page
         if not base_url:
             raise ValueError("base_url is required from multi_project_config")
         self.base_url = base_url
@@ -60,6 +62,7 @@ class BookslotSuccessPage(BasePage):
     # NAVIGATION
     # ===================================================================
 
+    @log_function(log_timing=True)
     def navigate(self):
         """Navigate to the success page"""
         url = f"{self.base_url}{self.path}"
@@ -70,6 +73,7 @@ class BookslotSuccessPage(BasePage):
     # ACTIONS
     # ===================================================================
     
+    @log_function(log_timing=True)
     def click_redirect_message(self):
         """Click redirect message"""
         self.redirect_message.click()
@@ -79,18 +83,22 @@ class BookslotSuccessPage(BasePage):
     # PAGE-LEVEL CHECKS
     # ===================================================================
     
+    @log_function(log_timing=True)
     def is_page_loaded(self) -> bool:
         """Check if success page is loaded"""
         try:
             return "/success" in self.page.url
-        except:
+        except Exception as e:
+            logger.error(f"Error checking if success page is loaded: {e}")
             return False
     
+    @log_function(log_timing=True)
     def is_redirect_message_visible(self) -> bool:
         """Check if redirect countdown is visible"""
         try:
             return self.redirect_message.is_visible()
-        except:
+        except Exception as e:
+            logger.error(f"Error checking redirect message visibility: {e}")
             return False
 
 

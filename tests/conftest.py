@@ -311,12 +311,16 @@ def bookslot_page(request, shared_browser, multi_project_config):
     Creates a Playwright page for Bookslot application
     WITH VIDEO RECORDING enabled
     """
+    from datetime import datetime
     from pathlib import Path
     from pages.bookslot import BookslotBasicInfoPage
 
     # Create videos directory if it doesn't exist
     videos_dir = Path("videos")
     videos_dir.mkdir(exist_ok=True)
+
+    # Capture test start timestamp for video filename (DDMMYYYY_HH_MM_SS) - Windows-safe format
+    video_start_time = datetime.now().strftime("%d%m%Y_%H_%M_%S")
 
     # Create context with video recording enabled
     context = shared_browser.new_context(
@@ -329,17 +333,53 @@ def bookslot_page(request, shared_browser, multi_project_config):
     bookslot_config = multi_project_config["bookslot"]
     bookslot_po = BookslotBasicInfoPage(page, bookslot_config["ui_url"])
 
+    # Log fixture setup to audit trail
+    _test_name = request.node.nodeid
+    audit_logger.log_fixture_event("bookslot_page", "setup", test_name=_test_name)
+    logger.info(f"bookslot_page SETUP: video recording started -> {videos_dir} [{_test_name}]")
+    audit_logger.log_action("video_recording", {
+        "event": "start", "fixture": "bookslot_page",
+        "video_dir": str(videos_dir), "test_name": _test_name,
+    })
+
     yield bookslot_po
 
-    # Save video path for later attachment
+    # Log fixture teardown
+    audit_logger.log_fixture_event("bookslot_page", "teardown", test_name=_test_name)
+    logger.info(f"bookslot_page TEARDOWN: closing context [{_test_name}]")
+
+    # Save video path before closing context
     video_path = None
     try:
         video_path = page.video.path()
     except Exception as e:
         logger.warning(f"Could not get video path: {e}")
 
-    # Cleanup - close context to finish video recording
+    # Cleanup - close context to finish video recording (finalises the .webm file)
     context.close()
+
+    # Rename video file to DDMMYYYY_HH_MM_SS.webm (Windows-safe format with underscores)
+    if video_path:
+        try:
+            video_path_obj = Path(video_path)
+            if video_path_obj.exists():
+                new_video_path = video_path_obj.parent / f"{video_start_time}.webm"
+                # Avoid overwrite if two tests share the same second
+                counter = 1
+                while new_video_path.exists():
+                    new_video_path = video_path_obj.parent / f"{video_start_time}_{counter}.webm"
+                    counter += 1
+                video_path_obj.rename(new_video_path)
+                video_path = str(new_video_path)
+                logger.info(f"bookslot_page: video saved as {new_video_path.name}")
+                audit_logger.log_action("video_recording", {
+                    "event": "stop", "fixture": "bookslot_page",
+                    "video_path": str(new_video_path), "test_name": _test_name,
+                })
+        except Exception as e:
+            logger.warning(f"Could not rename video file: {e}")
+            # Keep original video path if rename fails
+            video_path = str(video_path_obj) if video_path_obj.exists() else None
 
     # Attach video to Allure report if path exists
     if video_path:
@@ -363,12 +403,16 @@ def patientintake_page(request, shared_browser, multi_project_config):
     Creates a Playwright page for PatientIntake application
     WITH VIDEO RECORDING enabled
     """
+    from datetime import datetime
     from pathlib import Path
     from pages.patientintake import PatientIntakeAppointmentListPage
 
     # Create videos directory if it doesn't exist
     videos_dir = Path("videos")
     videos_dir.mkdir(exist_ok=True)
+
+    # Capture test start timestamp for video filename (DDMMYYYY_HH_MM_SS) - Windows-safe format
+    video_start_time = datetime.now().strftime("%d%m%Y_%H_%M_%S")
 
     # Create context with video recording enabled
     context = shared_browser.new_context(
@@ -381,17 +425,53 @@ def patientintake_page(request, shared_browser, multi_project_config):
     patientintake_config = multi_project_config["patientintake"]
     patientintake_po = PatientIntakeAppointmentListPage(page, patientintake_config["ui_url"])
 
+    # Log fixture setup to audit trail
+    _test_name = request.node.nodeid
+    audit_logger.log_fixture_event("patientintake_page", "setup", test_name=_test_name)
+    logger.info(f"patientintake_page SETUP: video recording started -> {videos_dir} [{_test_name}]")
+    audit_logger.log_action("video_recording", {
+        "event": "start", "fixture": "patientintake_page",
+        "video_dir": str(videos_dir), "test_name": _test_name,
+    })
+
     yield patientintake_po
 
-    # Save video path for later attachment
+    # Log fixture teardown
+    audit_logger.log_fixture_event("patientintake_page", "teardown", test_name=_test_name)
+    logger.info(f"patientintake_page TEARDOWN: closing context [{_test_name}]")
+
+    # Save video path before closing context
     video_path = None
     try:
         video_path = page.video.path()
     except Exception as e:
         logger.warning(f"Could not get video path: {e}")
 
-    # Cleanup - close context to finish video recording
+    # Cleanup - close context to finish video recording (finalises the .webm file)
     context.close()
+
+    # Rename video file to DDMMYYYY_HH_MM_SS.webm (Windows-safe format with underscores)
+    if video_path:
+        try:
+            video_path_obj = Path(video_path)
+            if video_path_obj.exists():
+                new_video_path = video_path_obj.parent / f"{video_start_time}.webm"
+                # Avoid overwrite if two tests share the same second
+                counter = 1
+                while new_video_path.exists():
+                    new_video_path = video_path_obj.parent / f"{video_start_time}_{counter}.webm"
+                    counter += 1
+                video_path_obj.rename(new_video_path)
+                video_path = str(new_video_path)
+                logger.info(f"patientintake_page: video saved as {new_video_path.name}")
+                audit_logger.log_action("video_recording", {
+                    "event": "stop", "fixture": "patientintake_page",
+                    "video_path": str(new_video_path), "test_name": _test_name,
+                })
+        except Exception as e:
+            logger.warning(f"Could not rename video file: {e}")
+            # Keep original video path if rename fails
+            video_path = str(video_path_obj) if video_path_obj.exists() else None
 
     # Attach video to Allure report if path exists
     if video_path:
@@ -427,6 +507,11 @@ def callcenter_page(request, browser_config, multi_project_config):
     callcenter_config = multi_project_config["callcenter"]
     callcenter_po = CallCenterAppointmentManagementPage(page, callcenter_config["ui_url"])
 
+    # Log fixture setup to audit trail
+    _test_name = request.node.nodeid
+    audit_logger.log_fixture_event("callcenter_page", "setup", test_name=_test_name)
+    logger.info(f"callcenter_page SETUP: browser+context+page created [{_test_name}]")
+
     yield callcenter_po
 
     # Cleanup
@@ -434,114 +519,18 @@ def callcenter_page(request, browser_config, multi_project_config):
     browser.close()
     playwright.stop()
 
+    # Log fixture teardown
+    audit_logger.log_fixture_event("callcenter_page", "teardown", test_name=_test_name)
+    logger.info(f"callcenter_page TEARDOWN: browser closed [{_test_name}]")
+
 
 # ========================================================================
 # HOOKS
 # ========================================================================
 
-
-@pytest.hookimpl(tryfirst=True, hookwrapper=True)
-def pytest_runtest_makereport(item, call):
-    """
-    Hook to capture test results, take screenshots on failure, and log to audit trail
-    Enhanced with comprehensive report collection and video attachment
-    """
-    outcome = yield
-    report = outcome.get_result()
-
-    # Only process test execution phase (not setup/teardown)
-    if report.when == "call":
-        # Update report collector with test results
-        report_collector.end_test(item, report)
-
-        # Log test completion to audit trail
-        test_name = item.nodeid
-
-        # Attach video from any page fixture that has it
-        video_attached = False
-        for fixture_name, fixture_value in item.funcargs.items():
-            if hasattr(fixture_value, "page") and hasattr(fixture_value.page, "video"):
-                try:
-                    video_path = fixture_value.page.video.path()
-                    if video_path and Path(video_path).exists():
-                        import allure
-                        with open(video_path, "rb") as video_file:
-                            allure.attach(
-                                video_file.read(),
-                                name=f"{item.name}_test_video",
-                                attachment_type=allure.attachment_type.WEBM
-                            )
-                        logger.info(f"Video attached to report: {video_path}")
-                        video_attached = True
-                        break
-                except Exception as e:
-                    logger.debug(f"Could not attach video from {fixture_name}: {e}")
-
-        if report.passed:
-            audit_logger.log_test_end(
-                test_name=test_name, status="passed", duration=report.duration
-            )
-
-            # Take success screenshot if any fixture has screenshot capability
-            screenshot_engine = None
-            for fixture_value in item.funcargs.values():
-                if hasattr(fixture_value, "take_screenshot"):
-                    screenshot_engine = fixture_value
-                    break
-
-            if screenshot_engine:
-                try:
-                    screenshot_dir = Path("screenshots")
-                    screenshot_dir.mkdir(exist_ok=True)
-
-                    screenshot_path = screenshot_dir / f"{item.name}_success.png"
-                    screenshot_engine.take_screenshot(str(screenshot_path))
-
-                    # Add to report collector
-                    report_collector.add_screenshot(
-                        test_name, str(screenshot_path), "Test Passed - Success Screenshot"
-                    )
-
-                    logger.info(f"Success screenshot saved: {screenshot_path}")
-                except Exception as e:
-                    logger.error(f"Failed to take success screenshot: {e}")
-
-        elif report.failed:
-            audit_logger.log_test_end(
-                test_name=test_name, status="failed", duration=report.duration
-            )
-
-            # Log failure details
-            if hasattr(report, "longrepr"):
-                audit_logger.log_error(
-                    error_type="test_failure",
-                    error_message=str(report.longrepr)[:500],
-                    stack_trace=test_name,
-                )
-
-            # Take failure screenshot if any fixture has screenshot capability
-            screenshot_engine = None
-            for fixture_value in item.funcargs.values():
-                if hasattr(fixture_value, "take_screenshot"):
-                    screenshot_engine = fixture_value
-                    break
-
-            if screenshot_engine:
-                try:
-                    screenshot_dir = Path("screenshots")
-                    screenshot_dir.mkdir(exist_ok=True)
-
-                    screenshot_path = screenshot_dir / f"{item.name}_failure.png"
-                    screenshot_engine.take_screenshot(str(screenshot_path))
-
-                    # Add to report collector
-                    report_collector.add_screenshot(
-                        test_name, str(screenshot_path), "Test Failed - Failure Screenshot"
-                    )
-
-                    logger.info(f"Failure screenshot saved: {screenshot_path}")
-                except Exception as e:
-                    logger.error(f"Failed to take failure screenshot: {e}")
+# NOTE: pytest_runtest_makereport hook is defined in root conftest.py
+# to avoid duplicate hook registration. Removed from here to prevent
+# competing @pytest.hookimpl(tryfirst=True) registrations.
 
 
 def pytest_collection_modifyitems(config, items):
@@ -553,6 +542,13 @@ def pytest_collection_modifyitems(config, items):
         # Add env marker based on selected environment
         env = config.getoption("--env")
         item.add_marker(pytest.mark.env(env))
+
+
+# NOTE: pytest_warning_recorded hook intentionally NOT defined here.
+# It is handled in two places already:
+#   1. root conftest.py  — logs to audit_logger + framework logger
+#   2. framework/observability/pytest_enterprise_logging.py  — logs to enterprise JSON + SIEM
+# Defining a third copy here would cause every warning to appear 3× in audit logs.
 
 
 # ========================================================================
@@ -616,7 +612,8 @@ def pytest_configure(config):
     # Get system information
     try:
         ip_address = socket.gethostbyname(socket.gethostname())
-    except:
+    except Exception as exc:
+        logger.warning(f"Could not resolve hostname to IP address: {exc}")
         ip_address = "N/A"
 
     # Add custom metadata (will appear in HTML report Environment section)

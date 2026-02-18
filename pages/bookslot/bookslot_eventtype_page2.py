@@ -24,8 +24,13 @@ Does NOT contain:
 ❌ Complete test flows
 """
 
+import logging
+
 from framework.ui.base_page import BasePage
 from framework.core.smart_actions import SmartActions
+from framework.observability import log_function, log_async_function
+
+logger = logging.getLogger(__name__)
 
 
 class BookslotEventInfoPage(BasePage):
@@ -124,6 +129,7 @@ class BookslotEventInfoPage(BasePage):
     # NAVIGATION
     # ===================================================================
 
+    @log_function(log_timing=True)
     def navigate(self):
         """Navigate to the event type page"""
         url = f"{self.base_url}{self.path}"
@@ -134,11 +140,13 @@ class BookslotEventInfoPage(BasePage):
     # ACTIONS - PATIENT TYPE
     # ===================================================================
 
+    @log_function(log_timing=True)
     def select_new_patient_type(self):
         """Select 'New Patient' patient type option"""
         self.actions.button_click(self.button_new_patient_type, "New Patient Type")
         return self
 
+    @log_function(log_timing=True)
     def select_existing_patient_type(self):
         """Select 'Existing Patient' patient type option"""
         self.actions.button_click(self.button_existing_patient_type, "Existing Patient Type")
@@ -148,11 +156,13 @@ class BookslotEventInfoPage(BasePage):
     # ACTIONS - EVENT TYPE
     # ===================================================================
 
+    @log_function(log_timing=True)
     def request_callback(self):
         """Request a callback from the clinic"""
         self.button_request_callback.click()
         return self
 
+    @log_function(log_timing=True)
     def select_new_patient(self):
         """Select New Patient appointment type"""
         self.heading_new_patient.click()
@@ -160,6 +170,7 @@ class BookslotEventInfoPage(BasePage):
         self.button_new_patient_book.click()
         return self
 
+    @log_function(log_timing=True)
     def select_complimentary_consultation(self):
         """Select Complimentary Consultation type"""
         self.heading_complimentary.click()
@@ -167,6 +178,7 @@ class BookslotEventInfoPage(BasePage):
         self.button_complimentary_book.click()
         return self
 
+    @log_function(log_timing=True)
     def select_event_by_name(self, event_name: str):
         """
         Select any event type by button name
@@ -177,6 +189,7 @@ class BookslotEventInfoPage(BasePage):
         self.page.get_by_role("button", name=event_name).click()
         return self
 
+    @log_function(log_timing=True)
     def is_event_button_visible(self, event_name: str) -> bool:
         """
         Check if an event button is visible
@@ -189,9 +202,11 @@ class BookslotEventInfoPage(BasePage):
         """
         try:
             return self.page.get_by_role("button", name=event_name).is_visible()
-        except:
+        except Exception as e:
+            logger.error(f"Error checking event button visibility for '{event_name}': {e}")
             return False
 
+    @log_function(log_timing=True)
     def proceed_to_next(self):
         """Click Next button"""
         self.button_next.click()
@@ -201,16 +216,20 @@ class BookslotEventInfoPage(BasePage):
     # PAGE-LEVEL CHECKS
     # ===================================================================
 
+    @log_function(log_timing=True)
     def is_page_loaded(self) -> bool:
         """Check if page is loaded"""
         try:
             return self.heading_new_patient.is_visible()
-        except:
+        except Exception as e:
+            logger.error(f"Error checking if event type page is loaded: {e}")
             return False
 
+    @log_function(log_timing=True)
     def is_callback_confirmed(self) -> bool:
         """Check if callback request was confirmed"""
         try:
             return self.text_callback_confirmation.is_visible()
-        except:
+        except Exception as e:
+            logger.error(f"Error checking callback confirmation: {e}")
             return False

@@ -23,8 +23,13 @@ Does NOT contain:
 ❌ Complete test flows
 """
 
+import logging
+
 from framework.ui.base_page import BasePage
 from framework.core.smart_actions import SmartActions
+from framework.observability import log_function, log_async_function
+
+logger = logging.getLogger(__name__)
 
 
 class BookslotWebSchedulerPage(BasePage):
@@ -100,6 +105,7 @@ class BookslotWebSchedulerPage(BasePage):
     # NAVIGATION
     # ===================================================================
 
+    @log_function(log_timing=True)
     def navigate(self):
         """Navigate to the scheduler page"""
         url = f"{self.base_url}{self.path}"
@@ -110,11 +116,13 @@ class BookslotWebSchedulerPage(BasePage):
     # ACTIONS
     # ===================================================================
 
+    @log_function(log_timing=True)
     def wait_for_scheduler_ready(self):
         """Wait for scheduler to be ready for interaction"""
         self.actions.wait_for_scheduler(self.page)
         return self
 
+    @log_function(log_timing=True)
     def select_first_available_slot(self):
         """Select first available AM/PM slot using SmartActions"""
         slots = self.time_slots_am_pm.all()
@@ -125,16 +133,19 @@ class BookslotWebSchedulerPage(BasePage):
             self.actions.button_click(self.time_slots_any.first, "Time Slot")
         return self
 
+    @log_function(log_timing=True)
     def select_am_slot(self):
         """Select the first available AM time slot"""
         self.actions.button_click(self.page.locator("button:has-text('AM')").first, "AM Slot")
         return self
 
+    @log_function(log_timing=True)
     def select_pm_slot(self):
         """Select the first available PM time slot"""
         self.actions.button_click(self.page.locator("button:has-text('PM')").first, "PM Slot")
         return self
 
+    @log_function(log_timing=True)
     def select_specific_slot(self, slot_text: str):
         """Select a specific time slot by text (e.g., '06:00 AM')"""
         self.actions.button_click(
@@ -142,11 +153,13 @@ class BookslotWebSchedulerPage(BasePage):
         )
         return self
 
+    @log_function(log_timing=True)
     def select_6am_slot(self):
         """Select 6:00 AM slot specifically"""
         self.actions.button_click(self.specific_slot_6am, "6:00 AM Slot")
         return self
 
+    @log_function(log_timing=True)
     def select_am_or_pm_slot(self, slot_type: str):
         """
         Select first available AM or PM slot
@@ -159,6 +172,7 @@ class BookslotWebSchedulerPage(BasePage):
         )
         return self
 
+    @log_function(log_timing=True)
     def is_am_or_pm_slot_visible(self, slot_type: str) -> bool:
         """
         Check if AM or PM slot is visible
@@ -171,27 +185,33 @@ class BookslotWebSchedulerPage(BasePage):
         """
         try:
             return self.page.locator(f"button:has-text('{slot_type}')").first.is_visible()
-        except:
+        except Exception as e:
+            logger.error(f"Error checking slot visibility for '{slot_type}': {e}")
             return False
 
+    @log_function(log_timing=True)
     def get_am_slots_count(self) -> int:
         """Get count of AM slots"""
         return self.page.locator("button:has-text('AM')").count()
 
+    @log_function(log_timing=True)
     def get_pm_slots_count(self) -> int:
         """Get count of PM slots"""
         return self.page.locator("button:has-text('PM')").count()
 
+    @log_function(log_timing=True)
     def confirm_slot(self):
         """Confirm the selected time slot"""
         self.actions.button_click(self.text_request_appointment, "Confirm Slot")
         return self
 
+    @log_function(log_timing=True)
     def proceed_to_next(self):
         """Click Next button"""
         self.actions.button_click(self.button_next, "Next")
         return self
 
+    @log_function(log_timing=True)
     def click_next(self):
         """Click Next button to proceed after selecting time slot (alias for proceed_to_next)"""
         return self.proceed_to_next()
@@ -200,16 +220,20 @@ class BookslotWebSchedulerPage(BasePage):
     # PAGE-LEVEL CHECKS
     # ===================================================================
 
+    @log_function(log_timing=True)
     def is_scheduler_loaded(self) -> bool:
         """Check if scheduler calendar is loaded (no wait logic)"""
         try:
             return self.time_slots_am_pm.is_visible()
-        except:
+        except Exception as e:
+            logger.error(f"Error checking if scheduler is loaded: {e}")
             return False
 
+    @log_function(log_timing=True)
     def are_slots_available(self) -> bool:
         """Check if time slots are available"""
         try:
             return self.time_slots_am_pm.count() > 0 or self.time_slots_any.count() > 0
-        except:
+        except Exception as e:
+            logger.error(f"Error checking slot availability: {e}")
             return False

@@ -9,6 +9,7 @@ from functools import wraps
 from typing import Any, Callable, Optional
 
 from utils.logger import get_logger
+from framework.observability.universal_logger import log_function
 
 try:
     from config.settings import (
@@ -19,15 +20,19 @@ try:
     )
 except ImportError:
     # Fallback if settings not available
+    @log_function(log_args=False)
     def should_run_api_validation() -> bool:
         return True
 
+    @log_function(log_args=False)
     def should_run_db_validation() -> bool:
         return True
 
+    @log_function(log_args=False)
     def get_enabled_components() -> list:
         return ["ui", "api", "database"]
 
+    @log_function(log_args=False)
     def get_execution_mode() -> str:
         return "ui_api_db"
 
@@ -35,6 +40,7 @@ except ImportError:
 logger = get_logger(__name__)
 
 
+@log_function(log_args=False, log_result=False)
 def run_api_validation(func: Callable) -> Callable:
     """
     Decorator to conditionally run API validation
@@ -59,6 +65,7 @@ def run_api_validation(func: Callable) -> Callable:
     return wrapper
 
 
+@log_function(log_args=False, log_result=False)
 def run_db_validation(func: Callable) -> Callable:
     """
     Decorator to conditionally run database validation
@@ -83,6 +90,7 @@ def run_db_validation(func: Callable) -> Callable:
     return wrapper
 
 
+@log_function(log_args=False, log_result=False)
 def skip_if_api_disabled(func: Callable) -> Callable:
     """
     Decorator to skip entire test if API validation is disabled
@@ -105,6 +113,7 @@ def skip_if_api_disabled(func: Callable) -> Callable:
     return wrapper
 
 
+@log_function(log_args=False, log_result=False)
 def skip_if_db_disabled(func: Callable) -> Callable:
     """
     Decorator to skip entire test if database validation is disabled
@@ -127,6 +136,7 @@ def skip_if_db_disabled(func: Callable) -> Callable:
     return wrapper
 
 
+@log_function(log_args=True, log_result=True)
 def is_component_enabled(component: str) -> bool:
     """
     Check if a specific component is enabled
@@ -140,6 +150,7 @@ def is_component_enabled(component: str) -> bool:
     return component in get_enabled_components()
 
 
+@log_function(log_result=True)
 def get_active_components() -> str:
     """
     Get a formatted string of active components
@@ -159,6 +170,7 @@ def get_active_components() -> str:
         return " + ".join([c.upper() for c in components])
 
 
+@log_function()
 def log_execution_mode():
     """Log current execution mode"""
     mode = get_execution_mode()
@@ -208,11 +220,13 @@ class ConditionalExecution:
 
 
 # Convenience functions for test code
+@log_function(log_args=False, log_result=True)
 def api_enabled() -> bool:
     """Check if API validation is enabled (shorter alias)"""
     return should_run_api_validation()
 
 
+@log_function(log_args=False, log_result=True)
 def db_enabled() -> bool:
     """Check if database validation is enabled (shorter alias)"""
     return should_run_db_validation()

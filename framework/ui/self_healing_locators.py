@@ -83,7 +83,7 @@ class SelfHealingLocators:
                 )
 
                 return element
-            except:
+            except Exception:
                 continue
 
         # If still not found, raise exception

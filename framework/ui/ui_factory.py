@@ -133,7 +133,7 @@ class UIFactory:
                 try:
                     # Clean up failed engine
                     engine.stop()
-                except:
+                except Exception:
                     pass
 
                 # Create Selenium engine for fallback
@@ -158,7 +158,7 @@ class UIFactory:
                 finally:
                     try:
                         selenium_engine.stop()
-                    except:
+                    except Exception:
                         pass
             else:
                 result["final_status"] = "failed"
@@ -167,7 +167,7 @@ class UIFactory:
         finally:
             try:
                 engine.stop()
-            except:
+            except Exception:
                 pass
 
         return result

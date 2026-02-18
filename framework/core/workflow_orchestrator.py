@@ -17,6 +17,7 @@ from typing import Any, Callable, Dict, List, Optional, Union
 
 from framework.auth.auth_service import AuthenticationService
 from framework.core.session_manager import SessionData, SessionManager
+from framework.observability import log_function, log_async_function
 
 logger = logging.getLogger(__name__)
 
@@ -151,6 +152,7 @@ class WorkflowOrchestrator:
     # WORKFLOW DEFINITION
     # ========================================================================
 
+    @log_function(log_timing=True)
     def define_workflow(
         self, name: str, description: str = "", metadata: Optional[Dict[str, Any]] = None
     ) -> Workflow:
@@ -170,6 +172,7 @@ class WorkflowOrchestrator:
         self.logger.info(f"📋 Workflow defined: {name}")
         return workflow
 
+    @log_function(log_timing=True)
     def add_step(
         self,
         workflow: Workflow,
@@ -226,6 +229,7 @@ class WorkflowOrchestrator:
     # WORKFLOW EXECUTION (SYNC)
     # ========================================================================
 
+    @log_function(log_timing=True)
     def execute_workflow_sync(self, workflow: Workflow, engines: Dict[str, Any]) -> bool:
         """
         Execute workflow synchronously
@@ -363,6 +367,7 @@ class WorkflowOrchestrator:
     # WORKFLOW EXECUTION (ASYNC)
     # ========================================================================
 
+    @log_async_function(log_timing=True)
     async def execute_workflow_async(self, workflow: Workflow, engines: Dict[str, Any]) -> bool:
         """
         Execute workflow asynchronously
@@ -461,6 +466,7 @@ class WorkflowOrchestrator:
     # WORKFLOW QUERIES
     # ========================================================================
 
+    @log_function(log_timing=True)
     def get_workflow_status(self, workflow: Workflow) -> Dict[str, Any]:
         """Get workflow execution status"""
         total_steps = len(workflow.steps)
@@ -476,6 +482,7 @@ class WorkflowOrchestrator:
             "success_rate": (completed_steps / total_steps * 100) if total_steps > 0 else 0,
         }
 
+    @log_function(log_timing=True)
     def get_step_details(self, step: WorkflowStep) -> Dict[str, Any]:
         """Get detailed step information"""
         duration = None
@@ -491,6 +498,7 @@ class WorkflowOrchestrator:
             "metadata": step.metadata,
         }
 
+    @log_function(log_timing=True)
     def reset_workflow(self, workflow: Workflow) -> None:
         """Reset workflow to initial state"""
         for step in workflow.steps:

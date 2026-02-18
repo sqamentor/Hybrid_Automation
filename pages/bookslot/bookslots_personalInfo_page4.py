@@ -23,7 +23,12 @@ Does NOT contain:
 ❌ Complete test flows
 """
 
+import logging
+
 from framework.ui.base_page import BasePage
+from framework.observability import log_function, log_async_function
+
+logger = logging.getLogger(__name__)
 
 
 class BookslotPersonalInfoPage(BasePage):
@@ -111,6 +116,7 @@ class BookslotPersonalInfoPage(BasePage):
     # NAVIGATION
     # ===================================================================
     
+    @log_function(log_timing=True)
     def navigate(self):
         """Navigate to the personal info page"""
         url = f"{self.base_url}{self.path}"
@@ -121,53 +127,62 @@ class BookslotPersonalInfoPage(BasePage):
     # ACTIONS
     # ===================================================================
     
+    @log_function(log_timing=True)
     def select_gender_male(self):
         """Select MALE gender"""
         self.combobox_gender.click()
         self.option_male.click()
         return self
     
+    @log_function(log_timing=True)
     def select_gender_female(self):
         """Select FEMALE gender"""
         self.combobox_gender.click()
         self.option_female.click()
         return self
     
+    @log_function(log_timing=True)
     def fill_dob(self, dob: str):
         """Fill date of birth (format: MM/DD/YYYY)"""
         self.combobox_dob.click()
         self.combobox_dob.fill(dob)
         return self
     
+    @log_function(log_timing=True)
     def fill_address(self, address: str):
         """Fill address field"""
         self.textbox_address.click()
         self.textbox_address.fill(address)
         return self
     
+    @log_function(log_timing=True)
     def fill_city(self, city: str):
         """Fill city field"""
         self.textbox_city.click()
         self.textbox_city.fill(city)
         return self
     
+    @log_function(log_timing=True)
     def fill_state(self, state: str):
         """Fill state field"""
         self.textbox_state.click()
         self.textbox_state.fill(state)
         return self
     
+    @log_function(log_timing=True)
     def fill_zip(self, zip_code: str):
         """Fill zip code field"""
         self.textbox_zip.click()
         self.textbox_zip.fill(zip_code)
         return self
     
+    @log_function(log_timing=True)
     def select_address_autocomplete(self):
         """Click first address autocomplete suggestion"""
         self.autocomplete_suggestions.first.click()
         return self
     
+    @log_function(log_timing=True)
     def fill_address_with_autocomplete(self, zip_code: str):
         """
         Fill address using zip code and select autocomplete
@@ -180,36 +195,44 @@ class BookslotPersonalInfoPage(BasePage):
             self.select_address_autocomplete()
         return self
     
+    @log_function(log_timing=True)
     def get_dob_value(self) -> str:
         """Get current DOB field value"""
         return self.combobox_dob.input_value()
     
+    @log_function(log_timing=True)
     def get_address_value(self) -> str:
         """Get current address field value"""
         return self.textbox_address.input_value()
     
+    @log_function(log_timing=True)
     def get_city_value(self) -> str:
         """Get current city field value"""
         return self.textbox_city.input_value()
     
+    @log_function(log_timing=True)
     def get_state_value(self) -> str:
         """Get current state field value"""
         return self.textbox_state.input_value()
     
+    @log_function(log_timing=True)
     def get_zip_value(self) -> str:
         """Get current zip field value"""
         return self.textbox_zip.input_value()
     
+    @log_function(log_timing=True)
     def clear_address(self):
         """Clear address field"""
         self.textbox_address.clear()
         return self
     
+    @log_function(log_timing=True)
     def clear_city(self):
         """Clear city field"""
         self.textbox_city.clear()
         return self
     
+    @log_function(log_timing=True)
     def proceed_to_next(self):
         """Click Next button"""
         self.button_next.click()
@@ -219,23 +242,29 @@ class BookslotPersonalInfoPage(BasePage):
     # PAGE-LEVEL CHECKS
     # ===================================================================
     
+    @log_function(log_timing=True)
     def is_page_loaded(self) -> bool:
         """Check if page is loaded"""
         try:
             return self.combobox_gender.is_visible()
-        except:
+        except Exception as e:
+            logger.error(f"Error checking if personal info page is loaded: {e}")
             return False
     
+    @log_function(log_timing=True)
     def is_gender_field_visible(self) -> bool:
         """Check if gender field is visible (no wait logic)"""
         try:
             return self.combobox_gender.is_visible()
-        except:
+        except Exception as e:
+            logger.error(f"Error checking gender field visibility: {e}")
             return False
     
+    @log_function(log_timing=True)
     def is_autocomplete_visible(self) -> bool:
         """Check if address autocomplete suggestions are visible"""
         try:
             return self.autocomplete_suggestions.is_visible()
-        except:
+        except Exception as e:
+            logger.error(f"Error checking autocomplete visibility: {e}")
             return False

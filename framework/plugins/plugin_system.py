@@ -16,7 +16,14 @@ from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Type
-
+# Self-instrumentation for plugin system
+try:
+    from framework.observability.universal_logger import log_function
+except ImportError:
+    def log_function(*args, **kwargs):
+        def decorator(func):
+            return func
+        return decorator
 
 class PluginStatus(str, Enum):
     """Plugin lifecycle status"""
@@ -224,6 +231,7 @@ class PluginManager:
         self._hooks: Dict[str, List[PluginHookData]] = {}
         self._execution_order: List[str] = []
 
+    @log_function(log_args=True, log_result=True, log_timing=True)
     def discover_plugins(self, directory: Optional[str] = None) -> List[Path]:
         """
         Discover plugin files in plugin directory.
@@ -246,6 +254,7 @@ class PluginManager:
 
         return plugin_files
 
+    @log_function(log_args=True, log_result=True, log_timing=True)
     def load_plugin(self, plugin_path: Path) -> Optional[IPlugin]:
         """
         Load plugin from file.
@@ -279,6 +288,7 @@ class PluginManager:
 
         return None
 
+    @log_function(log_result=True, log_timing=True)
     def load_all_plugins(self) -> int:
         """
         Load all plugins from plugin directory.
@@ -298,6 +308,7 @@ class PluginManager:
 
         return loaded_count
 
+    @log_function(log_args=True)
     def load_plugin_instance(self, plugin: IPlugin) -> None:
         """
         Load a plugin instance directly.
@@ -332,6 +343,7 @@ class PluginManager:
         if isinstance(plugin, BasePlugin):
             self._discover_plugin_hooks(plugin)
 
+    @log_function(log_args=True, log_timing=True)
     def _discover_plugin_hooks(self, plugin: BasePlugin) -> None:
         """Discover hooks decorated with @PluginHook in plugin methods"""
         for attr_name in dir(plugin):
@@ -348,6 +360,7 @@ class PluginManager:
                 )
                 self.register_hook(hook_data)
 
+    @log_function(log_args=True, log_result=True)
     def unload_plugin(self, plugin_name: str) -> bool:
         """
         Unload a plugin.
@@ -376,6 +389,7 @@ class PluginManager:
 
         return True
 
+    @log_function(log_args=True, log_result=True)
     def enable_plugin(self, plugin_name: str) -> bool:
         """
         Enable a loaded plugin.
@@ -403,6 +417,7 @@ class PluginManager:
             print(f"Failed to enable plugin {plugin_name}: {e}")
             return False
 
+    @log_function(log_args=True, log_result=True)
     def disable_plugin(self, plugin_name: str) -> bool:
         """
         Disable an enabled plugin.
@@ -429,6 +444,7 @@ class PluginManager:
             print(f"Failed to disable plugin {plugin_name}: {e}")
             return False
 
+    @log_function(log_args=True, log_result=True)
     def unload_plugin(self, plugin_name: str) -> bool:
         """
         Unload a plugin.
@@ -455,6 +471,7 @@ class PluginManager:
             print(f"Failed to unload plugin {plugin_name}: {e}")
             return False
 
+    @log_function(log_args=True)
     def register_hook(self, hook: PluginHookData) -> None:
         """Register a hook point"""
         if hook.name not in self._hooks:
@@ -469,6 +486,7 @@ class PluginManager:
             reverse=True,
         )
 
+    @log_async_function(log_args=True, log_result=True, log_timing=True)
     async def execute_hooks(self, hook_name: str, *args, **kwargs) -> List[Any]:
         """
         Execute all registered hooks for a hook point.
@@ -506,28 +524,34 @@ class PluginManager:
 
         return results
 
+    @log_async_function(log_args=True, log_result=True)
     async def execute_hook(self, hook_name: str, *args, **kwargs) -> List[Any]:
         """Alias for execute_hooks"""
         return await self.execute_hooks(hook_name, *args, **kwargs)
 
+    @log_function(log_args=True, log_result=True)
     def get_plugin(self, plugin_name: str) -> Optional[IPlugin]:
         """Get plugin by name"""
         return self._plugins.get(plugin_name)
 
+    @log_function(log_result=True)
     def get_all_plugins(self) -> List[IPlugin]:
         """Get all loaded plugins"""
         return list(self._plugins.values())
 
+    @log_function(log_result=True)
     def get_loaded_plugins(self) -> List[IPlugin]:
         """Alias for get_all_plugins"""
         return self.get_all_plugins()
 
+    @log_function(log_result=True)
     def get_enabled_plugins(self) -> List[IPlugin]:
         """Get all enabled plugins"""
         return [
             plugin for plugin in self._plugins.values() if plugin.status == PluginStatus.ENABLED
         ]
 
+    @log_function(log_timing=True)
     def _resolve_dependencies(self) -> None:
         """Resolve plugin dependencies and determine execution order"""
         # Simple topological sort for dependency resolution
@@ -561,6 +585,7 @@ class PluginManager:
 _plugin_manager: Optional[PluginManager] = None
 
 
+@log_function(log_args=True, log_result=True)
 def get_plugin_manager(plugin_dir: Optional[Path] = None) -> PluginManager:
     """Get global plugin manager instance"""
     global _plugin_manager

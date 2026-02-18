@@ -7,6 +7,7 @@ All configs use Pydantic V2 for runtime validation and serialization.
 
 from __future__ import annotations
 
+import logging
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
@@ -20,6 +21,10 @@ from pydantic import (
     model_validator,
 )
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from framework.observability.universal_logger import log_function
+
+logger = logging.getLogger(__name__)
 
 
 class BrowserEngine(str, Enum):
@@ -97,6 +102,7 @@ class BrowserConfig(BaseModel):
 
     @field_validator("timeout")
     @classmethod
+    @log_function(log_args=True, log_result=True)
     def validate_timeout(cls, v: int) -> int:
         """Ensure timeout is reasonable"""
         if v < 1000:
@@ -105,6 +111,7 @@ class BrowserConfig(BaseModel):
 
     @field_validator("viewport_width")
     @classmethod
+    @log_function(log_args=True, log_result=True)
     def validate_viewport_width(cls, v: int) -> int:
         """Ensure viewport width is reasonable"""
         if v < 320:
@@ -167,6 +174,7 @@ class APIConfig(BaseModel):
 
     @field_validator("base_url")
     @classmethod
+    @log_function(log_args=True, log_result=True)
     def validate_base_url(cls, v: Union[HttpUrl, str]) -> str:
         """Ensure base_url is properly formatted"""
         url_str = str(v)
@@ -210,6 +218,7 @@ class ProjectConfig(BaseModel):
     )
 
     @model_validator(mode="after")
+    @log_function(log_timing=True)
     def validate_default_environment_exists(self) -> ProjectConfig:
         """Ensure default environment exists in environments dict (if environments are defined)"""
         # Only validate if environments are defined
@@ -357,6 +366,7 @@ class FrameworkConfig(BaseSettings):
     enable_ai_features: bool = Field(default=False, description="Enable AI-powered features")
 
     @model_validator(mode="after")
+    @log_function(log_timing=True)
     def create_directories(self) -> FrameworkConfig:
         """Ensure all required directories exist"""
         for dir_path in [self.log_dir, self.report_dir, self.screenshot_dir, self.video_dir]:
@@ -381,10 +391,12 @@ class GlobalSettings(BaseModel):
     projects: Dict[str, ProjectConfig] = Field(default_factory=dict)
     engine_matrix: EngineDecisionMatrix = Field(default_factory=EngineDecisionMatrix)
 
+    @log_function(log_args=True, log_result=True)
     def get_project(self, name: str) -> Optional[ProjectConfig]:
         """Get project configuration by name"""
         return self.projects.get(name)
 
+    @log_function(log_args=True, log_result=True)
     def get_environment(
         self, project_name: str, env_name: Optional[str] = None
     ) -> Optional[EnvironmentConfig]:

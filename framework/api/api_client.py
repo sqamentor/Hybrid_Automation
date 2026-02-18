@@ -9,6 +9,7 @@ from typing import Any, Dict, Optional
 
 import requests
 
+from framework.observability import log_function
 from utils.logger import get_audit_logger, get_logger
 
 logger = get_logger(__name__)
@@ -23,6 +24,7 @@ class APIClient:
         self.session = requests.Session()
         self.last_response: Optional[requests.Response] = None
 
+    @log_function(log_args=True, log_result=False, log_timing=True, mask_sensitive=True)
     def request(
         self,
         method: str,
@@ -63,7 +65,8 @@ class APIClient:
             response_body = None
             try:
                 response_body = response.json() if response.content else None
-            except:
+            except (ValueError, KeyError, TypeError) as e:
+                logger.debug(f"Response is not JSON: {str(e)}")
                 response_body = response.text[:500]  # First 500 chars if not JSON
 
             audit_logger.log_api_call(
@@ -89,14 +92,17 @@ class APIClient:
             )
             raise
 
+    @log_function(log_args=True, log_timing=True)
     def get(self, endpoint: str, **kwargs) -> requests.Response:
         """GET request"""
         return self.request("GET", endpoint, **kwargs)
 
+    @log_function(log_args=True, log_timing=True, mask_sensitive=True)
     def post(self, endpoint: str, **kwargs) -> requests.Response:
         """POST request"""
         return self.request("POST", endpoint, **kwargs)
 
+    @log_function(log_args=True, log_timing=True, mask_sensitive=True)
     def put(self, endpoint: str, **kwargs) -> requests.Response:
         """PUT request"""
         return self.request("PUT", endpoint, **kwargs)
@@ -105,6 +111,7 @@ class APIClient:
         """PATCH request"""
         return self.request("PATCH", endpoint, **kwargs)
 
+    @log_function(log_args=True, log_timing=True, mask_sensitive=True)
     def delete(self, endpoint: str, **kwargs) -> requests.Response:
         """DELETE request"""
         return self.request("DELETE", endpoint, **kwargs)

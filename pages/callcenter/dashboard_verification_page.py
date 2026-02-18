@@ -8,7 +8,12 @@ Author: Principal QA Architect
 Date: January 31, 2026
 """
 
+import logging
+
 from framework.ui.base_page import BasePage
+from framework.observability import log_function, log_async_function
+
+logger = logging.getLogger(__name__)
 
 
 class CallCenterDashboardVerificationPage(BasePage):
@@ -28,6 +33,7 @@ class CallCenterDashboardVerificationPage(BasePage):
         # Selectors
         self.user_menu_selector = "[data-testid='user-menu'], .user-profile, #user-menu"
     
+    @log_function(log_timing=True)
     def navigate_to(self, url: str) -> 'CallCenterDashboardVerificationPage':
         """
         Navigate to CallCenter URL
@@ -42,6 +48,7 @@ class CallCenterDashboardVerificationPage(BasePage):
         self.page.goto(url, wait_until='networkidle')
         return self
     
+    @log_function(log_timing=True)
     def get_current_url(self) -> str:
         """
         Get current page URL
@@ -51,6 +58,7 @@ class CallCenterDashboardVerificationPage(BasePage):
         """
         return self.page.url
     
+    @log_function(log_timing=True)
     def is_authenticated(self) -> bool:
         """
         Check if user is authenticated (not redirected to login)
@@ -61,6 +69,7 @@ class CallCenterDashboardVerificationPage(BasePage):
         current_url = self.get_current_url()
         return 'login' not in current_url.lower()
     
+    @log_function(log_timing=True)
     def has_user_menu(self) -> bool:
         """
         Check if user menu is visible (authentication indicator)
@@ -71,9 +80,11 @@ class CallCenterDashboardVerificationPage(BasePage):
         try:
             user_element = self.page.query_selector(self.user_menu_selector)
             return user_element is not None
-        except Exception:
+        except Exception as e:
+            logger.error(f"Error checking user menu visibility: {e}")
             return False
     
+    @log_function(log_timing=True)
     def get_page_title(self) -> str:
         """
         Get current page title
@@ -83,6 +94,7 @@ class CallCenterDashboardVerificationPage(BasePage):
         """
         return self.page.title()
     
+    @log_function(log_timing=True)
     def verify_authenticated_access(self) -> bool:
         """
         Verify authenticated access to CallCenter dashboard
@@ -101,9 +113,11 @@ class CallCenterDashboardVerificationPage(BasePage):
         try:
             self.page.wait_for_selector(self.user_menu_selector, timeout=5000)
             return True
-        except Exception:
+        except Exception as e:
+            logger.error(f"Error verifying dashboard access: {e}")
             return False
     
+    @log_function(log_timing=True)
     def get_verification_details(self) -> dict:
         """
         Get comprehensive verification details

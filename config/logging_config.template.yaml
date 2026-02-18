@@ -1,0 +1,35 @@
+environments:
+  development:
+    console_output: true
+    file_output: true
+    json_format: false
+    log_level: DEBUG
+    retention:
+      app_logs_days: 7
+      audit_logs_days: 30
+      max_file_size_mb: 50
+    sampling:
+      enabled: false
+      sample_rate: 1.0
+    security:
+      log_auth_attempts: true
+      mask_sensitive_data: true
+    siem:
+      enabled: false
+      provider: elk
+  production:
+    console_output: false
+    file_output: true
+    json_format: true
+    log_level: WARNING
+    retention:
+      app_logs_days: 90
+      audit_logs_days: 365
+      max_file_size_mb: 100
+    sampling:
+      enabled: true
+      sample_rate: 0.1
+    siem:
+      enabled: true
+      endpoint: https://your-siem-endpoint.com
+      provider: datadog

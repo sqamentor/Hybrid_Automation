@@ -357,7 +357,7 @@ class AuthenticationService:
                 try:
                     username_field = wait.until(EC.presence_of_element_located((By.NAME, selector)))
                     break
-                except:
+                except Exception:
                     continue
 
             if not username_field:
@@ -380,7 +380,7 @@ class AuthenticationService:
                 try:
                     login_btn = driver.find_element(By.XPATH, xpath)
                     break
-                except:
+                except Exception:
                     continue
 
             if not login_btn:

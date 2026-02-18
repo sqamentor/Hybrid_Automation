@@ -14,6 +14,7 @@ from typing import Any, List, Optional, Union
 from playwright.async_api import Locator, Page, async_playwright
 
 from framework.models.test_models import TestContext
+from framework.observability import log_async_function
 from framework.protocols.automation_protocols import ActionPerformer
 
 
@@ -52,20 +53,7 @@ class AsyncSmartActions:
             return self.page.locator(selector)
         return selector
 
-    async def _human_delay(self, action_type: str) -> None:
-        """Add human-like delay if enabled"""
-        if self.enable_delays:
-            delay = random.randint(self.min_delay_ms, self.max_delay_ms) / 1000
-            await asyncio.sleep(delay)
-
-    async def _human_delay_before(self) -> None:
-        """Delay before action"""
-        await self._human_delay("before")
-
-    async def _human_delay_after(self, action_type: str) -> None:
-        """Delay after action"""
-        await self._human_delay(action_type)
-
+    @log_async_function(log_args=True, log_timing=True)
     async def click(
         self,
         selector: Union[str, Locator],
@@ -95,6 +83,7 @@ class AsyncSmartActions:
         if delay_after and self.enable_delays:
             await self._human_delay_after("click")
 
+    @log_async_function(log_args=True, log_timing=True, mask_sensitive=True)
     async def fill(
         self,
         selector: Union[str, Locator],
@@ -137,6 +126,7 @@ class AsyncSmartActions:
         if self.enable_delays:
             await self._human_delay_after("fill")
 
+    @log_async_function(log_timing=True)
     async def select(
         self,
         selector: Union[str, Locator],
@@ -147,6 +137,7 @@ class AsyncSmartActions:
         """Alias for select_dropdown"""
         await self.select_dropdown(selector, value, by, description)
 
+    @log_async_function(log_args=True, log_timing=True)
     async def select_dropdown(
         self,
         selector: Union[str, Locator],
@@ -183,6 +174,7 @@ class AsyncSmartActions:
         if self.enable_delays:
             await self._human_delay_after("select")
 
+    @log_async_function(log_timing=True)
     async def hover(self, selector: Union[str, Locator]) -> None:
         """
         Hover over element async.
@@ -201,6 +193,7 @@ class AsyncSmartActions:
         if self.enable_delays:
             await self._human_delay_after("hover")
 
+    @log_async_function(log_timing=True)
     async def wait_for_element(self, selector: Union[str, Locator], state: str = "visible") -> None:
         """
         Wait for element state async.
@@ -220,40 +213,48 @@ class AsyncSmartActions:
         locator = self._get_locator(selector)
         await locator.wait_for(state=state)
 
+    @log_async_function(log_timing=True)
     async def get_text(self, selector: Union[str, Locator]) -> str:
         """Get element text async"""
         locator = self._get_locator(selector)
         return await locator.text_content() or ""
 
+    @log_async_function(log_timing=True)
     async def get_value(self, selector: Union[str, Locator]) -> str:
         """Get input value async"""
         locator = self._get_locator(selector)
         return await locator.input_value()
 
+    @log_async_function(log_timing=True)
     async def is_visible(self, selector: Union[str, Locator]) -> bool:
         """Check if element is visible async"""
         locator = self._get_locator(selector)
         return await locator.is_visible()
 
+    @log_async_function(log_timing=True)
     async def is_enabled(self, locator: Locator) -> bool:
         """Check if element is enabled async"""
         return await locator.is_enabled()
 
+    @log_async_function(log_timing=True)
     async def navigate(self, url: str, wait_until: str = "load") -> None:
         """Navigate to URL async"""
         await self.page.goto(url, wait_until=wait_until)
 
+    @log_async_function(log_timing=True)
     async def wait_for_selector(
         self, selector: str, timeout: Optional[int] = None, state: str = "visible"
     ) -> None:
         """Wait for selector to be in specified state"""
         await self.page.wait_for_selector(selector, timeout=timeout, state=state)
 
+    @log_async_function(log_timing=True)
     async def get_attribute(self, selector: Union[str, Locator], attribute: str) -> Optional[str]:
         """Get element attribute async"""
         locator = self._get_locator(selector)
         return await locator.get_attribute(attribute)
 
+    @log_async_function(log_timing=True)
     async def screenshot(
         self, locator: Optional[Locator] = None, path: Optional[str] = None, full_page: bool = False
     ) -> bytes:
@@ -272,10 +273,12 @@ class AsyncSmartActions:
             return await locator.screenshot(path=path)
         return await self.page.screenshot(path=path, full_page=full_page)
 
+    @log_async_function(log_timing=True)
     async def execute_script(self, script: str, *args) -> Any:
         """Execute JavaScript async"""
         return await self.page.evaluate(script, *args)
 
+    @log_async_function(log_timing=True)
     async def wait_for_navigation(self, wait_until: str = "load") -> None:
         """
         Wait for page navigation async.
@@ -353,6 +356,7 @@ class AsyncPageFactory:
         if self._playwright:
             await self._playwright.stop()
 
+    @log_async_function(log_timing=True)
     async def create_page(
         self,
         browser_type: str = "chromium",
@@ -387,6 +391,7 @@ class AsyncPageFactory:
 
 
 # Helper function for creating instances
+@log_function(log_timing=True)
 def create_async_smart_actions(
     page: Page, test_context: Optional[TestContext] = None, enable_delays: bool = True
 ) -> AsyncSmartActions:

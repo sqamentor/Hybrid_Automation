@@ -23,7 +23,12 @@ Does NOT contain:
 ❌ Complete test flows
 """
 
+import logging
+
 from framework.ui.base_page import BasePage
+from framework.observability import log_function, log_async_function
+
+logger = logging.getLogger(__name__)
 
 
 class BookslotReferralPage(BasePage):
@@ -95,6 +100,7 @@ class BookslotReferralPage(BasePage):
     # NAVIGATION
     # ===================================================================
     
+    @log_function(log_timing=True)
     def navigate(self):
         """Navigate to the referral page"""
         url = f"{self.base_url}{self.path}"
@@ -105,81 +111,99 @@ class BookslotReferralPage(BasePage):
     # ACTIONS
     # ===================================================================
     
+    @log_function(log_timing=True)
     def select_physician(self):
         """Select Referred by physician"""
         self.heading_question.click()
         self.button_physician.click()
         return self
     
+    @log_function(log_timing=True)
     def select_online(self):
         """Select Online search"""
         self.radio_online.click()
         return self
     
+    @log_function(log_timing=True)
     def select_social_media(self):
         """Select Social media"""
         self.radio_social_media.click()
         return self
     
+    @log_function(log_timing=True)
     def select_friend_family(self):
         """Select Friend or family"""
         self.radio_friend_family.click()
         return self
     
+    @log_function(log_timing=True)
     def select_advertisement(self):
         """Select Advertisement"""
         self.radio_advertisement.click()
         return self
     
+    @log_function(log_timing=True)
     def proceed_to_next(self):
         """Click Next button"""
         self.button_next.click()
         return self
     
+    @log_function(log_timing=True)
     def is_online_checked(self) -> bool:
         """Check if online search radio is checked"""
         try:
             return self.radio_online.is_checked()
-        except:
+        except Exception as e:
+            logger.error(f"Error checking online radio state: {e}")
             return False
     
+    @log_function(log_timing=True)
     def is_physician_checked(self) -> bool:
         """Check if physician radio is checked"""
         try:
             return self.button_physician.is_checked()
-        except:
+        except Exception as e:
+            logger.error(f"Error checking physician radio state: {e}")
             return False
     
+    @log_function(log_timing=True)
     def is_social_media_checked(self) -> bool:
         """Check if social media radio is checked"""
         try:
             return self.radio_social_media.is_checked()
-        except:
+        except Exception as e:
+            logger.error(f"Error checking social media radio state: {e}")
             return False
     
+    @log_function(log_timing=True)
     def is_friend_family_checked(self) -> bool:
         """Check if friend/family radio is checked"""
         try:
             return self.radio_friend_family.is_checked()
-        except:
+        except Exception as e:
+            logger.error(f"Error checking friend/family radio state: {e}")
             return False
     
     # ===================================================================
     # PAGE-LEVEL CHECKS
     # ===================================================================
     
+    @log_function(log_timing=True)
     def is_page_loaded(self) -> bool:
         """Check if page is loaded"""
         try:
             return self.heading_question.is_visible()
-        except:
+        except Exception as e:
+            logger.error(f"Error checking if referral page is loaded: {e}")
             return False
     
+    @log_function(log_timing=True)
     def is_question_visible(self) -> bool:
         """Check if referral question is visible (no wait logic)"""
         try:
             return self.heading_question.is_visible()
-        except:
+        except Exception as e:
+            logger.error(f"Error checking referral question visibility: {e}")
             return False
 
 

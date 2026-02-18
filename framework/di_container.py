@@ -8,11 +8,15 @@ Supports singleton, transient, and scoped lifetimes with lazy initialization.
 from __future__ import annotations
 
 import inspect
+import logging
 from contextvars import ContextVar
 from enum import Enum
 from functools import wraps
 from typing import Any, Callable, Dict, Generic, Optional, Type, TypeVar, cast
 
+from framework.observability.universal_logger import log_function
+
+logger = logging.getLogger(__name__)
 T = TypeVar("T")
 
 
@@ -62,6 +66,7 @@ class DIContainer:
         self._singletons: Dict[Type, Any] = {}
         self._scope_context: ContextVar[Dict[Type, Any]] = ContextVar("scope_context", default={})
 
+    @log_function(log_args=True)
     def register(
         self,
         service_type: Type[T],
@@ -98,6 +103,7 @@ class DIContainer:
 
         return self
 
+    @log_function(log_args=True)
     def register_singleton(
         self,
         service_type: Type[T],
@@ -114,6 +120,7 @@ class DIContainer:
             lifetime=Lifetime.SINGLETON,
         )
 
+    @log_function(log_args=True)
     def register_transient(
         self,
         service_type: Type[T],
@@ -128,6 +135,7 @@ class DIContainer:
             lifetime=Lifetime.TRANSIENT,
         )
 
+    @log_function(log_args=True)
     def register_scoped(
         self,
         service_type: Type[T],
@@ -142,6 +150,7 @@ class DIContainer:
             lifetime=Lifetime.SCOPED,
         )
 
+    @log_function(log_args=True, log_result=True, log_timing=True)
     def resolve(self, service_type: Type[T]) -> T:
         """
         Resolve a service from the container.
@@ -171,6 +180,7 @@ class DIContainer:
             case _:
                 raise ValueError(f"Unknown lifetime: {descriptor.lifetime}")
 
+    @log_function(log_timing=True)
     def _resolve_singleton(self, descriptor: ServiceDescriptor[T]) -> T:
         """Resolve singleton instance"""
         if descriptor.service_type in self._singletons:
@@ -181,6 +191,7 @@ class DIContainer:
         self._singletons[descriptor.service_type] = instance
         return instance
 
+    @log_function(log_timing=True)
     def _resolve_scoped(self, descriptor: ServiceDescriptor[T]) -> T:
         """Resolve scoped instance"""
         scope = self._scope_context.get()
@@ -193,6 +204,7 @@ class DIContainer:
         scope[descriptor.service_type] = instance
         return instance
 
+    @log_function(log_timing=True)
     def _create_instance(self, descriptor: ServiceDescriptor[T]) -> T:
         """Create new instance using factory or constructor"""
         # If instance provided, return it
@@ -209,6 +221,7 @@ class DIContainer:
 
         raise ValueError(f"Cannot create instance of {descriptor.service_type}")
 
+    @log_function(log_timing=True)
     def _invoke_factory(self, factory: Callable[..., T]) -> T:
         """Invoke factory with dependency injection"""
         sig = inspect.signature(factory)
@@ -222,6 +235,7 @@ class DIContainer:
 
         return factory(**kwargs)
 
+    @log_function(log_timing=True)
     def _invoke_constructor(self, cls: Type[T]) -> T:
         """Invoke constructor with dependency injection"""
         sig = inspect.signature(cls.__init__)
@@ -243,14 +257,17 @@ class DIContainer:
 
         return cls(**kwargs)
 
+    @log_function()
     def create_scope(self) -> DIScope:
         """Create a new dependency scope"""
         return DIScope(self)
 
+    @log_function(log_args=True, log_result=True)
     def is_registered(self, service_type: Type) -> bool:
         """Check if service is registered"""
         return service_type in self._services
 
+    @log_function()
     def clear(self) -> None:
         """Clear all registrations and cached instances"""
         self._services.clear()
@@ -268,11 +285,13 @@ class DIScope:
         self._scope_storage: Dict[Type, Any] = {}
         self._token = None
 
+    @log_function()
     def __enter__(self) -> DIScope:
         """Enter scope context"""
         self._token = self.container._scope_context.set(self._scope_storage)
         return self
 
+    @log_function()
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Exit scope context and cleanup"""
         if self._token:
@@ -320,6 +339,7 @@ def inject(container: DIContainer):
 _global_container: Optional[DIContainer] = None
 
 
+@log_function(log_result=True)
 def get_container() -> DIContainer:
     """Get global DI container instance"""
     global _global_container
@@ -328,6 +348,7 @@ def get_container() -> DIContainer:
     return _global_container
 
 
+@log_function()
 def reset_container() -> None:
     """Reset global container (useful for testing)"""
     global _global_container

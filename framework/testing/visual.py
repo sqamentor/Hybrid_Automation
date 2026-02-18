@@ -15,7 +15,18 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 from playwright.async_api import Locator, Page
-
+# Self-instrumentation for visual testing module
+try:
+    from framework.observability.universal_logger import log_function, log_async_function
+except ImportError:
+    def log_function(*args, **kwargs):
+        def decorator(func):
+            return func
+        return decorator
+    def log_async_function(*args, **kwargs):
+        def decorator(func):
+            return func
+        return decorator
 
 @dataclass
 class VisualConfig:
@@ -59,6 +70,7 @@ class VisualTester:
         ```
     """
 
+    @log_function(log_args=True)
     def __init__(self, config: Optional[VisualConfig] = None):
         """
         Initialize visual tester.
@@ -72,6 +84,7 @@ class VisualTester:
         Path(self.config.baseline_dir).mkdir(parents=True, exist_ok=True)
         Path(self.config.diff_dir).mkdir(parents=True, exist_ok=True)
 
+    @log_async_function(log_args=True, log_result=True, log_timing=True)
     async def compare_page(
         self,
         page: Page,
@@ -128,12 +141,15 @@ class VisualTester:
             # Playwright handles comparison internally
             return True
 
-        except AssertionError:
+        except AssertionError as e:
             # Visual mismatch detected
             diff_path = Path(self.config.diff_dir) / f"{name}-diff.png"
             await self._generate_diff(baseline_path, baseline_path, diff_path)
+            import logging
+            logging.getLogger(__name__).warning(f"Visual regression detected for {name}: {e}")
             return False
 
+    @log_async_function(log_args=True, log_result=True, log_timing=True)
     async def compare_element(
         self,
         element: Locator,
@@ -179,11 +195,14 @@ class VisualTester:
             )
             return True
 
-        except AssertionError:
+        except AssertionError as e:
             # Visual mismatch detected
             diff_path = Path(self.config.diff_dir) / f"{name}-diff.png"
+            import logging
+            logging.getLogger(__name__).warning(f\"Element visual regression detected for {name}: {e}\")
             return False
 
+    @log_async_function(log_args=True, log_timing=True)
     async def _generate_diff(
         self, baseline_path: Path, current_path: Path, diff_path: Path
     ) -> None:
@@ -323,6 +342,7 @@ class VisualTester:
                 "error": "Pillow not installed. Install with: pip install Pillow",
             }
 
+    @log_function(log_timing=True)
     def cleanup_diffs(self) -> None:
         """
         Clean up diff directory.
@@ -334,6 +354,7 @@ class VisualTester:
         for file in diff_dir.glob("*.png"):
             file.unlink()
 
+    @log_function(log_result=True)
     def get_baselines(self) -> list:
         """
         Get list of available baselines.
@@ -344,6 +365,7 @@ class VisualTester:
         baseline_dir = Path(self.config.baseline_dir)
         return [f.stem for f in baseline_dir.glob("*.png")]
 
+    @log_function(log_args=True, log_timing=True)
     def export_report(self, output_path: str) -> None:
         """
         Export visual testing report.

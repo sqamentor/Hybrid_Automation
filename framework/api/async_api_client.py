@@ -23,6 +23,8 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
+from framework.observability import log_async_function, log_retry_operation
+
 try:
     import httpx
 except ImportError:
@@ -77,6 +79,7 @@ class AsyncAPIClient:
         ...     print(response.status_code)
     """
 
+    @log_async_function(log_args=True)
     def __init__(
         self,
         base_url: str,
@@ -115,15 +118,18 @@ class AsyncAPIClient:
         self.request_count = 0
         self.total_duration = 0.0
 
+    @log_async_function()
     async def __aenter__(self) -> AsyncAPIClient:
         """Enter async context manager"""
         await self.start()
         return self
 
+    @log_async_function()
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Exit async context manager"""
         await self.close()
 
+    @log_async_function(log_timing=True)
     async def start(self) -> None:
         """Start the HTTP client"""
         if self.client is None:
@@ -136,6 +142,7 @@ class AsyncAPIClient:
             )
             self.logger.info(f"AsyncAPIClient started for {self.base_url}")
 
+    @log_async_function(log_timing=True)
     async def close(self) -> None:
         """Close the HTTP client"""
         if self.client:
@@ -143,14 +150,17 @@ class AsyncAPIClient:
             self.client = None
             self.logger.info("AsyncAPIClient closed")
 
+    @log_async_function(log_args=True)
     def add_request_interceptor(self, interceptor: Callable) -> None:
         """Add request interceptor (called before request)"""
         self._request_interceptors.append(interceptor)
 
+    @log_async_function(log_args=True)
     def add_response_interceptor(self, interceptor: Callable) -> None:
         """Add response interceptor (called after response)"""
         self._response_interceptors.append(interceptor)
 
+    @log_async_function(log_args=True)
     async def _execute_request_interceptors(
         self, method: str, url: str, **kwargs
     ) -> Dict[str, Any]:
@@ -165,6 +175,7 @@ class AsyncAPIClient:
 
         return request_data
 
+    @log_async_function(log_args=True)
     async def _execute_response_interceptors(self, response: APIResponse) -> APIResponse:
         """Execute all response interceptors"""
         for interceptor in self._response_interceptors:
@@ -175,6 +186,7 @@ class AsyncAPIClient:
 
         return response
 
+    @log_async_function(log_args=True, log_result=False, log_timing=True, mask_sensitive=True)
     async def request(
         self,
         method: HTTPMethod,
@@ -288,6 +300,7 @@ class AsyncAPIClient:
         # Should not reach here
         raise last_exception or Exception("Request failed")
 
+    @log_async_function(log_args=True, log_timing=True)
     async def get(
         self,
         endpoint: str,
@@ -300,6 +313,7 @@ class AsyncAPIClient:
             HTTPMethod.GET, endpoint, params=params, headers=headers, **kwargs
         )
 
+    @log_async_function(log_args=True, log_timing=True, mask_sensitive=True)
     async def post(
         self,
         endpoint: str,
@@ -313,6 +327,7 @@ class AsyncAPIClient:
             HTTPMethod.POST, endpoint, json=json, data=data, headers=headers, **kwargs
         )
 
+    @log_async_function(log_args=True, log_timing=True, mask_sensitive=True)
     async def put(
         self,
         endpoint: str,
@@ -326,6 +341,7 @@ class AsyncAPIClient:
             HTTPMethod.PUT, endpoint, json=json, data=data, headers=headers, **kwargs
         )
 
+    @log_async_function(log_args=True, log_timing=True, mask_sensitive=True)
     async def patch(
         self,
         endpoint: str,
@@ -339,6 +355,7 @@ class AsyncAPIClient:
             HTTPMethod.PATCH, endpoint, json=json, data=data, headers=headers, **kwargs
         )
 
+    @log_async_function(log_args=True, log_timing=True)
     async def delete(
         self,
         endpoint: str,
@@ -348,6 +365,7 @@ class AsyncAPIClient:
         """Make DELETE request"""
         return await self.request(HTTPMethod.DELETE, endpoint, headers=headers, **kwargs)
 
+    @log_async_function(log_args=True, log_result=True, log_timing=True)
     async def parallel_requests(self, requests: List[Dict[str, Any]]) -> List[APIResponse]:
         """
         Execute multiple requests in parallel.
@@ -376,6 +394,7 @@ class AsyncAPIClient:
 
         return await asyncio.gather(*tasks)
 
+    @log_async_function(log_result=True)
     def get_metrics(self) -> Dict[str, Any]:
         """Get client metrics"""
         avg_duration = self.total_duration / self.request_count if self.request_count > 0 else 0
@@ -393,9 +412,11 @@ class AsyncAPIClient:
 class BearerAuth:
     """Bearer token authentication helper"""
 
+    @log_async_function(log_args=True)
     def __init__(self, token: str):
         self.token = token
 
+    @log_async_function(log_result=True)
     def get_headers(self) -> Dict[str, str]:
         """Get authorization headers"""
         return {"Authorization": f"Bearer {self.token}"}
@@ -404,12 +425,14 @@ class BearerAuth:
 class BasicAuth:
     """Basic authentication helper"""
 
+    @log_async_function(log_args=True)
     def __init__(self, username: str, password: str):
         import base64
 
         credentials = f"{username}:{password}".encode()
         self.encoded = base64.b64encode(credentials).decode()
 
+    @log_async_function(log_result=True)
     def get_headers(self) -> Dict[str, str]:
         """Get authorization headers"""
         return {"Authorization": f"Basic {self.encoded}"}

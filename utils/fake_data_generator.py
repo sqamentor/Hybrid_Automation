@@ -24,11 +24,17 @@ import json
 import yaml
 from pathlib import Path
 from typing import Dict, List, Any
+from utils.logger import get_logger, get_audit_logger
+from framework.observability.universal_logger import log_function
+
+logger = get_logger(__name__)
+audit_logger = get_audit_logger()
 
 # ARCHITECTURAL FIX: Remove global mutable Faker instance
 # Initialize Faker per function call to avoid global mutable state
 # This was flagged in the architecture audit as HIGH-002
 
+@log_function(log_args=False, log_result=False)
 def _get_faker() -> Faker:
     """
     Factory function to get Faker instance.
@@ -61,6 +67,7 @@ CONTACT_METHODS = ["Text", "Email", "Call"]
 ZIP_DISTANCES = ["5","25", "50", "75", "100"]
 
 
+@log_function(log_result=True, log_timing=True)
 def generate_custom_email() -> str:
     """
     Generate a custom email using allowed temporary email domains.
@@ -71,9 +78,12 @@ def generate_custom_email() -> str:
     fake = _get_faker()  # Use factory instead of global
     username = fake.user_name()
     domain = random.choice(ALLOWED_EMAIL_DOMAINS)
-    return f"{username}@{domain}"
+    email = f"{username}@{domain}"
+    logger.debug(f"Generated custom email: {email}")
+    return email
 
 
+@log_function(log_result=False, log_timing=True)
 def generate_bookslot_payload() -> Dict[str, Any]:
     """
     Generate a single bookslot test data payload with all required fields.
@@ -82,7 +92,8 @@ def generate_bookslot_payload() -> Dict[str, Any]:
         dict: Complete bookslot payload with personal info and insurance details
     """
     fake = _get_faker()  # Use factory instead of global
-    return {
+    logger.debug("Generating bookslot payload...")
+    payload = {
         # Personal Information
         "first_name": fake.first_name(),
         "last_name": fake.last_name(),
@@ -100,8 +111,15 @@ def generate_bookslot_payload() -> Dict[str, Any]:
         "GroupNumber": f"GRP-{random.randint(1000, 9999)}",
         "PayerName": random.choice(PAYER_LIST)
     }
+    logger.info(f"✓ Generated bookslot payload for {payload['first_name']} {payload['last_name']}")
+    audit_logger.log_action("test_data_generation", {
+        "type": "bookslot_payload",
+        "email": payload['email']
+    })
+    return payload
 
 
+@log_function(log_args=True, log_result=False, log_timing=True)
 def generate_bookslot_payload_with_options(
     use_dynamic_zip: bool = False,
     use_all_contact_methods: bool = False,
@@ -130,6 +148,7 @@ def generate_bookslot_payload_with_options(
     return payload
 
 
+@log_function(log_args=True, log_result=False, log_timing=True)
 def generate_and_save_bookslot_data(count: int = 5, filename_prefix: str = "bookslot_data") -> List[Dict[str, Any]]:
     """
     Generate multiple bookslot payloads and save to JSON and YAML files.
@@ -141,6 +160,7 @@ def generate_and_save_bookslot_data(count: int = 5, filename_prefix: str = "book
     Returns:
         list: List of generated bookslot payloads
     """
+    logger.info(f"Generating {count} bookslot payloads...")
     data_list = [generate_bookslot_payload() for _ in range(count)]
     
     # Save to JSON
@@ -148,16 +168,25 @@ def generate_and_save_bookslot_data(count: int = 5, filename_prefix: str = "book
     with open(json_path, "w", encoding="utf-8") as jf:
         json.dump(data_list, jf, indent=4, ensure_ascii=False)
     print(f"✅ Bookslot JSON saved to: {json_path}")
+    logger.info(f"✓ Saved {count} records to JSON: {json_path}")
     
     # Save to YAML
     yaml_path = OUTPUT_DIR / f"{filename_prefix}.yaml"
     with open(yaml_path, "w", encoding="utf-8") as yf:
         yaml.dump(data_list, yf, default_flow_style=False, allow_unicode=True)
     print(f"✅ Bookslot YAML saved to: {yaml_path}")
+    logger.info(f"✓ Saved {count} records to YAML: {yaml_path}")
+    
+    audit_logger.log_action("test_data_saved", {
+        "count": count,
+        "json_path": str(json_path),
+        "yaml_path": str(yaml_path)
+    })
     
     return data_list
 
 
+@log_function(log_args=True, log_result=False, log_timing=True)
 def generate_and_save_with_options(
     count: int = 5,
     filename_prefix: str = "bookslot_data_custom",
@@ -191,6 +220,7 @@ def generate_and_save_with_options(
     return data_list
 
 
+@log_function(log_args=True, log_result=False, log_timing=True)
 def load_bookslot_data(filename: str = "bookslot_data.json") -> List[Dict[str, Any]]:
     """
     Load bookslot data from a JSON file.
@@ -205,13 +235,26 @@ def load_bookslot_data(filename: str = "bookslot_data.json") -> List[Dict[str, A
         FileNotFoundError: If the file doesn't exist
     """
     file_path = OUTPUT_DIR / filename
+    logger.debug(f"Loading bookslot data from {file_path}")
+    
     if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
+        error_msg = f"File not found: {file_path}"
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
     
     with open(file_path, "r", encoding="utf-8") as f:
-        return json.load(f)
+        data = json.load(f)
+    
+    logger.info(f"✓ Loaded {len(data)} bookslot records from {file_path}")
+    audit_logger.log_action("test_data_loaded", {
+        "file_path": str(file_path),
+        "record_count": len(data)
+    })
+    
+    return data
 
 
+@log_function(log_timing=True)
 def main():
     """
     Main function for command-line usage.

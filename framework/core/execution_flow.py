@@ -9,14 +9,17 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from utils.logger import get_logger
+from framework.observability import log_function, log_async_function
 
 try:
     from config.settings import should_run_api_validation, should_run_db_validation
 except ImportError:
     # Fallback if settings not available
+    @log_function(log_timing=True)
     def should_run_api_validation() -> bool:
         return True
 
+    @log_function(log_timing=True)
     def should_run_db_validation() -> bool:
         return True
 
@@ -55,6 +58,7 @@ class ExecutionFlow:
         self.current_context: Optional[ExecutionContext] = None
         self.contexts: List[ExecutionContext] = []
 
+    @log_function(log_timing=True)
     def start_execution(self, test_name: str, engine: str) -> ExecutionContext:
         """Start new test execution"""
         context = ExecutionContext(test_name=test_name, engine=engine)
@@ -64,6 +68,7 @@ class ExecutionFlow:
         logger.info(f"Started execution: {test_name} using {engine}")
         return context
 
+    @log_function(log_timing=True)
     def record_ui_action(self, action: str, details: Dict[str, Any]):
         """Record UI action"""
         if self.current_context:
@@ -72,6 +77,7 @@ class ExecutionFlow:
             )
             logger.debug(f"UI Action: {action}")
 
+    @log_function(log_timing=True)
     def record_api_call(self, method: str, url: str, request: Dict, response: Dict):
         """Record API call (only if API validation enabled)"""
         if not should_run_api_validation():
@@ -90,6 +96,7 @@ class ExecutionFlow:
             )
             logger.debug(f"API Call: {method} {url}")
 
+    @log_function(log_timing=True)
     def record_db_validation(self, query: str, result: Any, assertion: str):
         """Record database validation (only if DB validation enabled)"""
         if not should_run_db_validation():
@@ -107,12 +114,14 @@ class ExecutionFlow:
             )
             logger.debug(f"DB Validation: {assertion}")
 
+    @log_function(log_timing=True)
     def add_evidence(self, evidence_type: str, file_path: str):
         """Add evidence file"""
         if self.current_context:
             self.current_context.evidence[evidence_type].append(file_path)
             logger.debug(f"Evidence added: {evidence_type} -> {file_path}")
 
+    @log_function(log_timing=True)
     def complete_execution(self, status: str, error: Optional[str] = None):
         """Complete test execution"""
         if self.current_context:
@@ -127,6 +136,7 @@ class ExecutionFlow:
                 f"Completed execution: {self.current_context.test_name} - {status} ({duration:.2f}s)"
             )
 
+    @log_function(log_timing=True)
     def get_correlation_keys(self) -> Dict[str, Any]:
         """Extract correlation keys from API calls"""
         if not self.current_context:
@@ -151,6 +161,7 @@ class ExecutionFlow:
 
         return keys
 
+    @log_function(log_timing=True)
     def generate_report(self) -> Dict[str, Any]:
         """Generate execution report"""
         if not self.current_context:

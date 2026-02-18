@@ -20,6 +20,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import yaml
 
 from config.settings import settings
+from framework.observability import log_function, log_async_function
 
 
 @dataclass
@@ -87,6 +88,7 @@ class EngineSelector:
         # Sort rules by priority (descending)
         self.rules.sort(key=lambda r: r.get("priority", 50), reverse=True)
 
+    @log_function(log_timing=True)
     def select_engine(self, test_metadata: Dict[str, Any]) -> EngineDecision:
         """
         Select UI engine based on test metadata with caching
@@ -301,10 +303,12 @@ class EngineSelector:
         except ValueError:
             return None
 
+    @log_function(log_timing=True)
     def get_fallback_policy(self) -> Dict[str, Any]:
         """Get fallback policy configuration"""
         return self.decision_matrix.get("fallback_policy", {})
 
+    @log_function(log_timing=True)
     def should_fallback(self, error_type: str) -> bool:
         """
         Determine if error should trigger fallback
@@ -416,11 +420,13 @@ class EngineSelector:
         del self._decision_cache[oldest_key]
         self._cache_stats["evictions"] += 1
 
+    @log_function(log_timing=True)
     def clear_cache(self):
         """Clear all cached decisions"""
         self._decision_cache.clear()
         self._cache_stats["evictions"] += len(self._decision_cache)
 
+    @log_function(log_timing=True)
     def get_cache_stats(self) -> Dict[str, Any]:
         """
         Get cache statistics
@@ -473,6 +479,7 @@ class EngineSelector:
     # PRIORITY MANAGEMENT
     # ========================================================================
 
+    @log_function(log_timing=True)
     def get_rule_priorities(self) -> List[Dict[str, Any]]:
         """
         Get all rules sorted by priority
@@ -491,6 +498,7 @@ class EngineSelector:
             if "engine" in rule  # Only include rules with engine specified
         ]
 
+    @log_function(log_timing=True)
     def update_rule_priority(self, rule_name: str, new_priority: int) -> bool:
         """
         Update priority of a specific rule
@@ -516,6 +524,7 @@ class EngineSelector:
 # ========================================================================
 
 
+@log_function(log_timing=True)
 def extract_test_metadata(test_item) -> Dict[str, Any]:
     """
     Extract metadata from pytest test item

@@ -13,6 +13,10 @@ from abc import ABC, abstractmethod
 from typing import Any, Optional
 
 from framework.core.utils.human_actions import HumanBehaviorSimulator, get_behavior_config
+from utils.logger import get_logger, get_audit_logger
+
+logger = get_logger(__name__)
+audit_logger = get_audit_logger()
 
 
 class BasePage(ABC):
@@ -25,10 +29,12 @@ class BasePage(ABC):
         
         # Engine detection for hybrid support
         self.engine_type = self._detect_engine()
+        logger.info(f"BasePage initialized with engine: {self.engine_type}")
 
         # Initialize human behavior simulator if enabled
         if self._should_enable_human_behavior():
             self._init_human_behavior()
+            logger.debug(f"Human behavior simulation enabled for {self.__class__.__name__}")
     
     def _detect_engine(self) -> str:
         """
@@ -73,13 +79,15 @@ class BasePage(ABC):
         """Initialize human behavior simulator"""
         try:
             self._human_simulator = HumanBehaviorSimulator(self.driver, enabled=self._human_enabled)
+            logger.debug("Human behavior simulator initialized successfully")
         except Exception as e:
-            print(f"[BasePage] Failed to initialize human behavior: {e}")
+            logger.error(f"Failed to initialize human behavior: {e}")
             self._human_simulator = None
 
     def enable_human_behavior(self, enabled: bool = True):
         """Enable or disable human behavior for this page instance"""
         self._human_enabled = enabled
+        logger.info(f"Human behavior {'enabled' if enabled else 'disabled'} for {self.__class__.__name__}")
         if enabled and self._human_simulator is None:
             self._init_human_behavior()
         elif self._human_simulator:
@@ -87,26 +95,38 @@ class BasePage(ABC):
 
     def human_type(self, locator: str, text: str, clear_first: bool = True) -> bool:
         """Type text with human-like behavior if enabled, otherwise normal typing"""
+        logger.debug(f"Typing text into {locator} with human behavior: {self._human_enabled}")
         if self._human_simulator and self._human_enabled:
-            return self._human_simulator.type_text(locator, text, clear_first)
+            result = self._human_simulator.type_text(locator, text, clear_first)
+            audit_logger.log_element_interaction("human_type", locator, value=text[:50], success=result)
+            return result
         else:
             # Fallback to normal fill
             self.fill(locator, text)
+            audit_logger.log_element_interaction("type", locator, value=text[:50])
             return True
 
     def human_click(self, locator: str) -> bool:
         """Click with human-like behavior if enabled, otherwise normal click"""
+        logger.debug(f"Clicking {locator} with human behavior: {self._human_enabled}")
         if self._human_simulator and self._human_enabled:
-            return self._human_simulator.click_element(locator)
+            result = self._human_simulator.click_element(locator)
+            audit_logger.log_element_interaction("human_click", locator, success=result)
+            return result
         else:
             # Fallback to normal click
             self.click(locator)
+            audit_logger.log_element_interaction("click", locator)
             return True
 
     def human_scroll(self, direction: str = "down", distance: Optional[int] = None) -> bool:
         """Scroll with human-like behavior if enabled"""
+        logger.debug(f"Scrolling {direction} with human behavior: {self._human_enabled}")
         if self._human_simulator and self._human_enabled:
-            return self._human_simulator.scroll_page(direction, distance)
+            result = self._human_simulator.scroll_page(direction, distance)
+            audit_logger.log_ui_action("human_scroll", f"direction={direction}, distance={distance}")
+            return result
+        logger.debug("Human behavior not enabled, scroll not performed")
         return True
 
     @abstractmethod

@@ -14,6 +14,7 @@ from dataclasses import asdict, dataclass
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
+from framework.observability import log_function, log_async_function
 
 logger = logging.getLogger(__name__)
 
@@ -41,10 +42,12 @@ class SessionData:
     user_id: Optional[str] = None
     auth_type: Optional[str] = None  # 'SSO', 'MFA', 'BASIC', 'OAUTH'
 
+    @log_function(log_timing=True)
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary"""
         return asdict(self)
 
+    @log_function(log_timing=True)
     def to_json(self) -> str:
         """Convert to JSON string"""
         return json.dumps(self.to_dict())
@@ -84,6 +87,7 @@ class SessionManager:
     # SELENIUM: EXTRACT SESSION
     # ========================================================================
 
+    @log_function(log_timing=True)
     def extract_session_from_selenium(self, driver) -> SessionData:
         """
         Extract session data from Selenium WebDriver
@@ -192,7 +196,7 @@ class SessionManager:
                 value = driver.execute_script(f"return localStorage.getItem('{key}');")
                 if value:
                     tokens[key] = value
-            except:
+            except Exception:
                 pass
 
         # Check sessionStorage
@@ -201,7 +205,7 @@ class SessionManager:
                 value = driver.execute_script(f"return sessionStorage.getItem('{key}');")
                 if value:
                     tokens[f"session_{key}"] = value
-            except:
+            except Exception:
                 pass
 
         return tokens
@@ -258,6 +262,7 @@ class SessionManager:
     # PLAYWRIGHT: INJECT SESSION
     # ========================================================================
 
+    @log_async_function(log_timing=True)
     async def inject_session_to_playwright(self, page, session_data: SessionData) -> bool:
         """
         Inject session data into Playwright Page
@@ -316,6 +321,7 @@ class SessionManager:
             self.logger.error(f"❌ Failed to inject session into Playwright: {e}")
             return False
 
+    @log_function(log_timing=True)
     def inject_session_to_playwright_sync(self, page, session_data: SessionData) -> bool:
         """
         Inject session data into Playwright Page (Sync version)
@@ -406,6 +412,7 @@ class SessionManager:
     # VALIDATION
     # ========================================================================
 
+    @log_async_function(log_timing=True)
     async def validate_session_continuity(
         self, page, expected_user_id: Optional[str] = None
     ) -> bool:
@@ -459,6 +466,7 @@ class SessionManager:
             self.logger.error(f"❌ Validation failed: {e}")
             return False
 
+    @log_function(log_timing=True)
     def validate_session_continuity_sync(
         self, page, expected_user_id: Optional[str] = None
     ) -> bool:
@@ -516,6 +524,7 @@ class SessionManager:
     # SESSION TRANSFER (MAIN ORCHESTRATION METHOD)
     # ========================================================================
 
+    @log_async_function(log_timing=True)
     async def transfer_session(
         self,
         from_engine_type: str,  # 'selenium' or 'playwright'
@@ -572,6 +581,7 @@ class SessionManager:
             self.logger.error(f"❌ Session transfer failed: {e}")
             return None
 
+    @log_function(log_timing=True)
     def transfer_session_sync(
         self,
         from_engine_type: str,  # 'selenium' or 'playwright'
@@ -632,6 +642,7 @@ class SessionManager:
     # SESSION CACHE MANAGEMENT
     # ========================================================================
 
+    @log_function(log_timing=True)
     def cache_session(self, session_id: str, session_data: SessionData) -> None:
         """Cache session data for later use"""
         self._session_cache[session_id] = CacheEntry(
@@ -639,6 +650,7 @@ class SessionManager:
         )
         self.logger.info(f"✅ Session cached: {session_id}")
 
+    @log_function(log_timing=True)
     def get_cached_session(self, session_id: str) -> Optional[SessionData]:
         """Retrieve cached session data"""
         entry = self._session_cache.get(session_id)
@@ -648,6 +660,7 @@ class SessionManager:
             return entry.session_data
         return None
 
+    @log_function(log_timing=True)
     def clear_cache(self) -> None:
         """Clear all cached sessions"""
         self._session_cache.clear()

@@ -15,6 +15,16 @@ from typing import Any, Dict, Optional
 
 import structlog
 
+# Self-instrumentation for observability module
+try:
+    from framework.observability.universal_logger import log_function
+except ImportError:
+    # Fallback if universal_logger not available
+    def log_function(*args, **kwargs):
+        def decorator(func):
+            return func
+        return decorator
+
 
 class LogConfig:
     """Configuration for structured logging."""
@@ -47,6 +57,7 @@ class LogConfig:
         self.include_thread = include_thread
 
 
+@log_function(log_args=True, log_timing=True)
 def configure_logging(config: LogConfig) -> None:
     """
     Configure structlog with the specified configuration.
@@ -131,6 +142,7 @@ def configure_logging(config: LogConfig) -> None:
         logging.root.addHandler(file_handler)
 
 
+@log_function(log_args=True, log_result=True)
 def get_logger(name: Optional[str] = None) -> structlog.stdlib.BoundLogger:
     """
     Get a structured logger instance.
@@ -180,11 +192,13 @@ class LogContext:
         self.context = context
         self.token = None
 
+    @log_function()
     def __enter__(self):
         """Enter context."""
         self.token = structlog.contextvars.bind_contextvars(**self.context)
         return self
 
+    @log_function()
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Exit context."""
         structlog.contextvars.unbind_contextvars(*self.context.keys())
@@ -216,15 +230,18 @@ class TestLogger:
         self.logger = get_logger("test")
         self.context = LogContext(test_name=test_name)
 
+    @log_function()
     def __enter__(self):
         """Enter test context."""
         self.context.__enter__()
         return self
 
+    @log_function()
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Exit test context."""
         self.context.__exit__(exc_type, exc_val, exc_tb)
 
+    @log_function(log_args=True)
     def test_started(self, **kwargs) -> None:
         """
         Log test start.
@@ -234,6 +251,7 @@ class TestLogger:
         """
         self.logger.info("test_started", **kwargs)
 
+    @log_function(log_args=True)
     def test_passed(self, duration: Optional[float] = None, **kwargs) -> None:
         """
         Log test pass.
@@ -246,6 +264,7 @@ class TestLogger:
             kwargs["duration"] = duration
         self.logger.info("test_passed", **kwargs)
 
+    @log_function(log_args=True)
     def test_failed(self, error: str, **kwargs) -> None:
         """
         Log test failure.
@@ -256,6 +275,7 @@ class TestLogger:
         """
         self.logger.error("test_failed", error=error, **kwargs)
 
+    @log_function(log_args=True)
     def test_skipped(self, reason: str, **kwargs) -> None:
         """
         Log test skip.
@@ -266,6 +286,7 @@ class TestLogger:
         """
         self.logger.warning("test_skipped", reason=reason, **kwargs)
 
+    @log_function(log_args=True)
     def step(self, step_name: str, **kwargs) -> None:
         """
         Log test step.
@@ -276,6 +297,7 @@ class TestLogger:
         """
         self.logger.info("test_step", step=step_name, **kwargs)
 
+    @log_function(log_args=True)
     def assertion(self, assertion: str, result: bool, **kwargs) -> None:
         """
         Log assertion result.
@@ -288,6 +310,7 @@ class TestLogger:
         level = "info" if result else "error"
         getattr(self.logger, level)("assertion", assertion=assertion, result=result, **kwargs)
 
+    @log_function(log_args=True)
     def screenshot(self, path: str, **kwargs) -> None:
         """
         Log screenshot capture.
@@ -298,6 +321,7 @@ class TestLogger:
         """
         self.logger.info("screenshot_captured", screenshot_path=path, **kwargs)
 
+    @log_function(log_args=True)
     def api_request(
         self,
         method: str,
@@ -325,6 +349,7 @@ class TestLogger:
             **kwargs,
         )
 
+    @log_function(log_args=True)
     def database_query(
         self,
         query: str,
@@ -370,6 +395,7 @@ class PerformanceLogger:
         """Initialize performance logger."""
         self.logger = get_logger("performance")
 
+    @log_function(log_args=True)
     def measure(self, operation: str, **context):
         """
         Context manager for measuring operation duration.
@@ -401,6 +427,7 @@ class PerformanceMeasurement:
         self.context = context
         self.start_time = None
 
+    @log_function()
     def __enter__(self):
         """Start measurement."""
         import time
@@ -408,6 +435,7 @@ class PerformanceMeasurement:
         self.start_time = time.time()
         return self
 
+    @log_function(log_timing=True)
     def __exit__(self, exc_type, exc_val, exc_tb):
         """End measurement and log."""
         import time

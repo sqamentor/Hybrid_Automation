@@ -24,6 +24,19 @@ from framework.plugins.plugin_system import (
     PluginMetadata,
 )
 
+# Self-instrumentation for example plugins module
+try:
+    from framework.observability.universal_logger import log_function, log_async_function
+except ImportError:
+    def log_function(*args, **kwargs):
+        def decorator(func):
+            return func
+        return decorator
+    def log_async_function(*args, **kwargs):
+        def decorator(func):
+            return func
+        return decorator
+
 # ==================== Slack Reporter Plugin ====================
 
 
@@ -60,6 +73,7 @@ class SlackReporterPlugin(BasePlugin):
             ],
         )
 
+    @log_function(log_args=True)
     def load(self) -> None:
         """Load plugin configuration"""
         self.webhook_url = self.config.get(
@@ -73,6 +87,7 @@ class SlackReporterPlugin(BasePlugin):
         """Cleanup resources"""
         pass
 
+    @log_async_function(log_args=True, log_timing=True)
     async def on_test_failed(self, *args, **kwargs) -> None:
         """Handle test failure"""
         test_name = kwargs.get("test_name", "Unknown Test")
@@ -82,6 +97,7 @@ class SlackReporterPlugin(BasePlugin):
             message = self._format_failure_message(test_name, error_message)
             await self._send_to_slack(message)
 
+    @log_async_function(log_args=True, log_timing=True)
     async def on_session_finish(self, *args, **kwargs) -> None:
         """Handle test session finish"""
         total = kwargs.get("total", 0)
@@ -194,6 +210,7 @@ class ScreenshotCompressorPlugin(BasePlugin):
             ],
         )
 
+    @log_function(log_args=True)
     def load(self) -> None:
         """Load plugin configuration"""
         self.quality = self.config.get("quality", 85)  # 0-100
@@ -205,6 +222,7 @@ class ScreenshotCompressorPlugin(BasePlugin):
         """Cleanup resources"""
         pass
 
+    @log_async_function(log_args=True, log_timing=True)
     async def on_screenshot_captured(self, *args, **kwargs) -> None:
         """Handle screenshot capture"""
         if not self.enabled:
@@ -286,6 +304,7 @@ class TestRetryPlugin(BasePlugin):
             ],
         )
 
+    @log_function(log_args=True)
     def load(self) -> None:
         """Load plugin configuration"""
         self.max_retries = self.config.get("max_retries", 3)
@@ -293,6 +312,7 @@ class TestRetryPlugin(BasePlugin):
         self.exponential_backoff = self.config.get("exponential_backoff", True)
         self.flaky_tests: Dict[str, int] = {}  # Track retry counts
 
+    @log_function(log_timing=True)
     def unload(self) -> None:
         """Cleanup and save flaky test report"""
         if self.flaky_tests:
@@ -304,6 +324,7 @@ class TestRetryPlugin(BasePlugin):
 
             print(f"[TestRetry] Flaky test report saved to {report_path}")
 
+    @log_async_function(log_args=True, log_result=True, log_timing=True)
     async def on_test_failed(self, *args, **kwargs) -> Optional[bool]:
         """Handle test failure and retry logic"""
         test_name = kwargs.get("test_name", "Unknown Test")
@@ -368,6 +389,7 @@ class CustomReportPlugin(BasePlugin):
             ],
         )
 
+    @log_function(log_args=True)
     def load(self) -> None:
         """Load plugin configuration"""
         self.report_dir = Path(self.config.get("report_dir", "reports/custom"))
@@ -383,6 +405,7 @@ class CustomReportPlugin(BasePlugin):
         """Cleanup resources"""
         pass
 
+    @log_async_function(log_args=True, log_timing=True)
     async def on_session_finish(self, *args, **kwargs) -> None:
         """Generate report at session end"""
         total = kwargs.get("total", 0)
@@ -526,6 +549,7 @@ class CustomReportPlugin(BasePlugin):
 # ==================== Plugin Factory ====================
 
 
+@log_function(log_result=True)
 def create_all_plugins() -> List[BasePlugin]:
     """Create all example plugins"""
     return [

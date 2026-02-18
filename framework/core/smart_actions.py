@@ -24,6 +24,12 @@ from typing import Optional
 
 from playwright.sync_api import Locator, Page
 
+from framework.observability import log_function, log_operation
+from utils.logger import get_audit_logger, get_logger
+
+logger = get_logger(__name__)
+audit_logger = get_audit_logger()
+
 
 class SmartActions:
     """
@@ -43,20 +49,27 @@ class SmartActions:
         Args:
             page: Playwright Page object
             enable_human: Enable human-like delays
-            verbose: Print delay information
+            verbose: Log delay information at DEBUG level
         """
         self.page = page
         self.enable_human = enable_human
         self.verbose = verbose
+        logger.info(f"SmartActions initialized (human_behavior={enable_human}, verbose={verbose})")
+        audit_logger.log_action("smart_actions_init", {
+            "enable_human": enable_human,
+            "verbose": verbose
+        })
 
     def _delay(self, min_sec: float, max_sec: float, context: str = ""):
-        """Internal delay with optional logging"""
+        """Internal delay with optional debug logging"""
         if self.enable_human:
             delay_time = random.uniform(min_sec, max_sec)
             time.sleep(delay_time)
             if self.verbose and context:
-                print(f"   ⏱️  {context}: {delay_time:.2f}s")
+                logger.debug(f"delay {context}: {delay_time:.2f}s")
+            audit_logger.log_action("delay", {"context": context, "duration_sec": delay_time}, status="success")
 
+    @log_function(log_args=True, log_timing=True, mask_sensitive=False)
     def click(self, element: Locator, description: str = ""):
         """
         Click element with automatic delays
@@ -65,10 +78,14 @@ class SmartActions:
         - 0.3-0.7s before (thinking)
         - 0.2-0.4s after (confirmation)
         """
+        logger.debug(f"SmartActions: Preparing to click '{description}'")
         self._delay(0.3, 0.7, f"Before click: {description}")
         element.click()
+        logger.info(f"✓ Clicked: '{description}'")
         self._delay(0.2, 0.4, f"After click: {description}")
+        audit_logger.log_ui_action(action="click", element=description)
 
+    @log_function(log_args=True, log_timing=True, mask_sensitive=True)
     def type_text(self, element: Locator, text: str, field_name: str = ""):
         """
         Type text with context-aware speed
@@ -87,11 +104,11 @@ class SmartActions:
         # Wait for element to be visible and enabled
         try:
             element.wait_for(state="visible", timeout=10000)
-        except Exception as e:
-            if self.verbose:
-                print(
-                    f"⚠️  Warning: Element not immediately visible for '{field_name}', retrying..."
-                )
+        except Exception as exc:
+            logger.warning(
+                f"type_text: element not immediately visible for '{field_name}' "
+                f"({type(exc).__name__}) - sleeping 0.5s then retrying"
+            )
             time.sleep(0.5)
             element.wait_for(state="visible", timeout=10000)
 
@@ -117,8 +134,11 @@ class SmartActions:
         else:
             element.fill(str(text))
 
+        logger.info(f"✓ Filled: '{field_name}' = '{str(text)[:50]}'")
         self._delay(0.2, 0.5, f"After type: {field_name}")
+        audit_logger.log_ui_action(action="type", element=field_name, value=str(text)[:50])
 
+    @log_function(log_args=True, log_timing=True)
     def button_click(self, element: Locator, button_name: str = "", wait_processing: bool = False):
         """
         Button click with extra consideration time
@@ -144,6 +164,10 @@ class SmartActions:
         else:
             self._delay(0.3, 0.6, f"After button: {button_name}")
 
+        logger.info(f"✓ Button clicked: '{button_name}'")
+        audit_logger.log_ui_action(action="button_click", element=button_name)
+
+    @log_function(log_args=True, log_timing=True)
     def navigate(self, url: str, page_name: str = "", wait_transition: bool = False):
         """
         Navigate with page observation
@@ -166,6 +190,10 @@ class SmartActions:
         else:
             self._delay(0.5, 1.0, f"Observing: {page_name}")
 
+        logger.info(f"✓ Navigated to: '{page_name}' -> {url}")
+        audit_logger.log_page_load(page_name=page_name, url=url)
+
+    @log_function(log_timing=True)
     def wait_for_page_ready(self, context: str = ""):
         """
         Wait for page to be ready with network idle check
@@ -179,10 +207,16 @@ class SmartActions:
         """
         try:
             self.page.wait_for_load_state("networkidle", timeout=15000)
-        except:
-            pass
+        except Exception as exc:
+            logger.warning(
+                f"wait_for_page_ready: networkidle timed out for '{context}' "
+                f"({type(exc).__name__}) - continuing"
+            )
         self._delay(0.8, 1.5, f"Page ready: {context}")
+        logger.info(f"✓ Page ready: '{context}'")
+        audit_logger.log_action("page_ready", {"context": context}, status="success")
 
+    @log_function(log_timing=True)
     def select_option(self, dropdown: Locator, option: Locator, field_name: str = ""):
         """
         Select dropdown option with delays
@@ -197,7 +231,10 @@ class SmartActions:
         self._delay(0.2, 0.4, "Reviewing options")
         option.click()
         self._delay(0.2, 0.4, f"Selected: {field_name}")
+        logger.info(f"✓ Selected option: '{field_name}'")
+        audit_logger.log_ui_action(action="select_option", element=field_name)
 
+    @log_function(log_timing=True)
     def wait_autocomplete(self, pattern: str, description: str = "", timeout: int = 6000) -> bool:
         """
         Smart autocomplete handling with timeout
@@ -215,13 +252,18 @@ class SmartActions:
             element.wait_for(state="visible", timeout=timeout)
             self._delay(0.3, 0.6, f"Reviewing autocomplete: {description}")
             element.click()
-            print(f"✓ Autocomplete selected: {description}")
+            logger.info(f"✓ Autocomplete selected: '{description}'")
+            audit_logger.log_ui_action(action="autocomplete_select", element=description)
             return True
-        except:
-            print(f"⚠ Autocomplete timeout ({timeout/1000}s) - continuing")
+        except Exception as exc:
+            logger.warning(
+                f"wait_autocomplete: timeout ({timeout / 1000}s) for '{description}' "
+                f"({type(exc).__name__}) - continuing"
+            )
             self._delay(0.2, 0.3)
             return False
 
+    @log_function(log_timing=True)
     def wait_and_click(self, locator: Locator, description: str = "", timeout: int = 30000):
         """
         Wait for element and click with smart delays
@@ -235,10 +277,13 @@ class SmartActions:
             locator.wait_for(state="visible", timeout=timeout)
             self.click(locator, description)
             return True
-        except Exception as e:
-            print(f"⚠ Element not found: {description} - {type(e).__name__}")
+        except Exception as exc:
+            logger.warning(
+                f"wait_and_click: element not found '{description}' ({type(exc).__name__})"
+            )
             return False
 
+    @log_function(log_timing=True)
     def wait_for_scheduler(self, context: str = "Scheduler"):
         """
         Wait for scheduler/calendar to load
@@ -250,7 +295,10 @@ class SmartActions:
             context: Description for logging
         """
         self._delay(1.5, 2.5, f"{context} loading")
+        logger.info(f"✓ Scheduler ready: '{context}' slots loaded")
+        audit_logger.log_action("scheduler_ready", {"context": context}, status="success")
 
+    @log_function(log_timing=True)
     def wait_for_processing(self, context: str = "Processing", short: bool = False):
         """
         Wait for processing operations
@@ -267,7 +315,10 @@ class SmartActions:
             self._delay(1.0, 2.0, f"{context}")
         else:
             self._delay(1.5, 2.5, f"{context}")
+        logger.info(f"✓ Processing complete: '{context}'")
+        audit_logger.log_action("processing_complete", {"context": context, "short": short}, status="success")
 
+    @log_function(log_timing=True)
     def smart_retry(self, action_func, max_retries: int = 3, delay_between: tuple = (1.0, 2.0)):
         """
         Retry an action with smart delays
@@ -283,13 +334,21 @@ class SmartActions:
         for attempt in range(max_retries):
             try:
                 result = action_func()
-                print(f"✓ Action succeeded on attempt {attempt + 1}")
+                logger.info(f"✓ Smart retry succeeded on attempt {attempt + 1}/{max_retries}")
+                audit_logger.log_action("smart_retry_success", {"attempt": attempt + 1, "max_retries": max_retries}, status="success")
                 return result
-            except Exception as e:
+            except Exception as exc:
                 if attempt < max_retries - 1:
-                    print(f"⚠ Attempt {attempt + 1} failed: {type(e).__name__} - Retrying...")
+                    logger.warning(
+                        f"smart_retry: attempt {attempt + 1}/{max_retries} failed "
+                        f"({type(exc).__name__}) - retrying"
+                    )
+                    audit_logger.log_action("smart_retry_attempt_failed", {"attempt": attempt + 1, "error": str(exc)}, status="warning")
                     self._delay(delay_between[0], delay_between[1], "Retry delay")
                 else:
-                    print(f"❌ All {max_retries} attempts failed")
+                    logger.error(
+                        f"smart_retry: all {max_retries} attempts failed ({type(exc).__name__})"
+                    )
+                    audit_logger.log_action("smart_retry_failed", {"max_retries": max_retries, "error": str(exc)}, status="failure")
                     raise
         return None

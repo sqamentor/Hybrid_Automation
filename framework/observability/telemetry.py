@@ -21,10 +21,25 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
 from opentelemetry.trace import Status, StatusCode
 
+# Self-instrumentation for telemetry module
+try:
+    from framework.observability.universal_logger import log_function, log_async_function
+except ImportError:
+    # Fallback if universal_logger not available
+    def log_function(*args, **kwargs):
+        def decorator(func):
+            return func
+        return decorator
+    def log_async_function(*args, **kwargs):
+        def decorator(func):
+            return func
+        return decorator
+
 
 class TelemetryConfig:
     """Configuration for OpenTelemetry."""
 
+    @log_function(log_args=True)
     def __init__(
         self,
         service_name: str = "test-automation-framework",
@@ -77,6 +92,7 @@ class TelemetryManager:
         ```
     """
 
+    @log_function(log_args=True)
     def __init__(self, config: TelemetryConfig):
         """
         Initialize telemetry manager.
@@ -89,6 +105,7 @@ class TelemetryManager:
         self.tracer: Optional[trace.Tracer] = None
         self._initialized = False
 
+    @log_function(log_timing=True)
     def initialize(self) -> None:
         """
         Initialize OpenTelemetry with configured exporters.
@@ -137,6 +154,7 @@ class TelemetryManager:
 
         self._initialized = True
 
+    @log_function(log_args=True)
     @contextmanager
     def span(
         self,
@@ -177,6 +195,7 @@ class TelemetryManager:
                 span.record_exception(e)
                 raise
 
+    @log_async_function(log_args=True)
     @asynccontextmanager
     async def async_span(
         self,
@@ -217,6 +236,7 @@ class TelemetryManager:
                 span.record_exception(e)
                 raise
 
+    @log_function(log_args=True)
     def trace_function(
         self, span_name: Optional[str] = None, attributes: Optional[Dict[str, Any]] = None
     ):
@@ -251,6 +271,7 @@ class TelemetryManager:
 
         return decorator
 
+    @log_function(log_args=True)
     def trace_async_function(
         self, span_name: Optional[str] = None, attributes: Optional[Dict[str, Any]] = None
     ):
@@ -285,6 +306,7 @@ class TelemetryManager:
 
         return decorator
 
+    @log_function(log_args=True)
     def add_event(self, name: str, attributes: Optional[Dict[str, Any]] = None) -> None:
         """
         Add an event to the current span.
@@ -305,6 +327,7 @@ class TelemetryManager:
         if current_span:
             current_span.add_event(name, attributes or {})
 
+    @log_function(log_args=True)
     def set_attribute(self, key: str, value: Any) -> None:
         """
         Set an attribute on the current span.
@@ -317,6 +340,7 @@ class TelemetryManager:
         if current_span:
             current_span.set_attribute(key, str(value))
 
+    @log_function(log_args=True)
     def record_exception(self, exception: Exception) -> None:
         """
         Record an exception in the current span.
@@ -329,6 +353,7 @@ class TelemetryManager:
             current_span.record_exception(exception)
             current_span.set_status(Status(StatusCode.ERROR))
 
+    @log_function(log_timing=True)
     def shutdown(self) -> None:
         """
         Shutdown telemetry and flush all spans.
@@ -349,6 +374,7 @@ class TelemetryManager:
 _global_telemetry: Optional[TelemetryManager] = None
 
 
+@log_function(log_result=True)
 def get_telemetry() -> TelemetryManager:
     """
     Get the global telemetry manager instance.
@@ -375,6 +401,7 @@ def get_telemetry() -> TelemetryManager:
     return _global_telemetry
 
 
+@log_function(log_args=True, log_timing=True)
 def initialize_telemetry(config: TelemetryConfig) -> TelemetryManager:
     """
     Initialize global telemetry manager.
@@ -406,6 +433,7 @@ def initialize_telemetry(config: TelemetryConfig) -> TelemetryManager:
     return _global_telemetry
 
 
+@log_function(log_timing=True)
 def shutdown_telemetry() -> None:
     """
     Shutdown global telemetry manager.
@@ -451,6 +479,7 @@ class TestTracer:
         ```
     """
 
+    @log_function(log_args=True)
     def __init__(self, telemetry: Optional[TelemetryManager] = None):
         """
         Initialize test tracer.
@@ -461,6 +490,7 @@ class TestTracer:
         self.telemetry = telemetry
         self._test_spans: Dict[str, Any] = {}
 
+    @log_function(log_args=True)
     def start_test(self, test_name: str, attributes: Optional[Dict[str, Any]] = None) -> None:
         """
         Start tracing a test.
@@ -485,6 +515,7 @@ class TestTracer:
 
         self._test_spans[test_name] = span
 
+    @log_function(log_args=True)
     def end_test(
         self, test_name: str, status: str = "passed", error: Optional[Exception] = None
     ) -> None:
@@ -511,6 +542,7 @@ class TestTracer:
         span.end()
         del self._test_spans[test_name]
 
+    @log_function(log_args=True)
     def add_test_event(
         self, test_name: str, event: str, attributes: Optional[Dict[str, Any]] = None
     ) -> None:
@@ -532,6 +564,7 @@ class TestTracer:
 # ============================================================================
 
 
+@log_function(log_args=True)
 def trace_test_execution(test_name: str):
     """
     Decorator for tracing test execution.
@@ -567,6 +600,7 @@ def trace_test_execution(test_name: str):
     return decorator
 
 
+@log_function(log_args=True)
 def trace_async_test_execution(test_name: str):
     """
     Decorator for tracing async test execution.

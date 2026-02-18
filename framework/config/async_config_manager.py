@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -22,6 +23,9 @@ from framework.models.config_models import (
     ProjectConfig,
 )
 from framework.protocols.config_protocols import ConfigProvider
+from framework.observability.universal_logger import log_function, log_async_function
+
+logger = logging.getLogger(__name__)
 
 
 class AsyncConfigManager(ConfigProvider):
@@ -50,6 +54,7 @@ class AsyncConfigManager(ConfigProvider):
         self._framework_config: Optional[FrameworkConfig] = None
 
     @classmethod
+    @log_async_function(log_timing=True)
     async def get_instance(cls, config_dir: Optional[Path] = None) -> AsyncConfigManager:
         """Get singleton instance (async)"""
         async with cls._lock:
@@ -58,6 +63,7 @@ class AsyncConfigManager(ConfigProvider):
                 await cls._instance.load_all_configs()
             return cls._instance
 
+    @log_async_function(log_timing=True)
     async def load_all_configs(self) -> GlobalSettings:
         """Load all configuration files asynchronously"""
         # Return cached settings if already loaded
@@ -105,10 +111,12 @@ class AsyncConfigManager(ConfigProvider):
 
         return self._settings
 
+    @log_async_function(log_timing=True)
     async def _load_framework_config(self) -> None:
         """Load framework configuration"""
         self._framework_config = FrameworkConfig()
 
+    @log_async_function(log_timing=True)
     async def _load_projects_config(self) -> None:
         """Load projects configuration from YAML"""
         projects_file = self.config_dir / "projects.yaml"
@@ -139,6 +147,7 @@ class AsyncConfigManager(ConfigProvider):
             except Exception as e:
                 print(f"Error parsing project {project_name}: {e}")
 
+    @log_async_function(log_timing=True)
     async def _load_engine_matrix(self) -> None:
         """Load engine decision matrix"""
         matrix_file = self.config_dir / "engine_decision_matrix.yaml"
@@ -156,6 +165,7 @@ class AsyncConfigManager(ConfigProvider):
         except Exception as e:
             print(f"Error parsing engine matrix: {e}")
 
+    @log_async_function(log_timing=True)
     async def _load_browser_config(self):
         """Load browser configuration from framework config"""
         from framework.models.config_models import BrowserConfig
@@ -168,6 +178,7 @@ class AsyncConfigManager(ConfigProvider):
         # Return default config
         return BrowserConfig()
 
+    @log_async_function(log_timing=True)
     async def _load_api_config(self):
         """Load API configuration"""
         from framework.models.config_models import APIConfig
@@ -189,6 +200,7 @@ class AsyncConfigManager(ConfigProvider):
         # Return default with required base_url
         return APIConfig(base_url="http://localhost:8000")
 
+    @log_async_function(log_timing=True)
     async def _load_database_config(self):
         """Load database configuration"""
         from framework.models.config_models import DatabaseConfig
@@ -204,6 +216,7 @@ class AsyncConfigManager(ConfigProvider):
             host="localhost", port=5432, database="testdb", username="user", password="pass"
         )
 
+    @log_async_function(log_timing=True)
     async def _read_yaml_async(self, file_path: Path) -> Dict[str, Any]:
         """Read YAML file asynchronously"""
         loop = asyncio.get_event_loop()
@@ -218,6 +231,7 @@ class AsyncConfigManager(ConfigProvider):
 
         return await loop.run_in_executor(None, _read)
 
+    @log_async_function(log_timing=True)
     async def _read_json_async(self, file_path: Path) -> Dict[str, Any]:
         """Read JSON file asynchronously"""
         loop = asyncio.get_event_loop()
@@ -230,6 +244,7 @@ class AsyncConfigManager(ConfigProvider):
 
     # ConfigProvider protocol implementation
 
+    @log_function(log_args=True, log_result=True)
     def get_config(self, key: str, default: Any = None) -> Any:
         """Get configuration value by key"""
         if not self._settings:
@@ -249,12 +264,14 @@ class AsyncConfigManager(ConfigProvider):
 
         return value
 
+    @log_function(log_args=True, log_result=True)
     def get_project_config(self, project_name: str) -> Optional[ProjectConfig]:
         """Get project configuration"""
         if not self._settings:
             return None
         return self._settings.get_project(project_name)
 
+    @log_function(log_args=True, log_result=True)
     def get_environment_config(
         self, project_name: str, env_name: Optional[str] = None
     ) -> Optional[EnvironmentConfig]:
@@ -263,14 +280,17 @@ class AsyncConfigManager(ConfigProvider):
             return None
         return self._settings.get_environment(project_name, env_name)
 
+    @log_function(log_timing=True)
     def reload_config(self) -> None:
         """Reload configuration (sync wrapper)"""
         asyncio.run(self.load_all_configs())
 
+    @log_async_function(log_timing=True)
     async def reload_config_async(self) -> None:
         """Reload configuration asynchronously"""
         await self.load_all_configs()
 
+    @log_function(log_result=True)
     def validate_config(self) -> bool:
         """Validate configuration integrity"""
         if not self._settings:
@@ -295,6 +315,7 @@ class AsyncConfigManager(ConfigProvider):
 
 
 # Async helper function for easy usage
+@log_async_function(log_timing=True)
 async def get_config_manager(config_dir: Optional[Path] = None) -> AsyncConfigManager:
     """
     Get async config manager instance.

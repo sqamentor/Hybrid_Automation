@@ -17,6 +17,8 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Protocol
 
+from framework.observability.universal_logger import log_function, log_async_function
+
 
 class ServiceList(list):
     """Custom list that supports 'in' operator with service names"""
@@ -145,6 +147,7 @@ class BaseService(ABC):
     - Dependency injection support
     """
 
+    @log_function(log_args=True)
     def __init__(self, name: str, version: str = "1.0.0", host: str = "localhost", port: int = 0):
         self._name = name
         self._version = version
@@ -187,18 +190,21 @@ class BaseService(ABC):
             tags=self.get_tags(),
         )
 
+    @log_async_function(log_timing=True)
     async def start(self) -> None:
         """Start the service"""
         self._status = ServiceStatus.STARTING
         await self.on_start()
         self._status = ServiceStatus.RUNNING
 
+    @log_async_function(log_timing=True)
     async def stop(self) -> None:
         """Stop the service"""
         self._status = ServiceStatus.STOPPING
         await self.on_stop()
         self._status = ServiceStatus.STOPPED
 
+    @log_async_function(log_timing=True, log_result=True)
     async def health_check(self) -> HealthCheck:
         """
         Perform comprehensive health check.
@@ -238,16 +244,19 @@ class BaseService(ABC):
             checks=checks_passed + checks_failed,
         )
 
+    @log_async_function(log_args=True, log_result=True)
     async def _run_health_check(self, check_fn: Callable) -> bool:
         """Run a single health check function"""
         if asyncio.iscoroutinefunction(check_fn):
             return await check_fn()
         return check_fn()
 
+    @log_function(log_args=True)
     def register_health_check(self, check_fn: Callable[[], bool]) -> None:
         """Register a health check function"""
         self._health_checks.append(check_fn)
 
+    @log_function(log_args=True)
     def subscribe(self, topic: str, handler: Callable[[Message], None]) -> None:
         """
         Subscribe to message topic.
@@ -260,6 +269,7 @@ class BaseService(ABC):
             self._message_handlers[topic] = []
         self._message_handlers[topic].append(handler)
 
+    @log_async_function(log_args=True, log_timing=True)
     async def publish(self, message: Message) -> None:
         """
         Publish message to subscribers.
@@ -281,26 +291,32 @@ class BaseService(ABC):
 
     # Methods for subclasses to override
 
+    @log_async_function()
     async def on_start(self) -> None:
         """Service startup logic (override if needed)"""
         pass
 
+    @log_async_function()
     async def on_stop(self) -> None:
         """Service shutdown logic (override if needed)"""
         pass
 
+    @log_function(log_result=True)
     def get_endpoints(self) -> List[str]:
         """Get service endpoints (override if needed)"""
         return []
 
+    @log_function(log_result=True)
     def get_metadata(self) -> Dict[str, Any]:
         """Get service metadata (override if needed)"""
         return {}
 
+    @log_function(log_result=True)
     def get_tags(self) -> List[str]:
         """Get service tags (override if needed)"""
         return []
 
+    @log_async_function(log_args=True)
     async def on_message_error(self, message: Message, error: Exception) -> None:
         """Handle message processing errors (override if needed)"""
         pass
@@ -332,6 +348,7 @@ class ServiceRegistry:
         self._health_cache: Dict[str, HealthCheck] = {}
         self._initialized = True
 
+    @log_function(log_args=True)
     def register(self, service_or_info) -> None:
         """Register a service (accepts BaseService or ServiceInfo)"""
         if isinstance(service_or_info, BaseService):
@@ -345,6 +362,7 @@ class ServiceRegistry:
             # ServiceInfo object
             self._services[service_or_info.name] = service_or_info
 
+    @log_function(log_args=True)
     def deregister(self, service_name: str) -> None:
         """Deregister a service"""
         self._services.pop(service_name, None)
@@ -355,26 +373,32 @@ class ServiceRegistry:
         """Alias for deregister"""
         self.deregister(service_name)
 
+    @log_function(log_args=True, log_result=True)
     def discover(self, service_name: str) -> Optional[ServiceInfo]:
         """Discover service by name"""
         return self._services.get(service_name)
 
+    @log_function(log_args=True, log_result=True)
     def get(self, service_name: str) -> Optional[BaseService]:
         """Get service instance by name (alias for getting registered service instance)"""
         return self._service_instances.get(service_name)
 
+    @log_function(log_args=True, log_result=False)
     def discover_by_tag(self, tag: str) -> List[ServiceInfo]:
         """Discover services by tag"""
         return [service for service in self._services.values() if tag in service.tags]
 
+    @log_function(log_result=True)
     def get_all_services(self) -> List[ServiceInfo]:
         """Get all registered services"""
         return list(self._services.values())
 
+    @log_function(log_result=True)
     def get_all(self) -> ServiceList:
         """Get all registered service instances (alias)"""
         return ServiceList(self._service_instances.values())
 
+    @log_function(log_args=True)
     def update_health(self, service_name: str, health: HealthCheck) -> None:
         """Update service health status"""
         self._health_cache[service_name] = health
@@ -387,16 +411,19 @@ class ServiceRegistry:
             if service.name in self._health_cache and self._health_cache[service.name].is_healthy
         ]
 
+    @log_async_function(log_timing=True)
     async def start_all(self) -> None:
         """Start all registered service instances"""
         for service in self._service_instances.values():
             await service.start()
 
+    @log_async_function(log_timing=True)
     async def stop_all(self) -> None:
         """Stop all registered service instances"""
         for service in self._service_instances.values():
             await service.stop()
 
+    @log_async_function(log_timing=True, log_result=False)
     async def health_check_all(self) -> Dict[str, Dict[str, Any]]:
         """Perform health check on all registered service instances"""
         results = {}
@@ -430,17 +457,20 @@ class MessageBus:
         self._message_queue: asyncio.Queue = asyncio.Queue()
         self._initialized = True
 
+    @log_function(log_args=True)
     def subscribe(self, topic: str, handler: Callable[[Message], None]) -> None:
         """Subscribe to topic"""
         if topic not in self._subscribers:
             self._subscribers[topic] = []
         self._subscribers[topic].append(handler)
 
+    @log_function(log_args=True)
     def unsubscribe(self, topic: str, handler: Callable[[Message], None]) -> None:
         """Unsubscribe from topic"""
         if topic in self._subscribers:
             self._subscribers[topic].remove(handler)
 
+    @log_async_function(log_args=True, log_timing=True)
     async def publish(self, event_or_message, data: Optional[Dict[str, Any]] = None) -> None:
         """Publish message to topic. Accepts either (event, data) or (Message object)"""
         if isinstance(event_or_message, Message):
@@ -465,6 +495,7 @@ class MessageBus:
                 # Log error but continue
                 print(f"Error in message handler: {e}")
 
+    @log_function(log_args=True, log_result=True)
     def _matches_pattern(self, event: str, pattern: str) -> bool:
         """Check if event matches pattern (supports * wildcard)"""
         if "*" not in pattern:
@@ -476,6 +507,7 @@ class MessageBus:
         regex_pattern = pattern.replace(".", r"\.").replace("*", ".*")
         return re.match(f"^{regex_pattern}$", event) is not None
 
+    @log_function(log_args=True, log_result=True)
     def get_subscriber_count(self, topic: str) -> int:
         """Get number of subscribers for topic"""
         return len(self._subscribers.get(topic, []))

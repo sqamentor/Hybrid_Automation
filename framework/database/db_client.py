@@ -12,6 +12,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 
 from config.settings import get_database_config
+from framework.observability import log_function
 from utils.logger import get_audit_logger, get_logger
 
 logger = get_logger(__name__)
@@ -26,6 +27,7 @@ class DBClient:
         self.engine: Optional[Engine] = None
         self.connect()
 
+    @log_function(log_args=True, log_timing=True)
     def connect(self):
         """Establish database connection"""
         connection_string = self._build_connection_string()
@@ -62,6 +64,7 @@ class DBClient:
         else:
             raise ValueError(f"Unsupported database type: {self.config.type}")
 
+    @log_function(log_args=True, log_result=True, log_timing=True)
     def execute_query(self, query: str, params: Optional[Dict] = None) -> List[Dict]:
         """
         Execute SELECT query (read-only enforced)
@@ -115,6 +118,7 @@ class DBClient:
             )
             raise
 
+    @log_function(log_args=True, log_result=True, log_timing=True)
     def execute_scalar(self, query: str, params: Optional[Dict] = None) -> Any:
         """Execute query and return single value"""
         results = self.execute_query(query, params)
@@ -148,8 +152,8 @@ class DBClient:
                 after_from = query[from_index:].strip()
                 table_name = after_from.split()[0].strip('`"\'\\"')
                 return table_name
-        except:
-            pass
+        except (IndexError, ValueError, AttributeError) as e:
+            logger.debug(f"Could not extract table name: {str(e)}")
         return "unknown"
 
     def close(self):

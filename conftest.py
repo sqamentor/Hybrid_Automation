@@ -13,11 +13,18 @@ import socket
 from datetime import datetime
 from framework.core.utils.human_actions import HumanBehaviorSimulator, get_behavior_config
 from utils.fake_data_generator import generate_bookslot_payload, load_bookslot_data
+from utils.logger import get_audit_logger, get_logger
+
+logger = get_logger(__name__)
+audit_logger = get_audit_logger()
 
 # ════════════════════════════════════════════════════════════════════════════
-# REGISTER ARCHITECTURE AUDIT PLUGIN
+# REGISTER PYTEST PLUGINS
 # ════════════════════════════════════════════════════════════════════════════
-pytest_plugins = ['scripts.governance.pytest_arch_audit_plugin']
+pytest_plugins = [
+    'scripts.governance.pytest_arch_audit_plugin',
+    'framework.observability.pytest_enterprise_logging'  # Enterprise logging integration
+]
 
 
 def pytest_addoption(parser):
@@ -159,21 +166,20 @@ def multi_project_config(env):
     from pathlib import Path
     import yaml
     
-    # DEBUG: Print received environment
-    print(f"\n[CONFIG] Environment received: {env}")
-    
+    logger.debug(f"multi_project_config: env '{env}'")
+
     # Load projects.yaml directly
     config_path = Path(__file__).parent / "config" / "projects.yaml"
-    
+
     if config_path.exists():
         with open(config_path, 'r') as f:
             projects_data = yaml.safe_load(f)
             projects_config = projects_data.get('projects', {})
-        print(f"[CONFIG] Loaded projects.yaml")
+        logger.debug("multi_project_config: loaded projects.yaml")
     else:
         projects_config = {}
-        print(f"[CONFIG] WARNING: projects.yaml not found at {config_path}")
-    
+        logger.warning(f"multi_project_config: projects.yaml not found at {config_path}")
+
     # Build project URLs dictionary for current environment
     result = {}
     for project_name in ['bookslot', 'patientintake', 'callcenter']:
@@ -182,8 +188,10 @@ def multi_project_config(env):
             env_config = project.get('environments', {}).get(env, {})
             if env_config:
                 result[project_name] = env_config
-                print(f"[CONFIG] {project_name}.{env} URL: {env_config.get('ui_url')}")
-    
+                logger.debug(
+                    f"multi_project_config: {project_name}.{env} -> {env_config.get('ui_url')}"
+                )
+
     # Fail loudly if configuration is missing - no silent fallback to hardcoded values
     if not result:
         error_msg = (
@@ -192,10 +200,13 @@ def multi_project_config(env):
             f"Available environments in projects.yaml: staging, production\n"
             f"Please ensure projects.yaml exists and contains valid configuration."
         )
-        print(error_msg)
+        logger.error(error_msg)
         raise ValueError(error_msg)
-    
-    print(f"[CONFIG] Final BookSlot URL: {result.get('bookslot', {}).get('ui_url', 'NOT FOUND')}")
+
+    logger.debug(
+        f"multi_project_config: final bookslot url: "
+        f"{result.get('bookslot', {}).get('ui_url', 'NOT FOUND')}"
+    )
     return result
 
 
@@ -253,10 +264,10 @@ def human_behavior(request):
         elif 'driver' in request.fixturenames:
             driver = request.getfixturevalue('driver')
     except Exception as e:
-        print(f"[Human Behavior] Warning: Could not get driver fixture: {e}")
-    
+        logger.warning(f"human_behavior: could not get driver fixture: {e}")
+
     if driver is None:
-        print("[Human Behavior] Warning: No driver found. Human behavior will not be available.")
+        logger.warning("human_behavior: no driver found - returning MockSimulator")
         # Return a mock object
         class MockSimulator:
             def type_text(self, *args, **kwargs): return True
@@ -273,15 +284,15 @@ def human_behavior(request):
     
     # Log status
     status = "ENABLED" if enabled else "DISABLED"
-    print(f"[Human Behavior] {status} (intensity: {intensity})")
-    
+    logger.info(f"human_behavior: {status} (intensity: {intensity})")
+
     # Auto-execute initial behaviors if marker present
     if request.node.get_closest_marker('human_like') and enabled:
         try:
             simulator.random_mouse_movements(steps=5)
             simulator.scroll_page('down', distance=300)
         except Exception as e:
-            print(f"[Human Behavior] Initial behaviors failed: {e}")
+            logger.warning(f"human_behavior: initial behaviors failed: {e}")
     
     return simulator
 
@@ -294,7 +305,7 @@ def auto_human_behavior_marker(request):
     This fixture runs automatically for all tests and checks for the marker.
     """
     if request.node.get_closest_marker('human_like'):
-        print(f"[Human Behavior] Auto-applying to test: {request.node.name}")
+        logger.info(f"auto_human_behavior_marker: applying to test '{request.node.name}'")
 
 
 # ============================================================================
@@ -385,10 +396,23 @@ def context(browser, browser_context_args, request):
     
     # Create context with video recording
     context = browser.new_context(**context_args)
+
+    _test_name = request.node.nodeid
+    logger.info(f"context SETUP: video recording started -> {videos_dir} [{_test_name}]")
+    audit_logger.log_action("video_recording", {
+        "event": "start", "fixture": "context", "project": project,
+        "video_dir": str(videos_dir), "test_name": _test_name,
+    })
+
     yield context
-    
+
     # Close context (finalizes video recording)
     context.close()
+    logger.info(f"context TEARDOWN: video finalized [{_test_name}]")
+    audit_logger.log_action("video_recording", {
+        "event": "stop", "fixture": "context", "project": project,
+        "video_dir": str(videos_dir), "test_name": _test_name,
+    })
 
 
 # ============================================================================
@@ -503,6 +527,25 @@ def pytest_runtest_makereport(item, call):
     outcome = yield
     report = outcome.get_result()
     
+    # Log test execution phase
+    if report.when == "call":
+        test_name = item.nodeid
+        if report.passed:
+            logger.info(f"✓ TEST PASSED: {test_name}")
+            audit_logger.log_test_end(test_name, "passed", report.duration)
+        elif report.failed:
+            logger.error(f"✗ TEST FAILED: {test_name}")
+            audit_logger.log_test_end(test_name, "failed", report.duration)
+            if call.excinfo:
+                audit_logger.log_error(
+                    error_type=call.excinfo.typename,
+                    error_message=str(call.excinfo.value),
+                    stack_trace=str(call.excinfo.traceback)
+                )
+        elif report.skipped:
+            logger.warning(f"⊘ TEST SKIPPED: {test_name}")
+            audit_logger.log_test_end(test_name, "skipped", report.duration)
+    
     # Only process test execution phase (not setup/teardown)
     if report.when == "call":
         # Try to attach video from page fixture
@@ -525,6 +568,72 @@ def pytest_runtest_makereport(item, call):
                             name=f"{item.name}_video",
                             attachment_type=allure.attachment_type.WEBM
                         )
-                    print(f"\n✅ Video recorded: {video_path}")
+                    logger.info(f"✓ Video recorded and attached to Allure: {video_path}")
+                    audit_logger.log_screenshot(str(video_path), reason="video_capture", test_name=item.nodeid)
             except Exception as e:
-                print(f"\n⚠️  Could not attach video: {e}")
+                logger.warning(f"could not attach video to Allure report: {e}")
+
+
+def pytest_sessionstart(session):
+    """Hook called at test session start"""
+    logger.info("="*80)
+    logger.info("TEST SESSION STARTED")
+    logger.info("="*80)
+    audit_logger.log_action("session_start", {
+        "platform": platform.system(),
+        "hostname": socket.gethostname(),
+        "python_version": platform.python_version(),
+        "pytest_version": pytest.__version__
+    })
+
+
+def pytest_sessionfinish(session, exitstatus):
+    """Hook called at test session end"""
+    logger.info("="*80)
+    logger.info(f"TEST SESSION FINISHED (exit status: {exitstatus})")
+    logger.info("="*80)
+    audit_logger.log_action("session_end", {
+        "exit_status": exitstatus,
+        "total_collected": len(session.items) if hasattr(session, 'items') else 0
+    })
+
+
+def pytest_runtest_setup(item):
+    """Hook called before each test setup"""
+    logger.info(f"→ Setting up test: {item.nodeid}")
+    audit_logger.log_test_start(item.nodeid, item.fspath.basename)
+
+
+def pytest_runtest_teardown(item, nextitem):
+    """Hook called after each test teardown"""
+    logger.info(f"← Tearing down test: {item.nodeid}")
+    audit_logger.log_action("test_teardown", {"test": item.nodeid})
+
+
+def pytest_warning_recorded(warning_message, when, nodeid, location):
+    """
+    Hook called when a warning is captured.
+    Ensures all warnings are logged to audit trail.
+    """
+    import warnings
+    
+    # Extract warning details
+    category = warning_message.category.__name__ if hasattr(warning_message, 'category') else "Unknown"
+    message = str(warning_message.message) if hasattr(warning_message, 'message') else str(warning_message)
+    
+    # Get source location
+    filename = location[0] if location else None
+    lineno = location[1] if location and len(location) > 1 else None
+    
+    # Log to standard logger
+    logger.warning(f"⚠ {category}: {message}")
+    if filename:
+        logger.warning(f"  Source: {filename}:{lineno}")
+    
+    # Log to audit trail
+    audit_logger.log_warning(
+        warning_category=category,
+        warning_message=message,
+        source_file=filename,
+        source_line=lineno
+    )

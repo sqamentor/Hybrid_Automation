@@ -31,6 +31,15 @@ from webdriver_manager.microsoft import EdgeChromiumDriverManager
 from framework.ui.base_page import BasePage
 from utils.logger import get_logger
 
+# Self-instrumentation for selenium engine module
+try:
+    from framework.observability.universal_logger import log_function
+except ImportError:
+    def log_function(*args, **kwargs):
+        def decorator(func):
+            return func
+        return decorator
+
 logger = get_logger(__name__)
 
 
@@ -57,6 +66,7 @@ class SeleniumEngine:
     - Remote capabilities
     """
 
+    @log_function(log_args=True)
     def __init__(
         self,
         headless: bool = True,
@@ -86,6 +96,7 @@ class SeleniumEngine:
         self.enable_logging = enable_logging
         self._is_remote = bool(grid_url)
 
+    @log_function(log_args=True, log_timing=True)
     def start(self, browser_type: str = "chrome"):
         """Start Selenium browser"""
         if browser_type == "chrome":
@@ -113,6 +124,7 @@ class SeleniumEngine:
         self.driver.implicitly_wait(10)
         logger.info(f"Selenium {browser_type} started (headless={self.headless})")
 
+    @log_function(log_timing=True)
     def stop(self):
         """Stop Selenium browser"""
         try:
@@ -125,6 +137,7 @@ class SeleniumEngine:
         finally:
             self.driver = None
 
+    @log_function(log_result=True)
     def get_driver_info(self) -> Dict[str, Any]:
         """Get driver information"""
         if not self.driver:
@@ -143,6 +156,7 @@ class SeleniumEngine:
 
         return info
 
+    @log_function(log_result=True, log_timing=True)
     def check_grid_status(self) -> Dict[str, Any]:
         """Check Selenium Grid status"""
         if not self._is_remote:
@@ -157,17 +171,20 @@ class SeleniumEngine:
         except Exception as e:
             return {"error": f"Failed to check Grid status: {e}"}
 
+    @log_function(log_args=True)
     def navigate(self, url: str):
         """Navigate to URL"""
         self.driver.get(url)
         logger.debug(f"Navigated to: {url}")
 
+    @log_function(log_args=True)
     def click(self, locator: str, by: By = By.CSS_SELECTOR):
         """Click element"""
         element = self.driver.find_element(by, locator)
         element.click()
         logger.debug(f"Clicked: {locator}")
 
+    @log_function(log_args=True)
     def fill(self, locator: str, text: str, by: By = By.CSS_SELECTOR):
         """Fill input field"""
         element = self.driver.find_element(by, locator)
@@ -175,11 +192,13 @@ class SeleniumEngine:
         element.send_keys(text)
         logger.debug(f"Filled {locator} with text")
 
+    @log_function(log_args=True, log_result=True)
     def get_text(self, locator: str, by: By = By.CSS_SELECTOR) -> str:
         """Get element text"""
         element = self.driver.find_element(by, locator)
         return element.text
 
+    @log_function(log_args=True, log_result=True)
     def is_visible(self, locator: str, by: By = By.CSS_SELECTOR) -> bool:
         """Check if element is visible"""
         try:
@@ -188,11 +207,13 @@ class SeleniumEngine:
         except Exception:
             return False
 
+    @log_function(log_args=True)
     def wait_for_element(self, locator: str, timeout: int = 10, by: By = By.CSS_SELECTOR):
         """Wait for element"""
         wait = WebDriverWait(self.driver, timeout)
         wait.until(EC.presence_of_element_located((by, locator)))
 
+    @log_function(log_args=True)
     def take_screenshot(self, filename: str):
         """Take screenshot"""
         self.driver.save_screenshot(filename)
@@ -206,26 +227,32 @@ class SeleniumEngine:
 class SeleniumPage(BasePage):
     """Selenium-based page object"""
 
+    @log_function(log_args=True)
     def __init__(self, driver):
         super().__init__(driver)
         self.wait = WebDriverWait(driver, 10)
 
+    @log_function(log_args=True)
     def navigate(self, url: str):
         self.driver.get(url)
 
+    @log_function(log_args=True)
     def click(self, locator: str, by: By = By.CSS_SELECTOR):
         element = self.wait.until(EC.element_to_be_clickable((by, locator)))
         element.click()
 
+    @log_function(log_args=True)
     def fill(self, locator: str, text: str, by: By = By.CSS_SELECTOR):
         element = self.wait.until(EC.presence_of_element_located((by, locator)))
         element.clear()
         element.send_keys(text)
 
+    @log_function(log_args=True, log_result=True)
     def get_text(self, locator: str, by: By = By.CSS_SELECTOR) -> str:
         element = self.wait.until(EC.presence_of_element_located((by, locator)))
         return element.text
 
+    @log_function(log_args=True, log_result=True)
     def is_visible(self, locator: str, by: By = By.CSS_SELECTOR) -> bool:
         try:
             element = self.driver.find_element(by, locator)
@@ -233,16 +260,20 @@ class SeleniumPage(BasePage):
         except Exception:
             return False
 
+    @log_function(log_args=True)
     def wait_for_element(self, locator: str, timeout: int = 10000, by: By = By.CSS_SELECTOR):
         wait = WebDriverWait(self.driver, timeout / 1000)
         wait.until(EC.presence_of_element_located((by, locator)))
 
+    @log_function(log_args=True)
     def take_screenshot(self, filename: str):
         self.driver.save_screenshot(filename)
 
+    @log_function(log_result=True)
     def get_current_url(self) -> str:
         return self.driver.current_url
 
+    @log_function(log_result=True)
     def get_title(self) -> str:
         return self.driver.title
 

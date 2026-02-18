@@ -21,6 +21,7 @@ from typing import Any, Dict, List, Optional
 
 from framework.core.engine_selector import EngineDecision
 from utils.logger import get_logger
+from framework.observability import log_function, log_async_function
 
 logger = get_logger(__name__)
 
@@ -214,6 +215,7 @@ class AIEngineSelector:
             self.enabled = False
             return None
 
+    @log_function(log_timing=True)
     def select_engine(
         self, test_metadata: Dict[str, Any], historical_data: Optional[Dict[str, Any]] = None
     ) -> Optional[EngineDecision]:
@@ -461,6 +463,7 @@ class AIEngineSelector:
 
         return None
 
+    @log_function(log_timing=True)
     def analyze_test_suite(self, test_items: list) -> Dict[str, Any]:
         """
         Analyze entire test suite and provide recommendations
@@ -564,11 +567,13 @@ class AIEngineSelector:
         del self._response_cache[oldest_key]
         self._cache_stats["evictions"] += 1
 
+    @log_function(log_timing=True)
     def clear_cache(self):
         """Clear all cached responses"""
         self._response_cache.clear()
         self._cache_stats["evictions"] += len(self._response_cache)
 
+    @log_function(log_timing=True)
     def get_cache_stats(self) -> Dict[str, Any]:
         """Get cache statistics"""
         total = self._cache_stats["total_lookups"]
@@ -590,6 +595,7 @@ class AIEngineSelector:
     # UTILITY METHODS
     # ========================================================================
 
+    @log_function(log_timing=True)
     def get_provider_info(self) -> Dict[str, Any]:
         """Get information about the AI provider"""
         return {
@@ -602,6 +608,7 @@ class AIEngineSelector:
             "cache_ttl": self.cache_ttl,
         }
 
+    @log_function(log_timing=True)
     def test_connection(self) -> bool:
         """Test AI provider connection"""
         if not self.enabled or not self.client:

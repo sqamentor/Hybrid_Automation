@@ -33,6 +33,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
+from framework.observability import log_function, log_async_function
 
 try:
     import allure
@@ -48,9 +49,11 @@ try:
 except ImportError:
     PLAYWRIGHT_AVAILABLE = False
 
+from utils.logger import get_logger, get_audit_logger
 
 # Module logger
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
+audit_logger = get_audit_logger()
 
 
 class HumanBehaviorConfig:
@@ -69,6 +72,7 @@ class HumanBehaviorConfig:
         if self._config is None:
             self.reload_config()
 
+    @log_function(log_timing=True)
     def reload_config(self, env: Optional[str] = None):
         """Load configuration from YAML file"""
         config_path = Path(__file__).parent.parent.parent.parent / "config" / "human_behavior.yaml"
@@ -147,6 +151,7 @@ class HumanBehaviorConfig:
             "debug": {"log_actions": True, "allure_attachments": True},
         }
 
+    @log_function(log_timing=True)
     def get(self, key: str, default: Any = None) -> Any:
         """Get configuration value"""
         keys = key.split(".")
@@ -162,10 +167,12 @@ class HumanBehaviorConfig:
 
         return value if value is not None else default
 
+    @log_function(log_timing=True)
     def is_enabled(self) -> bool:
         """Check if human behavior simulation is enabled"""
         return self.get("enabled", True)
 
+    @log_function(log_timing=True)
     def is_category_enabled(self, category: str) -> bool:
         """Check if specific category is enabled"""
         return self.get(f"{category}.enabled", True)
@@ -175,6 +182,7 @@ class HumanBehaviorConfig:
 _config = HumanBehaviorConfig()
 
 
+@log_function(log_timing=True)
 def get_behavior_config() -> HumanBehaviorConfig:
     """Get global behavior configuration instance"""
     return _config
@@ -206,9 +214,13 @@ class HumanBehaviorSimulator:
         self._enabled = enabled if enabled is not None else self.config.is_enabled()
         self.engine_type = self._detect_engine()
 
-        logger.debug(
-            f"Initialized HumanBehaviorSimulator (engine={self.engine_type}, enabled={self._enabled})"
+        logger.info(
+            f"✓ HumanBehaviorSimulator initialized (engine={self.engine_type}, enabled={self._enabled})"
         )
+        audit_logger.log_action("human_behavior_init", {
+            "engine": self.engine_type,
+            "enabled": self._enabled
+        })
 
     def _detect_engine(self) -> str:
         """Detect automation engine type"""
@@ -216,6 +228,7 @@ class HumanBehaviorSimulator:
             return "playwright"
         return "selenium"
 
+    @log_function(log_timing=True)
     def type_text(
         self, element: Union[WebElement, "ElementHandle", str], text: str, clear_first: bool = True
     ) -> bool:
@@ -282,13 +295,17 @@ class HumanBehaviorSimulator:
             # Post-typing pause
             self._pause(0.2, 0.5)
 
+            logger.info(f"✓ Human typed text: '{text[:30]}...' successfully")
             self._log_action(f"Typed text: '{text[:20]}...' into element", attach_to_allure=True)
+            audit_logger.log_element_interaction("human_type", "input_field", value=text[:50], success=True)
             return True
 
         except Exception as e:
             logger.error(f"Human typing failed: {e}")
+            audit_logger.log_error("human_typing_failed", str(e))
             return self._fallback_type(element, text, clear_first)
 
+    @log_function(log_timing=True)
     def click_element(
         self, element: Union[WebElement, "ElementHandle", str], with_hover: bool = True
     ) -> bool:
@@ -340,13 +357,17 @@ class HumanBehaviorSimulator:
                 mouse_config.get("post_click_pause_max", 0.6),
             )
 
-            self._log_action(f"Clicked element", attach_to_allure=True)
+            logger.info("✓ Human clicked element successfully")
+            self._log_action("Clicked element", attach_to_allure=True)
+            audit_logger.log_element_interaction("human_click", "element", success=True)
             return True
 
         except Exception as e:
             logger.error(f"Human click failed: {e}")
+            audit_logger.log_error("human_click_failed", str(e))
             return self._fallback_click(element)
 
+    @log_function(log_timing=True)
     def scroll_page(
         self, direction: str = "down", distance: Optional[int] = None, smooth: bool = True
     ) -> bool:
@@ -381,13 +402,17 @@ class HumanBehaviorSimulator:
 
                 self._execute_scroll(scroll_dist, scroll_config)
 
+            logger.info(f"✓ Human scrolled {direction} successfully")
             self._log_action(f"Scrolled {direction}", attach_to_allure=False)
+            audit_logger.log_ui_action("human_scroll", direction)
             return True
 
         except Exception as e:
             logger.error(f"Human scroll failed: {e}")
+            audit_logger.log_error("human_scroll_failed", str(e))
             return self._fallback_scroll(direction, distance)
 
+    @log_function(log_timing=True)
     def random_mouse_movements(self, steps: int = 10) -> bool:
         """
         Perform random mouse movements over page elements
@@ -438,7 +463,7 @@ class HumanBehaviorSimulator:
                         try:
                             element.click()
                             self._log_action(f"Random clicked: {element.tag_name}")
-                        except:
+                        except Exception:
                             pass
 
                     # Move away
@@ -461,6 +486,7 @@ class HumanBehaviorSimulator:
             logger.error(f"Random mouse movements failed: {e}")
             return False
 
+    @log_function(log_timing=True)
     def random_page_interactions(self, max_interactions: int = 3) -> bool:
         """
         Perform random interactions with page elements
@@ -489,7 +515,7 @@ class HumanBehaviorSimulator:
                             self._log_action("Random checkbox interaction")
                             interactions_performed += 1
                             self._pause(0.5, 1.5)
-                    except:
+                    except Exception:
                         pass
 
             # Random dropdown interactions
@@ -505,7 +531,7 @@ class HumanBehaviorSimulator:
                                 self._log_action("Random dropdown interaction")
                                 interactions_performed += 1
                                 self._pause(0.5, 1.5)
-                    except:
+                    except Exception:
                         pass
 
             # Random link hover
@@ -520,7 +546,7 @@ class HumanBehaviorSimulator:
                             self._log_action("Random link hover")
                             interactions_performed += 1
                             self._pause(0.5, 1.0)
-                    except:
+                    except Exception:
                         pass
 
             return True
@@ -529,6 +555,7 @@ class HumanBehaviorSimulator:
             logger.error(f"Random page interactions failed: {e}")
             return False
 
+    @log_function(log_timing=True)
     def simulate_idle(self, duration: Optional[Tuple[float, float]] = None) -> bool:
         """
         Simulate idle/thinking time
@@ -666,7 +693,7 @@ class HumanBehaviorSimulator:
                     "arguments[0].scrollIntoView({block: 'center', behavior: 'smooth'});", element
                 )
             time.sleep(random.uniform(0.2, 0.5))
-        except:
+        except Exception:
             pass
 
     def _hover_element(self, element, duration: Tuple[float, float] = (0.3, 1.0)):
@@ -679,7 +706,7 @@ class HumanBehaviorSimulator:
                 actions.move_to_element(element).perform()
 
             self._pause(duration[0], duration[1])
-        except:
+        except Exception:
             pass
 
     def _find_element(self, locator: str):
@@ -696,7 +723,7 @@ class HumanBehaviorSimulator:
                 return self.driver.locator(locator).all()
             else:
                 return self.driver.find_elements(By.CSS_SELECTOR, locator)
-        except:
+        except Exception:
             return []
 
     def _get_visible_elements(self) -> List:
@@ -716,7 +743,7 @@ class HumanBehaviorSimulator:
             try:
                 if el.is_displayed() and el.size["width"] > 10 and el.size["height"] > 10:
                     visible.append(el)
-            except:
+            except Exception:
                 continue
 
         return visible
@@ -728,7 +755,7 @@ class HumanBehaviorSimulator:
                 return element.is_visible()
             else:
                 return element.is_displayed()
-        except:
+        except Exception:
             return False
 
     def _pause(self, min_duration: float, max_duration: float):
@@ -736,9 +763,13 @@ class HumanBehaviorSimulator:
         time.sleep(random.uniform(min_duration, max_duration))
 
     def _log_action(self, message: str, attach_to_allure: bool = False):
-        """Log action"""
+        """Log action to standard logger and audit trail"""
         if self.config.get("debug.log_actions", True):
             logger.info(f"[Human Behavior] {message}")
+            # Also log to audit trail
+            audit_logger.log_action("human_behavior_action", {
+                "action": message
+            }, status="success")
 
         if (
             attach_to_allure
@@ -751,7 +782,7 @@ class HumanBehaviorSimulator:
                     name="Human Behavior Action",
                     attachment_type=allure.attachment_type.TEXT,
                 )
-            except:
+            except Exception:
                 pass
 
     # ==================== Fallback Methods ====================
@@ -820,6 +851,7 @@ class HumanBehaviorSimulator:
 # ==================== Standalone Functions ====================
 
 
+@log_function(log_timing=True)
 def human_type(
     element: Union[WebElement, "ElementHandle", str],
     text: str,
@@ -864,6 +896,7 @@ def human_type(
         return False
 
 
+@log_function(log_timing=True)
 def human_click(
     driver: Union[WebDriver, "Page"], element: Union[WebElement, "ElementHandle", str]
 ) -> bool:
@@ -881,6 +914,7 @@ def human_click(
     return simulator.click_element(element)
 
 
+@log_function(log_timing=True)
 def human_scroll_behavior(driver: Union[WebDriver, "Page"], direction: str = "bottom") -> bool:
     """
     Standalone function: Scroll with human-like behavior
@@ -896,6 +930,7 @@ def human_scroll_behavior(driver: Union[WebDriver, "Page"], direction: str = "bo
     return simulator.scroll_page(direction)
 
 
+@log_function(log_timing=True)
 def random_mouse_movement(driver: WebDriver, steps: int = 10, retry: int = 3) -> bool:
     """
     Standalone function: Perform random mouse movements
@@ -912,6 +947,7 @@ def random_mouse_movement(driver: WebDriver, steps: int = 10, retry: int = 3) ->
     return simulator.random_mouse_movements(steps)
 
 
+@log_function(log_timing=True)
 def random_page_interaction(driver: Union[WebDriver, "Page"], max_interactions: int = 3) -> bool:
     """
     Standalone function: Perform random page interactions
@@ -927,6 +963,7 @@ def random_page_interaction(driver: Union[WebDriver, "Page"], max_interactions: 
     return simulator.random_page_interactions(max_interactions)
 
 
+@log_function(log_timing=True)
 def simulate_idle(
     driver: Union[WebDriver, "Page"], idle_time: Tuple[float, float] = (0.8, 2.5)
 ) -> bool:

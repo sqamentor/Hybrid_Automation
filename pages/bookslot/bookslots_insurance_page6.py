@@ -23,7 +23,12 @@ Does NOT contain:
 ❌ Complete test flows
 """
 
+import logging
+
 from framework.ui.base_page import BasePage
+from framework.observability import log_function, log_async_function
+
+logger = logging.getLogger(__name__)
 
 
 class BookslotInsurancePage(BasePage):
@@ -90,6 +95,7 @@ class BookslotInsurancePage(BasePage):
     # NAVIGATION
     # ===================================================================
     
+    @log_function(log_timing=True)
     def navigate(self):
         """Navigate to the insurance page"""
         url = f"{self.base_url}{self.path}"
@@ -100,56 +106,67 @@ class BookslotInsurancePage(BasePage):
     # ACTIONS
     # ===================================================================
     
+    @log_function(log_timing=True)
     def fill_member_name(self, member_name: str):
         """Fill Member Name field"""
         self.textbox_member_name.click()
         self.textbox_member_name.fill(member_name)
         return self
     
+    @log_function(log_timing=True)
     def fill_id_number(self, id_number: str):
         """Fill ID Number field"""
         self.textbox_id_number.click()
         self.textbox_id_number.fill(id_number)
         return self
     
+    @log_function(log_timing=True)
     def fill_group_number(self, group_number: str):
         """Fill Group number field"""
         self.textbox_group_number.click()
         self.textbox_group_number.fill(group_number)
         return self
     
+    @log_function(log_timing=True)
     def fill_insurance_company(self, company_name: str):
         """Fill Insurance Company Name field"""
         self.textbox_insurance_company.click()
         self.textbox_insurance_company.fill(company_name)
         return self
     
+    @log_function(log_timing=True)
     def get_member_name_value(self) -> str:
         """Get current value of member name field"""
         return self.textbox_member_name.input_value()
     
+    @log_function(log_timing=True)
     def get_id_number_value(self) -> str:
         """Get current value of ID number field"""
         return self.textbox_id_number.input_value()
     
+    @log_function(log_timing=True)
     def get_group_number_value(self) -> str:
         """Get current value of group number field"""
         return self.textbox_group_number.input_value()
     
+    @log_function(log_timing=True)
     def get_insurance_company_value(self) -> str:
         """Get current value of insurance company field"""
         return self.textbox_insurance_company.input_value()
     
+    @log_function(log_timing=True)
     def clear_group_number(self):
         """Clear group number field"""
         self.textbox_group_number.clear()
         return self
     
+    @log_function(log_timing=True)
     def submit_to_clinic(self):
         """Click Send to clinic button"""
         self.button_send_to_clinic.click()
         return self
     
+    @log_function(log_timing=True)
     def proceed_to_next(self):
         """Click Next button"""
         self.button_next.click()
@@ -159,18 +176,22 @@ class BookslotInsurancePage(BasePage):
     # PAGE-LEVEL CHECKS
     # ===================================================================
     
+    @log_function(log_timing=True)
     def is_page_loaded(self) -> bool:
         """Check if page is loaded"""
         try:
             return self.textbox_member_name.is_visible()
-        except:
+        except Exception as e:
+            logger.error(f"Error checking if insurance page is loaded: {e}")
             return False
     
+    @log_function(log_timing=True)
     def is_member_name_visible(self) -> bool:
         """Check if member name field is visible (no wait logic)"""
         try:
             return self.textbox_member_name.is_visible()
-        except:
+        except Exception as e:
+            logger.error(f"Error checking member name visibility: {e}")
             return False
 
 

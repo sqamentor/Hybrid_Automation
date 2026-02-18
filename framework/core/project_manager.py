@@ -20,6 +20,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import urlparse
 
 import yaml
+from framework.observability import log_function, log_async_function
 
 
 class ProjectDetectionError(Exception):
@@ -70,6 +71,7 @@ class ProjectManager:
         with open(self.config_path, "r") as f:
             return yaml.safe_load(f)
 
+    @log_function(log_timing=True)
     def detect_project_from_url(self, url: str, manual_project: Optional[str] = None) -> str:
         """
         Detect project from URL with intelligent matching
@@ -128,6 +130,7 @@ class ProjectManager:
             f"Use --project parameter to specify manually."
         )
 
+    @log_function(log_timing=True)
     def detect_environment_from_url(self, url: str, project: str) -> str:
         """
         Detect environment (staging/prod) from URL
@@ -174,6 +177,7 @@ class ProjectManager:
         # Fallback to production (default)
         return self.global_settings.get("environment_detection", {}).get("fallback_env", "prod")
 
+    @log_function(log_timing=True)
     def get_project_config(self, project: str) -> Dict[str, Any]:
         """
         Get full configuration for a project
@@ -194,6 +198,7 @@ class ProjectManager:
 
         return self.projects[project]
 
+    @log_function(log_timing=True)
     def get_project_paths(self, project: str) -> Dict[str, Path]:
         """
         Get absolute paths for project directories
@@ -214,6 +219,7 @@ class ProjectManager:
             "test_data": self.workspace_root / paths.get("test_data", f"test_data/{project}"),
         }
 
+    @log_function(log_timing=True)
     def create_project_structure(self, project: str) -> Dict[str, Path]:
         """
         Create directory structure for a project
@@ -256,6 +262,7 @@ class ProjectManager:
 
         return paths
 
+    @log_function(log_timing=True)
     def generate_recording_filename(
         self, project: str, feature: str = None, timestamp: datetime = None
     ) -> str:
@@ -293,6 +300,7 @@ class ProjectManager:
 
         return f"{filename}.py"
 
+    @log_function(log_timing=True)
     def generate_page_object_filename(self, feature: str) -> str:
         """
         Generate filename for page object
@@ -313,6 +321,7 @@ class ProjectManager:
 
         return f"{pattern.format(feature=feature)}{suffix}"
 
+    @log_function(log_timing=True)
     def get_available_projects(self) -> List[Dict[str, str]]:
         """
         Get list of all available projects with metadata
@@ -333,6 +342,7 @@ class ProjectManager:
             )
         return projects
 
+    @log_function(log_timing=True)
     def register_new_project(
         self,
         project_name: str,
@@ -391,6 +401,7 @@ class ProjectManager:
 
         return new_config
 
+    @log_function(log_timing=True)
     def get_project_info(
         self, url: str, manual_project: Optional[str] = None, environment: Optional[str] = None
     ) -> Dict[str, Any]:
@@ -437,6 +448,7 @@ class ProjectManager:
 
 
 # Convenience function for quick access
+@log_function(log_timing=True)
 def get_project_manager() -> ProjectManager:
     """Get singleton ProjectManager instance"""
     if not hasattr(get_project_manager, "_instance"):
