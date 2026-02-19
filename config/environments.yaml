@@ -203,7 +203,10 @@ global:
     
     html:
       enabled: true
-      output_file: "reports/test_report.html"
+      # Dynamic naming: projectname_EnvironmentName_DDMMYYYY_HHMMSS.html
+      # Generated automatically by conftest.py based on --project and --env options
+      # Use --html=custom_name.html to override with specific filename
+      output_dir: "reports"
     
     junit:
       enabled: true

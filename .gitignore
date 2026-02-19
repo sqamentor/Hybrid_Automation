@@ -55,7 +55,18 @@ allure-report/
 *.html
 *.xml
 
-# Evidence
+# Artifacts Directory (organized test outputs)
+artifacts/screenshots/
+artifacts/videos/
+artifacts/traces/
+artifacts/logs/
+artifacts/temp/
+artifacts/reports/*.json
+artifacts/reports/*.txt
+# Keep the directory structure but ignore content
+!artifacts/reports/.gitkeep
+
+# Evidence (legacy paths - kept for compatibility)
 screenshots/
 videos/
 traces/

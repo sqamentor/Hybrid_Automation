@@ -498,22 +498,36 @@ comprehensive_collector = ComprehensiveTestCollector()
 # ========================================================================
 # PYTEST HOOKS
 # ========================================================================
+# NOTE: This hook is DISABLED to prevent interfering with video links
+# The root conftest.py hook adds video links, and this was overwriting them
+# ========================================================================
 
 
-@pytest.hookimpl(hookwrapper=True)
-def pytest_runtest_makereport(item, call):
-    """Enhanced hook with comprehensive data collection"""
-    outcome = yield
-    report = outcome.get_result()
+# @pytest.hookimpl(hookwrapper=True)  # DISABLED
+def pytest_runtest_makereport_DISABLED(item, call):
+    """Enhanced hook with comprehensive data collection - CURRENTLY DISABLED"""
+    pass
+    # This function is disabled - see root conftest.py for active video hook
+    #
+    # outcome = yield
+    # report = outcome.get_result()
 
     extra = getattr(report, "extra", [])
+    
+    # DEBUG: Log initial state
+    logger.debug(f"[COMPREHENSIVE] report.when={report.when}, Phase: POST-YIELD")
+    logger.debug(f"[COMPREHENSIVE] report.extra at START: {getattr(report, 'extra', 'NOT_SET')}")
+    logger.debug(f"[COMPREHENSIVE] extra variable (local): {extra}")
+    logger.debug(f"[COMPREHENSIVE] Are they same object? {extra is getattr(report, 'extra', None)}")
 
     if report.when == "call":
         test_id = item.nodeid
         test_data = comprehensive_collector.get_test_data(test_id)
 
         if not test_data:
-            report.extra = extra
+            logger.warning(f"[COMPREHENSIVE] NO TEST DATA - Current report.extra has {len(extra)} items")
+            logger.warning(f"[COMPREHENSIVE] NOT modifying report.extra (preserving existing content)")
+            # DO NOT assign! Just return and leave report.extra untouched
             return
 
         # Generate comprehensive HTML sections
@@ -586,7 +600,24 @@ def pytest_runtest_makereport(item, call):
                     pytest_runtest_makereport._css_added = True
                     extra.append(extras.html(get_comprehensive_css()))
 
-        report.extra = extra
+        # DEBUG: Log before assignment
+        logger.debug(f"[COMPREHENSIVE] Extra items to ADD: {len(extra)}")
+        logger.debug(f"[COMPREHENSIVE] report.extra BEFORE modification: {report.extra}")
+        
+        # PRESERVE existing extras (especially video link from root conftest!)
+        # Only extend if we have new items to add
+        if extra:
+            if not hasattr(report, 'extra'):
+                report.extra = []
+            # Append new items to existing extras
+            logger.info(f"[COMPREHENSIVE] Adding {len(extra)} comprehensive items to report")
+            report.extra.extend(extra)
+        else:
+            logger.debug(f"[COMPREHENSIVE] No new items to add, preserving existing {len(report.extra)} extras")
+        
+        # DEBUG: Log after modification
+        logger.debug(f"[COMPREHENSIVE] report.extra AFTER modification: {report.extra}")
+        logger.debug(f"[COMPREHENSIVE] report.extra length: {len(report.extra)}")
 
 
 # ========================================================================

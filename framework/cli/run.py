@@ -17,8 +17,9 @@ import subprocess
 from datetime import datetime
 import yaml
 
-# Add framework to path
-sys.path.insert(0, str(Path(__file__).parent))
+# Add project root to path (go up three levels from framework/cli/)
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
 
 # ============================================================================
@@ -837,20 +838,23 @@ PLAYWRIGHT SPECIFIC:
 # MAIN ENTRY POINT
 # ============================================================================
 
-def main():
-    """Main entry point"""
+def main(args: Optional[List[str]] = None):
+    """Main entry point - can be called from unified CLI or standalone"""
     try:
         runner = InteractiveTestRunner()
         runner.run()
+        return 0
     except KeyboardInterrupt:
         print("\n\n" + "="*80)
         print_info("Test runner interrupted by user")
         print("="*80)
+        return 130
     except Exception as e:
         print_error(f"Unexpected error: {e}")
         import traceback
         traceback.print_exc()
+        return 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

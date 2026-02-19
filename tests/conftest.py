@@ -12,8 +12,13 @@ Assisted by: AI Claude
 import os
 import time
 from pathlib import Path
+import sys
 
 import pytest
+
+# Import generate_unique_video_filename from root conftest.py
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from conftest import generate_unique_video_filename
 
 from config.settings import get_api_url, get_ui_url, settings
 from framework.api.api_client import APIClient
@@ -305,28 +310,15 @@ def shared_browser(playwright_instance, browser_config):
 
 
 @pytest.fixture
-def bookslot_page(request, shared_browser, multi_project_config):
+def bookslot_page(request, context, multi_project_config, env, project):
     """
     Bookslot page object fixture
     Creates a Playwright page for Bookslot application
-    WITH VIDEO RECORDING enabled
+    Uses shared context fixture (from root conftest) which handles video recording
     """
-    from datetime import datetime
-    from pathlib import Path
     from pages.bookslot import BookslotBasicInfoPage
 
-    # Create videos directory if it doesn't exist
-    videos_dir = Path("videos")
-    videos_dir.mkdir(exist_ok=True)
-
-    # Capture test start timestamp for video filename (DDMMYYYY_HH_MM_SS) - Windows-safe format
-    video_start_time = datetime.now().strftime("%d%m%Y_%H_%M_%S")
-
-    # Create context with video recording enabled
-    context = shared_browser.new_context(
-        record_video_dir=str(videos_dir),
-        record_video_size={"width": 1920, "height": 1080}
-    )
+    # Use the shared context (which already has video recording enabled)
     page = context.new_page()
 
     # Create page object
@@ -346,79 +338,22 @@ def bookslot_page(request, shared_browser, multi_project_config):
 
     # Log fixture teardown
     audit_logger.log_fixture_event("bookslot_page", "teardown", test_name=_test_name)
-    logger.info(f"bookslot_page TEARDOWN: closing context [{_test_name}]")
-
-    # Save video path before closing context
-    video_path = None
-    try:
-        video_path = page.video.path()
-    except Exception as e:
-        logger.warning(f"Could not get video path: {e}")
-
-    # Cleanup - close context to finish video recording (finalises the .webm file)
-    context.close()
-
-    # Rename video file to DDMMYYYY_HH_MM_SS.webm (Windows-safe format with underscores)
-    if video_path:
-        try:
-            video_path_obj = Path(video_path)
-            if video_path_obj.exists():
-                new_video_path = video_path_obj.parent / f"{video_start_time}.webm"
-                # Avoid overwrite if two tests share the same second
-                counter = 1
-                while new_video_path.exists():
-                    new_video_path = video_path_obj.parent / f"{video_start_time}_{counter}.webm"
-                    counter += 1
-                video_path_obj.rename(new_video_path)
-                video_path = str(new_video_path)
-                logger.info(f"bookslot_page: video saved as {new_video_path.name}")
-                audit_logger.log_action("video_recording", {
-                    "event": "stop", "fixture": "bookslot_page",
-                    "video_path": str(new_video_path), "test_name": _test_name,
-                })
-        except Exception as e:
-            logger.warning(f"Could not rename video file: {e}")
-            # Keep original video path if rename fails
-            video_path = str(video_path_obj) if video_path_obj.exists() else None
-
-    # Attach video to Allure report if path exists
-    if video_path:
-        try:
-            import allure
-            with open(video_path, "rb") as video_file:
-                allure.attach(
-                    video_file.read(),
-                    name=f"{request.node.name}_video",
-                    attachment_type=allure.attachment_type.WEBM
-                )
-            logger.info(f"Video recorded and attached: {video_path}")
-        except Exception as e:
-            logger.error(f"Failed to attach video to Allure: {e}")
+    logger.info(f"bookslot_page TEARDOWN: page closed [{_test_name}]")
+    
+    # Note: context.close() and video handling is done in root conftest context fixture teardown
 
 
 @pytest.fixture
-def patientintake_page(request, shared_browser, multi_project_config):
+def patientintake_page(request, context, multi_project_config, env, project):
     """
     PatientIntake page object fixture
     Creates a Playwright page for PatientIntake application
-    WITH VIDEO RECORDING enabled
+    Uses shared context fixture (from root conftest) which handles video recording
     """
-    from datetime import datetime
     from pathlib import Path
     from pages.patientintake import PatientIntakeAppointmentListPage
 
-    # Create videos directory if it doesn't exist
-    videos_dir = Path("videos")
-    videos_dir.mkdir(exist_ok=True)
-
-    # Capture test start timestamp for video filename (DDMMYYYY_HH_MM_SS) - Windows-safe format
-    video_start_time = datetime.now().strftime("%d%m%Y_%H_%M_%S")
-
-    # Create context with video recording enabled
-    context = shared_browser.new_context(
-        record_video_dir=str(videos_dir),
-        record_video_size={"width": 1920, "height": 1080}
-    )
+    # Use the shared context (which already has video recording enabled)
     page = context.new_page()
 
     # Create page object
@@ -428,64 +363,15 @@ def patientintake_page(request, shared_browser, multi_project_config):
     # Log fixture setup to audit trail
     _test_name = request.node.nodeid
     audit_logger.log_fixture_event("patientintake_page", "setup", test_name=_test_name)
-    logger.info(f"patientintake_page SETUP: video recording started -> {videos_dir} [{_test_name}]")
-    audit_logger.log_action("video_recording", {
-        "event": "start", "fixture": "patientintake_page",
-        "video_dir": str(videos_dir), "test_name": _test_name,
-    })
+    logger.info(f"patientintake_page SETUP: page created [{_test_name}]")
 
     yield patientintake_po
 
     # Log fixture teardown
     audit_logger.log_fixture_event("patientintake_page", "teardown", test_name=_test_name)
-    logger.info(f"patientintake_page TEARDOWN: closing context [{_test_name}]")
-
-    # Save video path before closing context
-    video_path = None
-    try:
-        video_path = page.video.path()
-    except Exception as e:
-        logger.warning(f"Could not get video path: {e}")
-
-    # Cleanup - close context to finish video recording (finalises the .webm file)
-    context.close()
-
-    # Rename video file to DDMMYYYY_HH_MM_SS.webm (Windows-safe format with underscores)
-    if video_path:
-        try:
-            video_path_obj = Path(video_path)
-            if video_path_obj.exists():
-                new_video_path = video_path_obj.parent / f"{video_start_time}.webm"
-                # Avoid overwrite if two tests share the same second
-                counter = 1
-                while new_video_path.exists():
-                    new_video_path = video_path_obj.parent / f"{video_start_time}_{counter}.webm"
-                    counter += 1
-                video_path_obj.rename(new_video_path)
-                video_path = str(new_video_path)
-                logger.info(f"patientintake_page: video saved as {new_video_path.name}")
-                audit_logger.log_action("video_recording", {
-                    "event": "stop", "fixture": "patientintake_page",
-                    "video_path": str(new_video_path), "test_name": _test_name,
-                })
-        except Exception as e:
-            logger.warning(f"Could not rename video file: {e}")
-            # Keep original video path if rename fails
-            video_path = str(video_path_obj) if video_path_obj.exists() else None
-
-    # Attach video to Allure report if path exists
-    if video_path:
-        try:
-            import allure
-            with open(video_path, "rb") as video_file:
-                allure.attach(
-                    video_file.read(),
-                    name=f"{request.node.name}_video",
-                    attachment_type=allure.attachment_type.WEBM
-                )
-            logger.info(f"Video recorded and attached: {video_path}")
-        except Exception as e:
-            logger.error(f"Failed to attach video to Allure: {e}")
+    logger.info(f"patientintake_page TEARDOWN: page closed [{_test_name}]")
+    
+    # Note: context.close() and video handling is done in root conftest context fixture teardown
 
 
 @pytest.fixture
@@ -688,3 +574,4 @@ def pytest_collection_modifyitems(config, items):
         ):
             # Add no_asyncio marker to prevent pytest-asyncio from wrapping
             item.add_marker(pytest.mark.no_asyncio)
+

@@ -180,13 +180,17 @@ Issues = "https://github.com/lokendrasingh/automation/issues"
 Changelog = "https://github.com/lokendrasingh/automation/releases"
 
 # ============================================================================
-# CLI ENTRY POINTS
+# CLI ENTRY POINTS - Unified Modern CLI
 # ============================================================================
 
 [project.scripts]
-automation-run = "framework.cli:main"
-automation-record = "record_cli:main"
-automation-simulate = "simulate_cli:main"
+# Unified CLI entry point (modern pattern)
+automation = "framework.cli:main"
+
+# Legacy entry points (deprecated - use 'automation <command>' instead)
+automation-run = "framework.cli.run:main"
+automation-record = "framework.cli.record:main"
+automation-simulate = "framework.cli.simulate:main"
 
 # ============================================================================
 # BUILD CONFIGURATION (Hatchling)

@@ -24,7 +24,7 @@ import allure
 import pytest
 
 from pages.bookslot.bookslots_basicinfo_page1 import BookslotBasicInfoPage
-from pages.bookslot.bookslots_eventinfo_page2 import BookslotEventInfoPage
+from pages.bookslot.bookslot_eventtype_page2 import BookslotEventInfoPage
 from tests.bookslot.helpers.navigation_helper import BookslotNavigator
 
 

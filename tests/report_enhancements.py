@@ -215,17 +215,27 @@ report_collector = TestReportCollector()
 # PYTEST-HTML HOOKS
 # ========================================================================
 
+# ========================================================================
+# NOTE: This hook is DISABLED - was conflicting with root conftest video hook
+# ========================================================================
 
-@pytest.hookimpl(hookwrapper=True)
-def pytest_runtest_makereport(item, call):
+# @pytest.hookimpl(hookwrapper=True)  # DISABLED
+def pytest_runtest_makereport_DISABLED(item, call):
     """
-    Enhanced hook to add custom data to report
+    Enhanced hook to add custom data to report - CURRENTLY DISABLED
     """
-    outcome = yield
-    report = outcome.get_result()
+    pass
+    # This function is disabled - see root conftest.py for active video hook
+    #
+    # outcome = yield
+    # report = outcome.get_result()
 
     # Add extra HTML content to report
     extra = getattr(report, "extra", [])
+    
+    # DEBUG: Log initial state
+    logger.debug(f"[REPORT_ENHANCEMENTS] report.when={report.when}, Phase: POST-YIELD")
+    logger.debug(f"[REPORT_ENHANCEMENTS] report.extra at START: {getattr(report, 'extra', 'NOT_SET')}")
 
     if report.when == "call":
         test_id = item.nodeid
@@ -342,7 +352,24 @@ def pytest_runtest_makereport(item, call):
                         except Exception as e:
                             pass
 
-        report.extra = extra
+        # DEBUG: Log before modification
+        logger.debug(f"[REPORT_ENHANCEMENTS] Extra items to ADD: {len(extra)}")
+        logger.debug(f"[REPORT_ENHANCEMENTS] report.extra BEFORE modification: {getattr(report, 'extra', [])}")
+        
+        # PRESERVE existing extras (especially video link from root conftest!)
+        # Only extend if we have new items to add
+        if extra:
+            if not hasattr(report, 'extra'):
+                report.extra = []
+            # Append new items to existing extras
+            logger.info(f"[REPORT_ENHANCEMENTS] Adding {len(extra)} enhancement items to report")
+            report.extra.extend(extra)
+        else:
+            logger.debug(f"[REPORT_ENHANCEMENTS] No new items to add, preserving existing extras")
+        
+        # DEBUG: Log after modification
+        logger.debug(f"[REPORT_ENHANCEMENTS] report.extra AFTER modification: {report.extra}")
+        logger.debug(f"[REPORT_ENHANCEMENTS] report.extra length: {len(report.extra)}")
 
 
 # ========================================================================

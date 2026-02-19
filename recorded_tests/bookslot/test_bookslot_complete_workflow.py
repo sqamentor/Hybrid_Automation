@@ -18,6 +18,9 @@ Website: www.sqamentor.com
 
 import re
 import pytest
+from framework.observability.enterprise_logger import EnterpriseLogger
+
+logger = EnterpriseLogger()
 # ARCHITECTURAL FIX: Removed direct Playwright import - use page fixture instead
 
 
@@ -46,7 +49,7 @@ def test_bookslot_complete_flow(page, multi_project_config, smart_actions, fake_
     data = fake_bookslot_data
     act = smart_actions
     
-    print(f"\n🎯 Testing with: {data['email']}\n")
+    logger.info(f"Testing with email: {data['email']}")
     
     # =========================================================================
     # BASIC INFO PAGE

@@ -93,16 +93,50 @@ pytest --version
 playwright --version
 ```
 
-### Run Your First Test
+### ⭐ Run Tests - Interactive Mode (Recommended for Everyone!)
+
+**New!** User-friendly, guided test launcher - perfect for non-technical users:
 
 ```bash
-# Option 1: Interactive CLI (Recommended) ⭐
-python run_pom_tests_cli.py
+# Just type:
+automation
+```
 
-# Option 2: Direct pytest
-pytest recorded_tests/bookslot/test_bookslot_complete_workflow.py -v --headed
+**What happens next:**
+1. 🎨 Beautiful welcome screen
+2. 📋 Select your project (bookslot, callcenter, patientintake)
+3. 📦 Choose test suite (recorded, modern, workflow)
+4. 📄 Pick specific test or run all
+5. 🌍 Select environment (staging/production)
+6. ✅ Review and confirm
+7. 🚀 Watch tests run with beautiful output!
 
-# Option 3: Make commands
+**Features:**
+- 👤 **Non-technical friendly** - No commands to memorize
+- 🎨 **Beautiful UI** - Colors, icons, clear descriptions
+- 🔄 **Smart navigation** - Go back if you make a mistake
+- 📊 **Auto-discovery** - Finds all available tests
+- 🌍 **Environment aware** - Shows URLs for verification
+
+**Learn More:** [Interactive CLI Guide](Framework-Knowledge-Center/10-Rules-And-Standards/INTERACTIVE_CLI_GUIDE.md)
+
+---
+
+### 🔧 Advanced: Direct Command Execution
+
+For automation scripts, CI/CD, and power users:
+
+```bash
+# Modern project-aware execution
+automation test bookslot --env staging
+
+# Legacy POM runner
+automation run-pom --project bookslot --env staging
+
+# Direct pytest
+pytest recorded_tests/bookslot/test_bookslot_complete_workflow.py --env=staging -v
+
+# Make commands
 make test-bookslot
 ```
 
@@ -142,52 +176,139 @@ def test_booking(page: Page, smart_actions, fake_bookslot_data):
 
 ## 🏛️ Architecture Overview
 
-### Framework Structure
+### Framework Structure (Modern Multi-Project Organization)
 
 ```
-Automation/
-├── framework/              # Core framework code
-│   ├── core/              # Smart actions, engine selector, workflow orchestrator
-│   ├── ui/                # Playwright/Selenium engines, base page, self-healing
-│   ├── api/               # API clients, interceptors, GraphQL, WebSocket
-│   ├── database/          # DB validators, query builder, async connections
-│   ├── ai/                # AI providers, NL test generator
-│   ├── intelligence/      # Self-healing, ML optimizer, pattern recognition
-│   ├── visual/            # Visual regression testing
-│   ├── accessibility/     # WCAG compliance testing
-│   ├── security/          # Security scanning, OWASP ZAP
-│   ├── performance/       # Performance metrics, Core Web Vitals
-│   └── observability/     # Logging, tracing, monitoring
+Hybrid_Automation/
 │
-├── pages/                 # Page Object Model (POM) - Engine-Agnostic
-│   ├── bookslot/         # BookSlot application pages (extends BasePage)
-│   ├── callcenter/       # CallCenter application pages (extends BasePage)
-│   └── patientintake/    # PatientIntake application pages (extends BasePage)
+├── 📦 CORE FRAMEWORK
+│   ├── framework/                    # Core framework code
+│   │   ├── cli/                     # Modern unified CLI (automation command)
+│   │   ├── core/                    # Smart actions, engine selector, orchestrator
+│   │   ├── ui/                      # Playwright/Selenium engines, base page
+│   │   ├── api/                     # API clients, interceptors, GraphQL
+│   │   ├── database/                # DB validators, query builder
+│   │   ├── ai/                      # AI providers, NL test generator
+│   │   ├── intelligence/            # Self-healing, ML optimizer
+│   │   ├── visual/                  # Visual regression testing
+│   │   ├── accessibility/           # WCAG compliance
+│   │   ├── security/                # Security scanning, OWASP ZAP
+│   │   ├── performance/             # Performance metrics
+│   │   └── observability/           # Enterprise logging, tracing
+│   │
+│   ├── models/                      # Data models and fixtures
+│   └── utils/                       # Shared utilities
 │
-├── tests/                # Test suites (organized by engine)
-│   ├── modern/          # Playwright tests for modern SPAs
-│   │   ├── bookslot/    # BookSlot Playwright tests
-│   │   ├── callcenter/  # CallCenter Playwright tests
-│   │   └── patientintake/  # PatientIntake Playwright tests
-│   ├── legacy/          # Selenium tests for legacy UIs
-│   ├── workflows/       # Cross-engine E2E workflows
-│   ├── unit/            # Unit tests (no engine)
-│   └── integration/     # Integration tests
+├── 🎯 MULTI-PROJECT STRUCTURE
+│   ├── pages/                       # Page Object Model (POM) by project
+│   │   ├── bookslot/               # BookSlot pages (appointment booking)
+│   │   ├── callcenter/             # CallCenter pages (call management)
+│   │   └── patientintake/          # PatientIntake pages (patient mgmt)
+│   │
+│   ├── tests/                       # Test suites (organized by type)
+│   │   ├── modern/                 # Playwright tests for SPAs
+│   │   │   ├── bookslot/
+│   │   │   ├── callcenter/
+│   │   │   └── patientintake/
+│   │   ├── legacy/                 # Selenium tests for legacy UI
+│   │   ├── workflows/              # Cross-engine E2E workflows
+│   │   ├── integration/            # Integration tests
+│   │   ├── unit/                   # Unit tests
+│   │   └── examples/               # Example test implementations
+│   │
+│   ├── recorded_tests/             # Recorded test suites by project
+│   │   ├── bookslot/
+│   │   ├── callcenter/
+│   │   └── patientintake/
+│   │
+│   └── test_data/                  # Test data by project
+│       ├── bookslot/
+│       ├── callcenter/
+│       └── patientintake/
 │
-├── config/              # Configuration files
-│   ├── engine_decision_matrix.yaml   # Engine selection rules
-│   ├── environments.yaml             # Environment configs
-│   ├── projects.yaml                 # Project definitions
-│   └── human_behavior.yaml          # Behavior simulation configs
+├── ⚙️ CONFIGURATION
+│   ├── config/                      # All configuration files
+│   │   ├── engine_decision_matrix.yaml  # Engine selection rules
+│   │   ├── environments.yaml            # Environment configs
+│   │   ├── projects.yaml                # Multi-project definitions
+│   │   ├── human_behavior.yaml          # Behavior simulation
+│   │   ├── logging_config.yaml          # Enterprise logging
+│   │   └── settings.py                  # Framework settings
+│   │
+│   ├── .env.example                 # Environment template
+│   ├── pyproject.toml              # Project configuration
+│   ├── pytest.ini                  # Pytest configuration
+│   └── conftest.py                 # Root pytest fixtures
 │
-├── scripts/             # Utility scripts
-│   ├── governance/     # Architecture audit, enforcement
-│   └── validation/     # System verification scripts
+├── 🛠️ SCRIPTS (Organized)
+│   ├── scripts/
+│   │   ├── setup/                  # Installation & setup scripts
+│   │   │   ├── install_missing_dependencies.ps1
+│   │   │   ├── setup_ai.py
+│   │   │   └── firstrun
+│   │   ├── runners/                # Test execution scripts
+│   │   │   ├── run_pom.bat
+│   │   │   └── run_pom.ps1
+│   │   ├── validation/             # Validation & verification
+│   │   │   ├── verify_installation.py
+│   │   │   ├── verify_complete.py
+│   │   │   ├── validate_video_naming.py
+│   │   │   └── verify_media_capture.py
+│   │   ├── audit/                  # Architecture audit
+│   │   │   └── deep_audit.py
+│   │   ├── cli/                    # Legacy CLI (deprecated)
+│   │   ├── governance/             # Governance enforcement
+│   │   ├── quick-start/            # Quick start utilities
+│   │   └── utilities/              # Misc utilities
 │
-├── utils/              # Utilities
-│   ├── fake_data_generator.py  # Test data generation
-│   └── logger.py               # Logging configuration
+├── 📊 ARTIFACTS (Test Outputs)
+│   ├── artifacts/
+│   │   ├── screenshots/            # Test screenshots
+│   │   ├── videos/                 # Test recordings
+│   │   ├── traces/                 # Playwright traces
+│   │   ├── logs/                   # Execution logs
+│   │   ├── reports/                # Audit & compliance reports
+│   │   └── temp/                   # Temporary files
+│   │
+│   ├── reports/                    # HTML/Allure reports
+│   ├── allure-results/             # Allure test results
+│   └── log/                        # Legacy log directory
 │
+├── 📚 DOCUMENTATION
+│   ├── docs/                       # Documentation (symlink to Knowledge Center)
+│   ├── Framework-Knowledge-Center/ # Complete documentation hub
+│   │   ├── INDEX.md               # Documentation index
+│   │   ├── 02-Core-Concepts/
+│   │   ├── 03-Page-Object-Model/
+│   │   ├── 05-Observability-And-Logging/
+│   │   ├── 07-Governance/
+│   │   ├── 08-Media-Capture/
+│   │   └── 10-Rules-And-Standards/
+│   │
+│   ├── README.md                  # This file (main documentation)
+│   └── LICENSE                    # MIT License
+│
+├── 🐳 DEVOPS
+│   ├── .github/                   # GitHub Actions, templates
+│   ├── ci/                        # CI/CD configurations
+│   ├── docker/                    # Docker configurations
+│   └── examples/                  # Example configurations
+│
+└── 🔧 PROJECT FILES
+    ├── .gitignore                 # Git ignore rules
+    ├── .editorconfig              # Editor configuration
+    ├── .pre-commit-config.yaml    # Pre-commit hooks
+    ├── .yamllint.yaml             # YAML linting rules
+    └── Makefile                   # Build automation
+```
+
+### 🎯 Key Organization Principles
+
+1. **Multi-Project Support** - bookslot, callcenter, patientintake
+2. **Artifact Separation** - All outputs in `artifacts/` directory
+3. **Script Organization** - Categorized by purpose (setup, validation, audit)
+4. **Modern CLI** - Unified `automation` command with subcommands
+5. **Documentation Hub** - Centralized in Framework-Knowledge-Center
 ├── conftest.py         # Pytest fixtures and configuration
 ├── pyproject.toml      # Python project configuration
 └── README.md           # This file

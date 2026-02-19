@@ -22,7 +22,7 @@ Run Commands:
 import allure
 import pytest
 
-from pages.bookslot.bookslots_webscheduler_page3 import BookslotWebSchedulerPage
+from pages.bookslot.bookslot_scheduler_page3 import BookslotWebSchedulerPage
 from tests.bookslot.helpers.navigation_helper import BookslotNavigator
 
 

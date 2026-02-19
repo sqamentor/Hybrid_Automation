@@ -18,11 +18,17 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Type
 # Self-instrumentation for plugin system
 try:
-    from framework.observability.universal_logger import log_function
+    from framework.observability.universal_logger import log_function, log_async_function
 except ImportError:
     def log_function(*args, **kwargs):
         def decorator(func):
             return func
+        return decorator
+    
+    def log_async_function(*args, **kwargs):
+        def decorator(func):
+            return func
+        return decorator
         return decorator
 
 class PluginStatus(str, Enum):

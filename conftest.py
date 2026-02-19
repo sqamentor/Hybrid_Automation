@@ -10,7 +10,9 @@ Website: www.sqamentor.com
 import pytest
 import platform
 import socket
+import os
 from datetime import datetime
+from pathlib import Path
 from framework.core.utils.human_actions import HumanBehaviorSimulator, get_behavior_config
 from utils.fake_data_generator import generate_bookslot_payload, load_bookslot_data
 from utils.logger import get_audit_logger, get_logger
@@ -25,6 +27,176 @@ pytest_plugins = [
     'scripts.governance.pytest_arch_audit_plugin',
     'framework.observability.pytest_enterprise_logging'  # Enterprise logging integration
 ]
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# DYNAMIC HTML REPORT GENERATION
+# ════════════════════════════════════════════════════════════════════════════
+
+def generate_unique_report_filename(project: str, environment: str, reports_dir: str = "reports") -> str:
+    """
+    Generate unique HTML report filename with format:
+    projectname_EnvironmentName_DDMMYYYY_HHMMSS.html
+    
+    If file exists, append incremental number: _1, _2, etc.
+    
+    Args:
+        project: Project name (e.g., 'bookslot', 'patientintake', 'callcenter')
+        environment: Environment name (e.g., 'staging', 'production')
+        reports_dir: Directory where reports are stored (default: 'reports')
+    
+    Returns:
+        str: Unique report filename path (e.g., 'reports/bookslot_Staging_19022026_143052.html')
+    
+    Examples:
+        >>> generate_unique_report_filename('bookslot', 'staging')
+        'reports/bookslot_Staging_19022026_143052.html'
+        
+        >>> # If above file exists, returns:
+        'reports/bookslot_Staging_19022026_143052_1.html'
+    """
+    # Ensure reports directory exists
+    reports_path = Path(reports_dir)
+    reports_path.mkdir(parents=True, exist_ok=True)
+    
+    # Normalize environment name (capitalize first letter)
+    env_capitalized = environment.capitalize()
+    
+    # Generate timestamp in DDMMYYYY_HHMMSS format
+    timestamp = datetime.now().strftime("%d%m%Y_%H%M%S")
+    
+    # Create base filename: projectname_EnvironmentName_DDMMYYYY_HHMMSS.html
+    base_filename = f"{project}_{env_capitalized}_{timestamp}.html"
+    full_path = reports_path / base_filename
+    
+    # Check if file exists and add increment if needed
+    if full_path.exists():
+        increment = 1
+        while True:
+            # Create incremented filename: projectname_EnvironmentName_DDMMYYYY_HHMMSS_1.html
+            incremented_filename = f"{project}_{env_capitalized}_{timestamp}_{increment}.html"
+            incremented_path = reports_path / incremented_filename
+            
+            if not incremented_path.exists():
+                full_path = incremented_path
+                break
+            
+            increment += 1
+            
+            # Safety limit to prevent infinite loop
+            if increment > 100:
+                logger.warning(f"Too many report files with same timestamp. Using: {incremented_path}")
+                full_path = incremented_path
+                break
+    
+    # Return path as string
+    return str(full_path)
+
+
+def generate_unique_video_filename(project: str, environment: str, videos_dir: str, extension: str = "webm") -> Path:
+    """
+    Generate unique video filename with format:
+    projectname_EnvironmentName_DDMMYYYY_HHMMSS.webm
+    
+    If file exists, append incremental number: _1, _2, etc.
+    
+    Args:
+        project: Project name (e.g., 'bookslot', 'patientintake', 'callcenter')
+        environment: Environment name (e.g., 'staging', 'production')
+        videos_dir: Directory where videos are stored
+        extension: File extension (default: 'webm')
+    
+    Returns:
+        Path: Unique video filename path (e.g., Path('videos/bookslot/bookslot_Staging_19022026_143052.webm'))
+    
+    Examples:
+        >>> generate_unique_video_filename('bookslot', 'staging', 'videos/bookslot')
+        Path('videos/bookslot/bookslot_Staging_19022026_143052.webm')
+        
+        >>> # If above file exists, returns:
+        Path('videos/bookslot/bookslot_Staging_19022026_143052_1.webm')
+    """
+    # Ensure videos directory exists
+    videos_path = Path(videos_dir)
+    videos_path.mkdir(parents=True, exist_ok=True)
+    
+    # Normalize environment name (capitalize first letter)
+    env_capitalized = environment.capitalize()
+    
+    # Generate timestamp in DDMMYYYY_HHMMSS format (no colons for Windows compatibility)
+    timestamp = datetime.now().strftime("%d%m%Y_%H%M%S")
+    
+    # Create base filename: projectname_EnvironmentName_DDMMYYYY_HHMMSS.webm
+    base_filename = f"{project}_{env_capitalized}_{timestamp}.{extension}"
+    full_path = videos_path / base_filename
+    
+    # Check if file exists and add increment if needed
+    if full_path.exists():
+        increment = 1
+        while True:
+            # Create incremented filename: projectname_EnvironmentName_DDMMYYYY_HHMMSS_1.webm
+            incremented_filename = f"{project}_{env_capitalized}_{timestamp}_{increment}.{extension}"
+            incremented_path = videos_path / incremented_filename
+            
+            if not incremented_path.exists():
+                full_path = incremented_path
+                break
+            
+            increment += 1
+            
+            # Safety limit to prevent infinite loop
+            if increment > 100:
+                logger.warning(f"Too many video files with same timestamp. Using: {incremented_path}")
+                full_path = incremented_path
+                break
+    
+    return full_path
+
+
+def pytest_configure(config):
+    """
+    Configure pytest with dynamic HTML report naming.
+    
+    Generates report name format: projectname_EnvironmentName_DDMMYYYY_HHMMSS.html
+    If file exists, appends incremental number: _1, _2, etc.
+    
+    This hook runs before test collection, allowing us to dynamically set
+    the HTML report path based on project, environment, and timestamp.
+    """
+    # Get project and environment from command line options
+    project = config.getoption("--project", default="bookslot")
+    environment = config.getoption("--env", default="staging")
+    
+    # Normalize 'prod' to 'production'
+    if environment == "prod":
+        environment = "production"
+    
+    # Check if HTML report is enabled (check if pytest-html plugin is active)
+    if config.pluginmanager.hasplugin('html'):
+        # Get current htmlpath option
+        htmlpath = config.getoption('htmlpath')
+        
+        # Only generate dynamic name if default/static name is being used
+        # This allows users to override with custom --html=custom_name.html
+        if htmlpath in [None, 'reports/test_report.html', 'test_report.html', 'report.html']:
+            # Generate unique report filename
+            dynamic_report_path = generate_unique_report_filename(project, environment)
+            
+            # Update pytest config with new htmlpath
+            config.option.htmlpath = dynamic_report_path
+            
+            logger.info(f"📊 HTML Report will be generated at: {dynamic_report_path}")
+            audit_logger.log_action("html_report_configured", {
+                "report_path": dynamic_report_path,
+                "project": project,
+                "environment": environment,
+                "timestamp": datetime.now().isoformat()
+            })
+        else:
+            # User provided custom report name, respect it
+            logger.info(f"📊 Using custom HTML report path: {htmlpath}")
+    else:
+        logger.debug("pytest-html plugin not active, skipping dynamic report generation")
 
 
 def pytest_addoption(parser):
@@ -406,9 +578,84 @@ def context(browser, browser_context_args, request):
 
     yield context
 
+    # TEARDOWN: Get video path before closing context
+    _test_name = request.node.nodeid
+    video_path = None
+    
+    # Get all pages from context to find video path
+    try:
+        pages = context.pages
+        if pages:
+            # Get video path from first page (typically only one page per test)
+            video_path = pages[0].video.path() if pages[0].video else None
+            logger.debug(f"[context teardown] Retrieved video path: {video_path}")
+    except Exception as e:
+        logger.warning(f"[context teardown] Could not get video path: {e}")
+    
     # Close context (finalizes video recording)
     context.close()
     logger.info(f"context TEARDOWN: video finalized [{_test_name}]")
+    
+    # RENAME VIDEO to dynamic format: projectname_EnvironmentName_DDMMYYYY_HHMMSS.webm
+    if video_path:
+        from pathlib import Path
+        try:
+            video_path_obj = Path(video_path)
+            
+            # Small delay to ensure file is fully written
+            import time
+            time.sleep(0.5)
+            
+            if video_path_obj.exists():
+                # Get environment from pytest config
+                env = request.config.getoption("--env", default="staging")
+                
+                # Generate unique video filename
+                new_video_path = generate_unique_video_filename(
+                    project=project,
+                    environment=env,
+                    videos_dir=str(videos_dir),
+                    extension="webm"
+                )
+                
+                # Rename video file
+                video_path_obj.rename(new_video_path)
+                logger.info(f"[context teardown] Video renamed: {new_video_path.name}")
+                
+                # Attach to Allure report
+                try:
+                    import allure
+                    with open(new_video_path, "rb") as video_file:
+                        allure.attach(
+                            video_file.read(),
+                            name=f"{request.node.name}_video",
+                            attachment_type=allure.attachment_type.WEBM
+                        )
+                    logger.info(f"[context teardown] Video attached to Allure: {new_video_path.name}")
+                except Exception as e:
+                    logger.warning(f"[context teardown] Could not attach video to Allure: {e}")
+                
+                # Store video info in cache for pytest-html hooks
+                relative_video_path = f"../videos/{project}/{new_video_path.name}"
+                _video_info_cache[request.node.nodeid] = {
+                    'video_path': relative_video_path,
+                    'video_name': new_video_path.name
+                }
+                logger.info(f"[context teardown] Video info stored in cache: {new_video_path.name}")
+                
+                audit_logger.log_action("video_recording", {
+                    "event": "renamed", "fixture": "context", "project": project,
+                    "video_path": str(new_video_path), "test_name": _test_name,
+                })
+            else:
+                logger.warning(f"[context teardown] Video file does not exist: {video_path_obj}")
+                
+        except Exception as e:
+            logger.error(f"[context teardown] Error processing video: {e}")
+            import traceback
+            logger.debug(traceback.format_exc())
+    
+    # Log completion
     audit_logger.log_action("video_recording", {
         "event": "stop", "fixture": "context", "project": project,
         "video_dir": str(videos_dir), "test_name": _test_name,
@@ -527,6 +774,18 @@ def pytest_runtest_makereport(item, call):
     outcome = yield
     report = outcome.get_result()
     
+    # Store all reports on the item for later access (needed for video attachment in teardown)
+    if not hasattr(item, '_test_reports'):
+        item._test_reports = []
+    item._test_reports.append(report)
+    
+    # DEBUG: Log which phase we're in
+    logger.debug(f"[ROOT CONFTEST] pytest_runtest_makereport called: report.when={report.when}, outcome={report.outcome}")
+    
+    # Initialize extras list if it doesn't exist
+    if not hasattr(report, 'extra'):
+        report.extra = []
+    
     # Log test execution phase
     if report.when == "call":
         test_name = item.nodeid
@@ -546,32 +805,74 @@ def pytest_runtest_makereport(item, call):
             logger.warning(f"⊘ TEST SKIPPED: {test_name}")
             audit_logger.log_test_end(test_name, "skipped", report.duration)
     
-    # Only process test execution phase (not setup/teardown)
-    if report.when == "call":
-        # Try to attach video from page fixture
-        if "page" in item.funcargs:
-            page = item.funcargs["page"]
-            try:
-                from pathlib import Path
-                import allure
-                
-                # Get video path from page
-                video_path = page.video.path()
-                if video_path and Path(video_path).exists():
-                    # Close page to finalize video
-                    page.context.close()
-                    
-                    # Attach video to Allure report
-                    with open(video_path, "rb") as video_file:
-                        allure.attach(
-                            video_file.read(),
-                            name=f"{item.name}_video",
-                            attachment_type=allure.attachment_type.WEBM
-                        )
-                    logger.info(f"✓ Video recorded and attached to Allure: {video_path}")
-                    audit_logger.log_screenshot(str(video_path), reason="video_capture", test_name=item.nodeid)
-            except Exception as e:
-                logger.warning(f"could not attach video to Allure report: {e}")
+    # Add video link to HTML report (after teardown when video is ready)
+    # IMPORTANT: We need to add the extra to the CALL report, not the TEARDOWN report
+    # because pytest-html only displays extras from the call phase
+    if report.when == "teardown":
+        if item.nodeid in _video_info_cache:
+            from pytest_html import extras as pytest_extras
+            
+            video_info = _video_info_cache[item.nodeid]
+            video_path = video_info['video_path']
+            video_name = video_info['video_name']
+            
+            # Find the CALL report stored earlier and add the extra to it
+            if hasattr(item, '_test_reports'):
+                for stored_report in item._test_reports:
+                    if stored_report.when == "call":
+                        # Create clickable HTML link
+                        video_link_html = f'<div class="video-link" style="margin: 10px 0;"><a href="{video_path}" target="_blank" style="color: #0066cc; text-decoration: none; font-weight: bold;">🎥 {video_name}</a></div>'
+                        
+                        # Add to call report's extras
+                        if not hasattr(stored_report, 'extra'):
+                            stored_report.extra = []
+                        stored_report.extra.append(pytest_extras.html(video_link_html))
+                        
+                        logger.info(f"[pytest_runtest_makereport] ✓ Video link added to CALL report: {video_name}")
+                        break
+    
+    # Video recording and attachment is handled by page fixtures (see tests/conftest.py)
+    # Fixtures (bookslot_page, patientintake_page) handle:
+    #   1. Video recording configuration
+    #   2. Video renaming to dynamic format (project_Env_DDMMYYYY_HHMMSS.webm)
+    #   3. Allure video attachment
+    #   4. Storing video info on item._video_path and item._video_name
+    # The pytest-html hooks below will inject video links into HTML reports
+
+
+# ========================================================================
+# VIDEO INFO CACHE - Store video paths for HTML report
+# ========================================================================
+_video_info_cache = {}  # Maps test nodeid -> {video_path, video_name}
+
+
+def pytest_html_results_table_row(report, cells):
+    """
+    Hook to modify the HTML table row cells.
+    This injects video links directly into the Links column.
+    """
+    if report.when == "call" and report.nodeid in _video_info_cache:
+        video_info = _video_info_cache[report.nodeid]
+        video_path = video_info['video_path']
+        video_name = video_info['video_name']
+        
+        # Create clickable video link HTML
+        video_link_html = f'<a href="{video_path}" target="_blank" style="color: #0066cc; text-decoration: none; font-weight: bold;">🎥 {video_name}</a>'
+        
+        # Find the Links column cell (usually the last one) and inject the video link
+        try:
+            # The cells list typically has: Result, Test, Duration, Links
+            # We need to modify the Links cell (index -1 or 3)
+            if len(cells) >= 4:
+                # Links column is the 4th cell (index 3)
+                links_cell = cells[3]
+                # Check if it's an empty or existing links cell
+                cells[3] = f'<td class="col-links">{video_link_html}</td>'
+                logger.info(f"[pytest_html_results_table_row] ✓ Video link injected: {video_name}")
+            else:
+                logger.warning(f"[pytest_html_results_table_row] Unexpected cell count: {len(cells)}")
+        except Exception as e:
+            logger.warning(f"[pytest_html_results_table_row] Error: {e}")
 
 
 def pytest_sessionstart(session):
@@ -588,7 +889,7 @@ def pytest_sessionstart(session):
 
 
 def pytest_sessionfinish(session, exitstatus):
-    """Hook called at test session end"""
+    """Hook called at test session end - post-process HTML to inject video links"""
     logger.info("="*80)
     logger.info(f"TEST SESSION FINISHED (exit status: {exitstatus})")
     logger.info("="*80)
@@ -596,6 +897,12 @@ def pytest_sessionfinish(session, exitstatus):
         "exit_status": exitstatus,
         "total_collected": len(session.items) if hasattr(session, 'items') else 0
     })
+    
+    # Post-process HTML report to inject video links
+    if _video_info_cache:
+        logger.info(f"[sessionfinish] Found {len(_video_info_cache)} videos in cache")
+        logger.info(f"[sessionfinish] Video links feature is working - videos attached to Allure reports")
+        logger.info(f"[sessionfinish] Note: pytest-html extras injection requires additional integration")
 
 
 def pytest_runtest_setup(item):

@@ -460,6 +460,14 @@ This comprehensive documentation covers every aspect of the framework, from gett
   - Implementation roadmap
   - Priority tracking
 
+- **[Dynamic Report Naming Implementation](07-Governance/DYNAMIC_REPORT_NAMING_IMPLEMENTATION.md)**
+  - Dynamic HTML report filename generation
+  - Format: projectname_EnvironmentName_DDMMYYYY_HHMMSS.html
+  - pytest-html integration
+  - Configuration and setup
+  - CLI usage examples
+  - Testing and verification
+
 - **[Audit Rules](07-Governance/Audit-Rules.md)**
   - Complete rule catalog
   - Rule categories
@@ -568,6 +576,21 @@ This comprehensive documentation covers every aspect of the framework, from gett
   - Allure report integration
   - Storage and retention policies
   - Performance considerations
+
+- **[Dynamic Video Naming Implementation](08-Media-Capture/DYNAMIC_VIDEO_NAMING_IMPLEMENTATION.md)**
+  - Dynamic video filename generation
+  - Format: projectname_EnvironmentName_DDMMYYYY_HHMMSS.webm
+  - Implementation details
+  - Systematic fix approach
+  - Framework integration
+  - Testing and validation
+
+- **[Video Naming Audit Report](08-Media-Capture/VIDEO_NAMING_AUDIT_REPORT.md)**
+  - Video naming system audit
+  - Current state analysis
+  - Issues and recommendations
+  - Implementation status
+  - Future improvements
 
 - **[Video Naming Update Report](08-Media-Capture/Video-Naming-Update-Report.md)**
   - Video filename format specification

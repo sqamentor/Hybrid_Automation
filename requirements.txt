@@ -95,6 +95,8 @@ mimesis>=12.1.0  # Alternative data generator
 python-dateutil>=2.8.2
 tenacity>=8.2.3  # Retry logic
 colorama>=0.4.6  # Colored terminal output
+rich>=13.7.0  # Beautiful terminal formatting and interactive UI
+questionary>=2.0.1  # Interactive CLI prompts and menus
 
 # ========================================================================
 # OPTIONAL DEPENDENCIES

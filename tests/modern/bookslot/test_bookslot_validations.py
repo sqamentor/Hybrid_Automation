@@ -31,13 +31,14 @@ Run Commands:
 
 import allure
 import pytest
+from playwright.sync_api import Page
 
 from pages.bookslot.bookslots_basicinfo_page1 import BookslotBasicInfoPage
 from pages.bookslot.bookslots_insurance_page6 import BookslotInsurancePage
-from pages.bookslot.bookslots_patient_type_page import BookslotPatientTypePage
+from pages.bookslot.bookslot_eventtype_page2 import BookslotEventInfoPage
 from pages.bookslot.bookslots_personalInfo_page4 import BookslotPersonalInfoPage
 from pages.bookslot.bookslots_referral_page5 import BookslotReferralPage
-from pages.bookslot.bookslots_scheduler_page import BookslotSchedulerPage
+from pages.bookslot.bookslot_scheduler_page3 import BookslotWebSchedulerPage
 
 
 @allure.epic("Bookslot")
@@ -250,11 +251,11 @@ class TestPersonalInfoValidations:
             basic_info_page.click_next()
 
             # Navigate through patient type and event selection
-            patient_type_page = BookslotPatientTypePage(page)
+            patient_type_page = BookslotEventInfoPage(page, base_url)
             patient_type_page.select_new_patient()
             patient_type_page.click_next()
 
-            scheduler_page = BookslotSchedulerPage(page)
+            scheduler_page = BookslotWebSchedulerPage(page, base_url)
             scheduler_page.wait_for_scheduler_ready()
             scheduler_page.select_am_slot()
             scheduler_page.click_next()
@@ -307,11 +308,11 @@ class TestPersonalInfoValidations:
             basic_info_page.fill_phone(data["phone"])
             basic_info_page.click_next()
 
-            patient_type_page = BookslotPatientTypePage(page)
+            patient_type_page = BookslotEventInfoPage(page, base_url)
             patient_type_page.select_new_patient()
             patient_type_page.click_next()
 
-            scheduler_page = BookslotSchedulerPage(page)
+            scheduler_page = BookslotWebSchedulerPage(page, base_url)
             scheduler_page.wait_for_scheduler_ready()
             scheduler_page.select_am_slot()
             scheduler_page.click_next()
@@ -377,11 +378,11 @@ class TestInsuranceValidations:
             basic_info_page.click_next()
 
             # Navigate through patient type and event selection
-            patient_type_page = BookslotPatientTypePage(page)
+            patient_type_page = BookslotEventInfoPage(page, base_url)
             patient_type_page.select_new_patient()
             patient_type_page.click_next()
 
-            scheduler_page = BookslotSchedulerPage(page)
+            scheduler_page = BookslotWebSchedulerPage(page, base_url)
             scheduler_page.wait_for_scheduler_ready()
             scheduler_page.select_am_slot()
             scheduler_page.click_next()
@@ -440,11 +441,11 @@ class TestInsuranceValidations:
             basic_info_page.click_next()
 
             # Navigate through patient type and event selection
-            patient_type_page = BookslotPatientTypePage(page)
+            patient_type_page = BookslotEventInfoPage(page, base_url)
             patient_type_page.select_new_patient()
             patient_type_page.click_next()
 
-            scheduler_page = BookslotSchedulerPage(page)
+            scheduler_page = BookslotWebSchedulerPage(page, base_url)
             scheduler_page.wait_for_scheduler_ready()
             scheduler_page.select_am_slot()
             scheduler_page.click_next()

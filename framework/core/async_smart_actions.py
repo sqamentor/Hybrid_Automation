@@ -14,7 +14,7 @@ from typing import Any, List, Optional, Union
 from playwright.async_api import Locator, Page, async_playwright
 
 from framework.models.test_models import TestContext
-from framework.observability import log_async_function
+from framework.observability import log_async_function, log_function
 from framework.protocols.automation_protocols import ActionPerformer
 
 
