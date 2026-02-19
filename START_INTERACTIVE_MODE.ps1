@@ -11,7 +11,11 @@ Write-Host "   Follow the on-screen prompts to run your tests!" -ForegroundColor
 Write-Host ""
 Write-Host "================================================================================" -ForegroundColor Cyan
 Write-Host ""
-
+# Clear Python cache before launching
+Write-Host "   Clearing Python cache..." -ForegroundColor Yellow
+Get-ChildItem -Path . -Recurse -Filter "__pycache__" -Directory -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force
+Write-Host "   ✅ Cache cleared" -ForegroundColor Green
+Write-Host ""
 # Launch interactive mode
 automation
 

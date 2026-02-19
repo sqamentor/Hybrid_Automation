@@ -11,8 +11,10 @@ echo    Starting interactive mode...
 echo    Follow the on-screen prompts to run your tests!
 echo.
 echo ================================================================================
+echo.echo    Clearing Python cache...
+powershell -Command "Get-ChildItem -Path . -Recurse -Filter '__pycache__' -Directory -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force"
+echo    Cache cleared!
 echo.
-
 automation
 
 echo.

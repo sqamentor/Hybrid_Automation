@@ -948,6 +948,24 @@ class InteractiveLauncher:
 
 def main(args: Optional[List[str]] = None) -> int:
     """Entry point for interactive CLI"""
+    # Clear Python cache for fresh imports
+    try:
+        import shutil
+        import os
+        cache_dirs_removed = 0
+        for root, dirs, files in os.walk('.'):
+            if '__pycache__' in dirs:
+                cache_path = os.path.join(root, '__pycache__')
+                try:
+                    shutil.rmtree(cache_path)
+                    cache_dirs_removed += 1
+                except Exception:
+                    pass
+        if cache_dirs_removed > 0:
+            console.print(f"[dim]✅ Cache cleared ({cache_dirs_removed} directories)[/dim]")
+    except Exception:
+        pass
+    
     launcher = InteractiveLauncher()
     return launcher.run()
 

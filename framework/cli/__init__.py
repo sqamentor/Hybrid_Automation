@@ -23,6 +23,27 @@ Website: www.sqamentor.com
 
 import sys
 from typing import List, Optional
+import shutil
+from pathlib import Path
+
+
+def clear_python_cache():
+    """Clear all Python __pycache__ directories"""
+    try:
+        import os
+        cache_dirs_removed = 0
+        for root, dirs, files in os.walk('.'):
+            if '__pycache__' in dirs:
+                cache_path = os.path.join(root, '__pycache__')
+                try:
+                    shutil.rmtree(cache_path)
+                    cache_dirs_removed += 1
+                except Exception:
+                    pass  # Silent fail if cache is locked
+        if cache_dirs_removed > 0:
+            print(f"✅ Python cache cleared ({cache_dirs_removed} directories)")
+    except Exception:
+        pass  # Silent fail - don't block CLI startup
 
 
 def print_banner():
@@ -87,6 +108,9 @@ def main(args: Optional[List[str]] = None):
     
     Default behavior (no args): Launch interactive mode
     """
+    # Clear Python cache before running any command
+    clear_python_cache()
+    
     if args is None:
         args = sys.argv[1:]
     
