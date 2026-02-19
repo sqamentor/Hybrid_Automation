@@ -732,6 +732,9 @@ class InteractiveLauncher:
     
     def post_process_results(self, exit_code: int, config: FullTestConfig):
         """Post-processing after test execution"""
+        import glob
+        from pathlib import Path
+        
         console.print("\n" + "="*80)
         console.print(f"[bold cyan]📊 Post-Processing Results...[/bold cyan]")
         console.print("="*80 + "\n")
@@ -757,20 +760,43 @@ class InteractiveLauncher:
         
         # Show report locations
         if config.reports.html:
-            console.print("[cyan]📄 HTML Report:[/cyan] reports/test_report_*.html")
+            # Find the most recent HTML report
+            html_reports = sorted(glob.glob("reports/*.html"), key=lambda x: Path(x).stat().st_mtime, reverse=True)
+            if html_reports:
+                latest_report = Path(html_reports[0])
+                console.print(f"[cyan]📄 HTML Report:[/cyan] {latest_report}")
+            else:
+                console.print("[cyan]📄 HTML Report:[/cyan] reports/ (no reports found)")
         
         if config.reports.allure:
             console.print("[cyan]📊 Allure Results:[/cyan] allure-results/")
             console.print("[dim]   Generate report: allure serve allure-results[/dim]")
         
-        # Show logs location
-        console.print(f"[cyan]📝 Logs:[/cyan] logs/")
+        # Show logs location - find latest log file
+        log_files = sorted(glob.glob("logs/*.log"), key=lambda x: Path(x).stat().st_mtime, reverse=True)
+        if log_files:
+            latest_log = Path(log_files[0])
+            console.print(f"[cyan]📝 Logs:[/cyan] {latest_log}")
+        else:
+            console.print(f"[cyan]📝 Logs:[/cyan] logs/ (no logs found)")
         
         # Show screenshots if any
-        console.print(f"[cyan]📸 Screenshots:[/cyan] screenshots/")
+        screenshot_files = sorted(glob.glob("screenshots/**/*.png", recursive=True), key=lambda x: Path(x).stat().st_mtime, reverse=True)
+        if screenshot_files:
+            latest_screenshot = Path(screenshot_files[0])
+            screenshot_count = len(screenshot_files)
+            console.print(f"[cyan]📸 Screenshots:[/cyan] {latest_screenshot} (+{screenshot_count-1} more)" if screenshot_count > 1 else f"[cyan]📸 Screenshots:[/cyan] {latest_screenshot}")
+        else:
+            console.print(f"[cyan]📸 Screenshots:[/cyan] screenshots/ (no screenshots)")
         
-        # Show videos if any
-        console.print(f"[cyan]🎥 Videos:[/cyan] videos/")
+        # Show videos if any - check project-specific folder first
+        video_pattern = f"videos/{config.project}/*.webm" if hasattr(config, 'project') else "videos/**/*.webm"
+        video_files = sorted(glob.glob(video_pattern, recursive=True), key=lambda x: Path(x).stat().st_mtime, reverse=True)
+        if video_files:
+            latest_video = Path(video_files[0])
+            console.print(f"[cyan]🎥 Videos:[/cyan] {latest_video}")
+        else:
+            console.print(f"[cyan]🎥 Videos:[/cyan] videos/ (no videos found)")
         
         console.print()
     
