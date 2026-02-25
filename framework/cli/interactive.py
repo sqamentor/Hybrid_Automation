@@ -196,6 +196,22 @@ class InteractiveLauncher:
         """Detect available test suites for a project"""
         test_suites = []
         
+        # Check for direct project folder (new structure: tests/{project_id}/)
+        direct_project_path = self.workspace_root / 'tests' / project_id
+        if direct_project_path.exists() and direct_project_path.is_dir():
+            # Count all test files recursively (pages/, e2e/, etc.)
+            test_files = list(direct_project_path.rglob('test_*.py'))
+            if test_files:
+                test_suites.append({
+                    'id': f'project_{project_id}',
+                    'name': f'🎯 {project_id.title()} Test Suite',
+                    'description': f'Complete test suite with organized structure ({len(test_files)} tests)',
+                    'path': str(direct_project_path),
+                    'type': 'project',
+                    'count': len(test_files),
+                    'files': [f.name for f in test_files]
+                })
+        
         # Check for recorded tests
         recorded_tests_path = self.workspace_root / 'recorded_tests' / project_id
         if recorded_tests_path.exists():
@@ -298,6 +314,12 @@ class InteractiveLauncher:
     
     def select_specific_test(self, test_suite: Dict) -> Optional[str]:
         """Select a specific test file from the suite"""
+        
+        # For project-type suites with organized structure, show categories
+        if test_suite['type'] == 'project':
+            return self.select_test_by_category(test_suite)
+        
+        # For other types, show flat list
         console.print(f"\n[bold cyan]🎯 Select a test file:[/bold cyan]\n")
         
         # Create choices for each test file
@@ -322,6 +344,101 @@ class InteractiveLauncher:
             style=custom_style,
             use_shortcuts=True
         ).ask()
+        
+        return selected
+    
+    def select_test_by_category(self, test_suite: Dict) -> Optional[str]:
+        """Select tests by category for organized project structure"""
+        from pathlib import Path
+        
+        console.print(f"\n[bold cyan]📂 Select Test Category:[/bold cyan]\n")
+        
+        # Organize tests by folder
+        test_path = Path(test_suite['path'])
+        categories = {}
+        
+        # Scan for test categories (subfolders)
+        for test_file in test_path.rglob('test_*.py'):
+            relative_path = test_file.relative_to(test_path)
+            if len(relative_path.parts) > 1:
+                category = relative_path.parts[0]
+                if category not in categories:
+                    categories[category] = []
+                categories[category].append(test_file.name)
+        
+        # Build choices
+        choices = [
+            questionary.Choice(title="🚀 Run All Tests", value="all")
+        ]
+        
+        # Add category-based options
+        category_icons = {
+            'pages': '📄',
+            'e2e': '🔄',
+            'integration': '🔗',
+            'helpers': '🛠️',
+            'fixtures': '📦',
+            'data': '📊'
+        }
+        
+        for category, files in sorted(categories.items()):
+            icon = category_icons.get(category, '📁')
+            count = len(files)
+            choices.append(
+                questionary.Choice(
+                    title=f"{icon} {category.upper()} Tests\n   [dim]{count} test files[/dim]",
+                    value=f"category:{category}"
+                )
+            )
+        
+        # Add back option
+        choices.append(questionary.Choice(title="⬅️ Back to suite selection", value="back"))
+        
+        selected = questionary.select(
+            "",
+            choices=choices,
+            style=custom_style,
+            use_shortcuts=True
+        ).ask()
+        
+        if selected and selected.startswith("category:"):
+            # User selected a category, show files in that category
+            category = selected.split(":", 1)[1]
+            return self.select_test_from_category(test_suite, category, categories[category])
+        
+        return selected
+    
+    def select_test_from_category(self, test_suite: Dict, category: str, files: List[str]) -> Optional[str]:
+        """Select a specific test file from a category"""
+        console.print(f"\n[bold cyan]📄 Select Test from {category.upper()}:[/bold cyan]\n")
+        
+        choices = [
+            questionary.Choice(
+                title=f"🚀 Run All {category.upper()} Tests",
+                value=f"{category}/*"
+            )
+        ]
+        
+        for test_file in sorted(files):
+            choices.append(
+                questionary.Choice(
+                    title=f"  {test_file}",
+                    value=f"{category}/{test_file}"
+                )
+            )
+        
+        # Add back option
+        choices.append(questionary.Choice(title="⬅️ Back to categories", value="back"))
+        
+        selected = questionary.select(
+            "",
+            choices=choices,
+            style=custom_style,
+            use_shortcuts=True
+        ).ask()
+        
+        if selected == "back":
+            return self.select_test_by_category(test_suite)
         
         return selected
     
@@ -671,6 +788,10 @@ class InteractiveLauncher:
         # Determine test path
         if test_file == "all":
             test_path = test_suite['path']
+        elif "/" in test_file and test_file.endswith("/*"):
+            # Category pattern like "pages/*" - run all tests in that folder
+            category = test_file.rstrip("/*")
+            test_path = str(Path(test_suite['path']) / category)
         else:
             test_path = str(Path(test_suite['path']) / test_file)
         
@@ -708,12 +829,23 @@ class InteractiveLauncher:
         # Check if test path exists
         if test_file != "all":
             from pathlib import Path
-            test_path = Path(test_suite['path']) / test_file
-            if not test_path.exists():
-                console.print(f"[red]❌ Test file not found: {test_path}[/red]")
-                validation_passed = False
+            
+            # Handle category patterns like "pages/*"
+            if "/" in test_file and test_file.endswith("/*"):
+                category = test_file.rstrip("/*")
+                test_path = Path(test_suite['path']) / category
+                if not test_path.exists() or not test_path.is_dir():
+                    console.print(f"[red]❌ Test category not found: {category}[/red]")
+                    validation_passed = False
+                else:
+                    console.print(f"[green]✅ Test category: {category}/[/green]")
             else:
-                console.print(f"[green]✅ Test file exists: {test_file}[/green]")
+                test_path = Path(test_suite['path']) / test_file
+                if not test_path.exists():
+                    console.print(f"[red]❌ Test file not found: {test_path}[/red]")
+                    validation_passed = False
+                else:
+                    console.print(f"[green]✅ Test file exists: {test_file}[/green]")
         else:
             console.print(f"[green]✅ Test suite path: {test_suite['path']}[/green]")
         

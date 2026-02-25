@@ -54,13 +54,51 @@ class BookslotEventInfoPage(BasePage):
             base_url: Base URL from multi_project_config
         """
         super().__init__(page)
-        self.page = self.driver  # Compatibility alias
         self.page = page
         self.actions = SmartActions(page)
         if not base_url:
             raise ValueError("base_url is required from multi_project_config")
         self.base_url = base_url
         self.path = "/eventtype"
+
+    # ===================================================================
+    # ABSTRACT METHOD IMPLEMENTATIONS (Required by BasePage)
+    # ===================================================================
+    
+    def click(self, locator: str):
+        """Click element by locator string"""
+        self.page.locator(locator).click()
+    
+    def fill(self, locator: str, text: str):
+        """Fill input field by locator string"""
+        self.page.locator(locator).fill(text)
+    
+    def get_text(self, locator: str) -> str:
+        """Get element text by locator string"""
+        return self.page.locator(locator).inner_text()
+    
+    def is_visible(self, locator: str) -> bool:
+        """Check if element is visible by locator string"""
+        try:
+            return self.page.locator(locator).is_visible()
+        except:
+            return False
+    
+    def wait_for_element(self, locator: str, timeout: int = 10000):
+        """Wait for element to be visible by locator string"""
+        self.page.locator(locator).wait_for(state="visible", timeout=timeout)
+    
+    def take_screenshot(self, filename: str):
+        """Take screenshot and save to file"""
+        self.page.screenshot(path=filename)
+    
+    def get_current_url(self) -> str:
+        """Get current page URL"""
+        return self.page.url
+    
+    def get_title(self) -> str:
+        """Get page title"""
+        return self.page.title()
 
     # ===================================================================
     # LOCATORS - PATIENT TYPE
@@ -130,9 +168,10 @@ class BookslotEventInfoPage(BasePage):
     # ===================================================================
 
     @log_function(log_timing=True)
-    def navigate(self):
+    def navigate(self, url: str = None):
         """Navigate to the event type page"""
-        url = f"{self.base_url}{self.path}"
+        if url is None:
+            url = f"{self.base_url}{self.path}"
         self.page.goto(url)
         return self
 

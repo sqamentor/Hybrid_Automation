@@ -37,6 +37,94 @@ projects:
       requires_verification: true
       has_multi_step_flow: true
     
+    # URL Testing Configuration
+    # Added: 2026-02-25
+    # Purpose: URL workflow validation and query string testing
+    url_testing:
+      enabled: true
+      url_format: "query_string"  # query_string | path_param | path_based | hybrid
+      
+      # Environment-specific URL testing config
+      environments:
+        staging:
+          base_url: "https://bookslot-staging.centerforvein.com"
+          workflows_file: "bookslot_workflows.json"
+          test_data_mode: "manual"  # manual | auto
+        production:
+          base_url: "https://bookslots.centerforvein.com"
+          workflows_file: "bookslot_workflows_prod.json"
+          test_data_mode: "manual"
+      
+      # Validation settings
+      validation:
+        timeout_ms: 10000
+        retry_count: 3
+        expected_status: 200
+        check_elements: true
+        check_performance: true
+        performance_threshold_ms: 5000
+      
+      # Reporting settings
+      reporting:
+        allure_enabled: true
+        screenshot_on_failure: true
+        video_on_failure: false
+        save_validation_results: true
+      
+      # Page-specific configuration
+      pages:
+        P1:
+          name: "Basic Info"
+          path: "/basic-info"
+          expected_elements:
+            - "input[name='first_name']"
+            - "input[name='last_name']"
+            - "input[name='email']"
+            - "input[name='phone_number']"
+            - "button[type='submit']"
+        P2:
+          name: "Insurance"
+          path: "/insurance"
+          expected_elements:
+            - "input[name='member_id']"
+            - "input[name='group_number']"
+            - "select[name='payer']"
+        P3:
+          name: "Schedule"
+          path: "/schedule"
+          expected_elements:
+            - ".date-picker"
+            - ".time-selector"
+            - "button.confirm-schedule"
+        P4:
+          name: "Reason"
+          path: "/reason"
+          expected_elements:
+            - "select[name='visit_reason']"
+            - "button[type='submit']"
+        P5:
+          name: "Confirmation"
+          path: "/confirmation"
+          expected_elements:
+            - ".confirmation-message"
+            - ".appointment-details"
+            - "button.confirm"
+        P6:
+          name: "Review"
+          path: "/review"
+          expected_elements:
+            - ".review-section"
+            - ".patient-info"
+            - ".appointment-info"
+            - "button.submit-final"
+        P7:
+          name: "Thank You"
+          path: "/thank-you"
+          expected_elements:
+            - ".success-message"
+            - ".appointment-details"
+            - ".confirmation-number"
+    
     # Team/ownership
     team: "Booking Team"
     contact: "booking-team@example.com"

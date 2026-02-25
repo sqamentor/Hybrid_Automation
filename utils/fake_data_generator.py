@@ -23,7 +23,7 @@ import random
 import json
 import yaml
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 from utils.logger import get_logger, get_audit_logger
 from framework.observability.universal_logger import log_function
 
@@ -252,6 +252,95 @@ def load_bookslot_data(filename: str = "bookslot_data.json") -> List[Dict[str, A
     })
     
     return data
+
+
+@log_function(log_args=True, log_result=False, log_timing=True)
+def load_workflow_data(
+    project: str = "bookslot",
+    filename: str = "workflows.json",
+    environment: Optional[str] = None
+) -> List[Dict[str, Any]]:
+    """
+    Load workflow test data from JSON/YAML files.
+    
+    Follows the same pattern as load_bookslot_data().
+    Supports filtering by environment.
+    
+    Args:
+        project: Project name (bookslot, callcenter, patientintake)
+        filename: Data filename (workflows.json, workflows.yaml)
+        environment: Filter by environment (staging, production) - optional
+        
+    Returns:
+        List of workflow dictionaries
+        
+    Raises:
+        FileNotFoundError: If the file doesn't exist
+        
+    Example:
+        >>> workflows = load_workflow_data("bookslot", "workflows.json", "staging")
+        >>> len(workflows)
+        35
+    """
+    # Construct file path (test_data/{project}/{project}_{filename})
+    test_data_dir = OUTPUT_DIR.parent / project
+    file_path = test_data_dir / f"{project}_{filename}"
+    
+    logger.debug(f"Loading workflow data from {file_path}")
+    
+    if not file_path.exists():
+        error_msg = f"Workflow data file not found: {file_path}"
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
+    
+    # Load data based on file extension
+    try:
+        if file_path.suffix == ".json":
+            with open(file_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        elif file_path.suffix in [".yaml", ".yml"]:
+            with open(file_path, "r", encoding="utf-8") as f:
+                data = yaml.safe_load(f)
+        else:
+            raise ValueError(f"Unsupported file format: {file_path.suffix}")
+        
+        # Extract workflows from data structure
+        if isinstance(data, dict) and "workflows" in data:
+            workflows = data["workflows"]
+        elif isinstance(data, list):
+            workflows = data
+        else:
+            error_msg = f"Invalid workflow data structure in {file_path}"
+            logger.error(error_msg)
+            raise ValueError(error_msg)
+        
+        # Filter by environment if specified
+        if environment:
+            workflows = [w for w in workflows if w.get("environment") == environment]
+            logger.debug(f"Filtered to {len(workflows)} workflows for environment: {environment}")
+        
+        logger.info(f"✓ Loaded {len(workflows)} workflows from {file_path}")
+        audit_logger.log_action("workflow_data_loaded", {
+            "file_path": str(file_path),
+            "project": project,
+            "environment": environment,
+            "workflow_count": len(workflows)
+        })
+        
+        return workflows
+        
+    except json.JSONDecodeError as e:
+        error_msg = f"Invalid JSON in {file_path}: {str(e)}"
+        logger.error(error_msg)
+        raise ValueError(error_msg)
+    except yaml.YAMLError as e:
+        error_msg = f"Invalid YAML in {file_path}: {str(e)}"
+        logger.error(error_msg)
+        raise ValueError(error_msg)
+    except Exception as e:
+        error_msg = f"Error loading workflow data: {str(e)}"
+        logger.error(error_msg)
+        raise
 
 
 @log_function(log_timing=True)

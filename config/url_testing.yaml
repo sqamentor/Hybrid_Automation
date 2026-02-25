@@ -1,0 +1,248 @@
+# URL Testing Service Configuration
+# Service: URLTestingService, URLDataService, URLValidationService
+# Pattern: Microservice configuration
+# Created: 2026-02-25
+
+# ========================================================================
+# URL TESTING SERVICE
+# ========================================================================
+service:
+  name: "url-testing"
+  version: "1.0.0"
+  host: "localhost"
+  port: 8001
+  
+  # Service lifecycle
+  lifecycle:
+    startup_timeout_seconds: 30
+    shutdown_timeout_seconds: 10
+    health_check_interval_seconds: 60
+  
+  # Logging
+  logging:
+    level: "INFO"  # DEBUG | INFO | WARNING | ERROR
+    format: "json"
+    file: "logs/url_testing_service.log"
+    rotation: "daily"
+    max_file_size_mb: 100
+    backup_count: 7
+
+# ========================================================================
+# DATA SERVICE
+# ========================================================================
+data_service:
+  name: "url-data"
+  version: "1.0.0"
+  
+  # Data loading modes
+  load_mode: "auto"  # auto | manual | cli
+  
+  # Caching
+  cache:
+    enabled: true
+    ttl_seconds: 300  # 5 minutes
+    max_entries: 1000
+  
+  # Data sources
+  data_sources:
+    primary: "json"  # json | yaml | csv | xlsx
+    fallback: "yaml"
+    
+  # File paths
+  paths:
+    test_data_root: "test_data"
+    workflow_files:
+      bookslot: "bookslot/bookslot_workflows.json"
+      callcenter: "callcenter/callcenter_workflows.json"
+      patientintake: "patientintake/patientintake_workflows.json"
+
+# ========================================================================
+# VALIDATION SERVICE
+# ========================================================================
+validation_service:
+  name: "url-validation"
+  version: "1.0.0"
+  
+  # Validation levels (ordered list - all executed unless one fails)
+  levels:
+    - "http_status"      # Check HTTP 200
+    - "element_presence" # Check expected elements
+    - "error_messages"   # Check for error elements
+    - "performance"      # Check load time
+  
+  # Thresholds
+  thresholds:
+    max_load_time_ms: 5000  # 5 seconds
+    max_retry_count: 3
+    element_timeout_ms: 5000
+    status_check_timeout_ms: 10000
+  
+  # Element selectors for error detection
+  error_selectors:
+    - ".error"
+    - "[class*='error']"
+    - "[role='alert']"
+    - ".alert-danger"
+    - ".error-message"
+    - ".validation-error"
+  
+  # Playwright configuration
+  playwright:
+    headless: true
+    slow_mo: 0  # milliseconds delay between actions
+    viewport:
+      width: 1920
+      height: 1080
+    user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    ignore_https_errors: false
+    java_script_enabled: true
+
+# ========================================================================
+# FALLBACK CONFIGURATION
+# ========================================================================
+fallback:
+  # Auto-generation config when manual data files don't exist
+  enabled: true
+  
+  # Workflow ID naming pattern
+  workflow_id_pattern: "WF-{page}-{index:03d}"
+  
+  # Default query parameters to test
+  default_query_params:
+    - "zip"
+    - "contact_method"
+    - "debug"
+    - "prefill"
+    - "payer"
+  
+  # Page-specific parameter combinations for auto-generation
+  page_combinations:
+    P1:
+      zip: ["20678", "90210", "10001", "30301", "60601"]
+      contact_method: ["Phone", "Email"]
+      debug: ["true", "false"]
+    
+    P2:
+      payer: ["Humana", "Aetna", "Blue Cross Blue Shield", "None"]
+      prefill: ["true", "false"]
+    
+    P3:
+      time_preference: ["morning", "afternoon", "evening"]
+      preferred_date: ["2026-03-01", "2026-03-15", "2026-04-01"]
+    
+    P4:
+      reason: ["checkup", "emergency", "followup", "consultation", "other"]
+      urgent: ["true", "false"]
+    
+    P5:
+      payment_required: ["true", "false"]
+      verify_email: ["true", "false"]
+    
+    P6:
+      review_mode: ["full", "summary", "editable"]
+      show_terms: ["true", "false"]
+    
+    P7:
+      status: ["confirmed", "pending"]
+      email_sent: ["true", "false"]
+
+# ========================================================================
+# METRICS & TELEMETRY
+# ========================================================================
+telemetry:
+  enabled: true
+  
+  # Export settings
+  export:
+    interval_seconds: 60
+    format: "json"  # json | prometheus | statsd
+    destination: "logs/metrics/url_testing_metrics.json"
+  
+  # Metrics to track
+  metrics:
+    - "url_validation_count"
+    - "url_validation_duration_ms"
+    - "url_validation_failures"
+    - "url_validation_success_rate"
+    - "http_status_codes"
+    - "element_check_failures"
+    - "performance_violations"
+  
+  # Health checks
+  health_checks:
+    interval_seconds: 30
+    timeout_seconds: 5
+    failure_threshold: 3  # failures before unhealthy status
+
+# ========================================================================
+# INTEGRATION SETTINGS
+# ========================================================================
+integration:
+  # Allure reporting
+  allure:
+    enabled: true
+    results_dir: "allure-results"
+    attach_screenshots: true
+    attach_logs: true
+    attach_validation_details: true
+  
+  # Slack notifications (optional)
+  slack:
+    enabled: false
+    webhook_url: ""  # Set via environment variable
+    notify_on: ["failure", "error"]
+    channel: "#test-alerts"
+  
+  # Email notifications (optional)
+  email:
+    enabled: false
+    smtp_host: ""
+    smtp_port: 587
+    from_address: "automation@example.com"
+    to_addresses: []
+    notify_on: ["failure"]
+
+# ========================================================================
+# ENVIRONMENT-SPECIFIC OVERRIDES
+# ========================================================================
+environments:
+  staging:
+    validation_service:
+      thresholds:
+        max_load_time_ms: 7000  # More lenient for staging
+      playwright:
+        headless: false  # Show browser in staging for debugging
+  
+  production:
+    validation_service:
+      thresholds:
+        max_load_time_ms: 3000  # Stricter for production
+      playwright:
+        headless: true
+    
+    telemetry:
+      export:
+        interval_seconds: 30  # More frequent in production
+
+# ========================================================================
+# RETRY & ERROR HANDLING
+# ========================================================================
+retry:
+  enabled: true
+  max_attempts: 3
+  backoff_strategy: "exponential"  # linear | exponential
+  initial_delay_ms: 1000
+  max_delay_ms: 10000
+  retry_on_status_codes: [500, 502, 503, 504]
+  retry_on_timeout: true
+
+# ========================================================================
+# CONCURRENCY & PERFORMANCE
+# ========================================================================
+concurrency:
+  max_parallel_validations: 5
+  queue_size: 100
+  worker_timeout_seconds: 60
+  rate_limiting:
+    enabled: false
+    requests_per_second: 10

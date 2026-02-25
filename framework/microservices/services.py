@@ -6,6 +6,9 @@ This module provides production-ready microservices for test automation:
 - ReportingService: Aggregates and generates reports
 - ConfigurationService: Centralized configuration management
 - NotificationService: Sends alerts to Slack/Email/Teams
+- URLTestingService: URL workflow validation and testing
+- URLDataService: URL test data management
+- URLValidationService: URL validation with multi-level checks
 
 Author: Lokendra Singh
 """
@@ -24,6 +27,13 @@ from framework.microservices.base import (
     MessageBus,
     ServiceInfo,
     ServiceRegistry,
+)
+
+# Import URL Testing Services
+from framework.microservices.url_testing_service import (
+    URLTestingService,
+    URLDataService,
+    URLValidationService,
 )
 
 # ==================== Test Execution Service ====================
@@ -509,6 +519,10 @@ def create_all_services() -> List[BaseService]:
         ReportingService(),
         ConfigurationService(),
         NotificationService(),
+        # URL Testing Services
+        URLTestingService(),
+        URLDataService(),
+        URLValidationService(),
     ]
 
 

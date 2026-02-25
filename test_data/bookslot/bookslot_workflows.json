@@ -1,0 +1,714 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "created": "2026-02-25",
+    "description": "URL workflow test data for Bookslot pages P1-P7",
+    "total_workflows": 35,
+    "environments": ["staging", "production"],
+    "author": "Hybrid Automation Framework"
+  },
+  "workflows": [
+    {
+      "workflow_id": "WF-P1-001-BASIC",
+      "environment": "staging",
+      "page_name": "P1",
+      "description": "Basic info page - happy path with valid data",
+      "url_format": "query_string",
+      "query_params": {
+        "zip": "20678",
+        "contact_method": "Phone",
+        "debug": "true"
+      },
+      "expected_elements": [
+        "input[name='first_name']",
+        "input[name='last_name']",
+        "input[name='email']",
+        "input[name='phone_number']",
+        "button[type='submit']"
+      ],
+      "test_data": {
+        "first_name": "John",
+        "last_name": "Doe",
+        "email": "john.doe@example.com",
+        "phone_number": "1234567890"
+      },
+      "expected_status": 200,
+      "test_priority": "high",
+      "tags": ["smoke", "p1", "basic", "happy-path"]
+    },
+    {
+      "workflow_id": "WF-P1-002-ZIP-INVALID",
+      "environment": "staging",
+      "page_name": "P1",
+      "description": "Basic info page - invalid zip code validation",
+      "url_format": "query_string",
+      "query_params": {
+        "zip": "99999",
+        "contact_method": "Email"
+      },
+      "expected_elements": [
+        "input[name='first_name']",
+        ".error-message"
+      ],
+      "test_data": {
+        "first_name": "Jane",
+        "last_name": "Smith",
+        "email": "jane.smith@example.com"
+      },
+      "expected_status": 200,
+      "test_priority": "medium",
+      "tags": ["validation", "p1", "negative", "zip"]
+    },
+    {
+      "workflow_id": "WF-P1-003-PREFILL",
+      "environment": "staging",
+      "page_name": "P1",
+      "description": "Basic info page - form prefill from URL parameters",
+      "url_format": "query_string",
+      "query_params": {
+        "zip": "20678",
+        "contact_method": "Phone",
+        "prefill": "true",
+        "first_name": "Alice",
+        "last_name": "Johnson"
+      },
+      "expected_elements": [
+        "input[name='first_name']",
+        "input[name='last_name']"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "high",
+      "tags": ["prefill", "p1", "dynamic"]
+    },
+    {
+      "workflow_id": "WF-P1-004-EMAIL-CONTACT",
+      "environment": "staging",
+      "page_name": "P1",
+      "description": "Basic info page - email as preferred contact method",
+      "url_format": "query_string",
+      "query_params": {
+        "zip": "90210",
+        "contact_method": "Email"
+      },
+      "expected_elements": [
+        "input[name='email']",
+        "select[name='contact_method']"
+      ],
+      "test_data": {
+        "first_name": "Bob",
+        "last_name": "Williams",
+        "email": "bob.williams@example.com"
+      },
+      "expected_status": 200,
+      "test_priority": "medium",
+      "tags": ["p1", "contact", "email"]
+    },
+    {
+      "workflow_id": "WF-P1-005-PHONE-CONTACT",
+      "environment": "staging",
+      "page_name": "P1",
+      "description": "Basic info page - phone as preferred contact method",
+      "url_format": "query_string",
+      "query_params": {
+        "zip": "10001",
+        "contact_method": "Phone"
+      },
+      "expected_elements": [
+        "input[name='phone_number']",
+        "select[name='contact_method']"
+      ],
+      "test_data": {
+        "first_name": "Carol",
+        "last_name": "Davis",
+        "phone_number": "5551234567"
+      },
+      "expected_status": 200,
+      "test_priority": "medium",
+      "tags": ["p1", "contact", "phone"]
+    },
+    {
+      "workflow_id": "WF-P2-001-HUMANA",
+      "environment": "staging",
+      "page_name": "P2",
+      "description": "Insurance page - Humana workflow",
+      "url_format": "query_string",
+      "query_params": {
+        "payer": "Humana",
+        "prefill": "true"
+      },
+      "expected_elements": [
+        "input[name='member_id']",
+        "input[name='group_number']",
+        "select[name='payer']"
+      ],
+      "test_data": {
+        "member_id": "HUM123456",
+        "group_number": "GRP789",
+        "payer": "Humana"
+      },
+      "expected_status": 200,
+      "test_priority": "high",
+      "tags": ["insurance", "p2", "humana", "happy-path"]
+    },
+    {
+      "workflow_id": "WF-P2-002-AETNA",
+      "environment": "staging",
+      "page_name": "P2",
+      "description": "Insurance page - Aetna workflow",
+      "url_format": "query_string",
+      "query_params": {
+        "payer": "Aetna"
+      },
+      "expected_elements": [
+        "input[name='member_id']",
+        "select[name='payer']"
+      ],
+      "test_data": {
+        "member_id": "AET987654",
+        "group_number": "GRP123",
+        "payer": "Aetna"
+      },
+      "expected_status": 200,
+      "test_priority": "high",
+      "tags": ["insurance", "p2", "aetna"]
+    },
+    {
+      "workflow_id": "WF-P2-003-BCBS",
+      "environment": "staging",
+      "page_name": "P2",
+      "description": "Insurance page - Blue Cross Blue Shield workflow",
+      "url_format": "query_string",
+      "query_params": {
+        "payer": "Blue Cross Blue Shield"
+      },
+      "expected_elements": [
+        "input[name='member_id']",
+        "input[name='group_number']",
+        "select[name='payer']"
+      ],
+      "test_data": {
+        "member_id": "BCBS456789",
+        "group_number": "GRP456",
+        "payer": "Blue Cross Blue Shield"
+      },
+      "expected_status": 200,
+      "test_priority": "high",
+      "tags": ["insurance", "p2", "bcbs"]
+    },
+    {
+      "workflow_id": "WF-P2-004-NO-INSURANCE",
+      "environment": "staging",
+      "page_name": "P2",
+      "description": "Insurance page - No insurance option",
+      "url_format": "query_string",
+      "query_params": {
+        "payer": "None",
+        "self_pay": "true"
+      },
+      "expected_elements": [
+        "input[name='self_pay']",
+        "button[type='submit']"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "medium",
+      "tags": ["insurance", "p2", "self-pay"]
+    },
+    {
+      "workflow_id": "WF-P2-005-INVALID-MEMBER-ID",
+      "environment": "staging",
+      "page_name": "P2",
+      "description": "Insurance page - Invalid member ID validation",
+      "url_format": "query_string",
+      "query_params": {
+        "payer": "Humana"
+      },
+      "expected_elements": [
+        "input[name='member_id']",
+        ".error-message"
+      ],
+      "test_data": {
+        "member_id": "INVALID",
+        "group_number": "GRP123",
+        "payer": "Humana"
+      },
+      "expected_status": 200,
+      "test_priority": "medium",
+      "tags": ["insurance", "p2", "validation", "negative"]
+    },
+    {
+      "workflow_id": "WF-P3-001-DATETIME",
+      "environment": "staging",
+      "page_name": "P3",
+      "description": "Schedule page - date/time selection",
+      "url_format": "query_string",
+      "query_params": {
+        "preferred_date": "2026-03-01",
+        "preferred_time": "10:00"
+      },
+      "expected_elements": [
+        ".date-picker",
+        ".time-selector",
+        "button.confirm-schedule"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "high",
+      "tags": ["schedule", "p3", "datetime", "happy-path"]
+    },
+    {
+      "workflow_id": "WF-P3-002-MORNING",
+      "environment": "staging",
+      "page_name": "P3",
+      "description": "Schedule page - morning time slot",
+      "url_format": "query_string",
+      "query_params": {
+        "time_preference": "morning"
+      },
+      "expected_elements": [
+        ".time-selector",
+        ".morning-slots"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "medium",
+      "tags": ["schedule", "p3", "morning"]
+    },
+    {
+      "workflow_id": "WF-P3-003-AFTERNOON",
+      "environment": "staging",
+      "page_name": "P3",
+      "description": "Schedule page - afternoon time slot",
+      "url_format": "query_string",
+      "query_params": {
+        "time_preference": "afternoon"
+      },
+      "expected_elements": [
+        ".time-selector",
+        ".afternoon-slots"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "medium",
+      "tags": ["schedule", "p3", "afternoon"]
+    },
+    {
+      "workflow_id": "WF-P3-004-EVENING",
+      "environment": "staging",
+      "page_name": "P3",
+      "description": "Schedule page - evening time slot",
+      "url_format": "query_string",
+      "query_params": {
+        "time_preference": "evening"
+      },
+      "expected_elements": [
+        ".time-selector",
+        ".evening-slots"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "medium",
+      "tags": ["schedule", "p3", "evening"]
+    },
+    {
+      "workflow_id": "WF-P3-005-PAST-DATE",
+      "environment": "staging",
+      "page_name": "P3",
+      "description": "Schedule page - past date validation",
+      "url_format": "query_string",
+      "query_params": {
+        "preferred_date": "2020-01-01"
+      },
+      "expected_elements": [
+        ".date-picker",
+        ".error-message"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "medium",
+      "tags": ["schedule", "p3", "validation", "negative"]
+    },
+    {
+      "workflow_id": "WF-P4-001-REASON",
+      "environment": "staging",
+      "page_name": "P4",
+      "description": "Reason page - reason for visit selection",
+      "url_format": "query_string",
+      "query_params": {
+        "reason": "checkup"
+      },
+      "expected_elements": [
+        "select[name='visit_reason']",
+        "button[type='submit']"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "high",
+      "tags": ["reason", "p4", "checkup"]
+    },
+    {
+      "workflow_id": "WF-P4-002-EMERGENCY",
+      "environment": "staging",
+      "page_name": "P4",
+      "description": "Reason page - emergency visit",
+      "url_format": "query_string",
+      "query_params": {
+        "reason": "emergency",
+        "urgent": "true"
+      },
+      "expected_elements": [
+        "select[name='visit_reason']",
+        ".urgent-flag"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "high",
+      "tags": ["reason", "p4", "emergency", "urgent"]
+    },
+    {
+      "workflow_id": "WF-P4-003-FOLLOWUP",
+      "environment": "staging",
+      "page_name": "P4",
+      "description": "Reason page - follow-up appointment",
+      "url_format": "query_string",
+      "query_params": {
+        "reason": "followup",
+        "previous_visit": "2026-02-01"
+      },
+      "expected_elements": [
+        "select[name='visit_reason']",
+        "input[name='previous_visit']"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "medium",
+      "tags": ["reason", "p4", "followup"]
+    },
+    {
+      "workflow_id": "WF-P4-004-CONSULTATION",
+      "environment": "staging",
+      "page_name": "P4",
+      "description": "Reason page - consultation visit",
+      "url_format": "query_string",
+      "query_params": {
+        "reason": "consultation"
+      },
+      "expected_elements": [
+        "select[name='visit_reason']"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "medium",
+      "tags": ["reason", "p4", "consultation"]
+    },
+    {
+      "workflow_id": "WF-P4-005-OTHER",
+      "environment": "staging",
+      "page_name": "P4",
+      "description": "Reason page - other reason with description",
+      "url_format": "query_string",
+      "query_params": {
+        "reason": "other"
+      },
+      "expected_elements": [
+        "select[name='visit_reason']",
+        "textarea[name='reason_description']"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "medium",
+      "tags": ["reason", "p4", "other"]
+    },
+    {
+      "workflow_id": "WF-P5-001-CONFIRMATION",
+      "environment": "staging",
+      "page_name": "P5",
+      "description": "Confirmation page - appointment confirmation",
+      "url_format": "query_string",
+      "query_params": {
+        "appointment_id": "APT123456"
+      },
+      "expected_elements": [
+        ".confirmation-message",
+        ".appointment-details",
+        "button.confirm"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "high",
+      "tags": ["confirmation", "p5", "happy-path"]
+    },
+    {
+      "workflow_id": "WF-P5-002-EDIT",
+      "environment": "staging",
+      "page_name": "P5",
+      "description": "Confirmation page - edit appointment option",
+      "url_format": "query_string",
+      "query_params": {
+        "appointment_id": "APT123456",
+        "allow_edit": "true"
+      },
+      "expected_elements": [
+        ".confirmation-message",
+        "button.edit-appointment"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "medium",
+      "tags": ["confirmation", "p5", "edit"]
+    },
+    {
+      "workflow_id": "WF-P5-003-CANCEL",
+      "environment": "staging",
+      "page_name": "P5",
+      "description": "Confirmation page - cancel appointment option",
+      "url_format": "query_string",
+      "query_params": {
+        "appointment_id": "APT123456",
+        "allow_cancel": "true"
+      },
+      "expected_elements": [
+        ".confirmation-message",
+        "button.cancel-appointment"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "medium",
+      "tags": ["confirmation", "p5", "cancel"]
+    },
+    {
+      "workflow_id": "WF-P5-004-PAYMENT",
+      "environment": "staging",
+      "page_name": "P5",
+      "description": "Confirmation page - payment required",
+      "url_format": "query_string",
+      "query_params": {
+        "appointment_id": "APT123456",
+        "payment_required": "true"
+      },
+      "expected_elements": [
+        ".confirmation-message",
+        ".payment-section",
+        "button.proceed-payment"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "high",
+      "tags": ["confirmation", "p5", "payment"]
+    },
+    {
+      "workflow_id": "WF-P5-005-EMAIL-VERIFY",
+      "environment": "staging",
+      "page_name": "P5",
+      "description": "Confirmation page - email verification required",
+      "url_format": "query_string",
+      "query_params": {
+        "appointment_id": "APT123456",
+        "verify_email": "true"
+      },
+      "expected_elements": [
+        ".confirmation-message",
+        ".email-verification",
+        "input[name='verification_code']"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "medium",
+      "tags": ["confirmation", "p5", "verification"]
+    },
+    {
+      "workflow_id": "WF-P6-001-REVIEW",
+      "environment": "staging",
+      "page_name": "P6",
+      "description": "Review page - full appointment review",
+      "url_format": "query_string",
+      "query_params": {
+        "review_mode": "full"
+      },
+      "expected_elements": [
+        ".review-section",
+        ".patient-info",
+        ".appointment-info",
+        "button.submit-final"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "high",
+      "tags": ["review", "p6", "full", "happy-path"]
+    },
+    {
+      "workflow_id": "WF-P6-002-EDIT-INFO",
+      "environment": "staging",
+      "page_name": "P6",
+      "description": "Review page - edit information links",
+      "url_format": "query_string",
+      "query_params": {
+        "review_mode": "editable"
+      },
+      "expected_elements": [
+        ".review-section",
+        "a.edit-patient-info",
+        "a.edit-appointment"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "medium",
+      "tags": ["review", "p6", "edit"]
+    },
+    {
+      "workflow_id": "WF-P6-003-TERMS",
+      "environment": "staging",
+      "page_name": "P6",
+      "description": "Review page - terms and conditions acceptance",
+      "url_format": "query_string",
+      "query_params": {
+        "show_terms": "true"
+      },
+      "expected_elements": [
+        ".review-section",
+        "input[type='checkbox'][name='accept_terms']",
+        ".terms-conditions"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "high",
+      "tags": ["review", "p6", "terms"]
+    },
+    {
+      "workflow_id": "WF-P6-004-SUMMARY",
+      "environment": "staging",
+      "page_name": "P6",
+      "description": "Review page - appointment summary only",
+      "url_format": "query_string",
+      "query_params": {
+        "review_mode": "summary"
+      },
+      "expected_elements": [
+        ".review-section",
+        ".appointment-summary"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "medium",
+      "tags": ["review", "p6", "summary"]
+    },
+    {
+      "workflow_id": "WF-P6-005-INCOMPLETE",
+      "environment": "staging",
+      "page_name": "P6",
+      "description": "Review page - incomplete information warning",
+      "url_format": "query_string",
+      "query_params": {
+        "status": "incomplete"
+      },
+      "expected_elements": [
+        ".review-section",
+        ".warning-message",
+        ".incomplete-fields"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "medium",
+      "tags": ["review", "p6", "validation", "incomplete"]
+    },
+    {
+      "workflow_id": "WF-P7-001-SUCCESS",
+      "environment": "staging",
+      "page_name": "P7",
+      "description": "Thank you page - successful appointment booking",
+      "url_format": "query_string",
+      "query_params": {
+        "appointment_id": "APT123456",
+        "status": "confirmed"
+      },
+      "expected_elements": [
+        ".success-message",
+        ".appointment-details",
+        ".confirmation-number"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "high",
+      "tags": ["thankyou", "p7", "success", "happy-path"]
+    },
+    {
+      "workflow_id": "WF-P7-002-EMAIL-SENT",
+      "environment": "staging",
+      "page_name": "P7",
+      "description": "Thank you page - confirmation email sent",
+      "url_format": "query_string",
+      "query_params": {
+        "appointment_id": "APT123456",
+        "email_sent": "true"
+      },
+      "expected_elements": [
+        ".success-message",
+        ".email-confirmation"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "high",
+      "tags": ["thankyou", "p7", "email"]
+    },
+    {
+      "workflow_id": "WF-P7-003-PRINT",
+      "environment": "staging",
+      "page_name": "P7",
+      "description": "Thank you page - print confirmation option",
+      "url_format": "query_string",
+      "query_params": {
+        "appointment_id": "APT123456",
+        "show_print": "true"
+      },
+      "expected_elements": [
+        ".success-message",
+        "button.print-confirmation"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "medium",
+      "tags": ["thankyou", "p7", "print"]
+    },
+    {
+      "workflow_id": "WF-P7-004-FEEDBACK",
+      "environment": "staging",
+      "page_name": "P7",
+      "description": "Thank you page - feedback survey option",
+      "url_format": "query_string",
+      "query_params": {
+        "appointment_id": "APT123456",
+        "show_feedback": "true"
+      },
+      "expected_elements": [
+        ".success-message",
+        ".feedback-section",
+        "a.feedback-link"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "low",
+      "tags": ["thankyou", "p7", "feedback"]
+    },
+    {
+      "workflow_id": "WF-P7-005-NEXT-STEPS",
+      "environment": "staging",
+      "page_name": "P7",
+      "description": "Thank you page - next steps information",
+      "url_format": "query_string",
+      "query_params": {
+        "appointment_id": "APT123456",
+        "show_next_steps": "true"
+      },
+      "expected_elements": [
+        ".success-message",
+        ".next-steps",
+        ".preparation-instructions"
+      ],
+      "test_data": {},
+      "expected_status": 200,
+      "test_priority": "medium",
+      "tags": ["thankyou", "p7", "instructions"]
+    }
+  ]
+}
