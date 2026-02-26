@@ -689,62 +689,72 @@ def smart_actions(page, human_behavior):
 # ============================================================================
 
 @pytest.fixture(scope="session")
-def browser_context_args(browser_context_args):
+def browser_context_args(browser_context_args, request):
     """
     🎯 GLOBAL BROWSER CONTEXT CONFIGURATION
     
-    Override pytest-playwright's default browser context to use maximized window.
+    Override pytest-playwright's default browser context for maximized windows.
     
-    Why viewport=None?
-    - Default: pytest-playwright uses 1280x720 fixed viewport
-    - With None: Browser uses actual window size (responsive testing)
-    - Best for: Modern responsive apps, real-world scenarios
+    Cross-browser strategy:
+    - Chromium/Chrome/Edge: viewport=None + no_viewport=True (works with --start-maximized)
+    - Firefox/WebKit: Set viewport to actual screen dimensions (no --start-maximized support)
     
     Scope: session (configured once, reused across all tests)
     Applies to: All tests using 'page', 'context' fixtures from pytest-playwright
-    
-    Can be overridden per test:
-        @pytest.fixture
-        def browser_context_args():
-            return {"viewport": {"width": 1920, "height": 1080}}
     """
-    return {
-        **browser_context_args,
-        "viewport": None,  # None = full window size (maximized/responsive)
-        "no_viewport": True,  # Explicitly disable viewport emulation
-    }
+    browser_name = request.config.getoption("--test-browser", default="chromium")
+    
+    if browser_name in ("firefox", "webkit", "safari"):
+        # Firefox/WebKit: set explicit viewport to screen dimensions
+        try:
+            import ctypes
+            screen_w = ctypes.windll.user32.GetSystemMetrics(0)
+            screen_h = ctypes.windll.user32.GetSystemMetrics(1)
+        except Exception:
+            screen_w, screen_h = 1920, 1080
+        
+        return {
+            **browser_context_args,
+            "viewport": {"width": screen_w, "height": screen_h},
+        }
+    else:
+        # Chromium: viewport=None lets --start-maximized control the window
+        return {
+            **browser_context_args,
+            "viewport": None,
+            "no_viewport": True,
+        }
 
 
 @pytest.fixture(scope="session")
-def browser_type_launch_args(browser_type_launch_args):
+def browser_type_launch_args(browser_type_launch_args, request):
     """
     🚀 GLOBAL BROWSER LAUNCH CONFIGURATION
     
-    Override browser launch arguments for optimal testing experience.
+    Ensures ALL browsers open maximized.
     
-    Why --start-maximized?
-    - Ensures browser opens in full-screen mode
-    - Better visibility during test execution
-    - Matches real user experience
-    
-    Cross-browser notes:
-    - Chromium/Chrome: --start-maximized works perfectly
-    - Firefox: Uses viewport=None from browser_context_args
-    - WebKit: Uses viewport=None from browser_context_args
+    Cross-browser maximize strategy:
+    - Chromium/Chrome/Edge: --start-maximized flag
+    - Firefox/WebKit: No CLI args — maximized via viewport in browser_context_args
     
     Scope: session (configured once, reused across all tests)
-    
-    Can be extended per test:
-        @pytest.fixture
-        def browser_type_launch_args():
-            return {"args": ["--start-maximized", "--disable-extensions"]}
     """
+    # Detect which browser is being used
+    browser_name = request.config.getoption("--test-browser", default="chromium")
+    
+    if browser_name in ("firefox", "webkit", "safari"):
+        # Firefox/WebKit: don't pass CLI args (Firefox misinterprets numbers as URLs)
+        # Maximize is handled by setting viewport to screen size in browser_context_args
+        launch_args = []
+    else:
+        # Chromium, Chrome, Edge: --start-maximized works perfectly
+        launch_args = ["--start-maximized"]
+    
     return {
         **browser_type_launch_args,
-        "args": [
-            "--start-maximized",  # Start browser in maximized window
-        ],
+        "args": launch_args,
     }
+
 
 
 def pytest_collection_modifyitems(config, items):

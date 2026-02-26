@@ -62,12 +62,33 @@ class BrowserConfig:
         """Convert to pytest command line arguments"""
         args = [f"--test-browser={self.browser.value}"]
         
+        # Map our browser type to Playwright's --browser flag
+        # Playwright only supports: chromium, firefox, webkit
+        # Chrome and MSEdge use Chromium engine with --browser-channel
+        playwright_browser_map = {
+            BrowserType.CHROMIUM: "chromium",
+            BrowserType.FIREFOX: "firefox",
+            BrowserType.WEBKIT: "webkit",
+            BrowserType.CHROME: "chromium",
+            BrowserType.MSEDGE: "chromium",
+        }
+        
+        playwright_browser = playwright_browser_map.get(self.browser, "chromium")
+        args.append(f"--browser={playwright_browser}")
+        
+        # For Chrome and Edge, use browser channel
+        if self.browser == BrowserType.CHROME:
+            args.append("--browser-channel=chrome")
+        elif self.browser == BrowserType.MSEDGE:
+            args.append("--browser-channel=msedge")
+        
         if self.is_headless:
             args.append("--headless")
         else:
             args.append("--headed")
         
         return args
+
     
     def get_description(self) -> str:
         """Get human-readable description"""

@@ -83,6 +83,16 @@ class PlaywrightCodegen:
         # Add viewport
         if viewport:
             cmd.extend(["--viewport-size", f"{viewport['width']},{viewport['height']}"])
+        else:
+            # Default: use screen dimensions so browser opens maximized
+            try:
+                import ctypes
+                screen_w = ctypes.windll.user32.GetSystemMetrics(0)
+                screen_h = ctypes.windll.user32.GetSystemMetrics(1)
+            except Exception:
+                screen_w, screen_h = 1920, 1080
+            cmd.extend(["--viewport-size", f"{screen_w},{screen_h}"])
+
 
         # Add additional arguments
         if additional_args:

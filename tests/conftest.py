@@ -303,8 +303,11 @@ def shared_browser(playwright_instance, browser_config):
     """
     Session-scoped browser instance
     Shared across all tests for better performance
+    Uses the browser type from CLI selection (--test-browser)
     """
-    browser = playwright_instance.chromium.launch(headless=browser_config["headless"])
+    browser_type = browser_config.get("browser_type", "chromium")
+    browser_launcher = getattr(playwright_instance, browser_type, playwright_instance.chromium)
+    browser = browser_launcher.launch(headless=browser_config["headless"])
     yield browser
     browser.close()
 
@@ -385,7 +388,9 @@ def callcenter_page(request, browser_config, multi_project_config):
     from pages.callcenter import CallCenterAppointmentManagementPage
 
     playwright = sync_playwright().start()
-    browser = playwright.chromium.launch(headless=browser_config["headless"])
+    browser_type = browser_config.get("browser_type", "chromium")
+    browser_launcher = getattr(playwright, browser_type, playwright.chromium)
+    browser = browser_launcher.launch(headless=browser_config["headless"])
     context = browser.new_context()
     page = context.new_page()
 
