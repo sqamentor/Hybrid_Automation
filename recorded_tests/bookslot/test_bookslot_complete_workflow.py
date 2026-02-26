@@ -268,7 +268,7 @@ def test_bookslot_complete_flow(page, multi_project_config, smart_actions, fake_
     # =========================================================================
     # INSURANCE INFORMATION
     # =========================================================================
-    act.type_text(page.get_by_role("textbox", name="Member Name *"), data['MemberName'], "Member Name")
+    #act.type_text(page.get_by_role("textbox", name="Member Name *"), data['MemberName'], "Member Name")
     act.type_text(page.get_by_role("textbox", name="ID Number *"), data['idNumber'], "ID Number")
     act.type_text(page.get_by_role("textbox", name="Group number *"), data['GroupNumber'], "Group Number")
     act.type_text(page.get_by_role("textbox", name="Insurance Company Name *"), data['PayerName'], "Insurance Company")

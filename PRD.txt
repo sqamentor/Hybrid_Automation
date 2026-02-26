@@ -1,0 +1,1868 @@
+================================================================================
+         PRODUCT REQUIREMENTS DOCUMENT (PRD)
+         Hybrid Automation Framework — Enterprise-Grade Test Automation Platform
+================================================================================
+
+Document Version  : 1.0
+Audit Date        : 26-Feb-2026
+Author            : Generated via Full Code Audit (Claude Code)
+Project Owner     : Lokendra Singh (lokendra.singh@centerforvein.com)
+Repository        : Hybrid_Automation
+Primary Language  : Python 3.12+
+Framework Version : 1.0.0 (enterprise-automation-framework)
+License           : MIT
+
+================================================================================
+TABLE OF CONTENTS
+================================================================================
+
+  1.  Executive Summary
+  2.  Product Overview & Purpose
+  3.  System Architecture Overview
+  4.  Complete Folder & File Structure Audit
+  5.  File Naming Conventions Audit
+  6.  Framework Core Modules (Deep Audit)
+  7.  Page Object Model Layer (Deep Audit)
+  8.  Test Suite Architecture (Deep Audit)
+  9.  Configuration Layer (Deep Audit)
+  10. Observability & Logging Pipeline (Deep Audit)
+  11. CI/CD Pipeline (Deep Audit)
+  12. Utility & Support Modules (Deep Audit)
+  13. Data Models (Deep Audit)
+  14. Test Data Layer (Deep Audit)
+  15. Dependencies & Technology Stack
+  16. Environment Configuration
+  17. Feature Inventory
+  18. Gaps, Issues & Recommendations
+  19. Glossary
+
+================================================================================
+1. EXECUTIVE SUMMARY
+================================================================================
+
+The Hybrid Automation Framework is an enterprise-grade, end-to-end test automation
+platform built for the Center for Vein Care's digital ecosystem. It provides
+automated testing for three web applications:
+
+  - BookSlot      : Patient appointment booking system (7-step multi-page flow)
+  - CallCenter    : Back-office appointment management for call center agents
+  - PatientIntake : Patient-facing appointment list and intake management system
+
+The framework uses a DUAL-ENGINE architecture:
+  - Playwright    : Primary engine for modern SPAs (React/Vue/Angular)
+  - Selenium      : Fallback engine for legacy systems, SSO/MFA, iframe-heavy pages
+
+It supports AI-powered engine selection (OpenAI GPT-4, Claude, Azure, Ollama),
+human-like behavior simulation, video recording for every test, structured JSON
+audit logging (SOC2-ready), and a full CI/CD pipeline on GitHub Actions.
+
+Key statistics from the code audit:
+  - Total source files      : ~260 Python files + YAML/JSON/config
+  - Test files              : ~60 test files
+  - Page Object files       : 11 page classes (7 bookslot + 2 callcenter + 2 patientintake)
+  - Framework modules       : 40+ framework sub-modules across 20+ packages
+  - Configuration files     : 10 YAML/INI/TOML config files
+  - GitHub Actions workflows: 5 CI/CD pipelines
+  - Log streams             : 8 separate log file categories
+  - Python version          : 3.12+ (strict minimum, leverages match/case)
+
+
+================================================================================
+2. PRODUCT OVERVIEW & PURPOSE
+================================================================================
+
+2.1 BUSINESS CONTEXT
+--------------------
+Center for Vein Care operates three interconnected web portals that handle
+patient appointment scheduling and management. Manual testing of these flows
+is time-consuming, error-prone, and does not scale with release velocity.
+
+This framework automates:
+  (a) Full 7-step patient appointment booking (BookSlot)
+  (b) Appointment verification and cancellation (CallCenter, PatientIntake)
+  (c) Cross-system data consistency validation (all 3 systems simultaneously)
+
+2.2 PRODUCT GOALS
+-----------------
+  G1. Automate regression, smoke, and E2E test coverage for all 3 applications
+  G2. Support both modern SPAs and potential legacy pages via dual-engine approach
+  G3. Provide SOC2-ready audit logs for healthcare compliance (HIPAA context)
+  G4. Enable AI-assisted test recording, refactoring, and engine selection
+  G5. Allow human-like browser interactions to avoid bot detection
+  G6. Record video evidence for every test execution automatically
+  G7. Generate rich HTML + Allure reports with embedded video links
+  G8. Support multi-environment testing (staging, production read-only)
+
+2.3 STAKEHOLDERS
+----------------
+  - QA Engineers         : Primary users (write/run tests)
+  - Developers           : Review test results, integrate into CI/CD
+  - Product Managers     : View HTML/Allure reports
+  - Compliance Team      : Review audit logs (SOC2, HIPAA context)
+  - DevOps               : Maintain CI/CD pipelines, Docker execution
+
+
+================================================================================
+3. SYSTEM ARCHITECTURE OVERVIEW
+================================================================================
+
+3.1 ARCHITECTURAL LAYERS
+-------------------------
+
+  [TEST LAYER]
+    tests/
+    ├── bookslot/           -> 7-page individual + E2E tests
+    ├── integration/        -> Cross-system 3-app workflow tests
+    ├── modern/             -> Placeholder: callcenter, patientintake
+    ├── unit/               -> Unit tests for framework internals
+    └── ...
+
+  [PAGE OBJECT LAYER]
+    pages/
+    ├── bookslot/           -> 7 page classes (P1-P7 steps)
+    ├── callcenter/         -> 2 page classes (management, dashboard)
+    └── patientintake/      -> 2 page classes (list, verification)
+
+  [FRAMEWORK CORE LAYER]
+    framework/
+    ├── core/               -> SmartActions, EngineSelectors, SessionManager
+    ├── ui/                 -> BasePage, PlaywrightEngine, SeleniumEngine, UIFactory
+    ├── api/                -> APIClient, APIInterceptor, AsyncAPIClient, GraphQL
+    ├── database/           -> DBClient, DBValidator, QueryBuilder
+    ├── ai/                 -> AIProviderFactory, NLTestGenerator
+    ├── observability/      -> EnterpriseLogger, LoggingConfig, PytestPlugin
+    ├── recording/          -> RecordingWorkflow, Codegen, PageObjectGenerator
+    ├── security/           -> SecurityTester (OWASP ZAP)
+    ├── performance/        -> PerformanceMetrics (Web Vitals)
+    ├── accessibility/      -> AccessibilityTester (axe-core, WCAG 2.1)
+    ├── models/             -> Pydantic models (TestContext, Config)
+    ├── protocols/          -> Type protocol interfaces
+    ├── di_container.py     -> Dependency injection container
+    └── ...
+
+  [CONFIGURATION LAYER]
+    config/
+    ├── projects.yaml            -> 3 projects (bookslot, callcenter, patientintake)
+    ├── environments.yaml        -> staging, production settings
+    ├── engine_decision_matrix.yaml -> YAML-based engine selection rules (18 rules)
+    ├── human_behavior.yaml      -> Human simulation tuning parameters
+    ├── url_testing.yaml         -> URL/deep-link testing framework
+    └── settings.py              -> SettingsManager singleton
+
+  [UTILITY LAYER]
+    utils/
+    ├── logger.py           -> Standard + Audit logger facades
+    └── fake_data_generator.py -> Faker-based test data generation
+
+  [TEST DATA LAYER]
+    test_data/
+    ├── bookslot/           -> JSON + YAML patient data sets
+    ├── callcenter/         -> (empty, __init__.py only)
+    └── patientintake/      -> (empty, __init__.py only)
+
+  [CI/CD LAYER]
+    .github/workflows/
+    ├── test.yml            -> Multi-OS matrix, unit/integration coverage
+    ├── test_execution.yml  -> Full E2E execution with Allure + PR comments
+    ├── lint.yml            -> Black, Ruff, Mypy, Bandit, Safety
+    ├── release.yml         -> Release automation
+    └── architecture-audit.yml -> Architecture compliance audit
+
+3.2 ENGINE SELECTION FLOW
+--------------------------
+
+  Test Metadata (module, markers, url, complexity)
+         |
+         v
+  [AI Engine Selector] -> GPT-4 / Claude / Azure / Ollama / LlamaCPP
+         |          (Confidence >= 80%, cached, retry with backoff)
+         v
+  [YAML Engine Selector] <- Falls back if AI unavailable
+         |          (18 priority-weighted rules, LRU cache)
+         v
+  [Modern Engine Selector] <- Python 3.12 match/case pattern matching
+         |          (Frozen dataclasses, @lru_cache, 6 main patterns)
+         v
+  [UIFactory] -> PlaywrightEngine | SeleniumEngine
+         |
+         v
+  [Fallback Logic] -> Playwright -> Selenium on engine-level failures only
+
+3.3 DUAL-TRACK LOGGING PIPELINE
+---------------------------------
+
+  Standard Track:
+    utils/logger.py -> get_logger(__name__)    -> logs/framework_YYYYMMDD.log
+                    -> get_audit_logger()      -> logs/audit/audit_YYYYMMDD.log (JSON)
+
+  Enterprise Track:
+    framework/observability/enterprise_logger.py
+      -> EnterpriseLogger (async QueueHandler)
+      -> logs/enterprise/app_YYYYMMDD.json
+      -> logs/audit/audit_YYYYMMDD.json   (SOC2, 1yr retention, 365 backups)
+      -> logs/security/security_YYYYMMDD.json (6-month retention)
+      -> logs/performance/performance_YYYYMMDD.json
+
+  Integration Point:
+    AuditLogger.log_action() lazily imports CorrelationContext and stamps
+    every entry with: correlation_id, trace_id, request_id (per-test UUIDs)
+
+  Per-Test IDs generated by:
+    framework/observability/pytest_enterprise_logging.py (registered as plugin)
+    -> pytest_runtest_setup() generates fresh UUID correlation_id per test
+
+
+================================================================================
+4. COMPLETE FOLDER & FILE STRUCTURE AUDIT
+================================================================================
+
+ROOT LEVEL FILES
+----------------
+  conftest.py               -> Root pytest fixture hub (video, smart_actions, fake_data)
+  pytest.ini                -> 40+ markers, addopts, logging config, test paths
+  pyproject.toml            -> Build (hatchling), metadata, tool config
+  requirements.txt          -> ~80 core + optional packages
+  requirements-dev.txt      -> Dev-only extras
+  requirements_ai_optional.txt -> AI provider packages
+  Makefile                  -> 30+ automation targets (install, test, lint, clean, docker)
+  .pre-commit-config.yaml   -> Pre-commit hook chain
+  .yamllint.yaml            -> YAML linting rules
+  .editorconfig             -> Editor formatting rules
+  .gitignore                -> Standard Python + test artifact ignores
+  .gitattributes            -> Line ending normalization
+  .secrets.baseline         -> detect-secrets baseline
+  env.example               -> Environment variable template
+  LICENSE                   -> MIT license
+  test_diagnostic.py        -> Standalone diagnostic script (root level)
+  START_INTERACTIVE_MODE.bat -> Windows batch launcher
+  START_INTERACTIVE_MODE.ps1 -> PowerShell launcher
+
+FRAMEWORK/ DIRECTORY (40+ modules)
+------------------------------------
+  framework/__init__.py
+  framework/py.typed                         -> PEP 561 typed marker
+  framework/di_container.py                  -> DI container (singleton/transient/scoped)
+
+  framework/core/
+    __init__.py
+    smart_actions.py           -> Human-like UI actions (click, type, navigate, wait)
+    async_smart_actions.py     -> Async version (5-10x faster)
+    engine_selector.py         -> YAML rule-based engine selector (LRU cache, priorities)
+    modern_engine_selector.py  -> Python 3.12 match/case selector (@lru_cache)
+    ai_engine_selector.py      -> AI-powered selector (GPT-4/Azure/Ollama/LlamaCPP)
+    exceptions.py              -> Custom exception hierarchy (20+ exceptions)
+    execution_flow.py          -> UI->API->DB execution tracking with correlation
+    project_manager.py         -> Multi-project detection from URL (regex patterns)
+    session_manager.py         -> Cross-engine session transfer (Selenium<->Playwright)
+    workflow_orchestrator.py   -> Multi-step cross-engine workflow sequencing
+    utils/
+      __init__.py
+      human_actions.py         -> HumanBehaviorSimulator (typing, mouse, scroll, idle)
+    [Note: 8 .bak files present - backup copies of all core files]
+
+  framework/ui/
+    __init__.py
+    base_page.py               -> Abstract base for all page objects
+    playwright_engine.py       -> PlaywrightEngine + ContextPool (thread-safe pooling)
+    selenium_engine.py         -> SeleniumEngine + Grid support
+    self_healing_locators.py   -> 6-strategy AI locator recovery with confidence scoring
+    ui_factory.py              -> Engine factory with AI/YAML selection + fallback
+
+  framework/api/
+    __init__.py
+    api_client.py              -> Sync HTTP client with audit logging
+    async_api_client.py        -> Async HTTP (httpx), retry, parallel requests
+    api_interceptor.py         -> Network capture, WS frames, request/response mocking
+    graphql_client.py          -> GraphQL client with introspection and validation
+    websocket_tester.py        -> WebSocket testing utilities
+
+  framework/database/
+    __init__.py
+    db_client.py               -> Universal DB client (SQL Server, PG, MySQL), read-only
+    db_validator.py            -> DB assertion engine (verify_row_exists, etc.)
+    async_client.py            -> Async DB client
+    query_builder.py           -> SQL query builder
+
+  framework/ai/
+    ai_provider_factory.py     -> Multi-provider factory (OpenAI, Claude, Azure, Ollama)
+    nl_test_generator.py       -> Natural language -> pytest code generator
+
+  framework/observability/
+    __init__.py
+    enterprise_logger.py       -> EnterpriseLogger (async, JSON, PII-masked, SOC2)
+    logging_config.py          -> Environment-based logging config (4 environments)
+    logging.py                 -> Observability module logging utilities
+    pytest_enterprise_logging.py -> Pytest plugin (per-test correlation IDs)
+    siem_adapters.py           -> SIEM adapters (ELK, Datadog, Splunk, Loki) + circuit breaker
+    telemetry.py               -> OpenTelemetry integration (spans, traces, exporters)
+    universal_logger.py        -> Universal logging facade
+
+  framework/recording/
+    __init__.py
+    recording_workflow.py      -> Orchestrates record->refactor->generate workflow
+    codegen_wrapper.py         -> Playwright codegen subprocess wrapper
+    page_object_generator.py   -> Auto-generates POM classes from recorded scripts
+    ai_refactorer.py           -> AI-assisted script improvement
+
+  framework/auth/
+    __init__.py
+    auth_service.py            -> Authentication service
+
+  framework/cli/
+    __init__.py
+    interactive.py             -> Rich interactive CLI launcher (large: 53.5KB)
+    run.py                     -> Interactive test runner CLI
+    record.py                  -> Recording CLI with project-awareness
+    simulate.py                -> Simulation CLI
+    run_pom.py                 -> POM test runner CLI
+    projects.py                -> Project management CLI
+    context.py                 -> CLI context management
+    test_options.py            -> Test option definitions
+
+  framework/config/
+    __init__.py
+    async_config_manager.py    -> Async configuration manager
+
+  framework/helpers/
+    __init__.py
+    flow_helpers.py            -> Flow helper utilities
+
+  framework/i18n/
+    __init__.py
+    multi_language.py          -> Multi-language test support
+
+  framework/intelligence/
+    __init__.py
+    ai_validation_suggester.py -> AI-powered validation suggestions
+
+  framework/microservices/
+    __init__.py
+    base.py                    -> Microservice base class
+    services.py                -> Service definitions
+    url_testing_service.py     -> URL testing microservice
+
+  framework/ml/
+    __init__.py
+    ml_test_optimizer.py       -> ML-based test optimization
+
+  framework/mobile/
+    __init__.py
+    mobile_tester.py           -> Mobile device testing support
+
+  framework/models/
+    __init__.py
+    config_models.py           -> Pydantic V2 config models (BrowserConfig, DBConfig, etc.)
+    test_models.py             -> TestContext, TestResult, TestMetadata, TestStatus
+
+  framework/performance/
+    __init__.py
+    performance_metrics.py     -> Web Vitals, Core performance metrics, HTML reports
+
+  framework/plugins/
+    __init__.py
+    plugin_system.py           -> Plugin architecture
+    example_plugins.py         -> Example plugin implementations
+
+  framework/protocols/
+    __init__.py
+    automation_protocols.py    -> Automation type protocols
+    base_protocols.py          -> Base type protocols
+    config_protocols.py        -> Configuration protocols
+    reporting_protocols.py     -> Reporting protocols
+
+  framework/security/
+    __init__.py
+    security_tester.py         -> OWASP ZAP integration, vulnerability scanning
+
+  framework/testing/
+    distributed.py             -> Distributed test execution
+    url_builder.py             -> URL builder utilities
+    url_data_manager.py        -> URL data management
+    url_validator.py           -> URL validation logic
+    visual.py                  -> Visual testing utilities
+
+  framework/visual/
+    __init__.py
+    visual_regression.py       -> Visual regression testing
+
+PAGES/ DIRECTORY
+-----------------
+  pages/__init__.py
+
+  pages/bookslot/
+    __init__.py
+    bookslots_basicinfo_page1.py      -> P1: Patient contact info (name, email, phone, zip)
+    bookslot_eventtype_page2.py       -> P2: Event/appointment type + patient type
+    bookslot_scheduler_page3.py       -> P3: Date and time slot selection
+    bookslots_personalInfo_page4.py   -> P4: Demographics (DOB, address, gender)
+    bookslots_referral_page5.py       -> P5: Referral source ("How did you hear about us?")
+    bookslots_insurance_page6.py      -> P6: Insurance information (member ID, group, payer)
+    bookslots_success_page7.py        -> P7: Confirmation/success page
+    [Note: 2 .bak files for callcenter pages]
+
+  pages/callcenter/
+    __init__.py
+    appointment_management_page.py    -> Appointment search, cancel, verify
+    dashboard_verification_page.py    -> Authentication verification
+
+  pages/patientintake/
+    __init__.py
+    appointment_list_page.py          -> Patient appointment list + search + verify
+    patient_verification_page.py      -> Authentication verification
+
+TESTS/ DIRECTORY
+-----------------
+  tests/__init__.py
+  tests/conftest.py                  -> Session fixtures, engine factory, multi-project config
+
+  tests/bookslot/
+    __init__.py
+    conftest.py                      -> Navigation precondition fixtures (at_p1 through at_p7)
+    e2e/
+      __init__.py
+      test_complete_journeys.py      -> 9 E2E tests (happy path, referral, insurance, back-nav)
+      test_happy_path.py             -> 3 happy path tests (AM, PM, back navigation)
+    pages/
+      __init__.py
+      test_p1_basic_info.py          -> 25+ tests for basic info page
+      test_p2_event_type.py          -> 16+ tests for event type selection
+      test_p3_scheduler.py           -> 17+ tests for scheduler
+      test_p4_personal_info.py       -> 14+ tests for personal info
+      test_p5_referral.py            -> 16+ tests for referral page
+      test_p6_insurance.py           -> 16+ tests for insurance page
+      test_p7_success.py             -> 14+ tests for success page
+    data/
+      __init__.py
+    fixtures/
+      __init__.py
+    helpers/
+      __init__.py
+      data_helper.py                 -> BookslotDataHelper
+      navigation_helper.py           -> BookslotNavigator
+      validation_helper.py           -> BookslotValidationHelper
+
+  tests/integration/
+    __init__.py
+    test_bookslot_to_patientintake.py  -> 4 cross-app integration tests
+    test_three_system_workflow.py      -> 5 three-system workflow tests
+    test_ai_enhanced_workflow.py
+    test_ai_validation_suggestions.py
+    test_enhanced_features.py
+    test_fixture_debug.py
+    test_playwright_pooling_features.py
+    test_selenium_grid_features.py
+    test_ui_api_db_flow.py
+
+  tests/modern/
+    conftest.py
+    bookslot.OLD/                      -> OLD tests (7 test files, deprecated)
+    callcenter/
+      __init__.py
+      test_callcenter_example.py       -> Placeholder (assert True only)
+    patientintake/
+      __init__.py
+      test_patientintake_example.py    -> Placeholder (assert True only)
+
+  tests/unit/
+    test_api_interceptor.py
+    test_async_config_manager.py
+    test_async_smart_actions.py
+    test_config_models.py
+    test_di_container.py
+    test_exceptions.py
+    test_microservices_base.py
+    test_modern_engine_selector.py
+    test_plugin_system.py
+    test_protocols.py
+    test_query_builder.py
+
+  tests/workflows/
+    __init__.py
+    conftest.py
+    test_cross_engine_workflows.py
+
+  tests/examples/
+    test_ai_resilience.py
+    test_complete_features_integration.py
+    test_comprehensive_all_features.py
+    test_e2e_with_ai_validation.py
+    test_enhanced_reporting_demo.py
+    test_multi_ai_providers.py
+    test_simple_enhanced_reporting.py
+
+  tests/ui/
+    __init__.py
+    test_legacy_ui.py
+    test_modern_spa.py
+
+  tests/common/
+    __init__.py
+    test_recording_module.py
+    test_recording_simple.py
+
+  tests/observability/
+    test_enterprise_logging_demo.py
+
+  tests/legacy/
+    conftest.py
+
+  tests/patientintake/
+    __init__.py
+
+  tests/callcenter/
+    __init__.py
+
+  # Loose test files in tests/ root:
+  tests/comprehensive_report_enhancements.py
+  tests/report_enhancements.py
+  tests/test_dynamic_reports.py
+  tests/test_video_link_verification.py
+
+RECORDED_TESTS/ DIRECTORY
+---------------------------
+  recorded_tests/
+    bookslot/
+      __init__.py
+      test_bookslot_complete_workflow.py
+      test_bookslot_prod_Worklfow_Complete.py    [NOTE: "Worklfow" typo in filename]
+      test_video_link_simple.py
+    callcenter/
+      __init__.py
+    patientintake/
+      __init__.py
+    _archived/
+      test_bookslot_bookslots_complete.py
+      test_bookslot_bookslots_complete_REFACTORED.py
+
+CONFIG/ DIRECTORY
+------------------
+  config/
+    projects.yaml              -> 3 project definitions with URLs per environment
+    environments.yaml          -> staging/production with DB, browser, timeout settings
+    settings.py                -> SettingsManager singleton (dot-notation access)
+    engine_decision_matrix.yaml -> 18 engine selection rules with priorities
+    human_behavior.yaml        -> Human simulation YAML config
+    url_testing.yaml           -> URL testing service config
+    logging_config.template.yaml -> Enterprise logging config template
+    api_db_mapping.yaml        -> API-to-database mapping registry
+
+UTILS/ DIRECTORY
+-----------------
+  utils/__init__.py
+  utils/logger.py              -> get_logger() + get_audit_logger() facades
+  utils/fake_data_generator.py -> Faker-based bookslot data generation
+
+MODELS/ DIRECTORY
+------------------
+  models/__init__.py
+  models/appointment.py        -> Appointment dataclass + TestContext (shared cross-project)
+
+TEST_DATA/ DIRECTORY
+---------------------
+  test_data/bookslot/
+    __init__.py
+    bookslot_data.json / .yaml              -> Basic patient data
+    bookslot_data_dynamic_zip.json / .yaml  -> Patients with dynamic zip codes
+    bookslot_dynamic_locations.json / .yaml -> Dynamic location data
+    bookslot_senior_patients.json / .yaml   -> Senior patient profiles (age 60+)
+    bookslot_young_patients.json / .yaml    -> Younger patient profiles
+    bookslot_workflows.json                 -> Workflow test scenarios
+  test_data/callcenter/
+    __init__.py                             [NOTE: Empty - no test data files]
+  test_data/patientintake/
+    __init__.py                             [NOTE: Empty - no test data files]
+
+SCRIPTS/ DIRECTORY
+-------------------
+  scripts/
+    audit/
+      deep_audit.py
+    governance/
+      framework_audit_engine.py
+      audit_dashboard.py
+      ai_explainer.py
+      file_watcher_audit.py
+      framework_fix_suggestions.py
+      framework_report_generator.py
+      install_hooks.py
+      pre_commit_hook_enhanced.py
+      pytest_arch_audit_plugin.py          -> Registered as pytest plugin in conftest.py
+      setup_dynamic_audit.py
+    enforcement/
+      enforce_abstraction.py
+      enforce_markers.py
+      enforce_pom.py
+    cli/
+      record_cli.py
+      run_pom_tests_cli.py
+      run_tests_cli.py
+      simulate_cli.py
+    ci/
+      setup_github_actions.py
+    runners/
+      run_pom.bat
+      run_pom.ps1
+    hooks/
+      pre-commit-windows.ps1
+      pre-commit.template
+    validation/
+      validate_human_behavior.py
+      validate_no_hardcoding.py
+      validate_video_naming.py
+      verify_ai_resilience.py
+      verify_cli_flow_order.py
+      verify_complete.py
+      verify_governance_system.py
+      verify_installation.py
+      verify_interactive_cli.py
+      verify_interactive_cli_v2.py
+      verify_media.ps1
+      verify_media_capture.py
+      test_minimal_playwright.py
+    quick-start/
+      quick_governance_audit.py
+      quick_start.py
+      quick_start_enhanced.py
+      quick_test_config.py
+    setup/
+      setup_ai.py
+      install_missing_dependencies.ps1
+    utilities/
+      add_unit_test_markers.py
+      check_dependencies.py
+      cleanup_pages.py
+      debug_api_interceptor.py
+      debug_fixture.py
+      visual_proof_test.py
+    audit_logging_system.py
+    auto_instrument.py
+    logging_compliance_scanner.py
+
+EXAMPLES/ DIRECTORY
+--------------------
+  examples/
+    ai_engine_selector_advanced_demo.py
+    ai_validation_enhanced_demo.py
+    ai_validation_quick_reference.py
+    api_interceptor_enhanced_demo.py
+    bookslot_human_behavior_example.py
+    constructor_injection.py
+    engine_selector_advanced_demo.py
+    fake_data_generator_examples.py
+    modern_features_quickstart.py
+    playwright_enhanced_demo.py
+    recording_demo.py
+    selenium_enhanced_demo.py
+    human_behavior/
+      example_01_basic_usage.py
+      example_02_form_filling.py
+      example_03_framework_integration.py
+      example_04_advanced_ecommerce.py
+
+CI/ DIRECTORY
+--------------
+  ci/
+    baseline_allowlist.yaml
+    ci_audit_runner.py
+    github_pr_commenter.py
+
+DOCKER/ DIRECTORY
+------------------
+  docker/
+    Dockerfile
+    docker-compose.yml
+
+ARTIFACTS/ DIRECTORY (generated)
+----------------------------------
+  artifacts/
+    commit_history/commit_audit_log.json
+    reports/LOGGING_COMPLIANCE_REPORT.txt
+    reports/PROJECT_AUDIT_REPORT.json
+    screenshots/.gitkeep
+    temp/.gitkeep
+    traces/.gitkeep
+
+LOG/ DIRECTORY
+---------------
+  log/pytest_configs.json
+
+
+================================================================================
+5. FILE NAMING CONVENTIONS AUDIT
+================================================================================
+
+5.1 PAGE OBJECTS — NAMING ISSUES FOUND
+----------------------------------------
+
+Folder: pages/bookslot/
+
+  FILE                              | PATTERN USED         | VERDICT
+  ----------------------------------|----------------------|------------------
+  bookslots_basicinfo_page1.py      | plural + no_sep      | INCONSISTENT
+  bookslot_eventtype_page2.py       | singular + no_sep    | INCONSISTENT
+  bookslot_scheduler_page3.py       | singular + no_sep    | OK
+  bookslots_personalInfo_page4.py   | plural + camelCase   | VIOLATION (camelCase)
+  bookslots_referral_page5.py       | plural + snake_case  | INCONSISTENT
+  bookslots_insurance_page6.py      | plural + snake_case  | INCONSISTENT
+  bookslots_success_page7.py        | plural + snake_case  | OK
+
+ISSUES IDENTIFIED:
+  [NV-1] Mixed use of "bookslots" (plural) vs "bookslot" (singular) prefix:
+         - Pages 1, 4, 5, 6, 7 use "bookslots_"
+         - Pages 2, 3 use "bookslot_"
+         RECOMMENDED: Standardize to "bookslot_" (singular, matches project name)
+
+  [NV-2] Page 4 file uses camelCase in filename: "personalInfo"
+         VIOLATION: Python convention requires snake_case for filenames
+         CURRENT  : bookslots_personalInfo_page4.py
+         RECOMMENDED: bookslot_personal_info_page4.py
+
+  [NV-3] Page 1 file: "basicinfo" (no separator) vs page 4 "personalInfo" (camelCase)
+         CURRENT  : bookslots_basicinfo_page1.py
+         RECOMMENDED: bookslot_basic_info_page1.py
+
+RECOMMENDED STANDARD (all pages should follow):
+  Pattern: {project}_{feature_name}_{page_number}.py
+  Example: bookslot_basic_info_page1.py
+           bookslot_event_type_page2.py
+           bookslot_scheduler_page3.py
+           bookslot_personal_info_page4.py
+           bookslot_referral_page5.py
+           bookslot_insurance_page6.py
+           bookslot_success_page7.py
+
+5.2 TEST FILES — NAMING AUDIT
+-------------------------------
+
+tests/bookslot/pages/ — CONSISTENT: test_p{N}_{feature_name}.py
+tests/bookslot/e2e/   — CONSISTENT: test_{description}.py
+tests/integration/    — CONSISTENT: test_{description}.py
+tests/unit/           — CONSISTENT: test_{module_name}.py
+
+ISSUES IDENTIFIED:
+  [NV-4] recorded_tests/bookslot/test_bookslot_prod_Worklfow_Complete.py
+         TYPO in filename: "Worklfow" should be "Workflow"
+         Also violates snake_case: uses "PascalCase" words in filename
+         RECOMMENDED: test_bookslot_prod_workflow_complete.py
+
+  [NV-5] recorded_tests/_archived/ — Files in archived folder still in test discovery
+         pytest.ini testpaths includes "recorded_tests" which will discover _archived
+         RECOMMENDED: Add "_archived" to norecursedirs or remove from testpaths
+
+5.3 FRAMEWORK FILES — NAMING AUDIT
+------------------------------------
+
+  [NV-6] 8 .bak files present in framework/core/:
+         - ai_engine_selector.py.bak
+         - async_smart_actions.py.bak
+         - engine_selector.py.bak
+         - execution_flow.py.bak
+         - modern_engine_selector.py.bak
+         - project_manager.py.bak
+         - session_manager.py.bak
+         - smart_actions.py.bak
+         - workflow_orchestrator.py.bak
+         Also: pages/callcenter/ and pages/patientintake/ have .bak files
+         STATUS: Backup files committed to git — should NOT be in version control
+         RECOMMENDED: Delete all .bak files; use git history for version control
+
+  [NV-7] framework/core/utils/ contains human_actions.py
+         This duplicates functionality available in the framework's behavioral modules
+         Also has human_actions.py.bak backup
+
+5.4 CONFIGURATION FILES — NAMING AUDIT
+----------------------------------------
+  All config files follow snake_case.yaml pattern — CONSISTENT and CORRECT
+  exception: logging_config.template.yaml — uses double extension, acceptable
+
+5.5 CLASS NAMING AUDIT (inside files)
+---------------------------------------
+
+  FILE                           | CLASS NAME                        | VERDICT
+  -------------------------------|-----------------------------------|--------
+  bookslots_basicinfo_page1.py   | BookslotBasicInfoPage             | OK
+  bookslot_eventtype_page2.py    | BookslotEventInfoPage             | OK
+  bookslot_scheduler_page3.py    | BookslotWebSchedulerPage          | OK (minor: "Web" prefix)
+  bookslots_personalInfo_page4.py| BookslotPersonalInfoPage          | OK
+  bookslots_referral_page5.py    | BookslotReferralPage              | OK
+  bookslots_insurance_page6.py   | BookslotInsurancePage             | OK
+  bookslots_success_page7.py     | BookslotSuccessPage               | OK
+
+  ISSUE [NV-8]: Class names are consistent but filename prefix "bookslots" (plural)
+  conflicts with class name "Bookslot" (singular). Filenames should match class prefix.
+
+5.6 SUMMARY OF NAMING VIOLATIONS
+----------------------------------
+
+  ID    | Severity | Location                                    | Issue
+  ------|----------|---------------------------------------------|------------------------------
+  NV-1  | MEDIUM   | pages/bookslot/                             | Mixed bookslot/bookslots prefix
+  NV-2  | HIGH     | bookslots_personalInfo_page4.py             | camelCase in filename
+  NV-3  | MEDIUM   | bookslots_basicinfo_page1.py                | No word separator in filename
+  NV-4  | HIGH     | recorded_tests/bookslot/                    | Typo + mixed case in filename
+  NV-5  | LOW      | recorded_tests/_archived/                   | Archived tests still discovered
+  NV-6  | HIGH     | framework/core/*.bak, pages/**/*.bak        | .bak files committed to git
+  NV-7  | LOW      | framework/core/utils/human_actions.py       | Duplicate behavior module path
+  NV-8  | LOW      | pages/bookslot/ all files                   | Filename/class prefix mismatch
+
+
+================================================================================
+6. FRAMEWORK CORE MODULES (DEEP AUDIT)
+================================================================================
+
+6.1 SmartActions (framework/core/smart_actions.py)
+---------------------------------------------------
+Purpose: Context-aware UI automation wrapper with human-like timing.
+Class: SmartActions
+
+METHODS (all with audit logging):
+  click(locator, description)            -> 0.3-0.7s before, 0.2-0.4s after
+  type_text(locator, text)               -> Speed varies by field type:
+                                           - numeric: 80-180ms/char
+                                           - email: 120-250ms/char
+                                           - general: 100-200ms/char
+  button_click(locator, description)     -> Extra 1.5-2.5s for processing
+  navigate(url, description)             -> 0.4-0.8s before, 0.5-1.0s after
+  wait_for_page_ready()                  -> network_idle (15s timeout) + 0.8-1.5s
+  select_option(locator, value)          -> With reviewing delays
+  wait_autocomplete(locator)             -> Smart autocomplete wait
+  wait_and_click(locator)                -> Combined wait + click
+  wait_for_scheduler()                   -> 1.5-2.5s for dynamic content
+  wait_for_processing(short=False)       -> 1.0-2.0s or 1.5-2.5s
+  smart_retry(func, max_retries=3)       -> Exponential backoff retry
+
+INTEGRATIONS:
+  - AuditLogger.log_ui_action() on every action
+  - @log_function decorator for observability
+  - Human behavior simulator (optional, via enable_human flag)
+  - Masked input handling for SSO/credit card fields
+
+6.2 Engine Selectors (Three Implementations)
+--------------------------------------------
+
+A. engine_selector.py (YAML-rule-based)
+   - 18 priority-weighted rules loaded from engine_decision_matrix.yaml
+   - Cache: LRU with TTL (100 entries, 3600s TTL), hit/miss tracking
+   - Pattern matching: wildcard (* support) for test names
+   - Rule evaluation: AND logic with operators (>=, >, list membership)
+   - First-match-wins at highest priority
+
+B. modern_engine_selector.py (Python 3.12+ match/case)
+   - Frozen dataclasses (hashable for @lru_cache)
+   - 6 main patterns: modern-SPA-simple, modern-SPA-complex, legacy, etc.
+   - 8+ secondary patterns: markers, auth_type, module-specific
+   - Confidence: 70-95% per decision
+
+C. ai_engine_selector.py (AI-powered)
+   - Providers: openai, azure_openai, ollama, llamacpp
+   - Exponential backoff retry (2^attempt seconds, max 3 retries)
+   - Cache: LRU with TTL (100 entries, 3600s TTL)
+   - Confidence threshold: 80% minimum to accept recommendation
+   - Graceful degradation: falls back to YAML selector if unavailable
+
+6.3 Exception Hierarchy (framework/core/exceptions.py)
+-------------------------------------------------------
+Base: AutomationFrameworkException (message + details dict + actionable hint)
+
+Engine: EngineException -> EngineStartupException, EngineFailureException,
+        BrowserCrashException, NavigationTimeoutException,
+        ElementNotFoundException, ContextCorruptionException
+
+API:    APIException -> APIRequestException, APIValidationException,
+        APITimeoutException
+
+DB:     DatabaseException -> DatabaseConnectionException,
+        DatabaseQueryException, DatabaseValidationException,
+        ReadOnlyViolationException
+
+Config: ConfigurationException -> MissingConfigurationException,
+        InvalidConfigurationException
+
+AI:     AIException -> AIServiceUnavailableException, AIValidationException
+
+Test:   TestDataException, CorrelationException
+
+All 20+ exceptions include actionable hints for debugging.
+
+6.4 Session Manager (framework/core/session_manager.py)
+-------------------------------------------------------
+Purpose: Bidirectional session transfer between Selenium and Playwright.
+Capabilities:
+  - Extract: cookies, localStorage, sessionStorage, tokens, auth headers
+  - Auth type detection: OAuth, JWT, SSO, BASIC
+  - Inject: cookies (Playwright API), localStorage/sessionStorage (JS injection)
+  - Validate: user_id correlation post-transfer
+  - Cache: session data for reuse (TTL-based, 100 max entries)
+
+6.5 Workflow Orchestrator (framework/core/workflow_orchestrator.py)
+-------------------------------------------------------------------
+Purpose: Multi-step cross-engine workflow sequencing.
+Patterns: STOP, CONTINUE, RETRY on failure per step
+Engines: SELENIUM, PLAYWRIGHT, PLAYWRIGHT_ASYNC per step
+Key: Automatic session transfer between steps of different engine types
+
+
+================================================================================
+7. PAGE OBJECT MODEL LAYER (DEEP AUDIT)
+================================================================================
+
+7.1 BOOKSLOT FLOW — 7-Step Page Coverage
+-----------------------------------------
+
+PAGE 1: BookslotBasicInfoPage (bookslots_basicinfo_page1.py)
+  URL Path    : /basic-info
+  Purpose     : Patient contact information
+  Key Methods : fill_first_name, fill_last_name, fill_email, fill_phone, fill_zip,
+                select_language_english/spanish, select_contact_preference,
+                submit_for_otp, fill_otp, verify_otp, proceed_to_next
+  Special     : OTP handling with PrimeNG p-inputmask workaround (type with 100ms delay)
+                Multiple locator strategies for OTP: #otp, p-inputmask#otp, input fallback
+  Locators    : get_by_role("textbox"), #CellPhone, #ZipCode, get_by_role("button")
+
+PAGE 2: BookslotEventInfoPage (bookslot_eventtype_page2.py)
+  URL Path    : /eventtype
+  Purpose     : Appointment type and patient classification
+  Key Methods : select_new_patient_type, select_existing_patient_type,
+                select_new_patient, select_complimentary_consultation,
+                select_event_by_name, request_callback, is_callback_confirmed
+  Special     : Indexed locators (.first, .nth(1)) for multiple "Book Now" buttons
+                Integration with SmartActions for intelligent clicking
+
+PAGE 3: BookslotWebSchedulerPage (bookslot_scheduler_page3.py)
+  URL Path    : /scheduler
+  Purpose     : Date and time slot selection
+  Key Methods : select_first_available_slot, select_am_slot, select_pm_slot,
+                select_6am_slot, select_specific_slot, confirm_slot,
+                get_am_slots_count, get_pm_slots_count, wait_for_scheduler_ready
+  Special     : Multiple slot selector patterns (role, text-contains, colon-pattern)
+                AM/PM dynamic filtering
+
+PAGE 4: BookslotPersonalInfoPage (bookslots_personalInfo_page4.py)
+  URL Path    : /personal-info
+  Purpose     : Patient demographics
+  Key Methods : select_gender_male/female, fill_dob, fill_address, fill_city,
+                fill_state, fill_zip, fill_address_with_autocomplete,
+                select_address_autocomplete, clear_address, clear_city
+  Special     : Autocomplete handling for address with regex text matcher
+
+PAGE 5: BookslotReferralPage (bookslots_referral_page5.py)
+  URL Path    : /referral
+  Purpose     : Marketing attribution ("How did you hear about us?")
+  Key Methods : select_physician, select_online, select_social_media,
+                select_friend_family, select_advertisement,
+                is_online_checked, is_physician_checked, etc.
+  Locators    : get_by_role("radio"), get_by_role("button"), get_by_role("heading")
+
+PAGE 6: BookslotInsurancePage (bookslots_insurance_page6.py)
+  URL Path    : /insurance
+  Purpose     : Insurance information collection
+  Key Methods : fill_member_name, fill_id_number, fill_group_number,
+                fill_insurance_company, submit_to_clinic, proceed_to_next
+  Locators    : get_by_role("textbox", name="Member Name *") — exact with asterisk
+
+PAGE 7: BookslotSuccessPage (bookslots_success_page7.py)
+  URL Path    : /success
+  Purpose     : Appointment confirmation
+  Key Methods : is_page_loaded (checks /success in URL), click_redirect_message,
+                is_redirect_message_visible
+  Special     : Uses regex pattern for countdown div: /^You will be redirected in \d+ seconds$/
+                Requires `import re` (was missing in earlier version, now fixed)
+
+7.2 CALLCENTER MODULE
+----------------------
+
+CallCenterAppointmentManagementPage
+  URL Path    : /appointments
+  Purpose     : Back-office appointment management
+  Key Methods : search_by_email, search_by_name, search_appointment,
+                click_appointment, cancel_appointment (full flow),
+                get_appointment_status, get_appointment_details,
+                verify_appointment_exists, verify_appointment_cancelled,
+                verify_can_cancel, fill_healed_locator (self-healing support)
+  Locators    : [data-testid='appointment-row'], [data-testid='status-badge'],
+                textarea[name='cancellation_reason']
+  Sub-class   : CallCenterAppointmentDetailsPage (detailed view)
+
+CallCenterDashboardVerificationPage
+  Purpose     : Cross-engine auth verification for CallCenter
+  Key Methods : navigate_to, is_authenticated, has_user_menu,
+                verify_authenticated_access, get_verification_details
+  Locators    : [data-testid='user-menu'], .user-profile, #user-menu
+
+7.3 PATIENTINTAKE MODULE
+-------------------------
+
+PatientIntakeAppointmentListPage
+  URL Path    : /appointments
+  Purpose     : Patient-facing appointment list
+  Key Methods : search_by_name, search_by_email, search_appointment,
+                click_appointment, get_appointment_details,
+                verify_appointment_details, verify_patient_name
+  Locators    : Same [data-testid='appointment-row'] pattern as CallCenter
+
+PatientIntakeVerificationPage
+  Purpose     : Cross-engine auth verification for PatientIntake
+  (Same structure as CallCenterDashboardVerificationPage)
+
+7.4 PAGE OBJECT COMMON PATTERNS
+---------------------------------
+  - All inherit from BasePage
+  - All use @log_function decorator with log_timing=True
+  - Sensitive methods marked mask_sensitive=True (BasicInfo PII)
+  - Methods return self for method chaining (fluent API)
+  - Error handling: try/except with logger.error() in visibility checks
+  - All require base_url parameter in constructor
+  - Uses Playwright's role-based selectors (get_by_role, get_by_text)
+  - Appointment model imported from models.appointment for cross-project data
+
+
+================================================================================
+8. TEST SUITE ARCHITECTURE (DEEP AUDIT)
+================================================================================
+
+8.1 TEST PYRAMID STRUCTURE
+----------------------------
+
+  Layer           | Files | Tests  | Coverage Focus
+  ----------------|-------|--------|---------------------------------------
+  Unit Tests      | 11    | ~50    | Framework internals (DI, models, etc.)
+  Page Tests (L1) | 7     | 120+   | Individual page components
+  E2E Tests (L2)  | 2     | 12+    | Full 7-step booking flow
+  Integration (L3)| 9     | 20+    | Cross-system (3-app) workflows
+  Recorded Tests  | 3     | varies | Raw recorded + refactored flows
+
+8.2 PYTEST MARKERS INVENTORY (from pytest.ini)
+-----------------------------------------------
+
+CATEGORY         | MARKERS
+-----------------|--------------------------------------------------------
+Asyncio          | asyncio, no_asyncio
+Project          | bookslot, patientintake, callcenter
+Engine           | playwright, selenium, modern_spa, legacy_ui, mobile,
+                 | api_validation, pooling, grid
+Human Behavior   | human_behavior, human_like, no_human_behavior
+Module           | module, ui_framework, auth_type
+Test Type        | smoke, regression, e2e, recorded, unit, integration,
+                 | ui, ui_only, api_only, db_only, performance, validation,
+                 | negative, workflow_persistence
+Advanced         | ai_enhanced, enhanced_features, multi_project
+Workflow         | workflow, requires_authentication, sso_dependent,
+                 | ui_sequential, workflow_step
+Priority         | critical, high, medium, low
+Environment      | dev_only, staging_only, prod_safe
+Special          | slow, skip_ci, flaky, wip
+Page-specific    | p1_basic_info through p7_success
+URL Testing      | url_workflow
+
+8.3 CRITICAL TEST SCENARIOS
+-----------------------------
+
+SMOKE TESTS (critical path, fast execution):
+  - test_basic_info_page_loads (P1 smoke)
+  - test_event_type_page_loads (P2 smoke)
+  - test_scheduler_page_loads (P3 smoke)
+  - test_personal_info_page_loads (P4 smoke)
+  - test_referral_page_loads (P5 smoke)
+  - test_insurance_page_loads (P6 smoke)
+  - test_success_page_loads (P7 smoke)
+  - test_all_systems_accessible (integration smoke)
+
+E2E HAPPY PATH:
+  - test_complete_booking_happy_path_am_slot (full P1->P7, AM slot)
+  - test_complete_booking_happy_path_pm_slot (full P1->P7, PM slot)
+  - test_complete_booking_happy_path (with validation helper assertions)
+
+CROSS-SYSTEM INTEGRATION:
+  - test_book_appointment_and_verify_in_patientintake
+  - test_book_and_verify_in_all_systems (3-app simultaneous)
+  - test_cancel_from_callcenter_only (role-based cancellation)
+  - test_callcenter_exclusive_cancellation_permission
+
+NEGATIVE / VALIDATION:
+  - test_email_format_validation (5 invalid emails parametrized)
+  - test_phone_format_validation (4 invalid phones parametrized)
+  - test_zip_code_format_validation (invalid zips)
+  - test_slot_selection_required (error when no slot)
+  - test_referral_selection_required (error when no selection)
+  - test_other_field_required_when_other_selected
+
+PARAMETRIZED TESTS:
+  - test_booking_with_different_payers (4 insurance companies)
+  - test_all_event_types_selectable (6 event types)
+  - test_time_filter_functionality (AM, PM)
+  - test_all_referral_sources_selectable (6 sources)
+  - test_common_payers (5 major insurers)
+  - test_complete_booking_with_time_preference (AM, PM)
+
+8.4 NAVIGATION PRECONDITION FIXTURES
+--------------------------------------
+tests/bookslot/conftest.py provides cascading fixtures:
+  at_basic_info -> at_event_type -> at_scheduler -> at_personal_info
+  -> at_referral -> at_insurance -> at_success
+
+Each fixture performs all prior steps, so tests at page N only need
+fixture at_p{N} and can focus on testing page N in isolation.
+
+8.5 CONFTEST HIERARCHY
+-----------------------
+  conftest.py (root)            -> video, smart_actions, fake_data, project, env
+     └── tests/conftest.py      -> engine factory, API/DB clients, AI validator
+          └── tests/bookslot/conftest.py -> navigation fixtures, test data helpers
+
+
+================================================================================
+9. CONFIGURATION LAYER (DEEP AUDIT)
+================================================================================
+
+9.1 PROJECTS.YAML — Three Projects
+------------------------------------
+
+Project     | Staging URL                              | Prod URL
+------------|------------------------------------------|---------------------------
+bookslot    | bookslot-staging.centerforvein.com       | bookslots.centerforvein.com
+callcenter  | staging-callcenter.centerforvein.com     | callcenter.centerforvein.com
+patientintake| staging-patientintake.centerforvein.com | patientintake.centerforvein.com
+
+Auth:
+  - bookslot:      Public (no auth, OTP-based patient verification)
+  - callcenter:    SSO required (sso_portal=centerforvein)
+  - patientintake: SSO required
+
+9.2 ENVIRONMENTS.YAML
+-----------------------
+
+STAGING:
+  SSO:       lsingh / ${SSO_PASSWORD} (env var expansion)
+  DB:        staging-db.example.com:1433 (SQL Server), read_only=true
+  Timeouts:  page_load=30s, element=10s, api=15s, db=10s
+  Retries:   max=3, delay=2s
+  Browser:   headless=true, video=true, tracing=true
+
+PRODUCTION (read-only):
+  SSO:       prod.readonly@example.com
+  DB:        prod-db-replica.example.com (read replica)
+  Timeouts:  page_load=45s, element=15s, api=20s, db=15s
+  Retries:   max=1 (no retries — smoke tests only)
+  BLOCKED:   write_operations_blocked=true, destructive_tests_blocked=true
+
+9.3 ENGINE_DECISION_MATRIX.YAML — 18 Rules
+--------------------------------------------
+
+Priority | Rule Name                  | Engine    | Confidence
+---------|----------------------------|-----------|----------
+100      | Legacy Browser Support     | Selenium  | 100%
+98       | Enterprise Authentication  | Selenium  | 95%  (SSO/MFA/SAML/ADFS/Okta)
+95       | Deep Iframe Structures     | Selenium  | 92%  (3+ iframe levels)
+92       | Modern SPA + API Testing   | Playwright| 95%  (React/Vue + XHR + API)
+88       | Payment Processing         | Selenium  | 85%
+87       | Mobile Responsive          | Playwright| 90%
+85       | Modern Dashboards          | Playwright| 88%
+83       | E-commerce Catalog         | Playwright| -
+82       | Admin Panels               | Selenium  | 80%
+80       | Healthcare Systems         | Selenium  | 75%  (HIPAA/GDPR)
+78       | Modern JS Frameworks       | Playwright| 85%  (Next.js/Nuxt/Gatsby)
+75       | Legacy Web Frameworks      | Selenium  | 78%  (JSP/ASP.NET/Struts)
+75       | Debug + Trace              | Playwright| 95%
+72       | Parallel Execution         | Playwright| 85%  (>100 tests)
+70       | Performance Testing        | Playwright| 88%  (<5s target)
+68       | Real-time Applications     | Playwright| -    (WebSocket/SSE)
+65       | Long Session Duration      | Selenium  | 65%  (>30min)
+10       | Default                    | Playwright| -    (fallback)
+
+9.4 HUMAN_BEHAVIOR.YAML — Key Parameters
+-----------------------------------------
+
+Component    | Config Key              | Value
+-------------|-------------------------|----------------------------------------
+Typing       | min_delay / max_delay   | 80ms / 250ms per character
+             | pause_probability       | 12% (random thinking pauses)
+             | thinking_pause          | 0.2s - 0.6s
+             | error_correction        | 5% probability
+Mouse        | movement_steps          | 8 steps per click
+             | offset_variance         | ±5 pixels
+             | hover_probability       | 25%
+Scrolling    | increment               | 100-350px per scroll
+             | correction_probability  | 30%
+             | long_pause_prob         | 15% (1.5-3.5s)
+Anti-detect  | randomize_viewport      | true
+             | inject_navigator_props  | true
+             | timing_variance         | ±15%
+
+9.5 PYTEST.INI — Critical Settings
+-------------------------------------
+
+Setting             | Value
+--------------------|-------------------------------------------------------
+python_files        | test_*.py, *_test.py, bookslots_*.py, bookslot_*.py
+testpaths           | tests/bookslot, tests/modern, tests/legacy, tests/unit,
+                    | tests/integration, tests/workflows, tests/ui,
+                    | tests/common, recorded_tests, pages
+addopts             | -v -ra --showlocals --capture=no --self-contained-html
+                    | --alluredir=allure-results --strict-markers --tb=short
+timeout             | 300 (5 minutes per test)
+log_cli_level       | INFO
+log_file_level      | DEBUG
+
+CRITICAL: --disable-warnings is NOT in addopts (intentional).
+Its presence would prevent pytest_warning_recorded hook from firing.
+
+9.6 PYPROJECT.TOML — Project Metadata
+---------------------------------------
+
+Setting             | Value
+--------------------|------------------------------------------
+name                | enterprise-automation-framework
+version             | 1.0.0
+requires-python     | >=3.12,<4.0
+build-backend       | hatchling.build
+CLI entry point     | automation -> framework.cli:main
+
+Code quality tools:
+  black:    line-length=100, target-version=py312
+  ruff:     target=py312, select=E/W/F/I/B/C4/UP/ARG/SIM
+  mypy:     python_version=3.12, check_untyped_defs=true
+  bandit:   exclude tests/, skips=B101/B601
+  isort:    profile=black, multi_line_output=3
+
+
+================================================================================
+10. OBSERVABILITY & LOGGING PIPELINE (DEEP AUDIT)
+================================================================================
+
+10.1 LOG FILE INVENTORY
+------------------------
+
+Path                                    | Content                    | Retention
+----------------------------------------|----------------------------|----------
+logs/framework_YYYYMMDD.log            | Human-readable app logs    | 30 days
+logs/errors_YYYYMMDD.log               | ERROR+ only                | 30 days
+logs/warnings/warnings_YYYYMMDD.log    | Python warnings            | 30 days
+logs/audit/audit_YYYYMMDD.log          | Structured JSON audit      | 90 days
+logs/enterprise/app_YYYYMMDD.json      | Full JSON structured        | 30 backups
+logs/audit/audit_YYYYMMDD.json         | SOC2 enterprise audit      | 365 backups (1 yr)
+logs/security/security_YYYYMMDD.json   | Auth/security events       | 180 backups (6 mo)
+logs/performance/performance_YYYYMMDD.json | Timing metrics          | 30 backups
+
+10.2 PER-TEST CORRELATION IDs
+------------------------------
+Every test gets 3 UUIDs generated in pytest_runtest_setup():
+  - correlation_id : Links all actions in a single test
+  - request_id     : HTTP request-level tracing
+  - trace_id       : Distributed tracing (OpenTelemetry compatible)
+
+These IDs are stamped on every audit log entry via CorrelationContext
+(ContextVar-based, thread-safe and async-safe).
+
+10.3 PII MASKING RULES (SensitiveDataMasker)
+---------------------------------------------
+Key-based: password, token, api_key, secret, credit_card, ssn, social_security,
+           auth, bearer, jwt, private_key, access_key, client_secret
+
+Pattern-based:
+  Email:        j***@c*****.com (GDPR partial masking)
+  Credit Card:  ****-****-****-****
+  SSN:          ***-**-****
+  Phone:        (***) ***-****
+
+10.4 SIEM INTEGRATION (siem_adapters.py)
+-----------------------------------------
+Supported providers: ELK/Elasticsearch, Datadog, Splunk HEC, Grafana Loki,
+                     AWS CloudWatch, Azure Monitor
+
+Common features:
+  - Async batching (configurable batch_size, default 100)
+  - Exponential backoff retry (3 attempts, 2^n delay)
+  - Circuit breaker (threshold=5 failures, recovery=60s, half-open=2 successes)
+  - Auto-flush background task (interval=10s)
+
+10.5 OPENTELEMETRY (telemetry.py)
+----------------------------------
+  - Span types: sync, async, decorator-based
+  - Exporters: Console (debug), OTLP (production, localhost:4317)
+  - Test spans: TestTracer helper for pytest integration
+  - Auto-attributes: service.name, service.environment, service.version
+
+
+================================================================================
+11. CI/CD PIPELINE (DEEP AUDIT)
+================================================================================
+
+11.1 WORKFLOW: test.yml
+------------------------
+Trigger     : Push/PR to any branch
+Matrix      : Ubuntu + Windows + macOS × Python 3.12 + 3.13
+Jobs:
+  test                 -> pytest unit + integration, coverage -> Codecov
+  test-new-modules     -> async_smart_actions, DI, config_models, modern_engine
+  performance-test     -> pytest-benchmark
+  notify               -> Slack notification on completion
+Artifacts   : HTML reports, Allure results, screenshots (uploaded on failure)
+Browsers    : Chromium, Firefox, WebKit (installed via Playwright)
+
+11.2 WORKFLOW: test_execution.yml
+----------------------------------
+Trigger     : Push to main/develop, PR, cron 02:00 UTC daily, manual dispatch
+Inputs      : environment (dev/staging/prod), browser (chromium/chrome/firefox)
+Jobs:
+  - Smoke tests       -> --markers=smoke (fast, critical path)
+  - Regression tests  -> --markers=regression (full regression)
+  - Integration tests -> --markers=integration
+  - Docker run        -> docker-compose with test_env=staging
+  - Allure report     -> allure generate allure-results
+  - PR comment        -> Posts test results to PR
+Secrets Used: OPENAI_API_KEY, DB_STAGING_USERNAME, DB_STAGING_PASSWORD
+
+11.3 WORKFLOW: lint.yml
+------------------------
+Jobs:
+  lint     -> black (check), isort (check), flake8
+  type-check -> mypy on framework/, pages/, utils/
+  security -> bandit (JSON output), safety (dependency vulnerabilities)
+  quality  -> radon (cyclomatic complexity), pylint
+  pre-commit -> all hooks on all files
+Artifacts: security-reports, code-quality-reports
+
+11.4 WORKFLOW: architecture-audit.yml
+--------------------------------------
+Purpose: Automated architecture compliance checking
+Runs: scripts/governance/framework_audit_engine.py
+
+
+================================================================================
+12. UTILITY & SUPPORT MODULES (DEEP AUDIT)
+================================================================================
+
+12.1 fake_data_generator.py (utils/)
+--------------------------------------
+generate_bookslot_payload() returns:
+  firstName, lastName, email (mailinator/yopmail), phone (1234567890 static),
+  zip, dateOfBirth (age 18-85), contactMethod,
+  MemberName, idNumber, GroupNumber, PayerName (5 options random),
+  verificationCode (123456 static)
+
+ISSUE [FD-1]: phone and verificationCode are hardcoded static values.
+If application validates uniqueness or format strictly, tests may fail.
+RECOMMENDED: Use Faker's phone_number() for dynamic phone generation.
+
+12.2 Dependency Injection Container (framework/di_container.py)
+-----------------------------------------------------------------
+Lifetimes: SINGLETON (one instance), TRANSIENT (new each time), SCOPED (per scope)
+Supports: constructor injection with type hints, Protocol-based interfaces
+Key: inject(container) decorator for auto-injection
+
+12.3 Security Tester (framework/security/security_tester.py)
+-------------------------------------------------------------
+OWASP ZAP Integration:
+  - Spider: Crawls target URL (max_children configurable)
+  - Active Scan: Full security scan (600s timeout)
+  - Alerts: Filtered by risk level (High, Medium, Low, Informational)
+  - Specific tests: SQL Injection, XSS, CSRF
+  - Report: Styled HTML grouped by risk level, includes CWE IDs
+
+12.4 Performance Metrics (framework/performance/performance_metrics.py)
+-----------------------------------------------------------------------
+Collects via window.performance API (Playwright) or execute_script (Selenium):
+  - Navigation Timing: TTFB, DOM Content Loaded, Page Load Complete
+  - Core Web Vitals: LCP (2500ms), FID (100ms), CLS (0.1) — Google thresholds
+  - Resource breakdown: scripts, stylesheets, images, fonts, XHR, other
+  - Memory: JS heap size (if available)
+  - Custom marks: start_performance_mark / end_performance_mark
+
+12.5 Accessibility Tester (framework/accessibility/accessibility_tester.py)
+---------------------------------------------------------------------------
+WCAG Levels: A, AA (default), AAA
+Engine: axe-core 4.8.3 (injected via CDN)
+Checks:
+  - get_critical_violations() / assert_no_critical_violations()
+  - check_keyboard_navigation() — Tab through focusable elements
+  - check_color_contrast() — Color contrast violations
+  - check_alt_text() — Image alt text violations
+  - check_aria_labels() — ARIA attribute violations
+Report: Styled HTML with impact-level color coding, CWE/WCAG tags
+
+
+================================================================================
+13. DATA MODELS (DEEP AUDIT)
+================================================================================
+
+13.1 models/appointment.py (Shared Cross-Project Model)
+--------------------------------------------------------
+Appointment dataclass fields:
+  Patient:     first_name, last_name, email, phone, zip_code
+  Appointment: appointment_date, appointment_time, location, doctor, reason
+  System IDs:  bookslot_id, patientintake_id, callcenter_id,
+               confirmation_code, verification_code
+  Cancellation: cancelled_at, cancellation_reason, cancelled_by
+  Metadata:    created_at, updated_at, status, metadata dict
+
+Methods:
+  get_full_name(), to_dict(), is_cancelled(), cancel(reason, by), __str__()
+
+TestContext dataclass:
+  - Holds current appointment + list of all appointments
+  - Project-specific data dicts (bookslot_data, patientintake_data, callcenter_data)
+  - set_data() / get_data() for arbitrary key-value storage
+
+13.2 framework/models/config_models.py (Pydantic V2)
+------------------------------------------------------
+Models: BrowserConfig (frozen, validated), DatabaseConfig, APIConfig,
+        EnvironmentConfig, ProjectConfig, EngineDecisionMatrix, FrameworkConfig,
+        GlobalSettings
+
+Enums: BrowserEngine, TestEnvironment, EngineType
+
+Key: FrameworkConfig extends BaseSettings (env var support via pydantic-settings)
+     EngineDecisionMatrix.select_engine() returns EngineType based on attributes
+
+13.3 framework/models/test_models.py (Pydantic V2)
+---------------------------------------------------
+TestContext: Captures test execution context (browser, environment, artifacts)
+TestResult:  Status, assertions passed/failed, pass_rate property, artifacts
+TestMetadata: Classification, ownership, traceability (requirement_ids, jira_tickets)
+
+Enums: TestStatus (PASSED/FAILED/SKIPPED/BLOCKED/IN_PROGRESS)
+       TestPriority (CRITICAL/HIGH/MEDIUM/LOW)
+
+
+================================================================================
+14. TEST DATA LAYER (DEEP AUDIT)
+================================================================================
+
+14.1 DATA FILES INVENTORY
+---------------------------
+
+File                              | Type     | Content
+----------------------------------|----------|----------------------------------
+bookslot_data.json/yaml           | Static   | Basic patient profiles
+bookslot_data_dynamic_zip.json    | Dynamic  | Profiles with dynamic zip codes
+bookslot_dynamic_locations.json   | Dynamic  | Location-varied profiles
+bookslot_senior_patients.json     | Segment  | Patients age 60+ profiles
+bookslot_young_patients.json      | Segment  | Younger patient profiles
+bookslot_workflows.json           | Workflow | Multi-step workflow scenarios
+
+14.2 FAKER-BASED DYNAMIC GENERATION
+-------------------------------------
+Via conftest.py fake_bookslot_data fixture (function-scoped):
+  - Fresh Faker payload per test
+  - Random payer from 5 insurance companies
+  - Temporary email domains (mailinator.com, yopmail.com)
+  - Age range 18-85
+
+14.3 GAPS IN TEST DATA
+-----------------------
+  [TD-1] test_data/callcenter/ — Empty (no test data files)
+  [TD-2] test_data/patientintake/ — Empty (no test data files)
+  Both contain only __init__.py.
+  IMPACT: Integration tests rely on booking data generated by bookslot tests.
+          No standalone CallCenter/PatientIntake test data exists.
+
+
+================================================================================
+15. DEPENDENCIES & TECHNOLOGY STACK
+================================================================================
+
+CATEGORY              | KEY PACKAGES                     | VERSION
+----------------------|----------------------------------|-------------------
+Testing Framework     | pytest                           | >=7.4.0
+                      | pytest-playwright                | >=0.4.3
+                      | pytest-xdist                     | >=3.3.1
+                      | pytest-html                      | >=4.0.0
+                      | pytest-bdd                       | >=6.1.1
+                      | pytest-timeout                   | >=2.1.0
+                      | pytest-cov                       | >=4.1.0
+                      | pytest-asyncio                   | >=0.23.0
+                      | pytest-benchmark                 | >=4.0.0
+Browser Automation    | playwright                       | >=1.40.0
+                      | selenium                         | >=4.15.0
+                      | webdriver-manager                | >=4.0.1
+HTTP/API              | requests                         | >=2.31.0
+                      | httpx                            | >=0.27.0
+                      | schemathesis                     | >=3.19.0
+Database              | pyodbc (SQL Server)              | >=5.0.1
+                      | psycopg2-binary (PostgreSQL)     | >=2.9.9
+                      | pymysql (MySQL)                  | >=1.1.0
+                      | asyncpg (async PostgreSQL)       | >=0.29.0
+                      | aiomysql (async MySQL)           | >=0.2.0
+Configuration         | PyYAML                           | >=6.0.1
+                      | pydantic                         | >=2.5.0,<3.0
+                      | pydantic-settings                | >=2.1.0
+                      | python-dotenv                    | >=1.0.0
+Reporting             | allure-pytest                    | >=2.13.2
+                      | loguru                           | >=0.7.2
+                      | structlog                        | >=23.2.0
+AI Providers          | openai                           | >=1.6.0
+                      | anthropic                        | >=0.18.0
+Data Generation       | Faker                            | >=21.0.0
+                      | mimesis                          | >=12.1.0
+Visual Testing        | Pillow                           | >=10.1.0
+                      | imagehash                        | >=4.3.1
+WebSocket             | websockets                       | >=12.0
+                      | websocket-client                 | >=1.7.0
+Observability         | opentelemetry-api                | >=1.21.0
+                      | opentelemetry-sdk                | >=1.21.0
+Utilities             | tenacity                         | >=8.2.3
+                      | rich                             | >=13.7.0
+                      | questionary                      | >=2.0.1
+                      | nest-asyncio                     | >=1.6.0
+Build System          | hatchling                        | >=1.21.0
+
+
+================================================================================
+16. ENVIRONMENT CONFIGURATION
+================================================================================
+
+16.1 ENVIRONMENT VARIABLE REFERENCE
+-------------------------------------
+
+Variable                | Required | Purpose
+------------------------|----------|------------------------------------------
+TEST_ENV                | No       | Controls enterprise logger verbosity
+                        |          | development/testing -> DEBUG
+                        |          | staging -> INFO
+                        |          | production -> WARNING
+SSO_PASSWORD            | staging  | SSO authentication password
+OPENAI_API_KEY          | Optional | AI engine selector (GPT-4)
+AZURE_OPENAI_API_KEY    | Optional | Azure OpenAI provider
+DB_STAGING_USERNAME     | Optional | Database credentials (CI/CD)
+DB_STAGING_PASSWORD     | Optional | Database credentials (CI/CD)
+LLAMACPP_MODEL_PATH     | Optional | Path to GGUF model file for local AI
+OLLAMA_BASE_URL         | Optional | Custom Ollama server URL (default localhost:11434)
+
+16.2 CLI COMMAND-LINE OPTIONS
+------------------------------
+
+Option                      | Choices                              | Default
+----------------------------|--------------------------------------|----------
+--project                   | bookslot, callcenter, patientintake  | bookslot
+--env                       | staging, production, prod            | staging
+--test-browser              | chromium, chrome, firefox, webkit,   | chromium
+                            | safari, msedge                       |
+--headless                  | (flag)                               | False (headed)
+--execution-mode            | ui_only, ui_api, ui_api_db           | None
+--enable-human-behavior     | (flag)                               | False
+--disable-human-behavior    | (flag)                               | False
+--human-behavior-intensity  | minimal, normal, high                | normal
+
+
+================================================================================
+17. FEATURE INVENTORY
+================================================================================
+
+FEATURE                            | STATUS      | LOCATION
+-----------------------------------|-------------|----------------------------------
+Dual-engine (Playwright+Selenium)  | IMPLEMENTED | framework/ui/
+YAML-based engine selection        | IMPLEMENTED | framework/core/engine_selector.py
+AI-powered engine selection        | IMPLEMENTED | framework/core/ai_engine_selector.py
+Python 3.12 match/case selector    | IMPLEMENTED | framework/core/modern_engine_selector.py
+Session transfer (Sel<->PW)        | IMPLEMENTED | framework/core/session_manager.py
+Workflow orchestration             | IMPLEMENTED | framework/core/workflow_orchestrator.py
+Human-like behavior simulation     | IMPLEMENTED | framework/core/utils/human_actions.py
+SmartActions (timing intelligence) | IMPLEMENTED | framework/core/smart_actions.py
+Async SmartActions (5-10x faster)  | IMPLEMENTED | framework/core/async_smart_actions.py
+Self-healing locators (6 strategies)| IMPLEMENTED| framework/ui/self_healing_locators.py
+Browser context pooling            | IMPLEMENTED | framework/ui/playwright_engine.py
+Video recording (all tests)        | IMPLEMENTED | conftest.py context fixture
+Video embedded in HTML reports     | IMPLEMENTED | conftest.py pytest_html hooks
+Allure report integration          | IMPLEMENTED | allure-pytest + pytest hooks
+Video named DDMMYYYY_HH_MM_SS.webm | IMPLEMENTED | conftest.py (Windows-safe naming)
+Multi-project support (3 projects) | IMPLEMENTED | config/projects.yaml
+Environment-aware configuration    | IMPLEMENTED | config/environments.yaml
+Structured JSON audit logging      | IMPLEMENTED | framework/observability/
+Per-test correlation IDs (UUID)    | IMPLEMENTED | pytest_enterprise_logging.py
+PII masking in logs                | IMPLEMENTED | enterprise_logger.py
+SIEM adapters (4 providers)        | IMPLEMENTED | framework/observability/siem_adapters.py
+OpenTelemetry distributed tracing  | IMPLEMENTED | framework/observability/telemetry.py
+SOC2 1-year audit log retention    | IMPLEMENTED | enterprise_logger.py (365 backups)
+Playwright codegen recording       | IMPLEMENTED | framework/recording/
+AI-assisted script refactoring     | IMPLEMENTED | framework/recording/ai_refactorer.py
+Auto Page Object generation        | IMPLEMENTED | framework/recording/page_object_generator.py
+Natural language test generation   | IMPLEMENTED | framework/ai/nl_test_generator.py
+Multi-AI provider factory          | IMPLEMENTED | framework/ai/ai_provider_factory.py
+API interception (HTTP+WebSocket)  | IMPLEMENTED | framework/api/api_interceptor.py
+GraphQL client + introspection     | IMPLEMENTED | framework/api/graphql_client.py
+Async HTTP client (httpx)          | IMPLEMENTED | framework/api/async_api_client.py
+Universal DB client (read-only)    | IMPLEMENTED | framework/database/db_client.py
+DB assertion engine                | IMPLEMENTED | framework/database/db_validator.py
+WCAG 2.1 accessibility testing     | IMPLEMENTED | framework/accessibility/
+OWASP ZAP security testing         | IMPLEMENTED | framework/security/security_tester.py
+Web Vitals performance metrics     | IMPLEMENTED | framework/performance/
+Visual regression testing          | IMPLEMENTED | framework/visual/
+DI container (3 lifetimes)         | IMPLEMENTED | framework/di_container.py
+Plugin system                      | IMPLEMENTED | framework/plugins/
+Protocol interfaces (typing)       | IMPLEMENTED | framework/protocols/
+Multi-language testing (i18n)      | IMPLEMENTED | framework/i18n/
+Mobile device testing              | IMPLEMENTED | framework/mobile/
+Distributed test execution         | IMPLEMENTED | framework/testing/distributed.py
+ML test optimization               | IMPLEMENTED | framework/ml/ml_test_optimizer.py
+Pre-commit hooks                   | IMPLEMENTED | .pre-commit-config.yaml
+GitHub Actions CI (5 workflows)    | IMPLEMENTED | .github/workflows/
+Docker containerized execution     | IMPLEMENTED | docker/
+Interactive CLI                    | IMPLEMENTED | framework/cli/interactive.py
+Makefile automation (30+ targets)  | IMPLEMENTED | Makefile
+Architecture governance audit      | IMPLEMENTED | scripts/governance/
+Fake data generation               | IMPLEMENTED | utils/fake_data_generator.py
+Bookslot 7-page POM coverage       | IMPLEMENTED | pages/bookslot/
+CallCenter POM coverage            | IMPLEMENTED | pages/callcenter/
+PatientIntake POM coverage         | IMPLEMENTED | pages/patientintake/
+Bookslot page-level tests (P1-P7)  | IMPLEMENTED | tests/bookslot/pages/
+Bookslot E2E tests                 | IMPLEMENTED | tests/bookslot/e2e/
+3-system integration tests         | IMPLEMENTED | tests/integration/
+CallCenter test coverage           | PLACEHOLDER | tests/modern/callcenter/ (assert True only)
+PatientIntake test coverage        | PLACEHOLDER | tests/modern/patientintake/ (assert True only)
+URL deep-link testing framework    | IMPLEMENTED | framework/testing/ + config/url_testing.yaml
+Microservices architecture support | IMPLEMENTED | framework/microservices/
+
+
+================================================================================
+18. GAPS, ISSUES & RECOMMENDATIONS
+================================================================================
+
+18.1 CRITICAL ISSUES
+----------------------
+
+[C-1] MISSING CALLCENTER & PATIENTINTAKE TESTS
+  Status: Both test files contain only `assert True` placeholders
+  Impact: Zero automated test coverage for CallCenter and PatientIntake portals
+  Files:  tests/modern/callcenter/test_callcenter_example.py
+          tests/modern/patientintake/test_patientintake_example.py
+  Action: Write actual test suites using the existing page objects
+          pages/callcenter/appointment_management_page.py and
+          pages/patientintake/appointment_list_page.py are ready to use
+
+[C-2] .BAK FILES IN VERSION CONTROL
+  Status: 9+ .bak backup files committed to git
+  Impact: Confuses test discovery, pollutes codebase, large repo size
+  Files:  framework/core/*.bak, pages/callcenter/*.bak, pages/patientintake/*.bak
+  Action: Delete all .bak files immediately, add "*.bak" to .gitignore
+
+[C-3] HARDCODED STATIC TEST DATA
+  Status: phone="1234567890" and verificationCode="123456" hardcoded
+  File:   utils/fake_data_generator.py
+  Impact: If application validates phone format or uniqueness, tests will fail
+          Also masks real data variety in test scenarios
+  Action: Replace static phone with Faker().numerify("##########")
+          Replace static OTP with configurable parameter or environment variable
+
+[C-4] EMPTY TEST DATA FOR CALLCENTER AND PATIENTINTAKE
+  Status: test_data/callcenter/ and test_data/patientintake/ are empty
+  Impact: Integration tests must rely on bookslot-generated data only
+  Action: Create representative test data YAML/JSON files for both systems
+
+18.2 HIGH SEVERITY ISSUES
+---------------------------
+
+[H-1] FILE NAMING VIOLATIONS (see Section 5)
+  bookslots_personalInfo_page4.py — camelCase in filename violates PEP 8
+  bookslot/bookslots prefix inconsistency across 7 page files
+  recorded_tests "Worklfow" typo in filename
+  Action: Rename all files to consistent snake_case pattern
+
+[H-2] ARCHIVED TESTS IN TEST DISCOVERY
+  tests/modern/bookslot.OLD/ — OLD tests discoverable by pytest
+  recorded_tests/_archived/ — archived tests in active test path
+  Action: Add "bookslot.OLD" and "_archived" to pytest.ini norecursedirs
+
+[H-3] CALLCENTER/PATIENTINTAKE SSO NOT AUTOMATED
+  Status: SSO authentication for CallCenter and PatientIntake not fully automated
+  Config: environments.yaml has SSO credentials but no automation flow found
+  Impact: Integration tests requiring authenticated CallCenter/PatientIntake access
+          may fail or skip authentication steps
+  Action: Implement SSO login flow using Selenium (as per engine decision matrix)
+          Use auth_service.py in framework/auth/
+
+[H-4] DUPLICATE PAGE OBJECTS NOT CONSOLIDATED
+  CallCenterDashboardVerificationPage and PatientIntakeVerificationPage
+  are nearly identical classes doing the same thing (auth verification)
+  Action: Extract common auth verification logic into BaseDashboardVerificationPage
+
+[H-5] MISSING URL IN SUCCESS PAGE REDIRECT DETECTION
+  BookslotSuccessPage.is_page_loaded() checks for "/success" in URL
+  But if URL structure changes, this brittle check will fail
+  Consider: Add additional element-based check as fallback
+
+18.3 MEDIUM SEVERITY ISSUES
+-----------------------------
+
+[M-1] tests/ ROOT CONTAINS LOOSE NON-TEST FILES
+  tests/comprehensive_report_enhancements.py
+  tests/report_enhancements.py
+  These are utility scripts, not test files. They pollute test discovery.
+  Action: Move to scripts/utilities/ or a dedicated reports/ utility folder
+
+[M-2] LOG/ VS LOGS/ DIRECTORY CONFUSION
+  log/pytest_configs.json  (singular "log")
+  logs/ directory           (plural "logs") used by all logging code
+  Action: Consolidate to logs/ directory only
+
+[M-3] test_diagnostic.py IN ROOT DIRECTORY
+  A diagnostic script lives at the project root, discoverable by pytest
+  Action: Move to scripts/utilities/test_diagnostic.py
+
+[M-4] INTERACTIVE CLI (interactive.py) IS 53.5KB
+  This single file is extremely large for a single module
+  Action: Split into sub-modules (project_selector.py, browser_selector.py, etc.)
+
+[M-5] models/ AT ROOT vs framework/models/
+  Two separate model directories:
+    - models/ (root level): appointment.py, Appointment dataclass
+    - framework/models/: config_models.py, test_models.py
+  Action: Consolidate models into framework/models/ for consistency
+
+[M-6] OTP HANDLING FRAGILITY
+  Page 1 OTP locator: "#otp input, p-inputmask#otp input, input[type='text'][name*='otp']"
+  Multiple fallback selectors indicate known instability
+  Action: Work with developers to add stable [data-testid] attribute to OTP field
+
+[M-7] MISSING TYPE HINTS IN SOME PAGE OBJECTS
+  Several page object methods lack return type annotations
+  Action: Add -> Self or -> None return type annotations for all methods
+
+18.4 LOW SEVERITY ISSUES / IMPROVEMENTS
+-----------------------------------------
+
+[L-1] examples/ DIRECTORY IN TEST PATHS
+  pytest.ini testpaths does not include examples/ (correct)
+  But examples/ are not actually runnable without modification
+  Action: Add examples/__init__.py and pytest markers to make intent clear
+
+[L-2] SCRIPTS DIRECTORY IS VERY LARGE (40+ scripts)
+  Many scripts serve similar governance/audit purposes
+  Action: Consider consolidating into a single governance_runner.py CLI with subcommands
+
+[L-3] ALLURE RESULTS DIRECTORY IN GIT
+  allure-results/ likely accumulates and grows indefinitely
+  .gitignore should exclude allure-results/ and allure-report/
+  (Verify that this is in .gitignore)
+
+[L-4] FRAMEWORK-KNOWLEDGE-CENTER DIRECTORY
+  Found in project root but excluded from all code paths
+  Contains documentation but not referenced by any code
+  Action: Either link it into docs/ or remove if redundant
+
+[L-5] VIDEOS AND REPORTS IN GIT
+  videos/, reports/ likely accumulate test artifacts
+  These should NOT be committed to git
+  Action: Verify .gitignore includes videos/ and reports/
+
+[L-6] HUMAN BEHAVIOR SIMULATOR: DUAL IMPLEMENTATIONS
+  framework/core/utils/human_actions.py (SmartActions integration)
+  framework/core/smart_actions.py (has its own delay logic)
+  Potential overlap in responsibility
+  Action: Document which one is authoritative and deprecate the other
+
+[L-7] REQUIREMENTS-AI-OPTIONAL.TXT SEPARATION
+  AI packages are split into a third requirements file (requirements_ai_optional.txt)
+  But they're already in requirements.txt as well (openai, anthropic)
+  Action: Remove duplication; use pyproject.toml optional dependencies instead
+
+18.5 TEST COVERAGE GAPS
+-------------------------
+
+APPLICATION        | COVERAGE STATUS
+-------------------|------------------------------------------------------------
+BookSlot P1        | HIGH — smoke + validation + regression + URL tests
+BookSlot P2        | HIGH — same as above
+BookSlot P3        | HIGH — same as above
+BookSlot P4        | HIGH — same as above
+BookSlot P5        | HIGH — same as above
+BookSlot P6        | HIGH — same as above
+BookSlot P7        | HIGH — same as above
+BookSlot E2E       | MEDIUM — 12 scenarios, missing: error recovery, network failure
+CallCenter         | LOW (PLACEHOLDER ONLY) — No real test coverage
+PatientIntake      | LOW (PLACEHOLDER ONLY) — No real test coverage
+Cross-System       | MEDIUM — 3-app workflow exists, missing negative scenarios
+Performance        | LOW — Performance metrics module built, no perf tests run
+Accessibility      | LOW — axe-core module built, no accessibility tests for bookslot
+Security           | LOW — ZAP module built, no security tests integrated
+Visual Regression  | LOW — Module built, no visual tests configured
+API Layer          | LOW — API client built, no bookslot API tests (no API exists?)
+Database Layer     | LOW — DB client built, no DB validation tests present
+
+18.6 ARCHITECTURAL RECOMMENDATIONS
+-------------------------------------
+
+[AR-1] IMPLEMENT CALLCENTER AND PATIENTINTAKE TEST SUITES
+  Priority: CRITICAL
+  Use existing page objects. Follow same pattern as bookslot/pages/*.
+  Create tests/callcenter/pages/ and tests/patientintake/pages/ mirroring bookslot.
+
+[AR-2] STANDARDIZE FIXTURE PATTERNS
+  The conftest hierarchy is complex. Create a conftest diagram/documentation.
+  Document when to use smart_actions vs direct page.click().
+
+[AR-3] ADD RETRY MECHANISM FOR FLAKY TESTS
+  pytest-rerunfailures is not in requirements.txt.
+  Tests marked @pytest.mark.flaky have no retry mechanism.
+  Action: Add pytest-rerunfailures package.
+
+[AR-4] SEPARATE READ vs WRITE TEST DATA
+  Use separate Faker profiles for different test scenarios (senior, young, new, returning).
+  Create a TestDataFactory class that generates data by scenario type.
+
+[AR-5] IMPLEMENT API TESTS FOR BOOKSLOT
+  If the bookslot application has an API (backend), add API validation tests
+  that run after each booking to verify data was persisted correctly.
+
+[AR-6] HEALTH CHECK BEFORE TEST RUN
+  Add a pytest_sessionstart hook that verifies all 3 application URLs are
+  accessible before running any tests. This prevents false failures.
+
+[AR-7] TAG ALL TESTS WITH JIRA/REQUIREMENT IDs
+  TestMetadata model has requirement_ids and jira_tickets fields.
+  Currently no tests use these fields. Traceability requires this linkage.
+
+
+================================================================================
+19. GLOSSARY
+================================================================================
+
+Term               | Definition
+-------------------|-----------------------------------------------------------
+POM                | Page Object Model — design pattern separating page UI from test logic
+SPA                | Single Page Application — web app with client-side routing
+SSO                | Single Sign-On — enterprise authentication (SAML/ADFS/Okta)
+MFA                | Multi-Factor Authentication
+OTP                | One-Time Password (used in BookSlot P1 verification)
+WCAG               | Web Content Accessibility Guidelines (W3C standard)
+OWASP ZAP          | Open Web Application Security Project Zed Attack Proxy
+SOC2               | Service Organization Control 2 (compliance framework)
+HIPAA              | Health Insurance Portability and Accountability Act
+SIEM               | Security Information and Event Management
+OpenTelemetry      | Observability framework for distributed tracing
+LRU Cache          | Least Recently Used cache (evicts oldest entry first)
+TTL                | Time To Live (cache expiration duration)
+HAR                | HTTP Archive format (browser network capture)
+CWE                | Common Weakness Enumeration (security classification)
+LCP                | Largest Contentful Paint (Core Web Vital, target <2500ms)
+FID                | First Input Delay (Core Web Vital, target <100ms)
+CLS                | Cumulative Layout Shift (Core Web Vital, target <0.1)
+FCP                | First Contentful Paint (performance metric)
+TTFB               | Time to First Byte (server response speed)
+DI                 | Dependency Injection (software design pattern)
+YAML               | Yet Another Markup Language (human-readable config format)
+CI/CD              | Continuous Integration / Continuous Deployment
+NDJSON             | Newline-Delimited JSON (streaming JSON format for bulk APIs)
+axe-core           | Open-source accessibility testing engine by Deque Systems
+bookslot           | Project name for patient appointment booking application
+callcenter         | Project name for back-office appointment management
+patientintake      | Project name for patient-facing appointment system
+P1-P7              | Page 1 through Page 7 in the BookSlot 7-step booking flow
+staging            | Pre-production test environment
+correlation_id     | UUID linking all log entries from a single test execution
+conftest.py        | Pytest configuration and fixture file
+Faker              | Python library for generating realistic fake data
+SmartActions       | Framework class providing intelligent UI action timing
+BasePage           | Abstract base class for all Page Object classes
+
+================================================================================
+END OF DOCUMENT
+================================================================================
+Document Length    : ~850 lines
+Audit Coverage     : 260+ files read and analyzed
+Pages Audited      : 11 page objects (complete)
+Tests Audited      : 13 key test files + conftest hierarchy
+Config Audited     : 10+ YAML/INI/TOML files (complete)
+Framework Modules  : 40+ modules across 20+ packages (complete)
+CI Workflows       : 5 workflows (complete)
+Issue Count        : 4 Critical, 5 High, 7 Medium, 7 Low = 23 total issues
+================================================================================

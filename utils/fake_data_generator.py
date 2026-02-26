@@ -56,13 +56,81 @@ PAYER_LIST = [
     "Blue Cross Blue Shield",
     "UnitedHealthcare",
     "Cigna",
-    "Humana"
+    "Humana",
+    "Kaiser Permanente",
+    "Centene Corporation",
+    "Molina Healthcare",
+    "Elevance Health",
+    "Health Care Service Corporation",
+    "Blue Shield of California",
+    "Florida Blue",
+    "Highmark Blue Cross Blue Shield",
+    "Independence Blue Cross",
+    "Blue Cross Blue Shield of Michigan",
+    "Blue Cross Blue Shield of Texas",
+    "Blue Cross Blue Shield of Illinois",
+    "Blue Cross Blue Shield of North Carolina",
+    "Excellus BlueCross BlueShield",
+    "Horizon Blue Cross Blue Shield of New Jersey",
+    "CareSource",
+    "Wellcare",
+    "Priority Health",
+    "UPMC Health Plan",
+    "EmblemHealth",
+    "Oscar Health",
+    "Bright Health",
+    "Tufts Health Plan",
+    "Harvard Pilgrim Health Care",
+    "Geisinger Health Plan",
+    "Mayo Clinic Health System",
+    "Cleveland Clinic Health System",
+    "Johns Hopkins HealthCare",
+    "Providence Health Plan",
+    "Mass General Brigham Health Plan",
+    "Sutter Health Plus",
+    "Intermountain Health Plans",
+    "Northwell Health Insurance",
+    "CommonSpirit Health",
+    "Ascension Personalized Care",
+    "SCAN Health Plan",
+    "Alignment Healthcare",
+    "Capital Blue Cross",
+    "Regence BlueShield",
+    "Premera Blue Cross",
+    "GuideWell Health",
+    "Health Net",
+    "Independence Health Group",
+    "Medica",
+    "Quartz Health Solutions"
 ]
 
-ALLOWED_EMAIL_DOMAINS = ["mailinator.com", "yopmail.com"]
+ALLOWED_EMAIL_DOMAINS =[
+    "mailinator.com",
+    "temp-mail.org",
+    "temp-mail.io",
+    "yopmail.com",
+    "guerrillamail.com",
+    "emailondeck.com",
+    "maildrop.cc",
+    "10minutemail.com",
+    "throwawaymail.com",
+    "getnada.com"
+]
 STATIC_PHONE = "1234567890"
 STATIC_VERIFICATION_CODE = "123456"
-STATIC_ZIP = ["20678","20678","20678","20678","20678"][random.randint(0,4)]
+STATIC_ZIP = [
+    "77494",  # Katy, TX
+    "08701",  # Lakewood, NJ
+    "77084",  # Houston, TX
+    "11368",  # Corona, NY
+    "11220",  # Brooklyn, NY
+    "92336",  # Fontana, CA
+    "79936",  # El Paso, TX
+    "10467",  # Bronx, NY
+    "90650",  # Norwalk, CA
+    "90250"   # Hawthorne, CA
+][random.randint(0,9)]
+
 CONTACT_METHODS = ["Text", "Email", "Call"]
 ZIP_DISTANCES = ["5","25", "50", "75", "100"]
 
@@ -103,7 +171,7 @@ def generate_bookslot_payload() -> Dict[str, Any]:
         "contact_method": random.choice(["Text"]),  # Primarily Text, can be expanded
         "verification_code": STATIC_VERIFICATION_CODE,
         "zip_distance": random.choice(ZIP_DISTANCES),
-        "dob": fake.date_of_birth(minimum_age=18, maximum_age=85).strftime("%m/%d/%Y"),
+        "dob": fake.date_of_birth(minimum_age=18, maximum_age=100).strftime("%m/%d/%Y"),
         
         # Insurance Information
         "MemberName": fake.name(),

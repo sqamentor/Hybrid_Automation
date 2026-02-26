@@ -1,828 +1,210 @@
-﻿# 📚 Framework Knowledge Center - Complete Documentation Index
+# Framework Knowledge Center — Index
 
-**Welcome to the Enterprise Hybrid Automation Framework Knowledge Center**
+**Enterprise Hybrid Automation Framework Documentation**
 
-This comprehensive documentation covers every aspect of the framework, from getting started to advanced features and strict architectural rules.
+This Knowledge Center is the single source of truth for all framework documentation.
+Structure is deduplicated, semantically organized, and maintained as canonical single-file-per-topic.
 
----
-
-## 🎯 Quick Navigation
-
-| Category | Description |
-|----------|-------------|
-| [🚀 Getting Started](#-getting-started) | Installation, setup, first test |
-| [🏗️ Core Concepts](#️-core-concepts) | Architecture, smart actions, engine selection |
-| [📄 Page Object Model](#-page-object-model) | POM architecture, rules, best practices |
-| [🧪 Testing Features](#-testing-features) | UI, API, DB, Visual, Accessibility, Security |
-| [⚙️ Configuration](#️-configuration) | Environments, projects, settings |
-| [� Observability & Logging](#-observability--logging) | Enterprise logging, audit trails, SIEM integration |
-| [🔧 Advanced Features](#-advanced-features) | AI, intelligence, self-healing |
-| [🏛️ Governance](#️-governance) | Architecture audit, enforcement, CI/CD |
-| [📊 Reporting](#-reporting) | Allure, HTML, logging, traces |
-| [📹 Media Capture](#-media-capture) | Screenshots, video recording, evidence collection |
-| [🛠️ Utilities](#️-utilities) | Fake data, logger, helpers |
-| [📜 Rules & Standards](#-rules--standards) | Mandatory rules, anti-patterns, best practices |
-| [🎓 Tutorials](#-tutorials) | Step-by-step guides |
-| [❓ Troubleshooting](#-troubleshooting) | Common issues and solutions |
+**Last Updated:** 2026-02-26
+**Framework Version:** 1.0.0
 
 ---
 
-## 🚀 Getting Started
+## Quick Navigation
 
-### Installation & Setup
-- **[Installation Guide](01-Getting-Started/Installation-Guide.md)**
-  - System requirements
-  - Installation steps
-  - Verification
-  - Troubleshooting
-
-- **[Quick Start Guide](01-Getting-Started/Quick-Start-Guide.md)**
-  - Run your first test in 30 seconds
-  - Basic concepts
-  - CLI usage
-
-- **[First Test Tutorial](01-Getting-Started/First-Test-Tutorial.md)**
-  - Write your first test step-by-step
-  - Understand fixtures
-  - Basic assertions
-
-- **[Project Structure Overview](01-Getting-Started/Project-Structure-Overview.md)**
-  - Directory layout
-  - File organization
-  - Naming conventions
+| # | Section | Files | Purpose |
+|---|---------|-------|---------|
+| 02 | [Core Concepts](#️-core-concepts) | 2 | Engine selection, Smart Actions |
+| 03 | [Page Object Model](#-page-object-model) | 1 | POM architecture and rules |
+| 04 | [Test Data Management](#-test-data-management) | 2 | URL testing, query strings |
+| 05 | [Observability & Logging](#-observability--logging) | 3 | Enterprise logging system |
+| 06 | [CLI & Tooling](#️-cli--tooling) | 2 | CLI guide, directory structure |
+| 07 | [Governance](#️-governance) | 4 | Architecture audit, config fixes |
+| 08 | [Media Capture](#-media-capture) | 1 | Screenshots, video, reports |
+| 09 | [Rules & Standards](#-rules--standards) | 2 | Mandatory rules, anti-patterns |
 
 ---
 
-## 🏗️ Core Concepts
+## Core Concepts
 
-### Architecture & Design
-- **[Architecture Overview](02-Core-Concepts/Architecture-Overview.md)**
-  - High-level architecture
-  - Design patterns
-  - Component interaction
-  - Data flow
+### `02-Core-Concepts/`
 
-- **[Engine Selection System](02-Core-Concepts/Engine-Selection-System.md)**
+- **[Engine-Selection-System.md](02-Core-Concepts/Engine-Selection-System.md)**
   - Playwright vs Selenium decision logic
-  - 20+ decision rules with priority
-  - YAML configuration
-  - Custom overrides
-  - Decision caching
+  - 20+ decision rules with priority scoring
+  - YAML configuration (`config/engine_decision_matrix.yaml`)
+  - Custom overrides and decision caching
 
-- **[Smart Actions](02-Core-Concepts/Smart-Actions.md)**
-  - Context-aware action wrappers
-  - Automatic delays
-  - Human behavior integration
-  - Usage patterns
-  - API reference
-
-- **[Execution Flow Orchestrator](02-Core-Concepts/Execution-Flow-Orchestrator.md)**
-  - UI → API → DB flow
-  - Execution context
-  - Evidence collection
-  - Flow configuration
-
-- **[Project Manager](02-Core-Concepts/Project-Manager.md)**
-  - Multi-project support
-  - Project detection
-  - Environment awareness
-  - Dynamic project creation
-
-- **[Human Behavior Simulation](02-Core-Concepts/Human-Behavior-Simulation.md)**
-  - Realistic mouse movements
-  - Context-aware typing
-  - Natural scrolling
-  - Configuration options
-  - Intensity levels
-
-- **[Workflow Orchestrator](02-Core-Concepts/Workflow-Orchestrator.md)**
-  - Test workflow management
-  - Step coordination
-  - Error handling
-  - Retry logic
+- **[Smart-Actions.md](02-Core-Concepts/Smart-Actions.md)**
+  - Context-aware UI action wrappers
+  - Automatic delays and human behavior integration
+  - API reference for all SmartActions methods
+  - Audit logging integration
 
 ---
 
-## 📄 Page Object Model
+## Page Object Model
 
-### POM Architecture & Rules
-- **[POM Architecture](03-Page-Object-Model/POM-Architecture.md)**
-  - POM principles
-  - Class structure
-  - Locator strategies
-  - Method organization
+### `03-Page-Object-Model/`
 
-- **[POM Rules & Compliance](03-Page-Object-Model/POM-Rules-And-Compliance.md)**
-  - Mandatory rules
-  - Forbidden patterns
-  - Compliance checks
-  - Enforcement
-
-- **[POM Best Practices](03-Page-Object-Model/POM-Best-Practices.md)**
-  - Design guidelines
-  - Maintainability tips
-  - Reusability patterns
-  - Common pitfalls
-
-- **[Base Page Class](03-Page-Object-Model/Base-Page-Class.md)**
+- **[POM-Architecture.md](03-Page-Object-Model/POM-Architecture.md)**
+  - POM principles and class structure
+  - Locator strategies using `@property`
+  - Method organization and `return self` chaining
   - BasePage contract
-  - Common methods
-  - Human behavior integration
-  - Implementation guide
-
-- **[BookSlot Pages](03-Page-Object-Model/Projects/BookSlot-Pages.md)**
-  - All BookSlot page objects
-  - Usage examples
-  - Page flow
-
-- **[CallCenter Pages](03-Page-Object-Model/Projects/CallCenter-Pages.md)**
-  - All CallCenter page objects
-  - Usage examples
-  - Page flow
-
-- **[PatientIntake Pages](03-Page-Object-Model/Projects/PatientIntake-Pages.md)**
-  - All PatientIntake page objects
-  - Usage examples
-  - Page flow
 
 ---
 
-## 🧪 Testing Features
+## Test Data Management
 
-### UI Testing
-- **[UI Testing Overview](04-Testing-Features/UI-Testing/UI-Testing-Overview.md)**
-  - Playwright engine
-  - Selenium engine
-  - Engine switching
-  - Best practices
+### `04-Test-Data-Management/`
 
-- **[Playwright Engine](04-Testing-Features/UI-Testing/Playwright-Engine.md)**
-  - Features and capabilities
-  - Auto-waiting
-  - Network interception
-  - API testing integration
+- **[URL_QUERY_STRING_TESTING_DESIGN.md](04-Test-Data-Management/URL_QUERY_STRING_TESTING_DESIGN.md)**
+  - Design for URL and query string test coverage
+  - Parametrized test patterns
 
-- **[Selenium Engine](04-Testing-Features/UI-Testing/Selenium-Engine.md)**
-  - Features and capabilities
-  - WebDriver management
-  - Legacy browser support
-  - iframe handling
-
-- **[Self-Healing Locators](04-Testing-Features/UI-Testing/Self-Healing-Locators.md)**
-  - Auto-recovery strategies
-  - Fallback locators
-  - Configuration
-  - Performance impact
-
-- **[UI Factory](04-Testing-Features/UI-Testing/UI-Factory.md)**
-  - Factory pattern implementation
-  - Engine instantiation
-  - Configuration
-  - Extensibility
-
-### API Testing
-- **[API Testing Overview](04-Testing-Features/API-Testing/API-Testing-Overview.md)**
-  - API client features
-  - Request/response tracking
-  - Authentication
-  - Assertion helpers
-
-- **[API Client](04-Testing-Features/API-Testing/API-Client.md)**
-  - REST API testing
-  - HTTP methods
-  - Headers and auth
-  - Response validation
-
-- **[API Interceptor](04-Testing-Features/API-Testing/API-Interceptor.md)**
-  - Network interception
-  - Request modification
-  - Response mocking
-  - Audit logging
-
-- **[Async API Client](04-Testing-Features/API-Testing/Async-API-Client.md)**
-  - Asynchronous testing
-  - Concurrent requests
-  - Performance testing
-
-- **[GraphQL Client](04-Testing-Features/API-Testing/GraphQL-Client.md)**
-  - GraphQL queries
-  - Mutations
-  - Subscriptions
-  - Schema validation
-
-- **[WebSocket Testing](04-Testing-Features/API-Testing/WebSocket-Testing.md)**
-  - WebSocket connections
-  - Real-time testing
-  - Message validation
-
-### Database Testing
-- **[Database Testing Overview](04-Testing-Features/Database-Testing/Database-Testing-Overview.md)**
-  - DB validation strategies
-  - Connection management
-  - Query execution
-
-- **[DB Client](04-Testing-Features/Database-Testing/DB-Client.md)**
-  - Connection setup
-  - SQL execution
-  - Transaction management
-
-- **[DB Validator](04-Testing-Features/Database-Testing/DB-Validator.md)**
-  - Data validation
-  - Assertion helpers
-  - Common queries
-
-- **[Query Builder](04-Testing-Features/Database-Testing/Query-Builder.md)**
-  - Fluent SQL construction
-  - Type safety
-  - Complex queries
-
-- **[Async DB Client](04-Testing-Features/Database-Testing/Async-DB-Client.md)**
-  - Asynchronous queries
-  - Connection pooling
-  - Performance optimization
-
-### Visual Testing
-- **[Visual Regression Testing](04-Testing-Features/Visual-Testing/Visual-Regression.md)**
-  - Screenshot comparison
-  - Diff generation
-  - Baseline management
-  - Ignore regions
-
-### Accessibility Testing
-- **[Accessibility Testing](04-Testing-Features/Accessibility-Testing/Accessibility-Testing.md)**
-  - WCAG 2.1 AA/AAA compliance
-  - Automated checks
-  - Accessibility report
-  - Remediation guide
-
-### Security Testing
-- **[Security Testing](04-Testing-Features/Security-Testing/Security-Testing.md)**
-  - OWASP ZAP integration
-  - Vulnerability scanning
-  - Security report
-  - Risk assessment
-
-### Performance Testing
-- **[Performance Monitoring](04-Testing-Features/Performance-Testing/Performance-Monitoring.md)**
-  - Page load metrics
-  - Resource timing
-  - Core Web Vitals
-  - Performance budgets
-
-### Mobile Testing
-- **[Mobile Testing](04-Testing-Features/Mobile-Testing/Mobile-Testing.md)**
-  - Device emulation
-  - Responsive testing
-  - Touch actions
-  - Mobile-specific tests
+- **[URL_TESTING_QUICK_REFERENCE.md](04-Test-Data-Management/URL_TESTING_QUICK_REFERENCE.md)**
+  - Quick reference card for URL testing
+  - Common patterns and examples
 
 ---
 
-## ⚙️ Configuration
+## Observability & Logging
 
-### Configuration Management
-- **[Configuration Guide](05-Configuration/Configuration-Guide.md)**
-  - Configuration sources
-  - Priority order
-  - Environment variables
-  - YAML configs
+### `05-Observability-And-Logging/`
 
-- **[Environment Management](05-Configuration/Environment-Management.md)**
-  - Dev, Staging, Production
-  - Environment selection
-  - Environment-specific settings
-  - Secrets management
+Three canonical files covering the complete enterprise logging system:
 
-- **[Project Management](05-Configuration/Project-Management.md)**
-  - Multi-project setup
-  - Project detection
-  - Project-specific configs
-  - Adding new projects
+- **[Enterprise-Logging-Architecture.md](05-Observability-And-Logging/Enterprise-Logging-Architecture.md)**
+  - System architecture and design philosophy
+  - Core components: `EnterpriseLogger`, `AuditLogger`, `CorrelationContext`
+  - Dual-track pipeline (standard + enterprise JSON)
+  - 25+ structured JSON fields, distributed tracing
+  - SIEM integration: ELK, Datadog, Splunk, Grafana Loki
+  - SOC2/ISO27001/GDPR/HIPAA compliance features
+  - PII masking (email, password, SSN, credit card)
+  - Log schema reference
 
-- **[Engine Decision Matrix](05-Configuration/Engine-Decision-Matrix.md)**
-  - YAML configuration
-  - Priority-based rules
-  - Confidence scoring
-  - Custom overrides
+- **[Enterprise-Logging-Implementation.md](05-Observability-And-Logging/Enterprise-Logging-Implementation.md)**
+  - Step-by-step integration for every code layer
+  - SmartActions, BasePage, SeleniumEngine, APIClient, test files
+  - 8 canonical code integration patterns
+  - Critical fixes applied (6 bugs resolved)
+  - Validation checklist
 
-- **[Human Behavior Configuration](05-Configuration/Human-Behavior-Configuration.md)**
-  - Behavior profiles
-  - Intensity levels
-  - Custom behaviors
-  - Enable/disable controls
-
-- **[Settings Management](05-Configuration/Settings-Management.md)**
-  - Settings.py overview
-  - Configuration loading
-  - Settings validation
-  - Default values
-
----
-
-## � Observability & Logging
-
-### Enterprise Logging System
-- **[Enterprise Logging Architecture](05-Observability-And-Logging/Enterprise-Logging-Architecture.md)**
-  - System architecture and design
-  - Core components overview
-  - Structured JSON logging with 25+ fields
-  - Distributed tracing with correlation IDs
-  - Async/non-blocking logging (QueueHandler)
-  - SIEM integration (ELK, Datadog, Splunk, Loki)
-  - SOC2/ISO27001 compliance features
-  - Security and audit logging
-
-- **[Enterprise Logging Integration Guide](05-Observability-And-Logging/Enterprise-Logging-Integration-Guide.md)**
-  - Step-by-step integration into existing code
-  - Migrating SmartActions to enterprise logger
-  - Page Object Model logging patterns
-  - Test suite integration examples
-  - API and DB logging strategies
-  - Best practices and patterns
-
-- **[Enterprise Logging Deployment Checklist](05-Observability-And-Logging/Enterprise-Logging-Deployment-Checklist.md)**
-  - Pre-deployment validation steps
+- **[Enterprise-Logging-Deployment.md](05-Observability-And-Logging/Enterprise-Logging-Deployment.md)**
+  - 100% production readiness (18/18 issues resolved)
+  - 7-phase deployment plan with bash commands
   - Environment-specific configuration
-  - SIEM setup and verification
-  - Performance testing guidelines
-  - Go-live checklist
-  - Post-deployment monitoring
+  - Performance characteristics and monitoring
+  - Troubleshooting guide and final deployment checklist
 
-- **[Enterprise Logging Verification Report](05-Observability-And-Logging/Enterprise-Logging-Verification-Report.md)**
-  - Implementation verification results
-  - Feature completeness matrix
-  - Code quality assessment
-  - Integration testing results
-  - Known issues and resolutions
+**Log files produced at runtime:**
 
-- **[Enterprise Logging Final Summary](05-Observability-And-Logging/Enterprise-Logging-Final-Summary.md)**
-  - Executive overview
-  - Deployment status
-  - Quick start guide
-  - Troubleshooting tips
-
-- **[Enterprise Logging Comprehensive Audit](05-Observability-And-Logging/Enterprise-Logging-Comprehensive-Audit.md)** 🆕
-  - Complete requirements analysis (10 categories)
-  - Gap analysis and compliance scoring (76.6% baseline)
-  - Implementation priorities and roadmap
-  - 3-phase deployment strategy
-  - Detailed action items per category
-
-- **[Enterprise Logging Complete Implementation](05-Observability-And-Logging/Enterprise-Logging-Complete-Implementation.md)** 🆕
-  - Universal logging decorators guide
-  - @log_function, @log_async_function usage
-  - State transition and retry logging
-  - Sensitive data masking examples
-  - SIEM integration configurations
-  - 3-week migration guide with examples
-
-- **[Enterprise Logging Implementation Report](05-Observability-And-Logging/Enterprise-Logging-Implementation-Report.md)** 🆕
-  - Phase 1 completion status
-  - Compliance metrics (21.3% → 29.0%)
-  - 238 functions instrumented across 25 files
-  - Before/after code comparisons
-  - Usage examples and best practices
-  - Auto-instrumentation tools guide
-  - Phase 2 & 3 roadmap
-
-- **[Logging Enhancements](05-Observability-And-Logging/Logging-Enhancements.md)**
-  - Historical logging improvements
-  - Feature evolution
-  - Migration notes
-  - Backward compatibility
+| Path | Content |
+|------|---------|
+| `logs/framework_YYYYMMDD.log` | Human-readable; all `logger.*` calls |
+| `logs/errors_YYYYMMDD.log` | ERROR+ only |
+| `logs/audit/audit_YYYYMMDD.log` | Structured JSON; every SmartAction |
+| `logs/enterprise/app_YYYYMMDD.json` | Full structured JSON via EnterpriseLogger |
+| `logs/security/security_YYYYMMDD.json` | Auth/authz events |
+| `logs/performance/performance_YYYYMMDD.json` | Timing metrics |
 
 ---
 
-## �🔧 Advanced Features
+## CLI & Tooling
 
-### AI & Intelligence
-- **[AI Provider Factory](06-Advanced-Features/AI/AI-Provider-Factory.md)**
-  - OpenAI integration
-  - Anthropic Claude integration
-  - Provider selection
-  - Fallback strategies
+### `06-CLI-And-Tooling/`
 
-- **[Natural Language Test Generation](06-Advanced-Features/AI/NL-Test-Generator.md)**
-  - Plain English to tests
-  - Test generation
-  - Code templates
+- **[Interactive-CLI-Guide.md](06-CLI-And-Tooling/Interactive-CLI-Guide.md)**
+  - Complete reference for the `automation` unified CLI
+  - Interactive mode step-by-step walkthrough
+  - All subcommands: `run`, `run-pom`, `test`, `record`, `projects`, `context`
+  - Multi-project support (bookslot, callcenter, patientintake)
+  - Root execution and workspace context detection
+  - CI/CD integration examples
+  - CLI architecture (`framework/cli/` layout, router logic)
+  - Industry standards alignment (Nx, Turborepo, Playwright)
+  - Troubleshooting guide
 
-- **[AI Auto-Validation](06-Advanced-Features/Intelligence/AI-Auto-Validation.md)**
-  - Automatic validation suggestions
-  - CRUD pattern detection
-  - API validation generation
-  - DB validation generation
-
-- **[Self-Healing System](06-Advanced-Features/Intelligence/Self-Healing-System.md)**
-  - Locator recovery
-  - Fallback strategies
-  - Healing history
-  - Success metrics
-
-- **[ML Test Optimizer](06-Advanced-Features/Intelligence/ML-Test-Optimizer.md)**
-  - Predictive test selection
-  - Smart retry logic
-  - Failure analysis
-  - Test prioritization
-
-- **[Pattern Recognition](06-Advanced-Features/Intelligence/Pattern-Recognition.md)**
-  - Test pattern learning
-  - Anomaly detection
-  - Trend analysis
-
-### Recording & Generation
-- **[Test Recording](06-Advanced-Features/Recording/Test-Recording.md)**
-  - Browser recording
-  - Code generation
-  - Cleanup and optimization
+- **[Directory-Structure.md](06-CLI-And-Tooling/Directory-Structure.md)**
+  - Complete project directory layout
+  - Every major directory explained with purpose and standards
+  - Migration map (old to new locations)
+  - Maintenance guidelines for adding projects and scripts
 
 ---
 
-## 🏛️ Governance
+## Governance
 
-### Architecture Audit & Enforcement
-- **[Governance System Overview](07-Governance/Governance-System-Overview.md)**
-  - System architecture
-  - Enforcement layers
-  - Audit workflow
+### `07-Governance/`
 
-- **[Framework Architecture Audit Report](07-Governance/Framework-Architecture-Audit-Report.md)**
+- **[Governance-System-Overview.md](07-Governance/Governance-System-Overview.md)**
+  - Architecture governance system design
+  - 4 enforcement layers: pre-commit, file watcher, CI/CD, manual audit
+  - Audit workflow and violation lifecycle
+
+- **[Framework-Architecture-Audit-Report.md](07-Governance/Framework-Architecture-Audit-Report.md)**
   - Complete framework audit results
-  - Architecture analysis
-  - Code quality metrics
-  - Compliance assessment
-  - Recommendations and action items
+  - Architecture analysis and code quality metrics
+  - Compliance assessment, recommendations, action items
 
-- **[Pending Implementations And Fixes](07-Governance/Pending-Implementations-And-Fixes.md)**
-  - Outstanding technical debt
-  - Planned enhancements
-  - Known issues
+- **[Pending-Implementations-And-Fixes.md](07-Governance/Pending-Implementations-And-Fixes.md)**
+  - Outstanding technical debt and known issues
+  - Planned enhancements with priority tracking
   - Implementation roadmap
-  - Priority tracking
 
-- **[Dynamic Report Naming Implementation](07-Governance/DYNAMIC_REPORT_NAMING_IMPLEMENTATION.md)**
-  - Dynamic HTML report filename generation
-  - Format: projectname_EnvironmentName_DDMMYYYY_HHMMSS.html
-  - pytest-html integration
-  - Configuration and setup
-  - CLI usage examples
-  - Testing and verification
-
-- **[Audit Rules](07-Governance/Audit-Rules.md)**
-  - Complete rule catalog
-  - Rule categories
-  - Severity levels
-  - Violation examples
-
-- **[Framework Audit Engine](07-Governance/Framework-Audit-Engine.md)**
-  - AST-based analysis
-  - Violation detection
-  - Baseline management
-  - Report generation
-
-- **[Pre-Commit Hooks](07-Governance/Pre-Commit-Hooks.md)**
-  - Hook installation
-  - Commit blocking
-  - Bypass scenarios
-  - Troubleshooting
-
-- **[File Watcher](07-Governance/File-Watcher.md)**
-  - Real-time monitoring
-  - Auto-audit on changes
-  - Strict mode
-  - History tracking
-
-- **[CI/CD Integration](07-Governance/CICD-Integration.md)**
-  - GitHub Actions workflow
-  - Status checks
-  - PR blocking
-  - Report artifacts
-
-- **[Baseline Allow-List](07-Governance/Baseline-Allow-List.md)**
-  - Technical debt management
-  - Expiration tracking
-  - Baseline rules
-  - Audit trail
-
-- **[Fix Suggestions](07-Governance/Fix-Suggestions.md)**
-  - Automated suggestions
-  - Remediation guidance
-  - Code examples
-
-- **[AI Explainer](07-Governance/AI-Explainer.md)**
-  - Violation explanations
-  - Educational content
-  - Best practice guidance
+- **[Configuration-Fixes-Reference.md](07-Governance/Configuration-Fixes-Reference.md)**
+  - 3 pytest configuration fixes (all verified)
+  - Fix 1: Marker expression syntax error (`-m` quotes removed)
+  - Fix 2: `asyncio_mode` config warning resolved
+  - Fix 3: `human_behavior` marker registration added
+  - Before/after command examples and verification commands
 
 ---
 
-## 📊 Reporting
+## Media Capture
 
-### Test Reporting & Observability
-- **[Reporting Overview](08-Reporting/Reporting-Overview.md)**
-  - Report types
-  - Configuration
-  - Best practices
+### `08-Media-Capture/`
 
-- **[Allure Reports](08-Reporting/Allure-Reports.md)**
-  - Setup and configuration
-  - Test history
-  - Trends and metrics
-  - Custom categories
-
-- **[HTML Reports](08-Reporting/HTML-Reports.md)**
-  - Pytest-HTML integration
-  - Screenshots embedding
-  - Video embedding
-  - Custom CSS
-
-- **[Logging](08-Reporting/Logging.md)**
-  - Loguru configuration
-  - Log levels
-  - File rotation
-  - Structured logging
-
-- **[Audit Logger](08-Reporting/Audit-Logger.md)**
-  - Compliance tracking
-  - Request/response logs
-  - Audit trail
-  - Report generation
-
-- **[Video Recording](08-Reporting/Video-Recording.md)**
-  - Video capture
-  - Failure highlights
-  - Storage management
-
-- **[Screenshots](08-Reporting/Screenshots.md)**
-  - Auto-screenshots
-  - Failure capture
-  - Comparison screenshots
-
-- **[Traces](08-Reporting/Traces.md)**
-  - Playwright traces
-  - Trace viewer
-  - Debug information
-
----
-
-## � Media Capture
-
-### Screenshots & Video Recording
-- **[Screenshot & Video Implementation](08-Media-Capture/Screenshot-Video-Implementation.md)**
-  - Complete implementation guide
-  - Playwright video recording setup
-  - Screenshot capture strategies
-  - Auto-capture on test failure
+- **[Media-Capture-System.md](08-Media-Capture/Media-Capture-System.md)**
+  - Complete screenshot, video, and HTML report capture system
+  - Naming convention: `project_Env_DDMMYYYY_HHMMSS.{webm|html}`
+  - Auto-increment collision handling
+  - Video recording setup (Playwright context fixtures)
+  - `generate_unique_video_filename()` function reference
+  - Dynamic HTML report naming (`pytest_configure` hook)
+  - pytest hook for auto-rename on all `page`-fixture tests
   - Allure report integration
-  - Storage and retention policies
-  - Performance considerations
-
-- **[Dynamic Video Naming Implementation](08-Media-Capture/DYNAMIC_VIDEO_NAMING_IMPLEMENTATION.md)**
-  - Dynamic video filename generation
-  - Format: projectname_EnvironmentName_DDMMYYYY_HHMMSS.webm
-  - Implementation details
-  - Systematic fix approach
-  - Framework integration
-  - Testing and validation
-
-- **[Video Naming Audit Report](08-Media-Capture/VIDEO_NAMING_AUDIT_REPORT.md)**
-  - Video naming system audit
-  - Current state analysis
-  - Issues and recommendations
-  - Implementation status
-  - Future improvements
-
-- **[Video Naming Update Report](08-Media-Capture/Video-Naming-Update-Report.md)**
-  - Video filename format specification
-  - DDMMYYYY_HH_MM_SS naming convention
-  - Windows filesystem compatibility
-  - Collision handling logic
-  - Validation and testing procedures
-  - Migration guide
+  - Troubleshooting guide
 
 ---
 
-## �🛠️ Utilities
+## Rules & Standards
 
-### Test Data & Helpers
-- **[Fake Data Generator](09-Utilities/Fake-Data-Generator.md)**
-  - Data generation strategies
-  - BookSlot data
-  - Custom generators
-  - Data persistence
+### `09-Rules-And-Standards/`
 
-- **[Logger Utility](09-Utilities/Logger-Utility.md)**
-  - Logger setup
-  - Usage patterns
-  - Custom formatting
-  - Integration
+- **[Strict-Rules.md](09-Rules-And-Standards/Strict-Rules.md)**
+  - **MANDATORY** — violations block git commits and CI/CD builds
+  - 10 rule categories: POM, Engine Mixing, Test Structure, Human Behavior, Data, Imports, Naming, Markers, Execution Flow, Configuration
+  - Every rule includes correct example, wrong example, and enforcement metadata
+  - Critical violations table showing commit/merge blocking status
+  - Baseline allow-list format for legitimate technical debt
 
-- **[Flow Helpers](09-Utilities/Flow-Helpers.md)**
-  - Common workflows
-  - Reusable actions
-  - Helper functions
+- **[Anti-Patterns.md](09-Rules-And-Standards/Anti-Patterns.md)**
+  - **FORBIDDEN** patterns that cause test failures and architecture violations
+  - 8 categories: Page Object, Test Structure, Delay/Timing, Data Management, Engine Selection, Configuration, Error Handling, Performance
+  - Every anti-pattern has bad code, explanation, and correct alternative
+  - Quick-fix reference table
 
 ---
 
-## 📜 Rules & Standards
+## Contact & Support
 
-### Mandatory Rules & Guidelines
-- **[Strict Rules - MUST FOLLOW](10-Rules-And-Standards/Strict-Rules.md)**
-  - Page Object Model rules
-  - Engine mixing rules
-  - Test structure rules
-  - Human behavior rules
-  - Data management rules
-  - Import rules
-  - Naming conventions
-
-- **[Anti-Patterns - AVOID](10-Rules-And-Standards/Anti-Patterns.md)**
-  - Direct locators in tests
-  - Manual delays
-  - Hardcoded data
-  - Mixing engines
-  - God tests
-  - Poor naming
-
-- **[Common Mistakes](10-Rules-And-Standards/Common-Mistakes.md)**
-  - Frequent errors
-  - Why they happen
-  - How to fix
-  - Prevention strategies
-
-- **[Best Practices](10-Rules-And-Standards/Best-Practices.md)**
-  - Code organization
-  - Test design
-  - Performance optimization
-  - Maintainability
-
-- **[Code Standards](10-Rules-And-Standards/Code-Standards.md)**
-  - Python style guide
-  - Type hints
-  - Docstrings
-  - Comments
-
-- **[Testing Standards](10-Rules-And-Standards/Testing-Standards.md)**
-  - Test naming
-  - Test organization
-  - Assertion patterns
-  - Test data
+- **Email:** lokendra.singh@centerforvein.com
+- **Website:** www.centerforvein.com
+- **GitHub:** sqamentor/Hybrid_Automation
 
 ---
 
-## 🎓 Tutorials
-
-### Step-by-Step Guides
-- **[Tutorial 1: Your First Test](11-Tutorials/Tutorial-01-First-Test.md)**
-  - Setup environment
-  - Write basic test
-  - Run and verify
-
-- **[Tutorial 2: Using Smart Actions](11-Tutorials/Tutorial-02-Smart-Actions.md)**
-  - Smart action basics
-  - Human behavior
-  - Advanced usage
-
-- **[Tutorial 3: Page Object Model](11-Tutorials/Tutorial-03-POM.md)**
-  - Create page object
-  - Define locators
-  - Write page methods
-
-- **[Tutorial 4: Multi-Layer Testing](11-Tutorials/Tutorial-04-Multi-Layer.md)**
-  - UI + API + DB
-  - Validation strategies
-  - Evidence collection
-
-- **[Tutorial 5: Fake Data Generation](11-Tutorials/Tutorial-05-Fake-Data.md)**
-  - Generate test data
-  - Custom generators
-  - Data fixtures
-
-- **[Tutorial 6: Visual Regression](11-Tutorials/Tutorial-06-Visual-Regression.md)**
-  - Setup baselines
-  - Compare screenshots
-  - Handle differences
-
-- **[Tutorial 7: API Testing](11-Tutorials/Tutorial-07-API-Testing.md)**
-  - REST API tests
-  - Authentication
-  - Response validation
-
-- **[Tutorial 8: Database Testing](11-Tutorials/Tutorial-08-DB-Testing.md)**
-  - DB connections
-  - Query execution
-  - Data validation
-
----
-
-## ❓ Troubleshooting
-
-### Common Issues & Solutions
-- **[Troubleshooting Guide](12-Troubleshooting/Troubleshooting-Guide.md)**
-  - Installation issues
-  - Test failures
-  - Configuration problems
-  - Performance issues
-
-- **[FAQ](12-Troubleshooting/FAQ.md)**
-  - Frequently asked questions
-  - Quick answers
-  - Common scenarios
-
-- **[Debug Guide](12-Troubleshooting/Debug-Guide.md)**
-  - Debugging strategies
-  - Tools and techniques
-  - Common patterns
-
-- **[Error Messages](12-Troubleshooting/Error-Messages.md)**
-  - Error catalog
-  - Meaning and causes
-  - Solutions
-
----
-
-## 📖 Reference
-
-### API Reference
-- **[Fixtures Reference](13-Reference/Fixtures-Reference.md)**
-  - All pytest fixtures
-  - Parameters
-  - Usage examples
-
-- **[Markers Reference](13-Reference/Markers-Reference.md)**
-  - All test markers
-  - When to use
-  - Examples
-
-- **[CLI Reference](13-Reference/CLI-Reference.md)**
-  - Command-line options
-  - Configuration flags
-  - Examples
-
-- **[Configuration Reference](13-Reference/Configuration-Reference.md)**
-  - All config options
-  - Default values
-  - Override methods
-
----
-
-## 🔄 Migration Guides
-
-### Version Upgrades
-- **[Migration Guide v0.x to v1.0](14-Migration/Migration-V0-to-V1.md)**
-  - Breaking changes
-  - New features
-  - Step-by-step migration
-
----
-
-## 📝 Changelog
-
-### Release Notes
-- **[Changelog](15-Changelog/CHANGELOG.md)**
-  - Version history
-  - Features added
-  - Bug fixes
-  - Breaking changes
-
----
-
-## 🎯 Quick Reference Cards
-
-### Cheat Sheets
-- **[Quick Reference - Smart Actions](Quick-Reference/Smart-Actions-Cheat-Sheet.md)**
-- **[Quick Reference - POM Rules](Quick-Reference/POM-Rules-Cheat-Sheet.md)**
-- **[Quick Reference - Pytest Commands](Quick-Reference/Pytest-Commands-Cheat-Sheet.md)**
-- **[Quick Reference - Configuration](Quick-Reference/Configuration-Cheat-Sheet.md)**
-
----
-
-## 📞 Getting Help
-
-### Support Channels
-- **Documentation** - Check this Knowledge Center first
-- **GitHub Issues** - Report bugs or request features
-- **GitHub Discussions** - Ask questions, share ideas
-- **Email** - lokendra.singh@centerforvein.com
-- **Website** - [www.centerforvein.com](https://www.centerforvein.com)
-
----
-
-## 🌟 Contributing
-
-Interested in contributing? See:
-- [Contributing Guide](../CONTRIBUTING.md)
-- [Code of Conduct](../CODE_OF_CONDUCT.md)
-- [Development Setup](01-Getting-Started/Development-Setup.md)
-
----
-
-**Last Updated:** February 18, 2026  
-**Framework Version:** 1.0.0  
-**Documentation Version:** 1.0.1
-
----
-
-**Built with ❤️ by the SQA Mentor Team**
-
-**"Complete Knowledge for Intelligent Testing"**
+*All documentation is maintained as single canonical files per topic — zero duplication.*

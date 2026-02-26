@@ -74,6 +74,27 @@ custom_style = Style([
 ])
 
 
+def ask_yes_no(message: str, default: bool = True) -> bool:
+    """Arrow-key selectable Yes/No prompt using questionary."""
+    if default:
+        choices = [
+            questionary.Choice(title="✅ Yes", value=True),
+            questionary.Choice(title="❌ No", value=False),
+        ]
+    else:
+        choices = [
+            questionary.Choice(title="❌ No", value=False),
+            questionary.Choice(title="✅ Yes", value=True),
+        ]
+    result = questionary.select(
+        message,
+        choices=choices,
+        style=custom_style,
+        use_shortcuts=True
+    ).ask()
+    return result if result is not None else default
+
+
 class InteractiveLauncher:
     """Interactive CLI launcher for test execution"""
     
@@ -699,8 +720,8 @@ class InteractiveLauncher:
         console.print("[yellow]⚠️  Warning:[/yellow] Parallel execution may cause issues with sync Playwright fixtures")
         console.print("[dim]Recommended: Disable parallel for POM tests with sync fixtures[/dim]\n")
         
-        parallel = Confirm.ask(
-            "[cyan]Enable parallel execution?[/cyan]",
+        parallel = ask_yes_no(
+            "Enable parallel execution?",
             default=False
         )
         
@@ -721,8 +742,8 @@ class InteractiveLauncher:
         console.print(f"\n[bold]Pytest Markers:[/bold]")
         console.print("[dim]Common markers: smoke, regression, integration, critical[/dim]\n")
         
-        add_markers = Confirm.ask(
-            "[cyan]Add pytest markers?[/cyan]",
+        add_markers = ask_yes_no(
+            "Add pytest markers?",
             default=False
         )
         
@@ -736,8 +757,8 @@ class InteractiveLauncher:
                 markers = [m.strip() for m in markers_input.split(',')]
         
         # Verbosity
-        verbose = Confirm.ask(
-            "[cyan]Verbose output?[/cyan]",
+        verbose = ask_yes_no(
+            "Verbose output?",
             default=True
         )
         
@@ -759,13 +780,13 @@ class InteractiveLauncher:
             console.print("[yellow]⚠️  Report configuration not available[/yellow]")
             return ReportConfig()
         
-        html = Confirm.ask(
-            "[cyan]Generate HTML report?[/cyan]",
+        html = ask_yes_no(
+            "Generate HTML report?",
             default=True
         )
         
-        allure = Confirm.ask(
-            "[cyan]Generate Allure report?[/cyan]",
+        allure = ask_yes_no(
+            "Generate Allure report?",
             default=False
         )
         
@@ -1027,8 +1048,8 @@ class InteractiveLauncher:
                     self.launch_recording(project, environment)
                     
                     # After recording, ask to continue
-                    run_more = Confirm.ask(
-                        "[bold cyan]Would you like to continue?[/bold cyan]",
+                    run_more = ask_yes_no(
+                        "Would you like to continue?",
                         default=True
                     )
                     if not run_more:
@@ -1091,7 +1112,7 @@ class InteractiveLauncher:
                     # Step 9: Validate Configuration
                     if not self.validate_configuration(full_config, test_suite, test_file):
                         console.print("[yellow]⚠️  Validation failed. Please review configuration.[/yellow]")
-                        retry = Confirm.ask("Do you want to retry?", default=True)
+                        retry = ask_yes_no("Do you want to retry?", default=True)
                         if retry:
                             continue
                         else:
@@ -1101,8 +1122,8 @@ class InteractiveLauncher:
                     self.show_execution_summary(full_config, test_suite, test_file)
                     
                     # Step 11: Confirm
-                    proceed = Confirm.ask(
-                        "[bold cyan]Ready to execute tests?[/bold cyan]",
+                    proceed = ask_yes_no(
+                        "🚀 Ready to execute tests?",
                         default=True
                     )
                     
@@ -1117,8 +1138,8 @@ class InteractiveLauncher:
                     self.post_process_results(exit_code, full_config)
                     
                     # Ask to run more tests
-                    run_more = Confirm.ask(
-                        "[bold cyan]Would you like to run more tests?[/bold cyan]",
+                    run_more = ask_yes_no(
+                        "Would you like to run more tests?",
                         default=True
                     )
                     
@@ -1127,8 +1148,8 @@ class InteractiveLauncher:
                         return exit_code
                     
                     # Ask if they want same project or different
-                    same_project = Confirm.ask(
-                        "[bold cyan]Continue with the same project?[/bold cyan]",
+                    same_project = ask_yes_no(
+                        "Continue with the same project?",
                         default=True
                     )
                     
