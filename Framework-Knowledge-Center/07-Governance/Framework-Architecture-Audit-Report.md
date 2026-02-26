@@ -1,4 +1,4 @@
-# 🏛️ FRAMEWORK ARCHITECTURE AUDIT REPORT
+﻿# 🏛️ FRAMEWORK ARCHITECTURE AUDIT REPORT
 
 **Date**: February 2, 2026  
 **Auditor**: Principal QA Architect & Automation Governance Authority  
@@ -2184,8 +2184,8 @@ Merge allowed
 
 ### **Framework Owner**
 - **Name**: Lokendra Singh
-- **Email**: qa.lokendra@gmail.com
-- **Website**: www.sqamentor.com
+- **Email**: lokendra.singh@centerforvein.com
+- **Website**: www.centerforvein.com
 - **LinkedIn**: /in/sqamentor
 - **Repository**: https://github.com/sqamentor/Hybrid_Automation
 

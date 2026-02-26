@@ -1,4 +1,4 @@
-"""
+﻿"""
 AI Integration Setup & Test Script
 
 This script helps you:
@@ -7,8 +7,8 @@ This script helps you:
 3. Get setup instructions
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 Assisted by: AI Claude (Anthropic)
 """
 

@@ -1,11 +1,11 @@
-"""
+﻿"""
 Test Suite: Personal Info Page
 ===============================
 Tests for the Personal Info page (demographics and address).
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 
 Test Coverage:
 - Date of Birth validation

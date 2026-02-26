@@ -1,9 +1,9 @@
-"""
+﻿"""
 POST-AUDIT VALIDATION SCRIPT
 Verifies that all hardcoded values have been removed and framework uses dynamic configuration
 
 Author: Lokendra Singh
-Website: www.sqamentor.com
+Website: www.centerforvein.com
 """
 
 import subprocess

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Modern Unified CLI - Automation Framework Command-Line Interface
 Single entry point with subcommands following industry standards
 
@@ -17,8 +17,8 @@ Follows modern automation patterns:
     ✓ This Framework: automation run, automation record
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 """
 
 import sys

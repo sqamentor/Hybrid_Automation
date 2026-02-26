@@ -1,10 +1,10 @@
-"""
+﻿"""
 Page Object: Bookslot Insurance Information Page
 Represents what a user can do on the Insurance page
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 
 Project: BookSlot
 Module: Insurance Information (Coverage Details)

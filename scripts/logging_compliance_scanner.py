@@ -1,4 +1,4 @@
-"""
+﻿"""
 Logging Compliance Scanner
 ==========================
 
@@ -12,8 +12,8 @@ Features:
 - Creates actionable recommendations
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 """
 
 import ast

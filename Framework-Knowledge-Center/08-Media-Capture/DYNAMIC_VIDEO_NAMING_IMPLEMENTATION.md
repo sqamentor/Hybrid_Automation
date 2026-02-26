@@ -1,4 +1,4 @@
-# Dynamic Video Naming Implementation
+﻿# Dynamic Video Naming Implementation
 
 ## Overview
 This document describes the implementation of dynamic video naming for Playwright video recordings in the Hybrid Automation Framework.
@@ -283,8 +283,8 @@ videos/
 
 ## Author
 - **Implementation:** GitHub Copilot (Claude Sonnet 4.5)
-- **Testing & Integration:** Lokendra Singh (qa.lokendra@gmail.com)
-- **Website:** www.sqamentor.com
+- **Testing & Integration:** Lokendra Singh (lokendra.singh@centerforvein.com)
+- **Website:** www.centerforvein.com
 
 ---
 **Status:** ✅ IMPLEMENTED  

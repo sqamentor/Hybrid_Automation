@@ -1,10 +1,10 @@
-"""
+﻿"""
 Page Object: Bookslot Web Scheduler Page
 Represents what a user can do on the Scheduler page
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 
 Project: BookSlot
 Module: Web Scheduler (Date/Time Selection)

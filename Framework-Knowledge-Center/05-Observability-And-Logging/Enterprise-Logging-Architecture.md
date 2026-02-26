@@ -1,4 +1,4 @@
-# Enterprise-Grade Logging System
+﻿# Enterprise-Grade Logging System
 ## Complete Architecture & Implementation Guide
 
 **Version:** 1.0.0  
@@ -1277,4 +1277,4 @@ The system is production-ready and can be deployed immediately.
 
 ---
 
-**For questions or support, contact:** qa.lokendra@gmail.com
+**For questions or support, contact:** lokendra.singh@centerforvein.com

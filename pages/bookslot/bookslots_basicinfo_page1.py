@@ -1,10 +1,10 @@
-"""
+﻿"""
 Page Object: Bookslot Basic Info Page
 Represents what a user can do on the Basic Info page
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 
 Project: BookSlot
 Module: Basic Info (Patient Information Collection)

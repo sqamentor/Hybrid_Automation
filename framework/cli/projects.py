@@ -1,4 +1,4 @@
-"""
+﻿"""
 CLI Module - Project Management Commands
 Modern multi-project CLI with project discovery and context awareness
 
@@ -9,8 +9,8 @@ Commands:
     automation projects detect [url]    - Detect project from URL
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 """
 
 import sys

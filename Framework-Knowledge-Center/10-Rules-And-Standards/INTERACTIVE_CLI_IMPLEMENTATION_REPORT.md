@@ -1,4 +1,4 @@
-# Interactive CLI Implementation - Complete Summary
+﻿# Interactive CLI Implementation - Complete Summary
 
 ## 🎯 Implementation Overview
 
@@ -536,8 +536,8 @@ automation --help       # Shows updated help with interactive mode
 - **Documentation**: [INTERACTIVE_CLI_GUIDE.md](../Framework-Knowledge-Center/10-Rules-And-Standards/INTERACTIVE_CLI_GUIDE.md)
 - **Verification**: Run `python scripts/validation/verify_interactive_cli.py`
 - **Help Command**: `automation --help`
-- **Email**: qa.lokendra@gmail.com
-- **Website**: www.sqamentor.com
+- **Email**: lokendra.singh@centerforvein.com
+- **Website**: www.centerforvein.com
 
 ### Maintenance Notes
 

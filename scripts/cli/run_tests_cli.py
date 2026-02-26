@@ -1,11 +1,11 @@
-"""
+﻿"""
 Interactive Test Runner CLI - Beautiful Test Execution Interface
 PROJECT-AWARE test execution with automatic configuration and guided selection
 INTERACTIVE MODE with comprehensive options and scenarios
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 Assisted by: AI Claude (Anthropic)
 """
 

@@ -1,4 +1,4 @@
-# 🎉 Interactive CLI - Final Test Results & User Guide
+﻿# 🎉 Interactive CLI - Final Test Results & User Guide
 
 ## ✅ Implementation Complete and Verified
 
@@ -417,8 +417,8 @@ We hope this makes your testing experience:
 - **Show Context**: `automation context`
 
 ### Contact
-- **Email**: qa.lokendra@gmail.com
-- **Website**: www.sqamentor.com
+- **Email**: lokendra.singh@centerforvein.com
+- **Website**: www.centerforvein.com
 - **GitHub**: sqamentor/Hybrid_Automation
 
 ---

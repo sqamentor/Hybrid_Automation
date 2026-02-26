@@ -1,4 +1,4 @@
-"""
+﻿"""
 Test Execution Options - Modular Configuration Classes
 Reusable, dynamic, and microservice-style option handlers
 
@@ -10,8 +10,8 @@ These classes provide configuration for different aspects of test execution:
 - Test scope selection
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 """
 
 from dataclasses import dataclass, field

@@ -1,11 +1,11 @@
-"""
+﻿"""
 Recording CLI - Command Line Interface for Test Recording Workflow
 PROJECT-AWARE recording with automatic organization and environment detection
 INTERACTIVE MODE with beautiful AI-powered interface
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 Assisted by: AI Claude (Anthropic)
 """
 
@@ -288,6 +288,208 @@ def interactive_recording():
         # ====================================================================
         # SUCCESS SUMMARY
         # ====================================================================
+        if result.get("status") == "success":
+            print("\n" + "="*80)
+            print("✅  RECORDING COMPLETED SUCCESSFULLY!")
+            print("="*80)
+            
+            print(f"\n📁 Your files:")
+            if "steps" in result and "recording" in result["steps"]:
+                rec_file = result["steps"]["recording"].get("output_file", "N/A")
+                print(f"   📝 Test Script: {rec_file}")
+            
+            if "page_object_path" in result:
+                print(f"   📦 Page Object: {result['page_object_path']}")
+            
+            print(f"\n🎯 Project: {result.get('project', 'N/A').upper()}")
+            print(f"🌍 Environment: {result.get('environment', 'N/A').upper()}")
+            
+            print("\n✨ Next Steps:")
+            print("   1. Review your recorded test file")
+            print("   2. Run it: pytest <test_file_path>")
+            print("   3. Customize if needed")
+            print("   4. Integrate into your test suite")
+            
+            print("\n" + "="*80)
+            print("🎉  Happy Testing!")
+            print("="*80 + "\n")
+            
+            return 0
+        else:
+            print("\n" + "="*80)
+            print("❌  RECORDING FAILED")
+            print("="*80)
+            print(f"\n⚠️  Status: {result.get('status', 'Unknown')}")
+            if 'message' in result:
+                print(f"📝 Message: {result['message']}")
+            print()
+            return 1
+            
+    except KeyboardInterrupt:
+        print("\n\n" + "="*80)
+        print("⚠️   RECORDING INTERRUPTED")
+        print("="*80)
+        print("\n👋 Recording stopped by user. Partial files may have been saved.\n")
+        return 1
+    except Exception as e:
+        print("\n" + "="*80)
+        print("❌  ERROR OCCURRED")
+        print("="*80)
+        print(f"\n⚠️  {str(e)}\n")
+        return 1
+
+
+def interactive_recording_for_project(project_id: str, environment: str):
+    """
+    Interactive recording mode with pre-selected project and environment.
+    Called from InteractiveLauncher when user chooses 'Record New Test'.
+    Skips project/environment selection and goes straight to recording config.
+    """
+    print_header()
+    
+    pm = get_project_manager()
+    
+    # Get project config using the pre-selected values
+    project_config = pm.get_project_config(project_id)
+    project_name = project_config.get('name', project_id.title())
+    
+    # Get environment URL
+    env_details = project_config.get('environments', {})
+    env_url = env_details.get(environment, '')
+    if isinstance(env_url, dict):
+        env_url = env_url.get('ui_url', '')
+    
+    print(f"✅ Project: {project_name}")
+    print(f"✅ Environment: {environment.upper()}")
+    print(f"   🔗 URL: {env_url}")
+    
+    # ========================================================================
+    # STEP 1: RECORDING NAME
+    # ========================================================================
+    print_section("STEP 1: NAME YOUR RECORDING", "📝")
+    
+    print("\n💡 Tips for naming:")
+    print("   • Use descriptive names (e.g., login, book_appointment, search_patient)")
+    print("   • Use underscores for spaces (e.g., create_new_booking)")
+    print("   • Keep it concise and meaningful")
+    
+    recording_name = get_text_input("Enter recording name (e.g., login_flow)", "my_test")
+    
+    # Generate filename preview
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    preview_filename = f"test_{project_id}_{recording_name}_{timestamp}.py"
+    
+    print(f"\n✅ Recording name: {recording_name}")
+    print(f"   📄 Will be saved as: {preview_filename}")
+    
+    # ========================================================================
+    # STEP 2: URL INPUT (Optional Override)
+    # ========================================================================
+    print_section("STEP 2: STARTING URL", "🔗")
+    
+    print(f"\n💡 Default URL: {env_url}")
+    
+    use_custom_url = get_yes_no("Do you want to use a different URL?", False)
+    
+    if use_custom_url:
+        custom_url = get_text_input("Enter custom URL", env_url)
+        final_url = custom_url
+        print(f"\n✅ Using custom URL: {final_url}")
+    else:
+        final_url = env_url
+        print(f"\n✅ Using default URL: {final_url}")
+    
+    # ========================================================================
+    # STEP 3: RECORDING OPTIONS
+    # ========================================================================
+    print_section("STEP 3: RECORDING OPTIONS", "⚙️")
+    
+    print("\n💡 Configure your recording preferences:")
+    
+    # Browser selection
+    print("\n🌐 Browser Options:")
+    browsers = ["Chromium (Default - Fast & Reliable)", "Firefox (Alternative)", "WebKit (Safari-like)"]
+    browser_choice = get_user_choice("Select browser", browsers)
+    browser_map = {1: "chromium", 2: "firefox", 3: "webkit"}
+    selected_browser = browser_map[browser_choice]
+    
+    # Mobile device
+    use_mobile = get_yes_no("📱 Record on mobile device (iPhone 12)?", False)
+    
+    # AI refactoring
+    print("\n✨ AI-Powered Features:")
+    use_ai_refactor = get_yes_no("  🤖 Enable AI code refactoring (cleans & improves code)?", True)
+    
+    # Page object generation
+    generate_page_obj = get_yes_no("  📦 Generate Page Object (reusable components)?", True)
+    
+    # Save authentication
+    save_auth = get_yes_no("  🔐 Save authentication state (cookies/storage)?", False)
+    
+    print("\n✅ Options configured!")
+    
+    # ========================================================================
+    # STEP 4: CONFIRMATION & SUMMARY
+    # ========================================================================
+    print_section("STEP 4: CONFIRM & START", "🚀")
+    
+    print("\n📋 RECORDING SUMMARY")
+    print("=" * 80)
+    print(f"  🎯 Project:        {project_name}")
+    print(f"  🌍 Environment:    {environment.upper()}")
+    print(f"  📝 Test Name:      {recording_name}")
+    print(f"  🔗 URL:            {final_url}")
+    print(f"  🌐 Browser:        {selected_browser.title()}")
+    print(f"  📱 Mobile:         {'Yes (iPhone 12)' if use_mobile else 'No (Desktop)'}")
+    print(f"  🤖 AI Refactor:    {'Enabled ✨' if use_ai_refactor else 'Disabled'}")
+    print(f"  📦 Page Object:    {'Yes 📄' if generate_page_obj else 'No'}")
+    print(f"  🔐 Save Auth:      {'Yes 🔒' if save_auth else 'No'}")
+    print(f"\n  💾 Save Location:")
+    print(f"     Test:    recorded_tests/{project_id}/{preview_filename}")
+    print(f"     Page:    pages/{project_id}/{recording_name}_page.py")
+    print("=" * 80)
+    
+    print("\n💡 What will happen:")
+    print("   1. 🌐 Playwright browser will open")
+    print("   2. 👆 You perform your test actions (click, type, navigate)")
+    print("   3. 💾 Recording saves automatically when you close browser")
+    if use_ai_refactor:
+        print("   4. ✨ AI will refactor and improve your code")
+    if generate_page_obj:
+        print("   5. 📦 Page object will be generated for reusability")
+    print("   6. ✅ You're ready to run your test!")
+    
+    confirm = get_yes_no("\n🚀 Ready to start recording?", True)
+    
+    if not confirm:
+        print("\n👋 Recording cancelled. No changes made.")
+        return 0
+    
+    # ========================================================================
+    # STEP 5: START RECORDING
+    # ========================================================================
+    print("\n" + "="*80)
+    print("🎬  STARTING RECORDING...")
+    print("="*80)
+    print("\n⏳ Launching Playwright browser...")
+    print("💡 TIP: Close the browser window when you're done recording\n")
+    
+    # Create workflow
+    workflow = RecordingWorkflow()
+    
+    # Execute recording
+    try:
+        result = workflow.quick_workflow(
+            url=final_url,
+            test_name=recording_name,
+            browser=selected_browser,
+            mobile=use_mobile,
+            auto_refactor=use_ai_refactor,
+            generate_page_object=generate_page_obj,
+            manual_project=project_id,
+            environment=environment
+        )
+        
         if result.get("status") == "success":
             print("\n" + "="*80)
             print("✅  RECORDING COMPLETED SUCCESSFULLY!")

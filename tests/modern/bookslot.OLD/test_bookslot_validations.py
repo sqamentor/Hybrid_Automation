@@ -1,11 +1,11 @@
-"""
+﻿"""
 Test Suite: Bookslot Field Validations
 ======================================
 Focused validation tests for form fields without repeating full booking flow.
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 
 Test Strategy:
 - Test validation rules in isolation

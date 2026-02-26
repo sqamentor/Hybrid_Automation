@@ -1,11 +1,11 @@
-"""
+﻿"""
 Quick Start Script - First Time Setup Helper
 
 This script guides you through the initial setup after installing dependencies.
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 Assisted by: AI Claude (Anthropic)
 """
 

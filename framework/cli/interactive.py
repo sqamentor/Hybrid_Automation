@@ -1,4 +1,4 @@
-"""
+﻿"""
 Interactive CLI Launcher - Modern, User-Friendly Test Execution
 Guides users through project and test selection with beautiful UI
 
@@ -15,8 +15,8 @@ Features:
 - 👤 Non-technical user friendly
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 """
 
 import sys
@@ -274,6 +274,48 @@ class InteractiveLauncher:
                 })
         
         return test_suites
+    
+    def select_action(self) -> Optional[str]:
+        """Interactive action selection: Record or Run"""
+        console.print(f"\n[bold cyan]🎯 What would you like to do?[/bold cyan]\n")
+        
+        choices = [
+            questionary.Choice(
+                title="🏃 Run Test Cases\n   [dim]Execute existing test suites and test files[/dim]",
+                value="run"
+            ),
+            questionary.Choice(
+                title="🎬 Record New Test\n   [dim]Record browser interactions to generate test scripts[/dim]",
+                value="record"
+            ),
+            questionary.Choice(title="⬅️ Back to environment selection", value="back"),
+            questionary.Choice(title="❌ Exit", value="exit")
+        ]
+        
+        selected = questionary.select(
+            "",
+            choices=choices,
+            style=custom_style,
+            use_shortcuts=True
+        ).ask()
+        
+        if selected == "exit" or selected is None:
+            return None
+        
+        return selected
+    
+    def launch_recording(self, project_id: str, environment: str) -> int:
+        """Launch the recording workflow with pre-selected project and environment"""
+        try:
+            from framework.cli.record import interactive_recording_for_project
+            return interactive_recording_for_project(project_id, environment)
+        except ImportError as e:
+            console.print(f"[red]❌ Recording module not available: {e}[/red]")
+            console.print("[yellow]   Make sure framework.cli.record is installed correctly[/yellow]")
+            return 1
+        except Exception as e:
+            console.print(f"[red]❌ Recording failed: {e}[/red]")
+            return 1
     
     def select_test_suite(self, project_id: str) -> Optional[Dict]:
         """Interactive test suite selection"""
@@ -970,7 +1012,32 @@ class InteractiveLauncher:
                 if not environment:
                     continue  # Go back to project selection
                 
-                # Step 3: Select Test Suite
+                # Step 3: Select Action (Record or Run)
+                action = self.select_action()
+                
+                if action is None:
+                    console.print("\n[yellow]👋 Goodbye![/yellow]\n")
+                    return 0
+                
+                if action == "back":
+                    continue  # Go back to project/environment selection
+                
+                if action == "record":
+                    # Launch recording workflow
+                    self.launch_recording(project, environment)
+                    
+                    # After recording, ask to continue
+                    run_more = Confirm.ask(
+                        "[bold cyan]Would you like to continue?[/bold cyan]",
+                        default=True
+                    )
+                    if not run_more:
+                        console.print("\n[yellow]👋 Goodbye![/yellow]\n")
+                        return 0
+                    continue  # Go back to action selection
+                
+                # action == "run" → proceed to test suite selection
+                # Step 4: Select Test Suite
                 while True:
                     test_suite = self.select_test_suite(project)
                     

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Human Behavior Simulation Module
 
 Production-ready human-like interaction simulation for automation testing.
@@ -15,8 +15,8 @@ Features:
 - Allure reporting integration
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 """
 
 import logging

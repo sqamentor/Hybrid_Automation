@@ -1,4 +1,4 @@
-"""
+﻿"""
 Smart Actions - Context-Aware Automation Layer
 ===============================================
 Reusable intelligent action wrappers that automatically apply
@@ -14,8 +14,8 @@ Usage:
     actions.click(element, "Button Name")
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 """
 
 import random

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Test Dynamic HTML Report Naming - Verification Script
 ======================================================
 
@@ -10,7 +10,7 @@ Expected Behavior:
 - Custom filenames via --html=custom.html are respected
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
+Email: lokendra.singh@centerforvein.com
 """
 
 import sys

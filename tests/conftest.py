@@ -1,11 +1,11 @@
-"""
+﻿"""
 Test Configuration - pytest conftest.py
 
 Central configuration for pytest, fixtures, and hooks.
 Includes comprehensive audit trail logging for compliance.
 
-Author: Lokendra Singh (qa.lokendra@gmail.com)
-Website: www.sqamentor.com
+Author: Lokendra Singh (lokendra.singh@centerforvein.com)
+Website: www.centerforvein.com
 Assisted by: AI Claude
 """
 

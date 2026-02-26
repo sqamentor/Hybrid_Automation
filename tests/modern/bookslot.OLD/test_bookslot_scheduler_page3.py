@@ -1,11 +1,11 @@
-"""
+﻿"""
 Test Suite: Scheduler Page
 ===========================
 Tests for the appointment scheduler/calendar page.
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 
 Test Coverage:
 - Scheduler component loads

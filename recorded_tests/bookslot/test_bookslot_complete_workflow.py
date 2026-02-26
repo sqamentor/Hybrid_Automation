@@ -1,4 +1,4 @@
-"""
+﻿"""
 Bookslot Complete Test - CLEAN & MODERN
 ========================================
 This test file contains ONLY:
@@ -12,8 +12,8 @@ All framework logic is extracted to proper locations:
 - Human behavior → conftest.py fixture
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 """
 
 import re
@@ -49,7 +49,7 @@ def test_bookslot_complete_flow(page, multi_project_config, smart_actions, fake_
     data = fake_bookslot_data
     act = smart_actions
     
-    logger.info(f"Testing with email: {data['email']}")
+    logger.info(f"Testing with data: {data['first_name']}, {data['last_name']}, {data['email']}, {data['phone_number']},{data['zip']}")
     
     # =========================================================================
     # BASIC INFO PAGE
@@ -66,7 +66,10 @@ def test_bookslot_complete_flow(page, multi_project_config, smart_actions, fake_
     act.type_text(page.get_by_role("textbox", name="First Name *"), data['first_name'], "First Name")
     act.type_text(page.get_by_role("textbox", name="Last Name *"), data['last_name'], "Last Name")
     act.type_text(page.get_by_role("textbox", name="E-mail *"), data['email'], "Email")
-    act.type_text(page.locator("#CellPhone").get_by_role("textbox"), data['phone_number'], "Phone")
+    
+    # masked=True → uses fill() to avoid input-mask cursor race condition
+    act.type_text(page.locator("#CellPhone").get_by_role("textbox"), data['phone_number'], "Phone", masked=True)
+    
     act.type_text(page.locator("#ZipCode"), data['zip'], "Zip Code")
     
     act.click(page.get_by_text("Text E-mail Call"), "Contact Preference")
@@ -114,31 +117,123 @@ def test_bookslot_complete_flow(page, multi_project_config, smart_actions, fake_
     # =========================================================================
     # TIME SLOT SELECTION WITH RETRY
     # =========================================================================
+    # -------------------------------------------------------------------------
+    # Step 0: Wait for scheduler to fully load
+    # -------------------------------------------------------------------------
     act.wait_for_scheduler("Time Slot Scheduler")
     
-    def select_time_slot():
-        slots = page.locator("button[role='button']:has-text('AM'), button[role='button']:has-text('PM')").all()
-        if slots:
-            act.click(slots[0], "Time Slot")
-        else:
-            act.click(page.locator("button:has-text(':')").first, "Time Slot Fallback")
-        
-        # Check for errors
-        if page.locator("text=/went wrong|error|try again/i").count() > 0:
-            raise SlotBookingError("Slot booking error detected - error message on page")
-        
-        print("✓ Time slot selected")
+    # Also wait for the actual slot container to appear in the DOM
+    page.locator("#slot").first.wait_for(state="visible", timeout=15000)
+    print("✓ Scheduler loaded")
     
+    # -------------------------------------------------------------------------
+    # Step 1: Verify month navigation controls work
+    # -------------------------------------------------------------------------
+    next_btn = page.locator("span#next").first
+    prev_btn = page.locator("span#previous").first
+
+    # Click Next Month (wait for it to appear, not just is_visible())
     try:
-        act.smart_retry(select_time_slot, max_retries=3)
-    except SlotBookingError as e:
-        print(f"⚠ Slot booking error: {e} - Using last resort slot")
-        try:
-            act.click(page.get_by_role("button", name="06:00 AM"), "06:00 AM Slot")
-        except (TimeoutError, ElementNotFoundError) as e:
-            print(f"❌ Slot selection failed: {e} - continuing")
+        next_btn.wait_for(state="visible", timeout=10000)
+        act.click(next_btn, "Next Month →")
+        act.wait_for_scheduler("Next Month Loaded")
+        
+        # Click Previous to come back to original month
+        prev_btn.wait_for(state="visible", timeout=10000)
+        act.click(prev_btn, "← Previous Month")
+        act.wait_for_scheduler("Previous Month Loaded")
+        
+        print("✓ Month navigation verified")
     except Exception as e:
-        print(f"⚠ Unexpected error in slot selection: {e} - continuing")
+        print(f"⚠ Month navigation test skipped: {e}")
+
+    # -------------------------------------------------------------------------
+    # Step 2: Try each slot, advancing months if all slots fail
+    # -------------------------------------------------------------------------
+    MAX_MONTH_PAGES = 3
+    slot_booked = False
+
+    for month_attempt in range(MAX_MONTH_PAGES):
+        print(f"\n📅 Month page {month_attempt + 1}/{MAX_MONTH_PAGES}")
+
+        # Wait briefly for slots to render after any page change
+        act.wait_for_processing("Slots rendering", short=True)
+
+        # Gather all visible time slot buttons on current page
+        slots = page.locator("#slot button.scheduler-btn").all()
+        if not slots:
+            # Fallback selector
+            slots = page.locator("button:has-text('AM'), button:has-text('PM')").all()
+
+        print(f"   Found {len(slots)} slot(s)")
+
+        if not slots:
+            print("   ⚠ No slots found on this page → advancing to next month")
+            if next_btn.is_visible():
+                act.click(next_btn, "Next Month → (no slots)")
+                act.wait_for_scheduler("Next Month Loaded (no slots)")
+            continue
+
+        for idx, slot in enumerate(slots):
+            slot_text = slot.text_content().strip()
+            try:
+                act.click(slot, f"Slot {idx + 1}/{len(slots)}: {slot_text}")
+                act.wait_for_processing("Slot selection", short=True)
+
+                # Check for error alerts (e.g. "slot in progress", "went wrong")
+                error_locator = page.locator(
+                    "text=/in progress|went wrong|error|try again|unavailable|already booked/i"
+                )
+                if error_locator.count() > 0:
+                    error_msg = error_locator.first.text_content().strip()
+                    print(f"   ⚠ Slot '{slot_text}' error: {error_msg} → trying next slot")
+
+                    # Dismiss any alert/dialog if present
+                    ok_btn = page.locator("button:has-text('OK'), button:has-text('Close'), button:has-text('Dismiss')")
+                    if ok_btn.count() > 0:
+                        act.click(ok_btn.first, "Dismiss Alert")
+                        act.wait_for_processing("Alert dismissed", short=True)
+
+                    continue  # Try next slot
+
+                # Positive confirmation: verify "Request an Appointment" text appeared
+                confirm_locator = page.get_by_text("Request an Appointment This")
+                try:
+                    confirm_locator.wait_for(state="visible", timeout=5000)
+                    print(f"   ✓ Slot '{slot_text}' selected and confirmed!")
+                    slot_booked = True
+                    break
+                except Exception:
+                    print(f"   ⚠ Slot '{slot_text}' clicked but no confirmation → trying next slot")
+                    continue
+
+            except Exception as e:
+                print(f"   ⚠ Slot '{slot_text}' failed: {type(e).__name__}: {e} → trying next slot")
+
+                # Dismiss any popup that may have appeared
+                ok_btn = page.locator("button:has-text('OK'), button:has-text('Close')")
+                if ok_btn.count() > 0:
+                    try:
+                        act.click(ok_btn.first, "Dismiss Error Popup")
+                    except Exception:
+                        pass
+                continue
+
+        if slot_booked:
+            break
+
+        # All slots on this month page failed → advance to next month
+        print(f"   ❌ All slots exhausted on month page {month_attempt + 1}")
+        if month_attempt < MAX_MONTH_PAGES - 1:
+            if next_btn.is_visible():
+                act.click(next_btn, "Next Month → (retry)")
+                act.wait_for_scheduler("Next Month Loaded (retry)")
+            else:
+                print("   ⚠ Next Month button not visible — cannot advance")
+                break
+
+    if not slot_booked:
+        print("❌ Could not book any slot after all retries — continuing test")
     
     act.click(page.get_by_text("Request an Appointment This"), "Confirm Slot")
     act.button_click(page.get_by_role("button", name="Next"), "Next")

@@ -1,4 +1,4 @@
-# Interactive CLI - Modern Test Execution Guide
+﻿# Interactive CLI - Modern Test Execution Guide
 
 ## 🎯 Overview
 
@@ -567,8 +567,8 @@ Planned features for interactive CLI:
    - Recent terminal output
 
 4. **Contact Support**:
-   - Email: qa.lokendra@gmail.com
-   - Website: www.sqamentor.com
+   - Email: lokendra.singh@centerforvein.com
+   - Website: www.centerforvein.com
 
 ---
 

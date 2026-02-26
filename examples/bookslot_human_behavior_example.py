@@ -1,10 +1,10 @@
-"""
+﻿"""
 BookSlot Human Behavior Integration Example
 Demonstrates realistic form filling with human-like delays and interactions
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 
 Purpose:
     Show how to use human behavior simulation in BookSlot automation

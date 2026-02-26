@@ -1,11 +1,11 @@
-"""
+﻿"""
 Test Suite: Basic Info Page
 ============================
 Tests for the Basic Info page (entry point of bookslot flow).
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 
 Test Coverage:
 - First Name field validation

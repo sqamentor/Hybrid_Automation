@@ -1,4 +1,4 @@
-"""
+﻿"""
 Comprehensive Demo Test - ALL Framework Features
 ================================================
 
@@ -23,8 +23,8 @@ This test demonstrates and validates that HTML reports capture ALL framework cap
 18. ✅ Network HAR files
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 """
 
 import os

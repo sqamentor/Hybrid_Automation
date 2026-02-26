@@ -1,4 +1,4 @@
-# 🚀 Enterprise Hybrid Automation Framework
+﻿# 🚀 Enterprise Hybrid Automation Framework
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -914,8 +914,8 @@ Comprehensive documentation is available in the Framework-Knowledge-Center:
 ## 📞 Support & Contact
 
 - **Author:** Lokendra Singh
-- **Email:** qa.lokendra@gmail.com
-- **Website:** [www.sqamentor.com](https://www.sqamentor.com)
+- **Email:** lokendra.singh@centerforvein.com
+- **Website:** [www.centerforvein.com](https://www.centerforvein.com)
 - **GitHub:** [@sqamentor](https://github.com/sqamentor)
 
 ### Getting Help

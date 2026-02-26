@@ -1,8 +1,8 @@
-# Dynamic HTML Report Naming System - Implementation Summary
+﻿# Dynamic HTML Report Naming System - Implementation Summary
 
 **Date:** February 19, 2026  
 **Author:** Lokendra Singh  
-**Email:** qa.lokendra@gmail.com  
+**Email:** lokendra.singh@centerforvein.com  
 
 ---
 
@@ -425,8 +425,8 @@ python test_dynamic_reports.py
 ## 📞 Support
 
 **Author:** Lokendra Singh  
-**Email:** qa.lokendra@gmail.com  
-**Website:** www.sqamentor.com  
+**Email:** lokendra.singh@centerforvein.com  
+**Website:** www.centerforvein.com  
 
 For questions or issues with the dynamic report naming system, please reach out.
 

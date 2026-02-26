@@ -1,11 +1,11 @@
-"""
+﻿"""
 Test Suite: Insurance Page
 ===========================
 Tests for the Insurance Information page.
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 
 Test Coverage:
 - Member name validation

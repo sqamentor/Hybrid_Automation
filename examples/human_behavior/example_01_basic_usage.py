@@ -1,11 +1,11 @@
-"""
+﻿"""
 Example 1: Basic Human Behavior with Pytest Fixture
 
 This example demonstrates the simplest way to use human behavior
 simulation with the pytest fixture.
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
+Email: lokendra.singh@centerforvein.com
 """
 
 import pytest

@@ -1,10 +1,10 @@
-"""
+﻿"""
 Root-level pytest configuration
 This conftest.py registers command-line options for all tests in the project
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 """
 
 import pytest

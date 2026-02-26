@@ -1,10 +1,10 @@
-"""
+﻿"""
 Example 4: Advanced Usage - E-commerce Scenario
 
 Realistic e-commerce flow with comprehensive human behavior simulation.
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
+Email: lokendra.singh@centerforvein.com
 """
 
 import pytest

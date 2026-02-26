@@ -1,4 +1,4 @@
-# 🎯 ENTERPRISE LOGGING SYSTEM - COMPREHENSIVE GUIDE
+﻿# 🎯 ENTERPRISE LOGGING SYSTEM - COMPREHENSIVE GUIDE
 
 **Last Updated:** February 18, 2026  
 **Project:** Hybrid Test Automation Framework  
@@ -481,7 +481,7 @@ SENSITIVE_PATTERNS = [
 **Examples:**
 - `john.doe@company.com` → `j***@c*****com`
 - `admin@test.org` → `a***@t*****org`
-- `qa.lokendra@gmail.com` → `q***@g*****com`
+- `lokendra.singh@centerforvein.com` → `q***@g*****com`
 
 **Result:** ✅ GDPR/HIPAA compliant PII masking (minimal exposure)
 
@@ -1403,8 +1403,8 @@ The system meets all enterprise requirements for:
 
 ### Contact
 - **Author:** Lokendra Singh
-- **Email:** qa.lokendra@gmail.com
-- **Website:** www.sqamentor.com
+- **Email:** lokendra.singh@centerforvein.com
+- **Website:** www.centerforvein.com
 - **Repository:** Hybrid_Automation
 
 ### Maintenance Schedule

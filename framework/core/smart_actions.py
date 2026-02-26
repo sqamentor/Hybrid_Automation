@@ -1,4 +1,4 @@
-"""
+﻿"""
 Smart Actions - Context-Aware Automation Layer
 ===============================================
 Reusable intelligent action wrappers that automatically apply
@@ -14,8 +14,8 @@ Usage:
     actions.click(element, "Button Name")
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 """
 
 import random
@@ -86,7 +86,7 @@ class SmartActions:
         audit_logger.log_ui_action(action="click", element=description)
 
     @log_function(log_args=True, log_timing=True, mask_sensitive=True)
-    def type_text(self, element: Locator, text: str, field_name: str = ""):
+    def type_text(self, element: Locator, text: str, field_name: str = "", masked: bool = False):
         """
         Type text with context-aware speed
 
@@ -98,6 +98,14 @@ class SmartActions:
           * Dates: 0.10-0.22s per char
           * Text: 0.10-0.23s per char
         - 0.2-0.5s after (review)
+
+        Args:
+            element: Playwright Locator for the input field
+            text: Text to type into the field
+            field_name: Description for logging
+            masked: Set True for masked inputs (phone, SSN, credit card).
+                     Uses click+fill instead of press_sequentially to avoid
+                     race conditions with input mask cursor repositioning.
         """
         self._delay(0.3, 0.6, f"Before type: {field_name}")
 
@@ -112,7 +120,14 @@ class SmartActions:
             time.sleep(0.5)
             element.wait_for(state="visible", timeout=10000)
 
-        if self.enable_human:
+        if masked:
+            # Masked inputs (phone, SSN, etc.) have JS formatters that reposition
+            # the cursor after each keystroke. press_sequentially causes digits to
+            # land out of order. Use click + fill to set the value atomically.
+            element.click()
+            element.fill(str(text))
+            logger.debug(f"type_text: used fill() for masked field '{field_name}'")
+        elif self.enable_human:
             text_str = str(text)
             is_numeric = text_str.replace("-", "").replace(" ", "").replace(".", "").isdigit()
             is_email = "@" in text_str

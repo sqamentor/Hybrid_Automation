@@ -1,10 +1,10 @@
-"""
+﻿"""
 BookSlot Page Objects Module
 Provides page objects for the complete BookSlot appointment booking workflow
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 
 Project: BookSlot
 Workflow: 6-step appointment booking process

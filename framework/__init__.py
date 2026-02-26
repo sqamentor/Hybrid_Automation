@@ -1,4 +1,4 @@
-"""Framework Core Module
+﻿"""Framework Core Module
 
 Enterprise-Grade Hybrid Automation Framework
 
@@ -12,8 +12,8 @@ Quick Start:
     >>> engine = UIFactory.create_engine("playwright")
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 Assisted by: AI Claude (Anthropic)
 """
 
@@ -21,8 +21,8 @@ from typing import List
 
 __version__ = "1.0.0"
 __author__ = "Lokendra Singh"
-__email__ = "qa.lokendra@gmail.com"
-__website__ = "www.sqamentor.com"
+__email__ = "lokendra.singh@centerforvein.com"
+__website__ = "www.centerforvein.com"
 __credits__ = "Assisted by AI Claude (Anthropic)"
 
 # Public API - Export commonly used classes and functions

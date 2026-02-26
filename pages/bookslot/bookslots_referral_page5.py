@@ -1,10 +1,10 @@
-"""
+﻿"""
 Page Object: Bookslot Referral Source Page
 Represents what a user can do on the Referral page
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 
 Project: BookSlot
 Module: Referral Source (Marketing Attribution)

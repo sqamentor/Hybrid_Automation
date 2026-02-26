@@ -1,9 +1,9 @@
-"""
+﻿"""
 Enhanced Report Demo Test
 =========================
 
-Author: Lokendra Singh (qa.lokendra@gmail.com)
-Website: www.sqamentor.com
+Author: Lokendra Singh (lokendra.singh@centerforvein.com)
+Website: www.centerforvein.com
 Assisted by: AI Claude
 
 Description:

@@ -1,11 +1,11 @@
-"""
+﻿"""
 Recording CLI - Command Line Interface for Test Recording Workflow
 PROJECT-AWARE recording with automatic organization and environment detection
 INTERACTIVE MODE with beautiful AI-powered interface
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 Assisted by: AI Claude (Anthropic)
 """
 

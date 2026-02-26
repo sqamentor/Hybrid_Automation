@@ -1,11 +1,11 @@
-"""
+﻿"""
 Validation Script for Human Behavior Implementation
 
 This script validates that the human behavior simulation module
 has been properly integrated into the framework.
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
+Email: lokendra.singh@centerforvein.com
 """
 
 import sys
@@ -327,7 +327,7 @@ def main():
     """Main validation function"""
     print("\n" + "="*70)
     print("  HUMAN BEHAVIOR SIMULATION - VALIDATION SCRIPT")
-    print("  Author: Lokendra Singh (qa.lokendra@gmail.com)")
+    print("  Author: Lokendra Singh (lokendra.singh@centerforvein.com)")
     print("="*70)
     
     results = {}

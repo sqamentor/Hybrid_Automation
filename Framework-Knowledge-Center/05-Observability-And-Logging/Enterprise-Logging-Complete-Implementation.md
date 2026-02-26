@@ -1,4 +1,4 @@
-# ENTERPRISE LOGGING - COMPLETE IMPLEMENTATION GUIDE
+﻿# ENTERPRISE LOGGING - COMPLETE IMPLEMENTATION GUIDE
 **Date:** February 18, 2026  
 **Status:** ✅ **PRODUCTION-READY & COMPREHENSIVE**  
 
@@ -586,8 +586,8 @@ alerts:
 ## 📞 SUPPORT
 
 For questions or issues:
-- **Email:** qa.lokendra@gmail.com
-- **Website:** www.sqamentor.com
+- **Email:** lokendra.singh@centerforvein.com
+- **Website:** www.centerforvein.com
 - **Documentation:** Framework-Knowledge-Center/05-Observability-And-Logging/
 
 ---

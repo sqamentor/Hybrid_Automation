@@ -1,4 +1,4 @@
-"""
+﻿"""
 CLI Utilities - Context Detection and Helper Functions
 Provides context-aware functionality for multi-project execution
 
@@ -9,8 +9,8 @@ Features:
 - Context information gathering
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 """
 
 import os

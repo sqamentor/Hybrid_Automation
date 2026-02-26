@@ -1,9 +1,9 @@
-"""
+﻿"""
 Enhanced HTML Report Configuration
 ====================================
 
-Author: Lokendra Singh (qa.lokendra@gmail.com)
-Website: www.sqamentor.com
+Author: Lokendra Singh (lokendra.singh@centerforvein.com)
+Website: www.centerforvein.com
 Assisted by: AI Claude
 
 Description:
@@ -389,8 +389,8 @@ def pytest_html_results_summary(prefix, summary, postfix):
             <h3 style="margin-top: 0;">📊 Enhanced Test Report</h3>
             <p><strong>Generated:</strong> {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
             <p><strong>Framework:</strong> Enterprise-Grade Hybrid Automation Framework</p>
-            <p><strong>Author:</strong> Lokendra Singh (qa.lokendra@gmail.com)</p>
-            <p><strong>Website:</strong> www.sqamentor.com</p>
+            <p><strong>Author:</strong> Lokendra Singh (lokendra.singh@centerforvein.com)</p>
+            <p><strong>Website:</strong> www.centerforvein.com</p>
             <p><strong>Features:</strong> Screenshots, API/DB Logging, Assertions, Step-by-Step Logs</p>
         </div>
     """))

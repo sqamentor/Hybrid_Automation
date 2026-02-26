@@ -1,9 +1,9 @@
-"""
+﻿"""
 COMPREHENSIVE Enhanced HTML Report System
 ==========================================
 
-Author: Lokendra Singh (qa.lokendra@gmail.com)
-Website: www.sqamentor.com
+Author: Lokendra Singh (lokendra.singh@centerforvein.com)
+Website: www.centerforvein.com
 Assisted by: AI Claude
 
 Description:
@@ -1266,8 +1266,8 @@ def pytest_html_results_summary(prefix, summary, postfix):
             <h2 style="margin-top: 0; color: white;">🚀 Comprehensive Test Execution Report</h2>
             <p><strong>Generated:</strong> {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
             <p><strong>Framework:</strong> Enterprise-Grade Hybrid Automation Framework</p>
-            <p><strong>Author:</strong> Lokendra Singh (qa.lokendra@gmail.com)</p>
-            <p><strong>Website:</strong> www.sqamentor.com</p>
+            <p><strong>Author:</strong> Lokendra Singh (lokendra.singh@centerforvein.com)</p>
+            <p><strong>Website:</strong> www.centerforvein.com</p>
             <p><strong>Report Coverage:</strong> Performance | Visual | Accessibility | Security | Mobile | AI/ML | WebSockets | API/DB | Flows</p>
             <p style="font-size: 12px; margin-top: 15px; opacity: 0.9;">
                 This comprehensive report captures 95% of framework capabilities including performance metrics, 

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Interactive POM Test Runner CLI - Page Object Model Test Execution
 Dynamic, intelligent, and failure-proof test execution for POM-based tests
 
@@ -13,8 +13,8 @@ Features:
 - Parallel execution options
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 """
 
 import sys

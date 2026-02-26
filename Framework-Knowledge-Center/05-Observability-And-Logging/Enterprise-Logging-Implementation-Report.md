@@ -1,4 +1,4 @@
-# Enterprise Logging Implementation Report
+﻿# Enterprise Logging Implementation Report
 
 **Date:** February 18, 2026  
 **Author:** Lokendra Singh  
@@ -588,4 +588,4 @@ python -m py_compile pages/**/*.py framework/**/*.py
 **Report Generated:** February 18, 2026  
 **Last Updated:** February 18, 2026  
 **Version:** 1.0  
-**Author:** Lokendra Singh (qa.lokendra@gmail.com)
+**Author:** Lokendra Singh (lokendra.singh@centerforvein.com)

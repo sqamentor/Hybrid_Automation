@@ -1,4 +1,4 @@
-# 📚 Framework Knowledge Center - Complete Documentation Index
+﻿# 📚 Framework Knowledge Center - Complete Documentation Index
 
 **Welcome to the Enterprise Hybrid Automation Framework Knowledge Center**
 
@@ -803,8 +803,8 @@ This comprehensive documentation covers every aspect of the framework, from gett
 - **Documentation** - Check this Knowledge Center first
 - **GitHub Issues** - Report bugs or request features
 - **GitHub Discussions** - Ask questions, share ideas
-- **Email** - qa.lokendra@gmail.com
-- **Website** - [www.sqamentor.com](https://www.sqamentor.com)
+- **Email** - lokendra.singh@centerforvein.com
+- **Website** - [www.centerforvein.com](https://www.centerforvein.com)
 
 ---
 

@@ -1,11 +1,11 @@
-"""
+﻿"""
 Bookslot Navigation Helper
 ==========================
 Helper functions to navigate to specific pages in the bookslot flow using Page Objects.
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 
 Purpose:
 - Reusable navigation logic to reach any page in the bookslot flow

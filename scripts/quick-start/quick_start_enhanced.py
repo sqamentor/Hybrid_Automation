@@ -1,4 +1,4 @@
-"""
+﻿"""
 Quick Start: Enhanced Framework Features
 =========================================
 
@@ -18,8 +18,8 @@ Usage:
     python quick_start_enhanced.py
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 Assisted by: AI Claude (Anthropic)
 """
 

@@ -1,10 +1,10 @@
-"""
+﻿"""
 Page Object: Bookslot Event Type Selection Page
 Represents what a user can do on the Event Type page
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 
 Project: BookSlot
 Module: Event Type Selection (Appointment Type) & Patient Type Selection

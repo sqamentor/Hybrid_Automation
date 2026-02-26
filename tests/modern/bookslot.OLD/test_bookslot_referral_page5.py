@@ -1,11 +1,11 @@
-"""
+﻿"""
 Test Suite: Referral Page
 ==========================
 Tests for the Referral Source page (marketing attribution).
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 
 Test Coverage:
 - Page load verification

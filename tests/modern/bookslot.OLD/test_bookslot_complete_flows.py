@@ -1,11 +1,11 @@
-"""
+﻿"""
 Test Suite: Bookslot Complete End-to-End Flows
 ==============================================
 Comprehensive end-to-end tests covering complete appointment booking journeys.
 
 Author: Lokendra Singh
-Email: qa.lokendra@gmail.com
-Website: www.sqamentor.com
+Email: lokendra.singh@centerforvein.com
+Website: www.centerforvein.com
 
 BOOKING FLOW SEQUENCE:
 ======================
